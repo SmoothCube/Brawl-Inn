@@ -22,13 +22,14 @@ void APlayerCharacter_B::BeginPlay()
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
-void APlayerCharacter_B::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void APlayerCharacter_B::MoveUp(float Value)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
+void APlayerCharacter_B::MoveRight(float Value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("[APlayerController_B::MoveRight] Value: %f"), Value);
+}
