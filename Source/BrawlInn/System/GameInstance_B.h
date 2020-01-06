@@ -13,5 +13,5 @@ UCLASS()
 class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
 };
