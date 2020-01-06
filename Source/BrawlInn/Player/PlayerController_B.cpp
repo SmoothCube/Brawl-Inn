@@ -5,6 +5,7 @@
 #include "Player/PlayerCharacter_B.h"
 void APlayerController_B::BeginPlay()
 {
+	SetInputMode(FInputModeGameOnly());
 	PlayerCharacter = Cast<APlayerCharacter_B>(GetPawn());
 }
 

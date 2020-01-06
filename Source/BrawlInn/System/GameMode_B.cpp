@@ -27,6 +27,7 @@ void AGameMode_B::BeginPlay()
 	{
 		UGameplayStatics::CreatePlayer(GetWorld());
 		CurrentPlayer++;
+
 	}
 
 	/// Bind delegates
