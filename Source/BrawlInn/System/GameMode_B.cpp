@@ -44,6 +44,7 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController)
 		Pawn->Destroy();
 		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(PlayerToSpawn, GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
+		PlayerController->PlayerCharacter = Character;
 		if (GameCamera)
 			PlayerController->SetViewTargetWithBlend(GameCamera);
 	}
@@ -57,6 +58,7 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 		Pawn->Destroy();
 		AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
+		PlayerController->PlayerCharacter = nullptr;
 		if (GameCamera)
 			PlayerController->SetViewTargetWithBlend(GameCamera);
 	}

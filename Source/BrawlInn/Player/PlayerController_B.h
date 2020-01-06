@@ -7,7 +7,7 @@
 #include "PlayerController_B.generated.h"
 
 /**
- * 
+ *
  */
 
 class APlayerCharacter_B;
@@ -18,9 +18,10 @@ class BRAWLINN_API APlayerController_B : public APlayerController
 	GENERATED_BODY()
 
 public:
-		virtual void BeginPlay() override;
-		virtual void SetupInputComponent() override;
+	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
 
+	APlayerCharacter_B* PlayerCharacter = nullptr;
 private:
 
 	void MoveUp(float Value);
@@ -28,5 +29,4 @@ private:
 	void RotateX(float Value);
 	void RotateY(float Value);
 
-	APlayerCharacter_B* PlayerCharacter = nullptr;
 };
