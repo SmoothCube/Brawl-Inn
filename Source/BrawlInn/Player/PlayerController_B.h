@@ -25,6 +25,8 @@ private:
 
 	void MoveUp(float Value);
 	void MoveRight(float Value);
+	void RotateX(float Value);
+	void RotateY(float Value);
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 };

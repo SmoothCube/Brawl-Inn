@@ -23,7 +23,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void MoveUp(float Value);
-	void MoveRight(float Value);
+	FVector InputVector = FVector::ZeroVector;
+	FVector RotationVector = FVector::ZeroVector;
+
+protected:
+	UPROPERTY(EditAnywhere)
+	float MaxSpeed = 1000.f;
 
 };

@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter_B.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 APlayerCharacter_B::APlayerCharacter_B()
@@ -15,6 +16,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetActorRelativeRotation(FRotator(0,90,0));
 	
 }
 
@@ -22,14 +25,12 @@ void APlayerCharacter_B::BeginPlay()
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
 
-void APlayerCharacter_B::MoveUp(float Value)
-{
 
-}
+	InputVector.Normalize();
+	GetMovementComponent()->AddInputVector(InputVector*MaxSpeed);
 
-void APlayerCharacter_B::MoveRight(float Value)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("[APlayerController_B::MoveRight] Value: %f"), Value);
+	
+	SetActorRotation(RotationVector.Rotation());
+
 }

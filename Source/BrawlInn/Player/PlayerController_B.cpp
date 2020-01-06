@@ -17,6 +17,9 @@ void APlayerController_B::SetupInputComponent()
 		// Movement bindings
 		InputComponent->BindAxis("MoveUp", this, &APlayerController_B::MoveUp);
 		InputComponent->BindAxis("MoveRight", this, &APlayerController_B::MoveRight);
+
+		InputComponent->BindAxis("RotateX", this, &APlayerController_B::RotateX);
+		InputComponent->BindAxis("RotateY", this, &APlayerController_B::RotateY);
 	}
 }
 
@@ -24,13 +27,28 @@ void APlayerController_B::MoveUp(float Value)
 {
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->MoveUp(Value);
+		PlayerCharacter->InputVector.X = Value;
 	}
 }
 void APlayerController_B::MoveRight(float Value)
 {
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->MoveRight(Value);
+		PlayerCharacter->InputVector.Y = Value;
+	}
+}
+
+void APlayerController_B::RotateX(float Value)
+{
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->RotationVector.X = Value;
+	}
+}
+void APlayerController_B::RotateY(float Value)
+{
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->RotationVector.Y = Value;
 	}
 }
