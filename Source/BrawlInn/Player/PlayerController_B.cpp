@@ -21,6 +21,8 @@ void APlayerController_B::SetupInputComponent()
 
 		InputComponent->BindAxis("RotateX", this, &APlayerController_B::RotateX);
 		InputComponent->BindAxis("RotateY", this, &APlayerController_B::RotateY);
+
+		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 	}
 }
 
@@ -59,4 +61,10 @@ void APlayerController_B::RotateY(float Value)
 	{
 		PlayerCharacter->RotationVector.Y = Value;
 	}
+}
+
+void APlayerController_B::PunchButtonPressed()
+{
+	if(PlayerCharacter)
+		PlayerCharacter->PunchButtonPressed();
 }

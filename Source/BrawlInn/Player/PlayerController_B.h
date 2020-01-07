@@ -31,4 +31,5 @@ private:
 	void RotateX(float Value);
 	void RotateY(float Value);
 
+	void PunchButtonPressed();
 };
