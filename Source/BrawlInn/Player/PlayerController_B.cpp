@@ -24,6 +24,13 @@ void APlayerController_B::SetupInputComponent()
 	}
 }
 
+bool APlayerController_B::HasValidCharacter()
+{
+	if (PlayerCharacter)
+			return true;
+	return false;
+}
+
 void APlayerController_B::MoveUp(float Value)
 {
 	if (PlayerCharacter)
