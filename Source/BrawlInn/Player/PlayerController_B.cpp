@@ -9,8 +9,9 @@
 
 void APlayerController_B::BeginPlay()
 {
+	Super::BeginPlay();
+
 	SetInputMode(FInputModeGameOnly());
-	PlayerCharacter = Cast<APlayerCharacter_B>(GetPawn());
 }
 
 void APlayerController_B::SetupInputComponent()
