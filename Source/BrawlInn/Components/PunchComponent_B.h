@@ -19,6 +19,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsPunching();
 
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -33,7 +36,21 @@ public:
 	void PunchStart();
 
 	UFUNCTION(BlueprintCallable)
-		void PunchEnd();
-		
+	void PunchEnd();
+	
+	void PunchHit(APlayerCharacter_B* OtherPlayer);
+
+	void GetPunched(FVector InPunchStrength);
+
 	bool bIsPunching = false;
+
+	bool bHasHit = false;
+
+	float PunchHitVelocityDamper = 0.3f;
+
+	float MinPunchStrengthToFall = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float BasePunchStrength = 2500.f;
+
 };

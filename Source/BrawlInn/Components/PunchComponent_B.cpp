@@ -2,7 +2,12 @@
 
 
 #include "PunchComponent_B.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Player/PlayerCharacter_B.h"
+#include "Components/SkeletalMeshComponent.h"
+
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
 {
@@ -20,7 +25,6 @@ void UPunchComponent_B::BeginPlay()
 	
 }
 
-
 // Called every frame
 void UPunchComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -30,16 +34,76 @@ void UPunchComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UPunchComponent_B::PunchStart()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::PunchStart]"));
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
+	
+	//Dash Logic
+	float f = FVector::DotProduct(Player->PrevRotationVector.GetSafeNormal(), Player->GetCharacterMovement()->Velocity.GetSafeNormal());
+	Player->GetCharacterMovement()->Velocity = Player->PrevRotationVector * Player->GetCharacterMovement()->Velocity.Size()* 5; // *DashLengthCurve->GetFloatValue(f);
+	
+	if (Player->GetPunchSphere())
+		Player->GetPunchSphere()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No PunchSphere found for player !"), *GetNameSafe(Player));
 }
 
 void UPunchComponent_B::PunchEnd()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::PunchEnd]"));
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+
+	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd] Player Punch End: %s"), *GetNameSafe(this));
+	Player->GetPunchSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Player->GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(1000.f);
 	bIsPunching = false;
+}
+
+void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s"), *GetNameSafe(this));
+	if (!OtherPlayer) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
+	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+
+	//no get punched?
+
+	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity());
+	Player->CurrentFallTime = 0.f;
+	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+	bHasHit = true;
+	
 }
 
 bool UPunchComponent_B::GetIsPunching()
 {
 	return bIsPunching;
+}
+
+void UPunchComponent_B::GetPunched(FVector InPunchStrength)
+{
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+	float strength = InPunchStrength.Size();
+	if (strength > MinPunchStrengthToFall)
+	{
+		PunchEnd();
+		Player->Fall();
+		Player->GetMesh()->AddForce(InPunchStrength * BasePunchStrength, "ProtoPlayer_BIND_Head_JNT_center");
+	}
+	else
+	{
+		Player->GetMovementComponent()->Velocity = InPunchStrength;
+		//Player->FallVector = InPunchStrength;
+	}
+}
+
+void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+	APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
+	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
+
+	if (!bHasHit && OtherActor != GetOwner() && OtherPlayer != nullptr && Capsule != nullptr)
+	{
+
+		PunchHit(OtherPlayer);
+	}
 }
