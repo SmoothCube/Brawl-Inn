@@ -6,17 +6,20 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
-//#include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
 #include "TimerManager.h"
 
 #include "Player/PlayerController_B.h"
 #include "Player/HealthComponent_B.h"
+#include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
+	PunchSphere = CreateDefaultSubobject<USphereComponent>("Punch Sphere");
+	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("Punch Component");
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -33,7 +36,6 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 
 	HandleMovement(DeltaTime);
 	HandleRotation();
-
 
 }
 
@@ -108,3 +110,13 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 	HealthComponent->HealthIsZero_D.AddDynamic(Cast<APlayerController_B>(NewController), &APlayerController_B::KillPlayerCharacter);
 }
+void APlayerCharacter_B::PunchButtonPressed()
+{
+	if (PunchComponent)
+	{
+		PunchComponent->bIsPunching = true;
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("[APlayerCharacter_B::PunchButtonPressed] No Punch Component for player %s"), *GetNameSafe(this));
+}
+

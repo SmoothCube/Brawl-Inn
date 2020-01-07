@@ -25,6 +25,8 @@ void APlayerController_B::SetupInputComponent()
 
 		InputComponent->BindAxis("RotateX", this, &APlayerController_B::RotateX);
 		InputComponent->BindAxis("RotateY", this, &APlayerController_B::RotateY);
+
+		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 	}
 }
 
@@ -70,4 +72,10 @@ void APlayerController_B::KillPlayerCharacter()
 {
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->DespawnCharacter_D.Broadcast(this);
+}
+
+void APlayerController_B::PunchButtonPressed()
+{
+	if(PlayerCharacter)
+		PlayerCharacter->PunchButtonPressed();
 }
