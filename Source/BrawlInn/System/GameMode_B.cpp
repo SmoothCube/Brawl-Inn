@@ -20,7 +20,7 @@ void AGameMode_B::BeginPlay()
 		Spawnpoints.Add(Cast<APlayerStart>(point));
 	}
 
-	/// Create all the playercontrollers
+	/// Creates all the playercontrollers
 	uint8 CurrentPlayer = 0;
 	TArray<APlayerController*> PlayerControllers;
 
@@ -46,7 +46,6 @@ void AGameMode_B::BeginPlay()
 	{
 		SpawnCharacter_D.Broadcast(Cast<APlayerController_B>(PlayerControllers[i]));
 	}
-
 
 	Super::BeginPlay();
 }
