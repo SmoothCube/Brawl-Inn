@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UHealthComponent_B;
+class USphereComponent;
+class UPunchComponent_B;
+
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter
 {
@@ -15,9 +19,18 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter_B();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UHealthComponent_B* HealthComponent;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	USphereComponent* PunchSphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPunchComponent_B* PunchComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float RecoveryTime = 2.0;
@@ -27,10 +40,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	FRotator GetPrevRotation();
+
+	virtual void PossessedBy(AController* NewController) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void PunchButtonPressed();
+	
 	void HandleRotation();
 
 	void HandleMovement(float DeltaTime);

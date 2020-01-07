@@ -3,6 +3,10 @@
 
 #include "PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
+#include "Engine/World.h"
+#include "System/GameMode_B.h"
+#include "Kismet/GameplayStatics.h"
+
 void APlayerController_B::BeginPlay()
 {
 	SetInputMode(FInputModeGameOnly());
@@ -21,6 +25,8 @@ void APlayerController_B::SetupInputComponent()
 
 		InputComponent->BindAxis("RotateX", this, &APlayerController_B::RotateX);
 		InputComponent->BindAxis("RotateY", this, &APlayerController_B::RotateY);
+
+		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 	}
 }
 
@@ -59,4 +65,17 @@ void APlayerController_B::RotateY(float Value)
 	{
 		PlayerCharacter->RotationVector.Y = Value;
 	}
+}
+
+// Called when the Health in HealthComponent is 0
+void APlayerController_B::KillPlayerCharacter()
+{
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->DespawnCharacter_D.Broadcast(this);
+}
+
+void APlayerController_B::PunchButtonPressed()
+{
+	if(PlayerCharacter)
+		PlayerCharacter->PunchButtonPressed();
 }

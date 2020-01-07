@@ -24,6 +24,9 @@ public:
 	bool HasValidCharacter();
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
+
+	UFUNCTION()
+	void KillPlayerCharacter();
 private:
 
 	void MoveUp(float Value);
@@ -31,4 +34,5 @@ private:
 	void RotateX(float Value);
 	void RotateY(float Value);
 
+	void PunchButtonPressed();
 };
