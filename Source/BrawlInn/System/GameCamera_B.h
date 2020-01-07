@@ -8,6 +8,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class APlayerController_B;
 
 UCLASS()
 class BRAWLINN_API AGameCamera_B : public AActor
@@ -15,7 +16,6 @@ class BRAWLINN_API AGameCamera_B : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AGameCamera_B();
 
 	UPROPERTY()
@@ -28,14 +28,31 @@ public:
 	UCameraComponent* Camera = nullptr;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float SpringArmLength = 1000;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float SmallestSpringArmLength = 600.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float LargestSpringArmLength = 2500.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float BorderWidth = 200.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float MaxCameraHeight = 500.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float MinCameraHeight = 0.f;
+private:
+
+	TArray<APlayerController_B*> PlayerControllers;
+
+	void UpdateCamera();
+
+	void SetSpringArmLength(float distanceToFurthestPlayer);
 
 };

@@ -21,6 +21,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
+	bool HasValidCharacter();
+
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 private:
 
