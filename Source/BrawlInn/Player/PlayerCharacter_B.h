@@ -23,23 +23,30 @@ protected:
 	float RecoveryTime = 2.0;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float TimeBeforeFall = 5.f;
+	float TimeBeforeFall = 1.f;
 
+	UFUNCTION(BlueprintCallable)
+	FRotator GetPrevRotation();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void HandleMovement();
+	void HandleRotation();
+
+	void HandleMovement(float DeltaTime);
 
 	void Fall();
-
 	void StandUp();
 
 	FVector InputVector = FVector::ZeroVector;
 	FVector RotationVector = FVector::ZeroVector;
+	FVector PrevRotationVector = FVector::ZeroVector;
 
 private:
 	bool bHasFallen = false;
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
+
+	float CurrentFallTime = 0.f;
+
 };
