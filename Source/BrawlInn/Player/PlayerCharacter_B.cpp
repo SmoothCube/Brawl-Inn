@@ -26,13 +26,27 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HandleMovement();
+	HandleMovement(DeltaTime);
+	HandleRotation();
 
-	SetActorRotation(RotationVector.Rotation());
+
+}
+
+void APlayerCharacter_B::HandleRotation()
+{
+	if (RotationVector.Size() > 0.9)
+	{
+		SetActorRotation(RotationVector.ToOrientationRotator());
+		PrevRotationVector = RotationVector;
+	}
+	else
+	{
+		SetActorRotation(PrevRotationVector.ToOrientationRotator());
+	}
 }
 
 
-void APlayerCharacter_B::HandleMovement()
+void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
 	//Normalizes to make sure we dont move faster than max speed, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f) 
@@ -40,10 +54,14 @@ void APlayerCharacter_B::HandleMovement()
 	
 	if (GetMovementComponent()->Velocity.Size() >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
 	{
-		if(!bHasFallen)
+		CurrentFallTime += DeltaTime;
+		if(CurrentFallTime>= TimeBeforeFall && !bHasFallen)
 			Fall();
 	}
-
+	else
+	{
+		CurrentFallTime = 0;
+	}
 	GetMovementComponent()->AddInputVector(InputVector);
 }
 void APlayerCharacter_B::Fall()
@@ -72,4 +90,9 @@ void APlayerCharacter_B::StandUp()
 	AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 
 	bHasFallen = false;
+}
+
+FRotator APlayerCharacter_B::GetPrevRotation()
+{
+	return PrevRotationVector.ToOrientationRotator();
 }
