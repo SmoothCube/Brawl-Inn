@@ -9,12 +9,15 @@
 #include "Components/SphereComponent.h"
 #include "TimerManager.h"
 
+#include "Player/PlayerController_B.h"
+#include "Player/HealthComponent_B.h"
 #include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
 	PunchSphere = CreateDefaultSubobject<USphereComponent>("PunchSphere");
 	PunchSphere->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -107,6 +110,12 @@ FRotator APlayerCharacter_B::GetPrevRotation()
 	return PrevRotationVector.ToOrientationRotator();
 }
 
+void APlayerCharacter_B::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	HealthComponent->HealthIsZero_D.AddDynamic(Cast<APlayerController_B>(NewController), &APlayerController_B::KillPlayerCharacter);
+}
 void APlayerCharacter_B::PunchButtonPressed()
 {
 	if (PunchComponent)

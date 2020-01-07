@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UHealthComponent_B;
 class USphereComponent;
 class UPunchComponent_B;
 
@@ -18,6 +19,10 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter_B();
 	USphereComponent* GetPunchSphere();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UHealthComponent_B* HealthComponent;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,6 +42,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FRotator GetPrevRotation();
 
+	virtual void PossessedBy(AController* NewController) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
