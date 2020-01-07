@@ -9,9 +9,14 @@
 //#include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
+#include "Player/PlayerController_B.h"
+#include "Player/HealthComponent_B.h"
+
 APlayerCharacter_B::APlayerCharacter_B()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -95,4 +100,11 @@ void APlayerCharacter_B::StandUp()
 FRotator APlayerCharacter_B::GetPrevRotation()
 {
 	return PrevRotationVector.ToOrientationRotator();
+}
+
+void APlayerCharacter_B::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	HealthComponent->HealthIsZero_D.AddDynamic(Cast<APlayerController_B>(NewController), &APlayerController_B::KillPlayerCharacter);
 }

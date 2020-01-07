@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UHealthComponent_B;
+
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter
 {
@@ -14,6 +16,9 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter_B();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UHealthComponent_B* HealthComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,6 +32,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	FRotator GetPrevRotation();
+
+	virtual void PossessedBy(AController* NewController) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -24,11 +24,16 @@ public:
 	bool HasValidCharacter();
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
+
+	UFUNCTION()
+	void KillPlayerCharacter();
 private:
 
 	void MoveUp(float Value);
 	void MoveRight(float Value);
 	void RotateX(float Value);
 	void RotateY(float Value);
+
+
 
 };
