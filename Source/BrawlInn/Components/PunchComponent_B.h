@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/SphereComponent.h"
 #include "PunchComponent_B.generated.h"
 
 class APlayerCharacter_B;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BRAWLINN_API UPunchComponent_B : public UActorComponent
+class BRAWLINN_API UPunchComponent_B : public USphereComponent
 {
 	GENERATED_BODY()
 
@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PunchStart();
 
+	void Dash();
+
 	UFUNCTION(BlueprintCallable)
 	void PunchEnd();
 	
@@ -44,6 +46,7 @@ public:
 
 	bool bIsPunching = false;
 
+protected:
 	bool bHasHit = false;
 
 	float PunchHitVelocityDamper = 0.3f;
@@ -52,5 +55,18 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float BasePunchStrength = 2500.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float PunchWaitingTime = 0.1f;
+
+	FTimerHandle TH_PunchAgainHandle;
+
+	void setIsPunchingFalse();
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MinDashDistance = 200.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MaxDashDistance = 400.f;
 
 };
