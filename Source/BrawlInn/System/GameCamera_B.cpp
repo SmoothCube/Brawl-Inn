@@ -25,6 +25,7 @@ AGameCamera_B::AGameCamera_B()
 	SpringArm->TargetArmLength = 1000;
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 8.0;
+	SpringArm->bDoCollisionTest = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArm);

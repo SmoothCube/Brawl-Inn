@@ -10,7 +10,7 @@
 #include "TimerManager.h"
 
 #include "Player/PlayerController_B.h"
-#include "Player/HealthComponent_B.h"
+#include "Components/HealthComponent_B.h"
 #include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
