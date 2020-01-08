@@ -127,6 +127,8 @@ void APlayerCharacter_B::PunchButtonPressed()
 		PunchComponent->bIsPunching = true;
 	}
 	else
+	{
 		UE_LOG(LogTemp, Error, TEXT("[APlayerCharacter_B::PunchButtonPressed] No Punch Component for player %s"), *GetNameSafe(this));
+	}
 }
 
