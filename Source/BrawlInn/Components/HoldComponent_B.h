@@ -21,6 +21,9 @@ public:
 	void TryPickup();
 	void TryDrop();
 
+	UFUNCTION(BlueprintPure)
+	bool IsHolding();
+
 protected:
 
 	virtual void BeginPlay() override;

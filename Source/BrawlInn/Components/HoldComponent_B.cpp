@@ -58,6 +58,12 @@ void UHoldComponent_B::TryDrop()
 	Drop();
 	
 }
+bool UHoldComponent_B::IsHolding()
+{
+	if (HoldingItem)
+		return true;
+	return false;
+}
 void UHoldComponent_B::Drop()
 {
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
