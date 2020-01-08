@@ -16,6 +16,8 @@ class BRAWLINN_API UHoldComponent_B : public USphereComponent
 
 public:
 
+	UHoldComponent_B(const FObjectInitializer& ObjectInitializer);
+
 	void TryPickup();
 	void TryDrop();
 

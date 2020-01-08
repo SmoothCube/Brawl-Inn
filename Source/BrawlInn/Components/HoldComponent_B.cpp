@@ -5,11 +5,14 @@
 #include "Items/Throwable_B.h"
 #include "Player/PlayerCharacter_B.h"
 
+UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
+{
+	SphereRadius = 150.f;
+}
+
 void UHoldComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SphereRadius = 150.f;
 
 	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::AddItem);
 	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::RemoveItem);
