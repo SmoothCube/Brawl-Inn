@@ -25,6 +25,7 @@ void UHoldComponent_B::TryPickup()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *GetNameSafe(OwningPlayer));
 	if (!OwningPlayer) return;
 	if (HoldingItem) return;
+	if (DroppingItem) return;
 	if (ThrowableItemsInRange.Num() == 0) return;
 
 	ThrowableItemsInRange.Sort([&](const AThrowable_B& LeftSide, const AThrowable_B& RightSide)
@@ -46,7 +47,7 @@ void UHoldComponent_B::Pickup(AThrowable_B* Item)
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *GetNameSafe(Item));
 	Item->PickedUp();
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
-	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, FName("HoldingItemHere"));
+	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
 
 	HoldingItem = Item;
 }
@@ -55,8 +56,7 @@ void UHoldComponent_B::TryDrop()
 	if (!OwningPlayer) return;
 	if (!HoldingItem) return;
 	
-	Drop();
-	
+	InitDrop();
 }
 bool UHoldComponent_B::IsHolding()
 {
@@ -64,12 +64,21 @@ bool UHoldComponent_B::IsHolding()
 		return true;
 	return false;
 }
+
+void UHoldComponent_B::InitDrop()
+{
+	DroppingItem = HoldingItem;
+	HoldingItem = nullptr;
+}
 void UHoldComponent_B::Drop()
 {
+	if (!DroppingItem)
+		return;
+
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	HoldingItem->DetachFromActor(rules);
-	HoldingItem->Dropped();
-	HoldingItem = nullptr;
+	DroppingItem->DetachFromActor(rules);
+	DroppingItem->Dropped();
+	DroppingItem = nullptr;
 }
 
 void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

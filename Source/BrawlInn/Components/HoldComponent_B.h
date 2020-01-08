@@ -21,6 +21,9 @@ public:
 	void TryPickup();
 	void TryDrop();
 
+	void Drop();
+
+
 	UFUNCTION(BlueprintPure)
 	bool IsHolding();
 
@@ -28,14 +31,18 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere)
+	FName HoldingSocketName;
+
 private:
 
 	AThrowable_B* HoldingItem = nullptr;
+	AThrowable_B* DroppingItem = nullptr;
 
 	TArray<AThrowable_B*> ThrowableItemsInRange;
 
 	void Pickup(AThrowable_B* Item);
-	void Drop();
+	void InitDrop();
 
 	
 	UFUNCTION()
