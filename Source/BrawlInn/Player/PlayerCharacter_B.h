@@ -18,7 +18,7 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter_B();
-	USphereComponent* GetPunchSphere();
+	USphereComponent* GetPunchComponent();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHealthComponent_B* HealthComponent;
@@ -26,9 +26,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	USphereComponent* PunchSphere = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UPunchComponent_B* PunchComponent = nullptr;

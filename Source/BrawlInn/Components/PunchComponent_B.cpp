@@ -7,6 +7,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
@@ -22,50 +24,63 @@ UPunchComponent_B::UPunchComponent_B()
 void UPunchComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	OnComponentBeginOverlap.AddDynamic(this, &UPunchComponent_B::OnOverlapBegin);
 }
 
 // Called every frame
 void UPunchComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 void UPunchComponent_B::PunchStart()
 {
+
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
 	
 	//Dash Logic
 	float f = FVector::DotProduct(Player->PrevRotationVector.GetSafeNormal(), Player->GetCharacterMovement()->Velocity.GetSafeNormal());
 	Player->GetCharacterMovement()->Velocity = Player->PrevRotationVector * Player->GetCharacterMovement()->Velocity.Size()* 5; // *DashLengthCurve->GetFloatValue(f);
 	
-	if (Player->GetPunchSphere())
-		Player->GetPunchSphere()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	else
-		UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No PunchSphere found for player !"), *GetNameSafe(Player));
+	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No PunchSphere found for player !"), *GetNameSafe(Player));
 }
 
 void UPunchComponent_B::PunchEnd()
 {
+	//just to see if we want to run the function	
+	if (!bIsPunching) { return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
 	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd] Player Punch End: %s"), *GetNameSafe(this));
-	Player->GetPunchSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	//Dash ends
 	Player->GetCharacterMovement()->MaxWalkSpeed = 1000.f;
 	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(1000.f);
+	
+	GetWorld()->GetTimerManager().SetTimer(
+		TH_PunchAgainHandle,
+		this,
+		&UPunchComponent_B::setIsPunchingFalse,
+		PunchWaitingTime,
+		false);
+}
+
+void UPunchComponent_B::setIsPunchingFalse()
+{
 	bIsPunching = false;
+	bHasHit = false;
 }
 
 void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s"), *GetNameSafe(this));
 	if (!OtherPlayer) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
-	//no get punched?
 
+	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s"), *GetNameSafe(this));
 	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity());
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
@@ -103,7 +118,6 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 
 	if (!bHasHit && OtherActor != GetOwner() && OtherPlayer != nullptr && Capsule != nullptr)
 	{
-
 		PunchHit(OtherPlayer);
 	}
 }

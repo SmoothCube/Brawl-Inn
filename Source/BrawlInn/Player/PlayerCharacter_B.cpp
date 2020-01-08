@@ -18,21 +18,20 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PrimaryActorTick.bCanEverTick = true;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
-	PunchSphere = CreateDefaultSubobject<USphereComponent>("PunchSphere");
-	PunchSphere->SetupAttachment(GetMesh(), "PunchCollisionHere");
-	PunchSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
+	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
+	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-USphereComponent* APlayerCharacter_B::GetPunchSphere()
+USphereComponent* APlayerCharacter_B::GetPunchComponent()
 {
-	return PunchSphere;
+	return PunchComponent;
 }
 
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
-	PunchSphere->OnComponentBeginOverlap.AddDynamic(PunchComponent, &UPunchComponent_B::OnOverlapBegin);
+	
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 }
@@ -95,7 +94,7 @@ void APlayerCharacter_B::StandUp()
 	UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
 	GetMesh()->SetSimulatePhysics(false);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
 	FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
 	GetMesh()->AttachToComponent(GetRootComponent(), Rule);
