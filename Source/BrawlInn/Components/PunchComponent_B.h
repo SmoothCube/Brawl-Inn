@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PunchStart();
 
+	void Dash();
+
 	UFUNCTION(BlueprintCallable)
 	void PunchEnd();
 	
@@ -60,4 +62,11 @@ protected:
 	FTimerHandle TH_PunchAgainHandle;
 
 	void setIsPunchingFalse();
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MinDashDistance = 200.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MaxDashDistance = 400.f;
+
 };

@@ -38,12 +38,23 @@ void UPunchComponent_B::PunchStart()
 
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
 	
-	//Dash Logic
-	float f = FVector::DotProduct(Player->PrevRotationVector.GetSafeNormal(), Player->GetCharacterMovement()->Velocity.GetSafeNormal());
-	Player->GetCharacterMovement()->Velocity = Player->PrevRotationVector * Player->GetCharacterMovement()->Velocity.Size()* 5; // *DashLengthCurve->GetFloatValue(f);
+	Dash();
 	
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No PunchSphere found for player !"), *GetNameSafe(Player));
+}
+
+void UPunchComponent_B::Dash()
+{
+	//Dash Logic
+	float f = FVector::DotProduct(Player->PrevRotationVector.GetSafeNormal(), Player->GetCharacterMovement()->Velocity.GetSafeNormal());
+	f += 1;
+	f /= 2;
+	float dist = MaxDashDistance*f - MinDashDistance;
+	//Player->GetCharacterMovement()->Velocity = Player->PrevRotationVector * Player->GetCharacterMovement()->Velocity.Size() * 5; // *DashLengthCurve->GetFloatValue(f);
+	Player->AddActorLocalOffset(FVector(1,0,0) * dist);
+
+	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::Dash] Dashing: f: %f, dist: %f"), f, dist);
+
 }
 
 void UPunchComponent_B::PunchEnd()
