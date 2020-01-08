@@ -11,6 +11,7 @@
 
 #include "Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
+#include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
@@ -18,6 +19,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PrimaryActorTick.bCanEverTick = true;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
+	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
+	HoldComponent->SetupAttachment(GetMesh());
 	PunchSphere = CreateDefaultSubobject<USphereComponent>("PunchSphere");
 	PunchSphere->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);

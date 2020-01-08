@@ -7,6 +7,7 @@
 #include "PlayerCharacter_B.generated.h"
 
 class UHealthComponent_B;
+class UHoldComponent_B;
 class USphereComponent;
 class UPunchComponent_B;
 
@@ -22,6 +23,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHealthComponent_B* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UHoldComponent_B* HoldComponent;
 
 protected:
 	// Called when the game starts or when spawned

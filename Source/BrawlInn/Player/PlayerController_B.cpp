@@ -3,6 +3,7 @@
 
 #include "PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
+#include "Components/HoldComponent_B.h"
 #include "Engine/World.h"
 #include "System/GameMode_B.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,6 +29,8 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAxis("RotateY", this, &APlayerController_B::RotateY);
 
 		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
+		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
+		InputComponent->BindAction("Drop", IE_Pressed, this, &APlayerController_B::DropButtonPressed);
 	}
 }
 
@@ -73,6 +76,18 @@ void APlayerController_B::KillPlayerCharacter()
 {
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->DespawnCharacter_D.Broadcast(this);
+}
+
+void APlayerController_B::PickupButtonPressed()
+{
+	if (PlayerCharacter)
+		PlayerCharacter->HoldComponent->TryPickup();
+}
+
+void APlayerController_B::DropButtonPressed()
+{
+	if (PlayerCharacter)
+		PlayerCharacter->HoldComponent->TryDrop();
 }
 
 void APlayerController_B::PunchButtonPressed()
