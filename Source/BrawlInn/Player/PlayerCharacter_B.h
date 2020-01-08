@@ -19,7 +19,9 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter_B();
-	USphereComponent* GetPunchComponent();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPunchComponent_B* PunchComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHealthComponent_B* HealthComponent;
@@ -27,12 +29,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
 
+	UFUNCTION(BlueprintCallable)
+	FRotator GetPrevRotation() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UPunchComponent_B* PunchComponent = nullptr;
+	
 
 	UPROPERTY(EditAnywhere)
 	float RecoveryTime = 2.0;
@@ -40,8 +44,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float TimeBeforeFall = 1.f;
 
-	UFUNCTION(BlueprintCallable)
-	FRotator GetPrevRotation();
+	
 
 	virtual void PossessedBy(AController* NewController) override;
 public:	

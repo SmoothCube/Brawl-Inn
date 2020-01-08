@@ -28,11 +28,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-USphereComponent* APlayerCharacter_B::GetPunchComponent()
-{
-	return PunchComponent;
-}
-
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
@@ -109,7 +104,7 @@ void APlayerCharacter_B::StandUp()
 	bHasFallen = false;
 }
 
-FRotator APlayerCharacter_B::GetPrevRotation()
+FRotator APlayerCharacter_B::GetPrevRotation() const
 {
 	return PrevRotationVector.ToOrientationRotator();
 }
