@@ -30,6 +30,7 @@ void APlayerController_B::SetupInputComponent()
 
 		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
+		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonPressed);
 		InputComponent->BindAction("Drop", IE_Pressed, this, &APlayerController_B::DropButtonPressed);
 	}
 }

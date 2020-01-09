@@ -13,6 +13,8 @@ enum class EThrowableTypes : uint8
 	EStool 	UMETA(DisplayName = "Stool")
 };
 
+class USphereComponent;
+
 UCLASS()
 class BRAWLINN_API AThrowable_B : public AActor
 {
@@ -24,6 +26,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* PickupSphere;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EThrowableTypes Type = EThrowableTypes::ENone;

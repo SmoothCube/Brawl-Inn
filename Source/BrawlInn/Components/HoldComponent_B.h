@@ -20,9 +20,7 @@ public:
 
 	void TryPickup();
 	void TryDrop();
-
 	void Drop();
-
 
 	UFUNCTION(BlueprintPure)
 	bool IsHolding();
@@ -31,8 +29,20 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	void CalculatePickupRadius();
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	FVector AimLocation(bool &Hit);
+
 	UPROPERTY(EditAnywhere)
-	FName HoldingSocketName;
+	FName HoldingSocketName = FName("HoldingItemSocket");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float PickupAngle = 60;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float PickupRange = 250;
 
 private:
 
@@ -44,6 +54,7 @@ private:
 	void Pickup(AThrowable_B* Item);
 	void InitDrop();
 
+	float PickupRadius = 0;
 	
 	UFUNCTION()
 	void AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

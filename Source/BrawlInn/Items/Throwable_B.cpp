@@ -3,6 +3,7 @@
 
 #include "Throwable_B.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AThrowable_B::AThrowable_B()
@@ -12,6 +13,9 @@ AThrowable_B::AThrowable_B()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
+
+	PickupSphere = CreateDefaultSubobject<USphereComponent>("Sphere");
+	PickupSphere->SetupAttachment(Mesh);
 }
 
 void AThrowable_B::PickedUp()
