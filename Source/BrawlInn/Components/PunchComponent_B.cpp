@@ -57,7 +57,7 @@ void UPunchComponent_B::Dash()
 	f /= 2;
 
 	float dist = (MaxDashDistance-MinDashDistance)*f + MinDashDistance;
-	Player->GetCharacterMovement()->AddForce(Player->GetPrevRotation().Vector() * dist* DashForceModifier);
+	Player->GetCharacterMovement()->AddForce(Player->GetActorForwardVector() * dist* DashForceModifier);
 	
 	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::Dash] Dashing: f: %f, dist: %f"), f, dist);
 }

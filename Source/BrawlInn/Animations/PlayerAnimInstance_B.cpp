@@ -28,5 +28,5 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 	bIsPunching = Owner->PunchComponent->GetIsPunching();
 	bIsHolding = Owner->HoldComponent->IsHolding();
 	Speed = Owner->GetVelocity().Size();
-	Direction =  CalculateDirection(Owner->GetVelocity(), Owner->GetPrevRotation());
+	Direction =  CalculateDirection(Owner->GetVelocity(), Owner->GetActorRotation());
 }

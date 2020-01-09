@@ -50,11 +50,6 @@ void APlayerCharacter_B::HandleRotation()
 	if (RotationVector.Size() > 0.9)
 	{
 		SetActorRotation(RotationVector.ToOrientationRotator());
-		PrevRotationVector = RotationVector;
-	}
-	else
-	{
-		SetActorRotation(PrevRotationVector.ToOrientationRotator());
 	}
 }
 
@@ -79,9 +74,9 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 }
 void APlayerCharacter_B::Fall()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
 	if (!GetCharacterMovement()->IsFalling())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
@@ -104,11 +99,6 @@ void APlayerCharacter_B::StandUp()
 	AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 
 	bHasFallen = false;
-}
-
-FRotator APlayerCharacter_B::GetPrevRotation() const
-{
-	return PrevRotationVector.ToOrientationRotator();
 }
 
 void APlayerCharacter_B::PossessedBy(AController* NewController)
