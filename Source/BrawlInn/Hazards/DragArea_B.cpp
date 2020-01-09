@@ -43,7 +43,6 @@ void ADragArea_B::Tick(float DeltaTime)
 	}
 }
 
-
 void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	bool bShouldMove = true;
@@ -57,7 +56,6 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	}
 	ActorsToMove.Add(OtherActor);
 	UE_LOG(LogTemp, Warning, TEXT("[ADragArea_B::OnOverlapBegin] Drag Area Overlaps with: %s"), *GetNameSafe(OtherActor));
-
 }
 
 void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
