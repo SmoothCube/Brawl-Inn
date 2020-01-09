@@ -42,13 +42,13 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 
 	HandleMovement(DeltaTime);
 	HandleRotation();
-
 }
 
 void APlayerCharacter_B::HandleRotation()
 {
-	if (RotationVector.Size() > 0.9)
+	if (RotationVector.Size() > 0.1)
 	{
+		RotationVector.Normalize();
 		SetActorRotation(RotationVector.ToOrientationRotator());
 	}
 }
@@ -80,7 +80,6 @@ void APlayerCharacter_B::Fall()
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
-		GetMovementComponent()->StopMovementImmediately();
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
 		bHasFallen = true;
 	}
@@ -89,6 +88,7 @@ void APlayerCharacter_B::Fall()
 void APlayerCharacter_B::StandUp()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
+	GetMovementComponent()->StopMovementImmediately();
 	GetMesh()->SetSimulatePhysics(false);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
