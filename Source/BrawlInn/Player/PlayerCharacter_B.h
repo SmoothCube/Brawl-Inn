@@ -29,9 +29,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
 
-	UFUNCTION(BlueprintCallable)
-	FRotator GetPrevRotation() const;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,7 +59,6 @@ public:
 
 	FVector InputVector = FVector::ZeroVector;
 	FVector RotationVector = FVector::ZeroVector;
-	FVector PrevRotationVector = FVector::ZeroVector;
 
 private:
 	bool bHasFallen = false;
