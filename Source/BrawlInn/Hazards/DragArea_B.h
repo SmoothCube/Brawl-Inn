@@ -7,6 +7,8 @@
 #include "DragArea_B.generated.h"
 
 class UBoxComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class BRAWLINN_API ADragArea_B : public AActor
 {
@@ -24,7 +26,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* DragArea = nullptr;
+	
 	TArray<AActor*> ActorsToMove;
+
+
 
 public:	
 	// Called every frame

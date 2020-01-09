@@ -80,13 +80,15 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 void APlayerCharacter_B::Fall()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
-
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	GetMesh()->SetSimulatePhysics(true);
-	GetMovementComponent()->StopMovementImmediately();
-	GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
-	bHasFallen = true;
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		GetMesh()->SetSimulatePhysics(true);
+		GetMovementComponent()->StopMovementImmediately();
+		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
+		bHasFallen = true;
+	}
 }
 
 void APlayerCharacter_B::StandUp()

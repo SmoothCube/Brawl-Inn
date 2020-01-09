@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ADragArea_B::ADragArea_B()
@@ -12,6 +13,7 @@ ADragArea_B::ADragArea_B()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	DragArea = CreateDefaultSubobject<UBoxComponent>("DragArea");
+//	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	SetRootComponent(DragArea);
 }
 
@@ -32,7 +34,6 @@ void ADragArea_B::Tick(float DeltaTime)
 	{
 		if (ActorsToMove.IsValidIndex(i))
 		{
-			UE_LOG(LogTemp,Warning, TEXT("[ADragArea_B::Tick] Forward Vector: %s"), *GetActorForwardVector().ToString())
 				ActorsToMove[i]->AddActorWorldOffset(GetActorForwardVector() * DragStrength*DeltaTime);
 		}
 		else
