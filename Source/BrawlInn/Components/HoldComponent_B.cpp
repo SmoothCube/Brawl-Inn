@@ -12,63 +12,18 @@
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	SphereRadius = PickupRange;
-	PrimaryComponentTick.bCanEverTick = true;
-
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UHoldComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
+	SphereRadius = PickupRange;
 
 	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::AddItem);
 	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::RemoveItem);
 
 	OwningPlayer = Cast<APlayerCharacter_B>(GetOwner());
-
-	CalculatePickupRadius();
-
-}
-
-void UHoldComponent_B::CalculatePickupRadius()
-{
-	// ESPEN SKJØNNER IKKE MATTE - Espen 2020 --- NVM, ESPEN SKJØNNER DET LIKEVEL
-	float Angle2 = 90;
-	float Angle3 = 180 - (PickupAngle + Angle2);
-
-	PickupRadius = (PickupRange * FMath::Sin(FMath::DegreesToRadians(PickupAngle))) / FMath::Sin(FMath::DegreesToRadians(Angle3));
-	UE_LOG(LogTemp, Warning, TEXT("Radius: %f"), PickupRadius);
-}
-
-void UHoldComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
-FVector UHoldComponent_B::AimLocation(bool& Hit)
-{
-	//if (ThrowableItemsInRange.Num() == 0)
-	//{
-	//	Hit = false;
-	//	return FVector(0);
-	//}
-
-	//for (const auto& Item : ThrowableItemsInRange)
-	//{
-	//	FVector Point = Item->GetActorLocation();
-	//	FVector StartPoint = OwningPlayer->GetMesh()->GetComponentLocation();
-
-	//	Point.Z = StartPoint.Z;
-
-	//	float Out;
-	//	bool hit = FMath::GetDistanceWithinConeSegment(Point, StartPoint, OwningPlayer->GetActorForwardVector() * Range, 0, ThrowRadius, Out);
-
-	//	if (hit)
-	//		UE_LOG(LogTemp, Warning, TEXT("HIT %f"), Out)
-	//	else
-	//		UE_LOG(LogTemp, Warning, TEXT("NO HIT %f"), Out)
-	//}
-	return FVector(0);
 }
 
 void UHoldComponent_B::TryPickup()
@@ -83,7 +38,7 @@ void UHoldComponent_B::TryPickup()
 	FVector PlayerForward = PlayerLocation + OwningPlayer->GetActorForwardVector() * PickupRange;
 	PlayerForward.Z = 0;
 
-	FVector a = PlayerForward - PlayerLocation;
+	FVector PlayerToForward = PlayerForward - PlayerLocation;
 
 	TArray<AThrowable_B*> ThrowableItemsInCone;
 
@@ -93,14 +48,11 @@ void UHoldComponent_B::TryPickup()
 		FVector ItemLocation = Item->GetActorLocation();
 		ItemLocation.Z = 0;
 
-		FVector b = ItemLocation - PlayerLocation;
+		FVector PlayerToItem = ItemLocation - PlayerLocation;
 
-		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(a.GetSafeNormal(), b.GetSafeNormal())));
-		UE_LOG(LogTemp, Warning, TEXT("AngleA %f"), AngleA);
+		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToItem.GetSafeNormal())));
 		if (AngleA <= PickupAngle)
-		{
 			ThrowableItemsInCone.Add(Item);
-		}
 	}
 	AThrowable_B* NearestItem = nullptr;
 
@@ -130,11 +82,9 @@ void UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AThrowable_B* Item)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *GetNameSafe(Item));
 	Item->PickedUp();
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
-
 	HoldingItem = Item;
 }
 void UHoldComponent_B::TryDrop()
@@ -156,6 +106,8 @@ void UHoldComponent_B::InitDrop()
 	DroppingItem = HoldingItem;
 	HoldingItem = nullptr;
 }
+
+//Called from the animation notify AnimNotify_PlayerDropThrowable_B
 void UHoldComponent_B::Drop()
 {
 	if (!DroppingItem)
@@ -172,8 +124,6 @@ void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor*
 	AThrowable_B* Item = Cast<AThrowable_B>(OtherActor);
 	if (!IsValid(Item))
 		return;
-
-	UE_LOG(LogTemp, Warning, TEXT("Item added %s"), *GetNameSafe(Item));
 	ThrowableItemsInRange.Add(Item);
 }
 
@@ -182,7 +132,5 @@ void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AAct
 	AThrowable_B* Item = Cast<AThrowable_B>(OtherActor);
 	if (!IsValid(Item))
 		return;
-
-	UE_LOG(LogTemp, Warning, TEXT("Item removed %s"), *GetNameSafe(Item));
 	ThrowableItemsInRange.Remove(Item);
 }

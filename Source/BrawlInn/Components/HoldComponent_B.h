@@ -29,12 +29,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void CalculatePickupRadius();
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	FVector AimLocation(bool &Hit);
-
 	UPROPERTY(EditAnywhere)
 	FName HoldingSocketName = FName("HoldingItemSocket");
 
@@ -42,7 +36,7 @@ protected:
 	float PickupAngle = 60;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float PickupRange = 250;
+	float PickupRange = 100;
 
 private:
 
