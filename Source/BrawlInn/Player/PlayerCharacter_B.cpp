@@ -10,7 +10,6 @@
 #include "TimerManager.h"
 
 #include "Player/PlayerController_B.h"
-#include "Components/HealthComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Components/PunchComponent_B.h"
@@ -19,8 +18,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
-	
 	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
 	HoldComponent->SetupAttachment(GetMesh());
 
@@ -108,7 +105,6 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	HealthComponent->HealthIsZero_D.AddDynamic(Cast<APlayerController_B>(NewController), &APlayerController_B::KillPlayerCharacter);
 }
 void APlayerCharacter_B::PunchButtonPressed()
 {

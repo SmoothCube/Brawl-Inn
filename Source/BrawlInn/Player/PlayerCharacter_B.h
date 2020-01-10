@@ -24,9 +24,6 @@ public:
 	UPunchComponent_B* PunchComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UHealthComponent_B* HealthComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

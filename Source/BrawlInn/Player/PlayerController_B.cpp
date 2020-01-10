@@ -5,15 +5,22 @@
 #include "BrawlInn.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/HealthComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Engine/World.h"
 #include "System/GameMode_B.h"
 #include "Kismet/GameplayStatics.h"
 
+APlayerController_B::APlayerController_B()
+{
+	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
+}
+
 void APlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
+	HealthComponent->HealthIsZero_D.AddDynamic(this, &APlayerController_B::KillPlayerCharacter);
 }
 
 void APlayerController_B::SetupInputComponent()

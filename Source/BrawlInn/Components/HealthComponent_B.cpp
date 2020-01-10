@@ -9,11 +9,6 @@ UHealthComponent_B::UHealthComponent_B()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UHealthComponent_B::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 int UHealthComponent_B::GetHealth()
 {
 	return Health;
