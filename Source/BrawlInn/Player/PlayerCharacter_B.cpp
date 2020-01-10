@@ -12,6 +12,7 @@
 #include "Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
 #include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
@@ -22,6 +23,9 @@ APlayerCharacter_B::APlayerCharacter_B()
 	
 	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
 	HoldComponent->SetupAttachment(GetMesh());
+
+	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
+	ThrowComponent->SetupAttachment(GetMesh());
 	
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");

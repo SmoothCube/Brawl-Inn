@@ -26,12 +26,12 @@ void UHoldComponent_B::BeginPlay()
 	OwningPlayer = Cast<APlayerCharacter_B>(GetOwner());
 }
 
-void UHoldComponent_B::TryPickup()
+bool UHoldComponent_B::TryPickup()
 {
-	if (!OwningPlayer) return;
-	if (HoldingItem) return;
-	if (DroppingItem) return;
-	if (ThrowableItemsInRange.Num() == 0) return;
+	if (!OwningPlayer) return false;
+	if (HoldingItem) return false;
+	if (DroppingItem) return false;
+	if (ThrowableItemsInRange.Num() == 0) return false;
 
 	FVector PlayerLocation = OwningPlayer->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
@@ -59,7 +59,7 @@ void UHoldComponent_B::TryPickup()
 	switch (ThrowableItemsInCone.Num())
 	{
 	case 0:
-		return;
+		return false;
 	case 1:
 		NearestItem = ThrowableItemsInCone[0];
 		break;
@@ -78,6 +78,7 @@ void UHoldComponent_B::TryPickup()
 		break;
 	}
 	Pickup(NearestItem);
+	return true;
 }
 
 void UHoldComponent_B::Pickup(AThrowable_B* Item)
@@ -99,6 +100,11 @@ bool UHoldComponent_B::IsHolding()
 	if (HoldingItem)
 		return true;
 	return false;
+}
+
+AThrowable_B* UHoldComponent_B::GetHoldingItem() const
+{
+	return HoldingItem;
 }
 
 void UHoldComponent_B::InitDrop()

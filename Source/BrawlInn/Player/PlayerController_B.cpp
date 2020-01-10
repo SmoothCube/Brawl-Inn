@@ -4,6 +4,7 @@
 #include "PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
 #include "Engine/World.h"
 #include "System/GameMode_B.h"
 #include "Kismet/GameplayStatics.h"
@@ -82,7 +83,10 @@ void APlayerController_B::KillPlayerCharacter()
 void APlayerController_B::PickupButtonPressed()
 {
 	if (PlayerCharacter)
-		PlayerCharacter->HoldComponent->TryPickup();
+	{
+		if (!PlayerCharacter->HoldComponent->TryPickup())
+			PlayerCharacter->ThrowComponent->TryThrow();
+	}
 }
 
 void APlayerController_B::DropButtonPressed()

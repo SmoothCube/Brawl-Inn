@@ -18,12 +18,14 @@ public:
 
 	UHoldComponent_B(const FObjectInitializer& ObjectInitializer);
 
-	void TryPickup();
+	bool TryPickup();
 	void TryDrop();
 	void Drop();
 
 	UFUNCTION(BlueprintPure)
 	bool IsHolding();
+
+	AThrowable_B* GetHoldingItem() const;
 
 protected:
 
@@ -41,7 +43,7 @@ protected:
 private:
 
 	AThrowable_B* HoldingItem = nullptr;
-	AThrowable_B* DroppingItem = nullptr;
+	AThrowable_B* DroppingItem = nullptr; //Flytte dette til Throw?
 
 	TArray<AThrowable_B*> ThrowableItemsInRange;
 

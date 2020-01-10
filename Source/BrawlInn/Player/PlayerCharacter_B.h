@@ -8,7 +8,7 @@
 
 class UHealthComponent_B;
 class UHoldComponent_B;
-class USphereComponent;
+class UThrowComponent_B;
 class UPunchComponent_B;
 
 UCLASS()
@@ -28,6 +28,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UThrowComponent_B* ThrowComponent;
 
 protected:
 	// Called when the game starts or when spawned

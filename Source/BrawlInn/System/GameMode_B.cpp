@@ -47,6 +47,8 @@ void AGameMode_B::BeginPlay()
 		SpawnCharacter_D.Broadcast(Cast<APlayerController_B>(PlayerControllers[i]));
 	}
 
+	GameModeInit_D.Broadcast();
+
 	Super::BeginPlay();
 }
 
