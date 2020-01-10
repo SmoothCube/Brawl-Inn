@@ -15,20 +15,17 @@ class BRAWLINN_API UHoldComponent_B : public USphereComponent
 	GENERATED_BODY()
 
 public:
-
 	UHoldComponent_B(const FObjectInitializer& ObjectInitializer);
 
 	bool TryPickup();
-	void TryDrop();
-	void Drop();
 
 	UFUNCTION(BlueprintPure)
 	bool IsHolding();
 
 	AThrowable_B* GetHoldingItem() const;
+	void SetHoldingItem(AThrowable_B* Item);
 
 protected:
-
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
@@ -40,23 +37,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float PickupRange = 100;
 
+	UFUNCTION()
+		void AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+
 private:
 
-	AThrowable_B* HoldingItem = nullptr;
-	AThrowable_B* DroppingItem = nullptr; //Flytte dette til Throw?
-
+	void Pickup(AThrowable_B* Item);
+	float PickupRadius = 0;
 	TArray<AThrowable_B*> ThrowableItemsInRange;
 
-	void Pickup(AThrowable_B* Item);
-	void InitDrop();
-
-	float PickupRadius = 0;
-	
-	UFUNCTION()
-	void AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
-	UFUNCTION()
-	void RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
-
+	AThrowable_B* HoldingItem = nullptr;
 	APlayerCharacter_B* OwningPlayer = nullptr;
+
 };

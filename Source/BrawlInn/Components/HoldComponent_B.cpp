@@ -2,12 +2,12 @@
 
 
 #include "HoldComponent_B.h"
-#include "Items/Throwable_B.h"
-#include "Player/PlayerCharacter_B.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "DrawDebugHelpers.h"
+#include "Components/SkeletalMeshComponent.h"
+
+#include "Items/Throwable_B.h"
+#include "Player/PlayerCharacter_B.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
@@ -30,7 +30,6 @@ bool UHoldComponent_B::TryPickup()
 {
 	if (!OwningPlayer) return false;
 	if (HoldingItem) return false;
-	if (DroppingItem) return false;
 	if (ThrowableItemsInRange.Num() == 0) return false;
 
 	FVector PlayerLocation = OwningPlayer->GetMesh()->GetComponentLocation();
@@ -88,13 +87,7 @@ void UHoldComponent_B::Pickup(AThrowable_B* Item)
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
 }
-void UHoldComponent_B::TryDrop()
-{
-	if (!OwningPlayer) return;
-	if (!HoldingItem) return;
 
-	InitDrop();
-}
 bool UHoldComponent_B::IsHolding()
 {
 	if (HoldingItem)
@@ -107,22 +100,9 @@ AThrowable_B* UHoldComponent_B::GetHoldingItem() const
 	return HoldingItem;
 }
 
-void UHoldComponent_B::InitDrop()
+void UHoldComponent_B::SetHoldingItem(AThrowable_B* Item)
 {
-	DroppingItem = HoldingItem;
-	HoldingItem = nullptr;
-}
-
-//Called from the animation notify AnimNotify_PlayerDropThrowable_B
-void UHoldComponent_B::Drop()
-{
-	if (!DroppingItem)
-		return;
-
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	DroppingItem->DetachFromActor(rules);
-	DroppingItem->Dropped();
-	DroppingItem = nullptr;
+	HoldingItem = Item;
 }
 
 void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

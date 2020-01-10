@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AnimNotify_PlayerDropThrowable_B.h"
+#include "AnimNotify_PlayerThrow_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
 #include "Player/PlayerCharacter_B.h"
-#include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
 
-void UAnimNotify_PlayerDropThrowable_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_PlayerThrow_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::Notify(MeshComp, Animation);
 
@@ -15,5 +15,6 @@ void UAnimNotify_PlayerDropThrowable_B::Notify(USkeletalMeshComponent* MeshComp,
 
 	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 	if (Player)
-		Player->HoldComponent->Drop();
+		Player->ThrowComponent->Throw();
+
 }

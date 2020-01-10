@@ -4,13 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AnimNotify_PlayerDropThrowable_B.generated.h"
+#include "AnimNotify_PlayerThrow_B.generated.h"
 
 class APlayerCharacter_B;
 
-
 UCLASS()
-class BRAWLINN_API UAnimNotify_PlayerDropThrowable_B : public UAnimNotify
+class BRAWLINN_API UAnimNotify_PlayerThrow_B : public UAnimNotify
 {
 	GENERATED_BODY()
 
