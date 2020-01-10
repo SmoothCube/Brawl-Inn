@@ -1,15 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HealthComponent_B.h"
-#include "Player/PlayerCharacter_B.h"
-#include "Player/PlayerController_B.h"
 
 UHealthComponent_B::UHealthComponent_B()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-int UHealthComponent_B::GetHealth()
+int UHealthComponent_B::GetHealth() const
 {
 	return Health;
 }

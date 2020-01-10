@@ -18,7 +18,7 @@ public:
 	UHealthComponent_B();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		int GetHealth();
+		int GetHealth() const;
 
 	UFUNCTION(BlueprintCallable)
 		void SetHealth(int Value);
