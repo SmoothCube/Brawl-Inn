@@ -63,8 +63,8 @@ public:
 	FVector InputVector = FVector::ZeroVector;
 	FVector RotationVector = FVector::ZeroVector;
 
-private:
 	bool bHasFallen = false;
+private:
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
 

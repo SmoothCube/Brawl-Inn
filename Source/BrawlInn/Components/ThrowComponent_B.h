@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SphereComponent.h"
+#include "Components/SceneComponent.h"
 #include "ThrowComponent_B.generated.h"
 
 class APlayerCharacter_B;
@@ -11,7 +11,7 @@ class AGameMode_B;
 class UHoldComponent_B;
 
 UCLASS()
-class BRAWLINN_API UThrowComponent_B : public USphereComponent
+class BRAWLINN_API UThrowComponent_B : public USceneComponent
 {
 	GENERATED_BODY()
 public:
@@ -22,25 +22,27 @@ public:
 	void Throw();
 
 	UFUNCTION(BlueprintPure)
-	bool IsThrowing() const;
+		bool IsThrowing() const;
 
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void GameIsReady();
+	bool AimAssist(FVector& TargetPlayerLocation);
 
 	UFUNCTION()
-	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OneCharacterChanged();
 
-	UFUNCTION()
-	void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
+		float ImpulseSpeed = 1500.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ImpulseSpeed = 1500.f;
+	/// Aiming
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
+		float AimAssistAngle = 15.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
+		float AimAssistRange = 2000.f;
 
 private:
-
 	bool bIsThrowing = false;
 
 	TArray<APlayerCharacter_B*> OtherPlayers;

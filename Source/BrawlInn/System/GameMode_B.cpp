@@ -47,7 +47,6 @@ void AGameMode_B::BeginPlay()
 		SpawnCharacter_D.Broadcast(Cast<APlayerController_B>(PlayerControllers[i]));
 	}
 
-	GameModeInit_D.Broadcast();
 
 	Super::BeginPlay();
 }
@@ -63,6 +62,7 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController)
 		PlayerController->PlayerCharacter = Character;
 		if (IsValid(GameCamera))
 			PlayerController->SetViewTargetWithBlend(GameCamera);
+		SpawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
 
@@ -77,6 +77,7 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 		PlayerController->PlayerCharacter = nullptr;
 		if (IsValid(GameCamera))
 			PlayerController->SetViewTargetWithBlend(GameCamera);
+		DespawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
 
