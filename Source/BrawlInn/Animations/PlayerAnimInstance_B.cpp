@@ -5,6 +5,7 @@
 #include "Player/PlayerCharacter_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
 
 void UPlayerAnimInstance_B::NativeBeginPlay()
 {
@@ -27,6 +28,7 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 
 	bIsPunching = Owner->PunchComponent->GetIsPunching();
 	bIsHolding = Owner->HoldComponent->IsHolding();
+	bIsThrowing = Owner->ThrowComponent->IsThrowing();
 	Speed = Owner->GetVelocity().Size();
 	Direction =  CalculateDirection(Owner->GetVelocity(), Owner->GetActorRotation());
 }

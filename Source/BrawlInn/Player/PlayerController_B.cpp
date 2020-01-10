@@ -13,10 +13,6 @@
 void APlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
-
-	BScreen("Test %f", 13.f);
-	BWarn("DETTE ER EN")
-	
 	SetInputMode(FInputModeGameOnly());
 }
 
@@ -35,8 +31,7 @@ void APlayerController_B::SetupInputComponent()
 
 		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
-		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonPressed);
-		InputComponent->BindAction("Drop", IE_Pressed, this, &APlayerController_B::DropButtonPressed);
+		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
 	}
 }
 
@@ -93,10 +88,10 @@ void APlayerController_B::PickupButtonPressed()
 	}
 }
 
-void APlayerController_B::DropButtonPressed()
+void APlayerController_B::PickupButtonRepeat()
 {
 	if (PlayerCharacter)
-		PlayerCharacter->HoldComponent->TryDrop();
+		PlayerCharacter->HoldComponent->TryPickup();
 }
 
 void APlayerController_B::PunchButtonPressed()

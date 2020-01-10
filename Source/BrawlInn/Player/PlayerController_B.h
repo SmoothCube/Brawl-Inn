@@ -35,6 +35,6 @@ private:
 	void RotateY(float Value);
 
 	void PickupButtonPressed();
-	void DropButtonPressed();
+	void PickupButtonRepeat();
 	void PunchButtonPressed();
 };

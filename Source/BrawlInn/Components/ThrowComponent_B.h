@@ -17,7 +17,12 @@ class BRAWLINN_API UThrowComponent_B : public USphereComponent
 public:
 	UThrowComponent_B(const FObjectInitializer& ObjectInitializer);
 
+	bool IsReady() const;
 	bool TryThrow();
+	void Throw();
+
+	UFUNCTION(BlueprintPure)
+	bool IsThrowing() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -26,18 +31,20 @@ protected:
 	void GameIsReady();
 
 	UFUNCTION()
-		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-		void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+	void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ImpulseSpeed = 1500.f;
 
 private:
 
-	void Throw();
-
-	bool IsReady() const;
+	bool bIsThrowing = false;
 
 	TArray<APlayerCharacter_B*> OtherPlayers;
+
 	AGameMode_B* GameMode = nullptr;
 	UHoldComponent_B* HoldComponent = nullptr;
 	APlayerCharacter_B* OwningPlayer = nullptr;
