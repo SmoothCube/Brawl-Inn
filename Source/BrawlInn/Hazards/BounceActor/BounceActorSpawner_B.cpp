@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "Hazards/BounceActor/BounceActor_B.h"
 #include "Hazards/BounceActor/BouncePath_B.h"
@@ -21,7 +23,7 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 void ABounceActorSpawner_B::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBounceActor, SpawnDelay, true);
+	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBounceActor, SpawnDelay, true,0);
 }
 
 // Called every frame
@@ -33,6 +35,7 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 
 void ABounceActorSpawner_B::SpawnBounceActor()
 {
+	//spawns to path
 	if (Paths.Num() > 0)
 	{
 		ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));

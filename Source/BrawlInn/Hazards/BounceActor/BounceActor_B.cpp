@@ -19,7 +19,8 @@ ABounceActor_B::ABounceActor_B()
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	Mesh->SetSimulatePhysics(true);
+	SetActorRotation(FRotator(0, 50, 0));
+	Mesh->AddForce(FVector(-25000, 25000, 0));
 
 }
 
@@ -27,6 +28,8 @@ void ABounceActor_B::BeginPlay()
 void ABounceActor_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	SetActorRotation(FRotator(GetActorRotation().Pitch, 50, GetActorRotation().Roll));
+	AddActorLocalRotation(FRotator(0,0, RotateSpeed * DeltaTime	));
 
 }
 

@@ -22,8 +22,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	float SpawnDelay = 10.f;
- 
+	float SpawnDelay = 5.f;
+
 	UPROPERTY(EditAnywhere)
 	TArray<ABouncePath_B*> Paths;
 	UPROPERTY(EditAnywhere)

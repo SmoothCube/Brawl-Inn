@@ -29,6 +29,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(VisibleAnywhere)
 	class USplineComponent* SplineCurve = nullptr;
 	void AddBounceActor(ABounceActor_B* inBounceActor);
 };

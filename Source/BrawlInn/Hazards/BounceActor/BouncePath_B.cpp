@@ -28,7 +28,7 @@ void ABouncePath_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	for (auto& a : ActiveBounceActors)
 	{
-		a->SetActorLocation(SplineCurve->GetLocationAtTime(a->TimeStep, ESplineCoordinateSpace::World));
+		a->SetActorLocation(SplineCurve->GetLocationAtTime(a->TimeStep, ESplineCoordinateSpace::World, false));
 		a->TimeStep += DeltaTime * a->Speed;
 		if (a->TimeStep >=1)
 		{
