@@ -2,6 +2,7 @@
 
 
 #include "PlayerController_B.h"
+#include "BrawlInn.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
@@ -13,6 +14,9 @@ void APlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	BScreen("Test %f", 13.f);
+	BWarn("DETTE ER EN")
+	
 	SetInputMode(FInputModeGameOnly());
 }
 
