@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter_B.h"
+#include "BrawlInn.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -12,11 +13,13 @@
 #include "Player/PlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Items/Throwable_B.h"
 #include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bUseControllerRotationYaw = false;
 
 	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
 	HoldComponent->SetupAttachment(GetMesh());
@@ -34,6 +37,7 @@ void APlayerCharacter_B::BeginPlay()
 	
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
@@ -118,3 +122,11 @@ void APlayerCharacter_B::PunchButtonPressed()
 	}
 }
 
+void APlayerCharacter_B::CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AThrowable_B* Item(Cast<AThrowable_B>(OtherActor));
+	if (Item)
+	{
+		BWarn("Overlaping with %s, Velocity %f", *GetNameSafe(Item), *Item->GetVelocity().ToString());
+	}
+}
