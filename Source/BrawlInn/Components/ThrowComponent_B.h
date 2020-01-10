@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "Components/ActorComponent.h"
 #include "ThrowComponent_B.generated.h"
 
 class APlayerCharacter_B;
@@ -11,7 +11,7 @@ class AGameMode_B;
 class UHoldComponent_B;
 
 UCLASS()
-class BRAWLINN_API UThrowComponent_B : public USceneComponent
+class BRAWLINN_API UThrowComponent_B : public UActorComponent
 {
 	GENERATED_BODY()
 public:

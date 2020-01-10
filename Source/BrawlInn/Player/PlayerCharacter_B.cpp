@@ -25,7 +25,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	HoldComponent->SetupAttachment(GetMesh());
 
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
-	ThrowComponent->SetupAttachment(GetMesh());
 	
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
