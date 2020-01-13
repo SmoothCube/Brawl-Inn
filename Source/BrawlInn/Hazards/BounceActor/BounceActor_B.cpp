@@ -3,8 +3,10 @@
 
 #include "BounceActor_B.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "BrawlInn.h"
 
-#include "GameFramework/ProjectileMovementComponent.h"
+#include "Player/PlayerCharacter_B.h"
 // Sets default values
 ABounceActor_B::ABounceActor_B()
 {
@@ -14,6 +16,7 @@ ABounceActor_B::ABounceActor_B()
 	SetRootComponent(Mesh);
 }
 
+
 // Called when the game starts or when spawned
 void ABounceActor_B::BeginPlay()
 {
@@ -21,6 +24,7 @@ void ABounceActor_B::BeginPlay()
 	SetActorRotation(FRotator(0, 50, 0));
 	//Mesh->AddForce(FVector(-25000, 25000, 0));
 
+	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnOverlapBegin);
 }
 
 // Called every frame
@@ -31,3 +35,12 @@ void ABounceActor_B::Tick(float DeltaTime)
 
 }
 
+void ABounceActor_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	BWarn("Barrel Collides with %s", *GetNameSafe(OverlappedComp));
+	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
+	if (Player)
+	{
+		Player->GetCharacterMovement()->AddImpulse(GetVelocity());
+	}
+}

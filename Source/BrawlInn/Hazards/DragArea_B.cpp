@@ -29,12 +29,12 @@ void ADragArea_B::BeginPlay()
 void ADragArea_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//TArray<
 	for (int i=0; i<ActorsToMove.Num(); i++)
 	{
-		if (ActorsToMove.IsValidIndex(i))
+		if (ActorsToMove.IsValidIndex(i) && ActorsToMove[i])
 		{
-				ActorsToMove[i]->AddActorWorldOffset(GetActorForwardVector() * DragStrength*DeltaTime);
+			ActorsToMove[i]->AddActorWorldOffset(GetActorForwardVector() * DragStrength*DeltaTime);
 		}
 		else
 		{
