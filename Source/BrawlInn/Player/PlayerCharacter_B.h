@@ -35,12 +35,14 @@ protected:
 
 	
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Variables")
 	float RecoveryTime = 2.0;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float TimeBeforeFall = 1.f;
 
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float FallLimitMultiplier = 3.5f;
 	
 
 	virtual void PossessedBy(AController* NewController) override;

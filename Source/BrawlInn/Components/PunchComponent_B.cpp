@@ -8,6 +8,7 @@
 #include "Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
+#include "BrawlInn.h"
 #include "TimerManager.h"
 
 // Sets default values for this component's properties
@@ -59,7 +60,7 @@ void UPunchComponent_B::Dash()
 	float dist = (MaxDashDistance-MinDashDistance)*f + MinDashDistance;
 	Player->GetCharacterMovement()->AddForce(Player->GetActorForwardVector() * dist* DashForceModifier);
 	
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::Dash] Dashing: f: %f, dist: %f"), f, dist);
+	//UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::Dash] Dashing: f: %f, dist: %f"), f, dist);
 }
 
 void UPunchComponent_B::PunchEnd()
@@ -68,7 +69,6 @@ void UPunchComponent_B::PunchEnd()
 	if (!bIsPunching) { return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd] Player Punch End: %s"), *GetNameSafe(this));
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	//Dash ends
@@ -96,12 +96,25 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
-	UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s"), *GetNameSafe(this));
+	BWarn("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s", *GetNameSafe(this));
 	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity());
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 	bHasHit = true;
 	
+}
+
+void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
+{
+	if (!OtherComp) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+
+	BWarn("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s", *GetNameSafe(this));
+	Player->CurrentFallTime = 0.f;
+	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+	OtherComp->AddImpulse(Player->GetVelocity() * BasePunchStrength);
+	bHasHit = true;
+
 }
 
 bool UPunchComponent_B::GetIsPunching()
@@ -116,12 +129,12 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength)
 	if (strength > MinPunchStrengthToFall)
 	{
 		PunchEnd();
-		Player->Fall();
-		Player->GetMesh()->AddForce(InPunchStrength * BasePunchStrength, "ProtoPlayer_BIND_Head_JNT_center");
+		//Player->Fall();
+		Player->GetCharacterMovement()->AddImpulse(InPunchStrength * BasePunchStrength);
 	}
 	else
 	{
-		Player->GetCharacterMovement()->AddForce(InPunchStrength * BasePunchStrength);
+		Player->GetCharacterMovement()->AddImpulse(InPunchStrength * BasePunchStrength);
 	}
 }
 
@@ -131,8 +144,11 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 
-	if (!bHasHit && OtherActor != GetOwner() && OtherPlayer != nullptr && Capsule != nullptr)
+	if (!bHasHit && OtherActor != GetOwner())
 	{
-		PunchHit(OtherPlayer);
+		if(OtherPlayer != nullptr && Capsule != nullptr)
+			PunchHit(OtherPlayer);
+		else
+			PunchHit(OtherComp);
 	}
 }
