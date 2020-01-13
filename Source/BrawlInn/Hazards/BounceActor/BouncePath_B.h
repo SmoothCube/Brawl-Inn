@@ -8,7 +8,7 @@
 
 class USplineComponent;
 class ABounceActor_B;
-
+class ATargetPoint;
 UCLASS()
 class BRAWLINN_API ABouncePath_B : public AActor
 {
@@ -32,4 +32,8 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class USplineComponent* SplineCurve = nullptr;
 	void AddBounceActor(ABounceActor_B* inBounceActor);
+
+
+	UPROPERTY(EditAnywhere)
+		TArray<ATargetPoint*> BouncePoints;
 };

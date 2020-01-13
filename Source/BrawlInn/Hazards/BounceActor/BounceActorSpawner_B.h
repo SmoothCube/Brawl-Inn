@@ -8,6 +8,7 @@
 #include "BounceActorSpawner_B.generated.h"
 class ABounceActor_B;
 class ABouncePath_B;
+class ATargetPoint;
 UCLASS()
 class BRAWLINN_API ABounceActorSpawner_B : public AActor
 {
@@ -24,8 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float SpawnDelay = 5.f;
 
-	UPROPERTY(EditAnywhere)
-	TArray<ABouncePath_B*> Paths;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABounceActor_B> ActorToSpawn;
 
@@ -36,5 +36,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere)
+		TArray<ATargetPoint*> BouncePoints;
 
 };

@@ -12,7 +12,6 @@ ABounceActor_B::ABounceActor_B()
 	PrimaryActorTick.bCanEverTick = false;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	SetRootComponent(Mesh);
-	MoveComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
 }
 
 // Called when the game starts or when spawned
@@ -20,7 +19,7 @@ void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorRotation(FRotator(0, 50, 0));
-	Mesh->AddForce(FVector(-25000, 25000, 0));
+	//Mesh->AddForce(FVector(-25000, 25000, 0));
 
 }
 
@@ -29,7 +28,6 @@ void ABounceActor_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	SetActorRotation(FRotator(GetActorRotation().Pitch, 50, GetActorRotation().Roll));
-	AddActorLocalRotation(FRotator(0,0, RotateSpeed * DeltaTime	));
 
 }
 

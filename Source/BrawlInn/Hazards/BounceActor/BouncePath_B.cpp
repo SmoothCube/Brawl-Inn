@@ -4,6 +4,9 @@
 #include "BouncePath_B.h"
 #include "Components/SplineComponent.h"
 #include "BounceActor_B.h"
+#include "Engine/TargetPoint.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "BounceActor_B.h"
 // Sets default values
@@ -28,12 +31,14 @@ void ABouncePath_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	for (auto& a : ActiveBounceActors)
 	{
-		a->SetActorLocation(SplineCurve->GetLocationAtTime(a->TimeStep, ESplineCoordinateSpace::World, false));
-		a->TimeStep += DeltaTime * a->Speed;
-		if (a->TimeStep >=1)
-		{
-			ToRemove.Add(a);
-		}
+
+
+		//a->SetActorLocation(SplineCurve->GetLocationAtTime(a->TimeStep, ESplineCoordinateSpace::World, false));
+		//a->TimeStep += DeltaTime * a->Speed;
+		//if (a->TimeStep >=1)
+		//{
+		//	ToRemove.Add(a);
+		//}
 	}
 	for (auto& a : ToRemove)
 	{

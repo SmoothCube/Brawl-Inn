@@ -30,14 +30,4 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 
-	UPROPERTY(VisibleAnywhere)
-	UProjectileMovementComponent* MoveComp;
-	UPROPERTY(EditAnywhere)
-	float RotateSpeed = 100.f;
-
-	UPROPERTY(EditAnywhere)
-	float Speed = 1.f;
-	float TimeStep = 0.f;
-
-
 };

@@ -35,24 +35,16 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 
 void ABounceActorSpawner_B::SpawnBounceActor()
 {
-	//spawns to path
-	if (Paths.Num() > 0)
-	{
-		ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));
-		if(Paths[NextPath])
-			Paths[NextPath]->AddBounceActor(NewBounceActor);
-		else
-			UE_LOG(LogTemp, Error, TEXT("[ABounceActorSpawner_B::SpawnBounceActor] Empty Slot in Path Array!"));
+	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));
 
-		//cycles through the different paths instead of random spawning
-		NextPath++;
-		if (NextPath >= Paths.Num())
-		{
-			NextPath = 0;
-		}
-	}
-	else
+	FVector LaunchVel = FVector::ZeroVector;
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), BouncePoints[NextPath]->GetActorLocation(), 0.0f, 0.5f);
+	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
+
+	//	//cycles through the different paths instead of random spawning
+	NextPath++;
+	if (NextPath >= BouncePoints.Num())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ABounceActorSpawner_B::SpawnBounceActor] No paths for barrel!"));
+		NextPath = 0;
 	}
 }
