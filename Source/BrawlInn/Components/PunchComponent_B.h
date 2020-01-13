@@ -54,7 +54,7 @@ protected:
 	float MinPunchStrengthToFall = 1000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float BasePunchStrength = 10000.f;
+	float BasePunchStrength = 175.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float PunchWaitingTime = 0.1f;

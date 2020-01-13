@@ -63,12 +63,21 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	//Normalizes to make sure we dont move faster than max speed, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f) 
 		InputVector.Normalize();
-	
-	if (GetMovementComponent()->Velocity.Size() >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
+	float Speed = GetMovementComponent()->Velocity.Size();
+	if (Speed >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
 	{
 		CurrentFallTime += DeltaTime;
-		if(CurrentFallTime>= TimeBeforeFall && !bHasFallen)
+		if (CurrentFallTime >= TimeBeforeFall && !bHasFallen)
+		{
+			BWarn("[APlayerCharacter_B::HandleMovement] Falling! FallTime passed! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 			Fall();
+
+		}
+		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier && !bHasFallen)
+		{
+			BWarn("Falling! Speed over max! Velocity: %s Speed: %f", *GetMovementComponent()->Velocity.ToString(), Speed);
+			Fall();
+		}
 	}
 	else
 	{
@@ -80,10 +89,11 @@ void APlayerCharacter_B::Fall()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, NAME_None, true);
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
 		bHasFallen = true;
 	}
@@ -91,7 +101,7 @@ void APlayerCharacter_B::Fall()
 
 void APlayerCharacter_B::StandUp()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
+	//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
 	GetMovementComponent()->StopMovementImmediately();
 	GetMesh()->SetSimulatePhysics(false);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);

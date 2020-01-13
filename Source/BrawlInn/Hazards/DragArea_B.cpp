@@ -55,11 +55,9 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		}
 	}
 	ActorsToMove.Add(OtherActor);
-	UE_LOG(LogTemp, Warning, TEXT("[ADragArea_B::OnOverlapBegin] Drag Area Overlaps with: %s"), *GetNameSafe(OtherActor));
 }
 
 void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
 	ActorsToMove.Remove(OtherActor);
-	UE_LOG(LogTemp, Warning, TEXT("[ADragArea_B::OnOverlapEnd] Drag Area Ends Overlaps with: %s"), *GetNameSafe(OtherActor));
 }
