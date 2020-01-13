@@ -14,6 +14,8 @@ enum class EThrowableTypes : uint8
 };
 
 class USphereComponent;
+class UNiagaraSystem;
+class APlayerCharacter_B;
 
 UCLASS()
 class BRAWLINN_API AThrowable_B : public AActor
@@ -21,7 +23,6 @@ class BRAWLINN_API AThrowable_B : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AThrowable_B();
 
 	UPROPERTY(VisibleAnywhere)
@@ -33,19 +34,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EThrowableTypes Type = EThrowableTypes::ENone;
 
-	void PickedUp();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraSystem* ParticleSystem;
+
+	void PickedUp(APlayerCharacter_B* Owner);
 
 	void Dropped();
 
 	bool IsHeld() const;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaTime) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
+	UFUNCTION()
+	void OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 
-	bool bIsHeld = false;
+	APlayerCharacter_B* OwningPlayer = nullptr;
 };

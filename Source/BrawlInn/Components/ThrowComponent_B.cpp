@@ -129,7 +129,6 @@ void UThrowComponent_B::Throw()
 	if (!HoldComponent->IsHolding())
 		return;
 
-	//BScreen("Throwing");
 	/// Prepare item to be thrown
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	HoldComponent->GetHoldingItem()->DetachFromActor(rules);

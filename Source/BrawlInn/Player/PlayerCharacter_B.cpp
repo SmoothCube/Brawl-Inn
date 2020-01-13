@@ -37,7 +37,7 @@ void APlayerCharacter_B::BeginPlay()
 	
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
+	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
@@ -105,6 +105,7 @@ void APlayerCharacter_B::StandUp()
 	bHasFallen = false;
 }
 
+//TODO Cleanup, not in use.
 void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -118,15 +119,16 @@ void APlayerCharacter_B::PunchButtonPressed()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[APlayerCharacter_B::PunchButtonPressed] No Punch Component for player %s"), *GetNameSafe(this));
+		BError("No Punch Component for player %s", *GetNameSafe(this));
 	}
 }
 
+//TODO Cleanup, this is currently not in use. Adddynamic on capsule is commented out.
 void APlayerCharacter_B::CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AThrowable_B* Item(Cast<AThrowable_B>(OtherActor));
 	if (Item)
 	{
-		BWarn("Overlaping with %s, Velocity %f", *GetNameSafe(Item), *Item->GetVelocity().ToString());
+	//	BWarn("Overlaping with %s, Velocity %f", *GetNameSafe(Item), *Item->GetVelocity().ToString());
 	}
 }

@@ -94,7 +94,7 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AThrowable_B* Item)
 {
-	Item->PickedUp();
+	Item->PickedUp(OwningPlayer);
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
