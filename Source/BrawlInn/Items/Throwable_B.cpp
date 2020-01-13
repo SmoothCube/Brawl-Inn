@@ -4,11 +4,12 @@
 #include "Throwable_B.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
-
-#include "BrawlInn.h"
-#include "Player/PlayerCharacter_B.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "BrawlInn.h"
+
+#include "Player/PlayerCharacter_B.h"
 
 AThrowable_B::AThrowable_B()
 {
@@ -46,10 +47,15 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 {
 	if (!IsHeld() || OtherActor == OwningPlayer || OtherActor->StaticClass() == this->StaticClass())
 		return;
+	APlayerCharacter_B* HitPlayer = Cast<APlayerCharacter_B>(OtherActor);
+	if (HitPlayer)
+	{
+		HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity()* ThrowHitStrength);
+		BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
+	}
 
 	Destroy();
 	
-	BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
 }
 
 void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
