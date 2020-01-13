@@ -16,6 +16,7 @@ enum class EThrowableTypes : uint8
 class USphereComponent;
 class UNiagaraSystem;
 class APlayerCharacter_B;
+class UDestructibleComponent;
 
 UCLASS()
 class BRAWLINN_API AThrowable_B : public AActor
@@ -26,7 +27,7 @@ public:
 	AThrowable_B();
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Mesh;
+	UDestructibleComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* PickupSphere;
