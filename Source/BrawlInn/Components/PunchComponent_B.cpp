@@ -104,6 +104,19 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	
 }
 
+void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
+{
+	if (!OtherComp) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+
+	BWarn("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s", *GetNameSafe(this));
+	Player->CurrentFallTime = 0.f;
+	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+	OtherComp->AddImpulse(Player->GetVelocity() * BasePunchStrength);
+	bHasHit = true;
+
+}
+
 bool UPunchComponent_B::GetIsPunching()
 {
 	return bIsPunching;
@@ -131,8 +144,11 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 
-	if (!bHasHit && OtherActor != GetOwner() && OtherPlayer != nullptr && Capsule != nullptr)
+	if (!bHasHit && OtherActor != GetOwner())
 	{
-		PunchHit(OtherPlayer);
+		if(OtherPlayer != nullptr && Capsule != nullptr)
+			PunchHit(OtherPlayer);
+		else
+			PunchHit(OtherComp);
 	}
 }

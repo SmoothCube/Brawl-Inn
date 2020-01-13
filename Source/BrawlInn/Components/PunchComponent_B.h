@@ -41,6 +41,7 @@ public:
 	void PunchEnd();
 	
 	void PunchHit(APlayerCharacter_B* OtherPlayer);
+	void PunchHit(UPrimitiveComponent* OtherComp);
 
 	void GetPunched(FVector InPunchStrength);
 
