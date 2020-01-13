@@ -6,10 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "PlayerController_B.generated.h"
 
-/**
- *
- */
-
+class UHealthComponent_B;
 class APlayerCharacter_B;
 
 UCLASS()
@@ -18,15 +15,21 @@ class BRAWLINN_API APlayerController_B : public APlayerController
 	GENERATED_BODY()
 
 public:
+	APlayerController_B();
+
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
 	bool HasValidCharacter();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UHealthComponent_B* HealthComponent;
+
+
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 
 	UFUNCTION()
-	void KillPlayerCharacter();
+		void KillPlayerCharacter();
 private:
 
 	void MoveUp(float Value);

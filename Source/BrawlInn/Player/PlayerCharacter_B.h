@@ -24,9 +24,6 @@ public:
 	UPunchComponent_B* PunchComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UHealthComponent_B* HealthComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -52,6 +49,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void PunchButtonPressed();
+
+	UFUNCTION()
+	void CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	void HandleRotation();
 
@@ -63,8 +63,8 @@ public:
 	FVector InputVector = FVector::ZeroVector;
 	FVector RotationVector = FVector::ZeroVector;
 
-private:
 	bool bHasFallen = false;
+private:
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
 

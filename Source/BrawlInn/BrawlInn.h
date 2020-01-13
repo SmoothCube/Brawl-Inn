@@ -67,10 +67,10 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
     { \
         TCHAR StdMsg[MAX_SPRINTF] = TEXT(""); \
         FCString::Sprintf(StdMsg, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *GetNameSafe(this)); \
-        GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, StdMsg); \
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::White, StdMsg); \
     } \
     else \
     { \
-        GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, Msg); \
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::White, Msg); \
     } \
 }

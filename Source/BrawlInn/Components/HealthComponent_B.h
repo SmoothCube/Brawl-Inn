@@ -18,7 +18,7 @@ public:
 	UHealthComponent_B();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		int GetHealth();
+		int GetHealth() const;
 
 	UFUNCTION(BlueprintCallable)
 		void SetHealth(int Value);
@@ -26,16 +26,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void TakeDamage(int Value = 1);
 
-	UPROPERTY(BlueprintAssignable, Category = ScoreSubsystem)
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
 		FHealthUpdate HealthUpdated_D;
 
-	UPROPERTY(BlueprintAssignable, Category = ScoreSubsystem)
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
 		FZeroHealth HealthIsZero_D;
 
 protected:
-	virtual void BeginPlay() override;
-
-private:
-
-	int Health = 5;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Health)
+		int Health = 5;
 };

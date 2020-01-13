@@ -13,6 +13,7 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	SphereRadius = PickupRange;
 	PrimaryComponentTick.bCanEverTick = false;
+
 }
 
 void UHoldComponent_B::BeginPlay()
@@ -58,7 +59,18 @@ bool UHoldComponent_B::TryPickup()
 	switch (ThrowableItemsInCone.Num())
 	{
 	case 0:
-		return false;
+		ThrowableItemsInRange.Sort([&](const AThrowable_B& LeftSide, const AThrowable_B& RightSide)
+			{
+				FVector A = LeftSide.GetActorLocation();
+				A.Z = 0;
+				FVector B = RightSide.GetActorLocation();
+				B.Z = 0;
+				float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
+				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
+				return DistanceA < DistanceB;
+			});
+		NearestItem = ThrowableItemsInRange[0];
+		break;
 	case 1:
 		NearestItem = ThrowableItemsInCone[0];
 		break;

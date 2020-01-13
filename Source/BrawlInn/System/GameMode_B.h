@@ -13,7 +13,9 @@ class AGameCamera_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpawnCharacter, APlayerController_B*, PlayerControllerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*, PlayerControllerReference);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameModeInit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
+
 
 
 
@@ -32,7 +34,10 @@ public:
 	FDespawnCharacter DespawnCharacter_D;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FGameModeInit GameModeInit_D;
+	FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
 
 protected:
 
