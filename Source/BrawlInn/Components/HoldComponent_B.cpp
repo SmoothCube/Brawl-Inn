@@ -5,6 +5,7 @@
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "DestructibleComponent.h"
 
 #include "Items/Throwable_B.h"
 #include "Player/PlayerCharacter_B.h"

@@ -15,8 +15,14 @@ AThrowable_B::AThrowable_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	Mesh = CreateDefaultSubobject<UDestructibleComponent>("Mesh");
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
+
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetVisibility(false);
+
+	DestructibleMesh = CreateDefaultSubobject<UDestructibleComponent>("Destructible Mesh");
+	DestructibleMesh->SetupAttachment(Mesh);
 
 	PickupSphere = CreateDefaultSubobject<USphereComponent>("Sphere");
 	PickupSphere->SetupAttachment(Mesh);
@@ -45,17 +51,21 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!IsHeld() || OtherActor == OwningPlayer || OtherActor->StaticClass() == this->StaticClass())
+	if (!IsHeld() || OtherActor == OwningPlayer || OtherActor == this)
 		return;
 
 	Destroy();
 	
-	BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
+	BScreen("%s is overlapping with %s", *GetNameSafe(this),*GetNameSafe(OtherActor));
 }
 
 void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
 {
-	Mesh->SetSimulatePhysics(false);
+	DestructibleMesh->SetSimulatePhysics(false);
+	DestructibleMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DestructibleMesh->SetVisibility(false);
+
+	Mesh->SetVisibility(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	OwningPlayer = Owner;
 
@@ -63,9 +73,14 @@ void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
 
 void AThrowable_B::Dropped()
 {
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetSimulatePhysics(true);
-	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+//	DestructibleMesh->SetVisibility(true);
+//	DestructibleMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+////	DestructibleMesh->SetSimulatePhysics(true);
+//
+//	Mesh->SetVisibility(false);
+//	
+//	/// Setter på kollisjon så den kan finne gulvet.
+//	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 }
 
 bool AThrowable_B::IsHeld() const

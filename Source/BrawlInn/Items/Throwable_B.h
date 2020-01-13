@@ -27,7 +27,10 @@ public:
 	AThrowable_B();
 
 	UPROPERTY(VisibleAnywhere)
-	UDestructibleComponent* Mesh;
+	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(VisibleAnywhere)
+	UDestructibleComponent* DestructibleMesh;
 
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* PickupSphere;
