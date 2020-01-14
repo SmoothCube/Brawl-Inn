@@ -10,6 +10,7 @@
 #include "BrawlInn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/HoldComponent_B.h"
 #include "Player/PlayerCharacter_B.h"
 
 AThrowable_B::AThrowable_B()
@@ -38,6 +39,8 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		BWarn("Spawning particles from %s system.", *GetNameSafe(ParticleSystem));
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, GetActorLocation());
+		OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
+		OwningPlayer = nullptr;
 	}
 }
 
@@ -70,7 +73,6 @@ void AThrowable_B::Dropped()
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
 	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
-	//OwningPlayer = nullptr;
 }
 
 bool AThrowable_B::IsHeld() const
