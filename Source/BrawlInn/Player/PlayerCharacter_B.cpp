@@ -54,9 +54,11 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	HandleMovement(DeltaTime);
-	HandleRotation();
+	if (!(State == EState::EFallen))
+	{
+		HandleMovement(DeltaTime);
+		HandleRotation();
+	}
 }
 
 void APlayerCharacter_B::HandleRotation()
@@ -67,7 +69,6 @@ void APlayerCharacter_B::HandleRotation()
 		SetActorRotation(RotationVector.ToOrientationRotator());
 	}
 }
-
 
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
@@ -81,11 +82,11 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		float Intensity = CurrentFallTime + 0.7;
 		if (!PunchComponent->bIsPunching && PlayerController)
 			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
-		if (CurrentFallTime >= TimeBeforeFall && !bHasFallen)
+		if (CurrentFallTime >= TimeBeforeFall)
 		{
 			Fall();
 		}
-		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier && !bHasFallen)
+		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
 		{
 			Fall();
 		}
@@ -100,8 +101,8 @@ void APlayerCharacter_B::Fall()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
-		
-		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
+		State = EState::EFallen;
+		UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
@@ -111,58 +112,29 @@ void APlayerCharacter_B::Fall()
 		bool RU, RD, LU, LD;
 		RU = RD = LU = LD = true; // false
 
-		//FVector Vel = GetCharacterMovement()->Velocity;
-		//Vel.Normalize();
-		//if (Vel.X > 0.1)
-		//{
-		//	if (Vel.Y > 0.1)
-		//		RU = true;
-		//	else if (Vel.Y < -0.1)
-		//		LU = true;
-		//	else
-		//		RU = LU = true;
-		//}
-		//else if (Vel.X < -0.1)
-		//{
-		//	if (Vel.Y > 0.1)
-		//		RD = true;
-		//	else if (Vel.Y < -0.1)
-		//		LD = true;
-		//	else
-		//		RD = LD = true;
-		//}
-		//else
-		//{
-		//	if (Vel.Y > 0.1)
-		//		RD = RU = true;
-		//	else if (Vel.Y < -0.1)
-		//		LD = RU = true;
-		//	else
-		//		RD = LD = RU = LU = true;
-		//}
-	#if WITH_EDITOR
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, LU, LD, RU, RD);	
-	#endif
+
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
-		bHasFallen = true;
 	}
 }
 
 void APlayerCharacter_B::StandUp()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
-	GetMovementComponent()->StopMovementImmediately();
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
-	FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
-	GetMesh()->AttachToComponent(GetRootComponent(), Rule);
-	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-	AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
-
-	bHasFallen = false;
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
+		State = EState::EWalking;
+		GetMovementComponent()->StopMovementImmediately();
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
+		FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
+		GetMesh()->AttachToComponent(GetRootComponent(), Rule);
+		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
+		AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	}
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)

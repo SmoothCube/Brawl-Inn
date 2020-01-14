@@ -12,7 +12,13 @@ class UThrowComponent_B;
 class UPunchComponent_B;
 class APlayerController_B;
 
-
+UENUM(BlueprintType)		//"BlueprintType" is essential to include
+enum class EState : uint8
+{
+	EWalking 	UMETA(DisplayName = "Walking"),
+	EHolding 	UMETA(DisplayName = "Holding"),
+	EFallen		UMETA(DisplayName = "Fallen")
+};
 
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter
@@ -71,9 +77,9 @@ public:
 	FVector InputVector = FVector::ZeroVector;
 	FVector RotationVector = FVector::ZeroVector;
 
-	bool bHasFallen = false;
-
 	APlayerController_B* PlayerController = nullptr;
+
+	EState State = EState::EWalking;
 private:
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;

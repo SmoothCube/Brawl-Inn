@@ -60,7 +60,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
-		if (OtherPlayer->bHasFallen)
+		if (OtherPlayer->State == EState::EFallen)
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
 		OtherPlayerLocation.Z = 0;
