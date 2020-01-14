@@ -10,7 +10,6 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "Hazards/BounceActor/BounceActor_B.h"
-#include "Hazards/BounceActor/BouncePath_B.h"
 
 // Sets default values
 ABounceActorSpawner_B::ABounceActorSpawner_B()
