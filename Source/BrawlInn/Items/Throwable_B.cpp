@@ -7,7 +7,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-
 #include "BrawlInn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -57,11 +56,11 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	Destroy();
 }
 
-void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
+void AThrowable_B::PickedUp(APlayerCharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	OwningPlayer = Owner;
+	OwningPlayer = Player;
 }
 
 void AThrowable_B::Dropped()

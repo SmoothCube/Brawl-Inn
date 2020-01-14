@@ -12,7 +12,5 @@ class BRAWLINN_API AInitPawn_B : public APawn
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	AInitPawn_B();
-
 };

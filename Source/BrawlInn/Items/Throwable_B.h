@@ -25,7 +25,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* PickupSphere;
 
-	void PickedUp(APlayerCharacter_B* Owner);
+	void PickedUp(APlayerCharacter_B* Player);
 
 	void Dropped();
 

@@ -10,6 +10,7 @@
 #include "Components/SphereComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
 
 #include "Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
@@ -102,7 +103,7 @@ void APlayerCharacter_B::Fall()
 	if (!GetCharacterMovement()->IsFalling())
 	{
 		State = EState::EFallen;
-		UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
+		BWarn("Falling! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
@@ -139,7 +140,7 @@ void APlayerCharacter_B::StandUp()
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
-	BWarn("%s", *GetNameSafe(this));
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
@@ -152,13 +153,12 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	}
 }
 
-//TODO Cleanup, not in use.
 void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	PlayerController = Cast<APlayerController_B>(NewController);
-
 }
+
 void APlayerCharacter_B::PunchButtonPressed()
 {
 	if (PunchComponent)

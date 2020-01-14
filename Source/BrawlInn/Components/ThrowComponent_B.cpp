@@ -70,7 +70,6 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 			continue;
 
 		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToOtherPlayer.GetSafeNormal())));
-	//	BScreen("Angle: %f", AngleA);
 		if (AngleA <= AimAssistAngle)
 			PlayersInCone.Add(OtherPlayer);
 	}
@@ -97,7 +96,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		TargetPlayer = PlayersInCone[0];
 		break;
 	}
-//	BScreen("Using AimAssist");
+
 	FVector TargetLocation = TargetPlayer->GetActorLocation();
 	TargetLocation.Z = 0;
 	FVector ThrowDirection = TargetLocation - PlayerLocation;
@@ -117,7 +116,6 @@ void UThrowComponent_B::OneCharacterChanged()
 	//	BScreen("Player %s, %i", *GetNameSafe(Player), TempArray.Num());
 		OtherPlayers.Add(Cast<APlayerCharacter_B>(Player));
 	}
-	BScreen("OtherPlayer size %i", OtherPlayers.Num());
 
 	/// Finds the holdcomponent.
 	// Dette kan kanskje flyttes til BeginPlay ? Usikker på hvilke av komponentene som blir laget først
