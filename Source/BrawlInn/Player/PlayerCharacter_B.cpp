@@ -15,6 +15,7 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Components/HealthComponent_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
 
@@ -40,6 +41,14 @@ void APlayerCharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
+
+}
+
+float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	PlayerController->HealthComponent->TakeDamage(DamageAmount);
+	return DamageAmount;
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)

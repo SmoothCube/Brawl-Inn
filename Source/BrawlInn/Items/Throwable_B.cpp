@@ -5,6 +5,7 @@
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "BrawlInn.h"
@@ -25,11 +26,8 @@ AThrowable_B::AThrowable_B()
 
 void AThrowable_B::BeginPlay()
 {
-
 	Super::BeginPlay();
-
 	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &AThrowable_B::OnThrowOverlapBegin);
-
 }
 
 void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -52,10 +50,10 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	{
 		HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity()* ThrowHitStrength);
 		BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
-	}
 
+		UGameplayStatics::ApplyDamage(HitPlayer,DamageAmount, OwningPlayer->GetController(),this, BP_DamageType);
+	}
 	Destroy();
-	
 }
 
 void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
@@ -63,7 +61,6 @@ void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	OwningPlayer = Owner;
-
 }
 
 void AThrowable_B::Dropped()
@@ -79,7 +76,3 @@ bool AThrowable_B::IsHeld() const
 		return true;
 	return false;
 }
-
-
-
-
