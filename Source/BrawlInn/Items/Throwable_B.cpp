@@ -6,10 +6,11 @@
 #include "NiagaraFunctionLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+
+
+#include "BrawlInn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
-#include "BrawlInn.h"
-
 #include "Player/PlayerCharacter_B.h"
 
 AThrowable_B::AThrowable_B()
