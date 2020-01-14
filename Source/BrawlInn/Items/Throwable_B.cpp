@@ -70,7 +70,7 @@ void AThrowable_B::Dropped()
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
 	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
-	OwningPlayer = nullptr;
+	//OwningPlayer = nullptr;
 }
 
 bool AThrowable_B::IsHeld() const

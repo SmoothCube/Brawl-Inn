@@ -68,6 +68,7 @@ public:
 	void HandleRotation();
 
 	void HandleMovement(float DeltaTime);
+	void HandleMovementHold();
 
 	void Fall();
 	void StandUp();
