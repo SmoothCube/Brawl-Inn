@@ -39,8 +39,11 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		BWarn("Spawning particles from %s system.", *GetNameSafe(ParticleSystem));
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, GetActorLocation());
-		OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
-		OwningPlayer = nullptr;
+		if (OwningPlayer)
+		{
+			OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
+			OwningPlayer = nullptr;
+		}
 	}
 }
 
@@ -51,10 +54,10 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	APlayerCharacter_B* HitPlayer = Cast<APlayerCharacter_B>(OtherActor);
 	if (HitPlayer)
 	{
-		HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity()* ThrowHitStrength);
+		HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 		BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
 
-		UGameplayStatics::ApplyDamage(HitPlayer,DamageAmount, OwningPlayer->GetController(),this, BP_DamageType);
+		UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningPlayer->GetController(), this, BP_DamageType);
 	}
 	Destroy();
 }
