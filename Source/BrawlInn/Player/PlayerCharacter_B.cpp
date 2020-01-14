@@ -9,12 +9,14 @@
 #include "Engine/World.h"
 #include "Components/SphereComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Items/Throwable_B.h"
+#include "System/GameMode_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -69,17 +71,13 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		CurrentFallTime += DeltaTime;
 		float Intensity = CurrentFallTime + 0.7;
 		if (!PunchComponent->bIsPunching && PlayerController)
-			PlayerController->PlayDynamicForceFeedback(Intensity, 0.1f, true, true, true, true);
+			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
 		if (CurrentFallTime >= TimeBeforeFall && !bHasFallen)
 		{
-			
-			BWarn("[APlayerCharacter_B::HandleMovement] Falling! FallTime passed! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 			Fall();
-
 		}
 		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier && !bHasFallen)
 		{
-			BWarn("Falling! Speed over max! Velocity: %s Speed: %f", *GetMovementComponent()->Velocity.ToString(), Speed);
 			Fall();
 		}
 	}
@@ -133,9 +131,10 @@ void APlayerCharacter_B::Fall()
 		//	else
 		//		RD = LD = RU = LU = true;
 		//}
-
+	#if WITH_EDITOR
 		if (PlayerController)
-			PlayerController->PlayDynamicForceFeedback(1.f, 0.5f, LU, LD, RU, RD);	
+			PlayerController->PlayControllerVibration(1.f, 0.5f, LU, LD, RU, RD);	
+	#endif
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
 		bHasFallen = true;
 	}
@@ -155,6 +154,21 @@ void APlayerCharacter_B::StandUp()
 	AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 
 	bHasFallen = false;
+}
+
+void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+	BWarn("%s", *GetNameSafe(this));
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->DespawnCharacter_D.Broadcast(PlayerController);
+		GameMode->SpawnCharacter_D.Broadcast(PlayerController);
+	}
+	else
+	{
+		BError("GameMode Could Not Be Found!");
+	}
 }
 
 //TODO Cleanup, not in use.

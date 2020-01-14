@@ -11,6 +11,8 @@
 #include "System/GameMode_B.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "System/GameMode_B.h"
+
 APlayerController_B::APlayerController_B()
 {
 	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
@@ -47,6 +49,18 @@ bool APlayerController_B::HasValidCharacter()
 	if (PlayerCharacter)
 			return true;
 	return false;
+}
+
+void APlayerController_B::PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action)
+{
+	if(bVibrateControllers)
+		PlayDynamicForceFeedback(Strength, Duration, bAffectsLeftLarge, bAffectsLeftSmall, bAffectsRightLarge, bAffectsRightSmall, Action);
+
+}
+
+void APlayerController_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+
 }
 
 void APlayerController_B::MoveUp(float Value)

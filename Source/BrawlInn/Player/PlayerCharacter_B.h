@@ -65,6 +65,8 @@ public:
 	void Fall();
 	void StandUp();
 
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
+
 	FVector InputVector = FVector::ZeroVector;
 	FVector RotationVector = FVector::ZeroVector;
 

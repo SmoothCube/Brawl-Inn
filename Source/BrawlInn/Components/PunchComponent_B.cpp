@@ -102,7 +102,7 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity());
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-	Player->PlayerController->PlayDynamicForceFeedback(0.7, 0.3, true, true, true, true);
+	Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
 	bHasHit = true;
 	
 }
