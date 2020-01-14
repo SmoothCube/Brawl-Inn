@@ -28,10 +28,6 @@
 		{
 			"Name": "Niagara",
 			"Enabled": true
-		},
-		{
-			"Name": "ApexDestruction",
-			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
