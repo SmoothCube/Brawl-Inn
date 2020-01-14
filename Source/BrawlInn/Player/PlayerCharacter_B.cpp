@@ -33,6 +33,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCharacterMovement()->MaxCustomMovementSpeed = 600.f;
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -57,7 +59,10 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (!(State == EState::EFallen))
 	{
-		HandleMovement(DeltaTime);
+		if (State == EState::EWalking)
+			HandleMovement(DeltaTime);
+		else if (State == EState::EHolding)
+			HandleMovementHold();
 		HandleRotation();
 	}
 }
@@ -73,6 +78,9 @@ void APlayerCharacter_B::HandleRotation()
 
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
+	//shouldnt set this each tick
+	GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+
 	//Normalizes to make sure we dont move faster than max speed, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f) 
 		InputVector.Normalize();
@@ -98,10 +106,26 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	}
 	GetMovementComponent()->AddInputVector(InputVector);
 }
+
+void APlayerCharacter_B::HandleMovementHold()
+{
+	//Shouldnt set this each tick
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+
+	if (InputVector.SizeSquared() >= 1.f)
+		InputVector.Normalize();
+	GetCharacterMovement()->AddInputVector(InputVector);
+}
+
 void APlayerCharacter_B::Fall()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
+		if (HoldComponent && HoldComponent->IsHolding())
+		{
+			HoldComponent->Drop();
+		}
+
 		State = EState::EFallen;
 		BWarn("Falling! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -56,6 +56,7 @@ protected:
 
 	// ** Functions **
 	void HandleMovement(float DeltaTime);
+	void HandleMovementHold();
 
 	void HandleRotation();
 

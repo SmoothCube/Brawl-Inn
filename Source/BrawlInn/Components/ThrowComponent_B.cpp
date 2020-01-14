@@ -125,11 +125,13 @@ void UThrowComponent_B::OneCharacterChanged()
 void UThrowComponent_B::Throw()
 {
 	if (!HoldComponent->IsHolding())
+	{
+		OwningPlayer->State = EState::EWalking;
 		return;
+	}
 
 	/// Prepare item to be thrown
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	HoldComponent->GetHoldingItem()->DetachFromActor(rules);
+
 	HoldComponent->GetHoldingItem()->Dropped();
 
 	/// Throw with the help of AimAssist.
@@ -139,6 +141,7 @@ void UThrowComponent_B::Throw()
 	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
 	HoldComponent->SetHoldingItem(nullptr);
 	bIsThrowing = false;
+	OwningPlayer->State = EState::EWalking;
 }
 
 bool UThrowComponent_B::IsReady() const

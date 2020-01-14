@@ -95,6 +95,7 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AThrowable_B* Item)
 {
+	OwningPlayer->State = EState::EHolding;
 	Item->PickedUp(OwningPlayer);
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
@@ -133,4 +134,10 @@ void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AAct
 	if (!IsValid(Item))
 		return;
 	ThrowableItemsInRange.Remove(Item);
+}
+
+void UHoldComponent_B::Drop()
+{
+	GetHoldingItem()->Dropped();
+	SetHoldingItem(nullptr);
 }
