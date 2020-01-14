@@ -4,8 +4,7 @@
 #include "BrawlInn.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "DestructibleComponent.h"
-
+#include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"

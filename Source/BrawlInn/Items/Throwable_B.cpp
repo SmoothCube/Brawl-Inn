@@ -9,13 +9,12 @@
 #include "Player/PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
-#include "DestructibleComponent.h"
 
 AThrowable_B::AThrowable_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	Mesh = CreateDefaultSubobject<UDestructibleComponent>("Mesh");
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
 
 	PickupSphere = CreateDefaultSubobject<USphereComponent>("Sphere");
