@@ -10,7 +10,8 @@ UENUM(BlueprintType)		//"BlueprintType" is essential to include
 enum class EThrowableTypes : uint8
 {
 	ENone 	UMETA(DisplayName = "None"),
-	EStool 	UMETA(DisplayName = "Stool")
+	EStool 	UMETA(DisplayName = "Stool"),
+	EBarrel UMETA(DisplayName = "Barrel")
 };
 
 class USphereComponent;
@@ -51,6 +52,8 @@ protected:
 	UFUNCTION()
 	void OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float ThrowHitStrength = 100;
 private:
 
 	APlayerCharacter_B* OwningPlayer = nullptr;

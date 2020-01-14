@@ -10,6 +10,9 @@ class UHealthComponent_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
 class UPunchComponent_B;
+class APlayerController_B;
+
+
 
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter
@@ -66,6 +69,8 @@ public:
 	FVector RotationVector = FVector::ZeroVector;
 
 	bool bHasFallen = false;
+
+	APlayerController_B* PlayerController = nullptr;
 private:
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;

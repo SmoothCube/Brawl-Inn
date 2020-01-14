@@ -11,10 +11,10 @@
 #include "TimerManager.h"
 
 #include "Player/PlayerController_B.h"
+#include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Items/Throwable_B.h"
-#include "Components/PunchComponent_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -67,8 +67,12 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	if (Speed >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
 	{
 		CurrentFallTime += DeltaTime;
+		float Intensity = CurrentFallTime + 0.7;
+		if (!PunchComponent->bIsPunching && PlayerController)
+			PlayerController->PlayDynamicForceFeedback(Intensity, 0.1f, true, true, true, true);
 		if (CurrentFallTime >= TimeBeforeFall && !bHasFallen)
 		{
+			
 			BWarn("[APlayerCharacter_B::HandleMovement] Falling! FallTime passed! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 			Fall();
 
@@ -89,11 +93,49 @@ void APlayerCharacter_B::Fall()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
+		
 		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
 		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, NAME_None, true);
+
+		//Decides which parts of the controller to vibrate. Overkill? probably but i wanted to test it.
+		bool RU, RD, LU, LD;
+		RU = RD = LU = LD = true; // false
+
+		//FVector Vel = GetCharacterMovement()->Velocity;
+		//Vel.Normalize();
+		//if (Vel.X > 0.1)
+		//{
+		//	if (Vel.Y > 0.1)
+		//		RU = true;
+		//	else if (Vel.Y < -0.1)
+		//		LU = true;
+		//	else
+		//		RU = LU = true;
+		//}
+		//else if (Vel.X < -0.1)
+		//{
+		//	if (Vel.Y > 0.1)
+		//		RD = true;
+		//	else if (Vel.Y < -0.1)
+		//		LD = true;
+		//	else
+		//		RD = LD = true;
+		//}
+		//else
+		//{
+		//	if (Vel.Y > 0.1)
+		//		RD = RU = true;
+		//	else if (Vel.Y < -0.1)
+		//		LD = RU = true;
+		//	else
+		//		RD = LD = RU = LU = true;
+		//}
+
+		if (PlayerController)
+			PlayerController->PlayDynamicForceFeedback(1.f, 0.5f, LU, LD, RU, RD);	
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
 		bHasFallen = true;
 	}
@@ -119,6 +161,7 @@ void APlayerCharacter_B::StandUp()
 void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	PlayerController = Cast<APlayerController_B>(NewController);
 
 }
 void APlayerCharacter_B::PunchButtonPressed()

@@ -5,11 +5,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "BrawlInn.h"
 #include "TimerManager.h"
+
+#include "Player/PlayerCharacter_B.h"
+#include "Player/PlayerController_B.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
@@ -100,6 +102,7 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity());
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+	Player->PlayerController->PlayDynamicForceFeedback(0.7, 0.3, true, true, true, true);
 	bHasHit = true;
 	
 }
