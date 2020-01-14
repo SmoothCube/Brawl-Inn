@@ -65,9 +65,12 @@ void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
 
 void AThrowable_B::Dropped()
 {
+	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(rules);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
 	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	OwningPlayer = nullptr;
 }
 
 bool AThrowable_B::IsHeld() const

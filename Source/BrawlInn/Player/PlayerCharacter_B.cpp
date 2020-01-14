@@ -101,6 +101,11 @@ void APlayerCharacter_B::Fall()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
+		if (HoldComponent && HoldComponent->IsHolding())
+		{
+			HoldComponent->Drop();
+		}
+
 		State = EState::EFallen;
 		UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
