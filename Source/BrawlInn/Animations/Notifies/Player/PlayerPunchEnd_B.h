@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AnimNotify_PlayerPunchEnd_B.generated.h"
+#include "PlayerPunchEnd_B.generated.h"
 
 class APlayerCharacter_B;
 
+
 UCLASS()
-class BRAWLINN_API UAnimNotify_PlayerPunchEnd_B : public UAnimNotify
+class BRAWLINN_API UPlayerPunchEnd_B : public UAnimNotify
 {
 	GENERATED_BODY()
 	
@@ -18,5 +19,6 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
 private:
+
 	APlayerCharacter_B* Player = nullptr;
 };
