@@ -139,7 +139,7 @@ void UThrowComponent_B::Throw()
 	FVector TargetLocation = OwningPlayer->GetActorForwardVector();
 	AimAssist(TargetLocation);
 	BScreen("TargetLocation %s", *TargetLocation.ToString());
-	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
+	HoldComponent->GetHoldingItem()->GetMesh()->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
 	HoldComponent->SetHoldingItem(nullptr);
 	bIsThrowing = false;
 }

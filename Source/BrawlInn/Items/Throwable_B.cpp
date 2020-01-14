@@ -9,23 +9,13 @@
 #include "Player/PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
-#include "DestructibleComponent.h"
 
 AThrowable_B::AThrowable_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	RootComponent = Mesh;
-
-	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Mesh->SetVisibility(false);
-
-	DestructibleMesh = CreateDefaultSubobject<UDestructibleComponent>("Destructible Mesh");
-	DestructibleMesh->SetupAttachment(Mesh);
-
 	PickupSphere = CreateDefaultSubobject<USphereComponent>("Sphere");
-	PickupSphere->SetupAttachment(Mesh);
+	PickupSphere->SetupAttachment(RootComponent);
 	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
 }
 
@@ -59,16 +49,16 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	BScreen("%s is overlapping with %s", *GetNameSafe(this),*GetNameSafe(OtherActor));
 }
 
-void AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
+AThrowable_B* AThrowable_B::PickedUp(APlayerCharacter_B* Owner)
 {
-	DestructibleMesh->SetSimulatePhysics(false);
-	DestructibleMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DestructibleMesh->SetVisibility(false);
+	//DestructibleMesh->SetSimulatePhysics(false);
+	//DestructibleMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//DestructibleMesh->SetVisibility(false);
 
-	Mesh->SetVisibility(true);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//Mesh->SetVisibility(true);
+	//Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	OwningPlayer = Owner;
-
+	return nullptr;
 }
 
 void AThrowable_B::Dropped()
@@ -80,7 +70,12 @@ void AThrowable_B::Dropped()
 //	Mesh->SetVisibility(false);
 //	
 //	/// Setter på kollisjon så den kan finne gulvet.
-//	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+}
+
+UMeshComponent* AThrowable_B::GetMesh()
+{
+	return nullptr;
 }
 
 bool AThrowable_B::IsHeld() const

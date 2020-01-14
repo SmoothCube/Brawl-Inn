@@ -16,7 +16,7 @@ enum class EThrowableTypes : uint8
 class USphereComponent;
 class UNiagaraSystem;
 class APlayerCharacter_B;
-class UDestructibleComponent;
+class UMeshComponent;
 
 UCLASS()
 class BRAWLINN_API AThrowable_B : public AActor
@@ -27,12 +27,6 @@ public:
 	AThrowable_B();
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Mesh;
-
-	UPROPERTY(VisibleAnywhere)
-	UDestructibleComponent* DestructibleMesh;
-
-	UPROPERTY(VisibleAnywhere)
 	USphereComponent* PickupSphere;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -41,11 +35,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem* ParticleSystem;
 
-	void PickedUp(APlayerCharacter_B* Owner);
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AThrowable_B> BP_Throwable;
 
-	void Dropped();
+	virtual AThrowable_B* PickedUp(APlayerCharacter_B* Owner);
+
+	virtual void Dropped();
+
+	virtual UMeshComponent* GetMesh();
 
 	bool IsHeld() const;
+
+	APlayerCharacter_B* OwningPlayer = nullptr;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,5 +59,4 @@ protected:
 
 private:
 
-	APlayerCharacter_B* OwningPlayer = nullptr;
 };
