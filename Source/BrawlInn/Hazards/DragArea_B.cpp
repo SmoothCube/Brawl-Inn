@@ -6,6 +6,9 @@
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 // Sets default values
 ADragArea_B::ADragArea_B()
@@ -29,12 +32,24 @@ void ADragArea_B::BeginPlay()
 void ADragArea_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//TArray<
-	for (int i=0; i<ActorsToMove.Num(); i++)
+
+	for (int i = 0; i < PlayersToMove.Num(); i++)
 	{
-		if (ActorsToMove.IsValidIndex(i) && ActorsToMove[i])
+		if (PlayersToMove.IsValidIndex(i))
 		{
-			ActorsToMove[i]->AddActorWorldOffset(GetActorForwardVector() * DragStrength*DeltaTime);
+			if (PlayersToMove[i]->State == EState::EFallen)
+				PlayersToMove[i]->GetMesh()->AddForce(GetActorForwardVector() * DragStrength);
+			else
+				PlayersToMove[i]->GetCharacterMovement()->AddForce(GetActorForwardVector() * DragStrength);
+			PlayersToMove[i]->GetCharacterMovement()->AddInputVector(FVector::ZeroVector);
+		}
+	}
+
+	for (int i=0; i<ComponentsToMove.Num(); i++)
+	{
+		if (ComponentsToMove.IsValidIndex(i) && ComponentsToMove[i])
+		{
+			ComponentsToMove[i]->AddForce(GetActorForwardVector() * DragStrength);
 		}
 		else
 		{
@@ -45,7 +60,6 @@ void ADragArea_B::Tick(float DeltaTime)
 
 void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	bool bShouldMove = true;
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
 	if (Player)
 	{
@@ -53,11 +67,21 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		{
 			return;
 		}
+		PlayersToMove.Add(Player);
+		
 	}
-	ActorsToMove.Add(OtherActor);
+	else
+	{
+		ComponentsToMove.Add(OtherComp);
+	}
 }
 
 void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
-	ActorsToMove.Remove(OtherActor);
+	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
+	if (Player)
+	{
+		PlayersToMove.Remove(Player);
+	}
+	ComponentsToMove.Remove(OtherComp);
 }
