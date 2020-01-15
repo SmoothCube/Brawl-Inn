@@ -8,6 +8,7 @@
 
 #include "Items/Throwable_B.h"
 #include "Player/PlayerCharacter_B.h"
+#include "BrawlInn.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
@@ -94,8 +95,9 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AThrowable_B* Item)
 {
+	OwningPlayer->State = EState::EHolding;
 	Item->PickedUp(OwningPlayer);
-	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
+	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
 }
@@ -123,6 +125,7 @@ void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor*
 	if (!IsValid(Item))
 		return;
 	ThrowableItemsInRange.Add(Item);
+	BWarn("%s Overlapping with: %s", *GetNameSafe(this), *GetNameSafe(OtherActor));
 }
 
 void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
@@ -131,4 +134,10 @@ void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AAct
 	if (!IsValid(Item))
 		return;
 	ThrowableItemsInRange.Remove(Item);
+}
+
+void UHoldComponent_B::Drop()
+{
+	GetHoldingItem()->Dropped();
+	SetHoldingItem(nullptr);
 }

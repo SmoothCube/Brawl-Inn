@@ -6,15 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Throwable_B.generated.h"
 
-UENUM(BlueprintType)		//"BlueprintType" is essential to include
-enum class EThrowableTypes : uint8
-{
-	ENone 	UMETA(DisplayName = "None"),
-	EStool 	UMETA(DisplayName = "Stool")
-};
-
 class USphereComponent;
 class UNiagaraSystem;
+class UDamageType;
 class APlayerCharacter_B;
 
 UCLASS()
@@ -31,13 +25,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* PickupSphere;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EThrowableTypes Type = EThrowableTypes::ENone;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UNiagaraSystem* ParticleSystem;
-
-	void PickedUp(APlayerCharacter_B* Owner);
+	void PickedUp(APlayerCharacter_B* Player);
 
 	void Dropped();
 
@@ -51,6 +39,17 @@ protected:
 	UFUNCTION()
 	void OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		UNiagaraSystem* ParticleSystem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		TSubclassOf<UDamageType> BP_DamageType;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float ThrowHitStrength = 100;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables")
+	int DamageAmount = 1;
 private:
 
 	APlayerCharacter_B* OwningPlayer = nullptr;

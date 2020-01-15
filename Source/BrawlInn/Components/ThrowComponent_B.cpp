@@ -60,7 +60,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
-		if (OtherPlayer->bHasFallen)
+		if (OtherPlayer->State == EState::EFallen)
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
 		OtherPlayerLocation.Z = 0;
@@ -70,7 +70,6 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 			continue;
 
 		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToOtherPlayer.GetSafeNormal())));
-	//	BScreen("Angle: %f", AngleA);
 		if (AngleA <= AimAssistAngle)
 			PlayersInCone.Add(OtherPlayer);
 	}
@@ -97,7 +96,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		TargetPlayer = PlayersInCone[0];
 		break;
 	}
-//	BScreen("Using AimAssist");
+
 	FVector TargetLocation = TargetPlayer->GetActorLocation();
 	TargetLocation.Z = 0;
 	FVector ThrowDirection = TargetLocation - PlayerLocation;
@@ -117,7 +116,6 @@ void UThrowComponent_B::OneCharacterChanged()
 	//	BScreen("Player %s, %i", *GetNameSafe(Player), TempArray.Num());
 		OtherPlayers.Add(Cast<APlayerCharacter_B>(Player));
 	}
-	BScreen("OtherPlayer size %i", OtherPlayers.Num());
 
 	/// Finds the holdcomponent.
 	// Dette kan kanskje flyttes til BeginPlay ? Usikker på hvilke av komponentene som blir laget først
@@ -127,11 +125,13 @@ void UThrowComponent_B::OneCharacterChanged()
 void UThrowComponent_B::Throw()
 {
 	if (!HoldComponent->IsHolding())
+	{
+		OwningPlayer->State = EState::EWalking;
 		return;
+	}
 
 	/// Prepare item to be thrown
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	HoldComponent->GetHoldingItem()->DetachFromActor(rules);
+
 	HoldComponent->GetHoldingItem()->Dropped();
 
 	/// Throw with the help of AimAssist.
@@ -141,6 +141,7 @@ void UThrowComponent_B::Throw()
 	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
 	HoldComponent->SetHoldingItem(nullptr);
 	bIsThrowing = false;
+	OwningPlayer->State = EState::EWalking;
 }
 
 bool UThrowComponent_B::IsReady() const

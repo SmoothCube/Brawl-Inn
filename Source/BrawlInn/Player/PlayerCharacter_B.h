@@ -10,6 +10,15 @@ class UHealthComponent_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
 class UPunchComponent_B;
+class APlayerController_B;
+
+UENUM(BlueprintType)		//"BlueprintType" is essential to include
+enum class EState : uint8
+{
+	EWalking 	UMETA(DisplayName = "Walking"),
+	EHolding 	UMETA(DisplayName = "Holding"),
+	EFallen		UMETA(DisplayName = "Fallen")
+};
 
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter
@@ -17,11 +26,10 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	APlayerCharacter_B();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UPunchComponent_B* PunchComponent = nullptr;
+	UPunchComponent_B* PunchComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
@@ -30,10 +38,42 @@ public:
 	UThrowComponent_B* ThrowComponent;
 
 protected:
-	// Called when the game starts or when spawned
+
+	// ** Overriden functions **
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
 	
+	virtual void PossessedBy(AController* NewController) override;
+	
+	virtual float TakeDamage (float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
+	
+	// ** Overlap/Hit functions **
+	UFUNCTION()
+	void CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	// ** Functions **
+	void HandleMovement(float DeltaTime);
+	void HandleMovementHold();
+
+	void HandleRotation();
+
+	void Fall();
+
+	void StandUp();
+
+public:	
+	void PunchButtonPressed();
+
+	// ** Variables **
+
+	FVector InputVector = FVector::ZeroVector;
+	FVector RotationVector = FVector::ZeroVector;
+	EState State = EState::EWalking;
+
+protected: 
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float RecoveryTime = 2.0;
@@ -43,34 +83,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float FallLimitMultiplier = 3.5f;
-	
 
-	virtual void PossessedBy(AController* NewController) override;
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	void PunchButtonPressed();
-
-	UFUNCTION()
-	void CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
-	void HandleRotation();
-
-	void HandleMovement(float DeltaTime);
-
-	void Fall();
-	void StandUp();
-
-	FVector InputVector = FVector::ZeroVector;
-	FVector RotationVector = FVector::ZeroVector;
-
-	bool bHasFallen = false;
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	int FellOutOfWorldDamageAmount = 1;
 private:
+	
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
-
 	float CurrentFallTime = 0.f;
 
+	APlayerController_B* PlayerController = nullptr;
 	friend class UPunchComponent_B;
 };

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HealthComponent_B.h"
+#include "BrawlInn.h"
 
 UHealthComponent_B::UHealthComponent_B()
 {
@@ -17,7 +18,8 @@ void UHealthComponent_B::SetHealth(int Value)
 	Health = Value;
 	if (Health < 0)
 		Health = 0;
-
+	
+	BScreen("Health:  %i", Health);
 	HealthUpdated_D.Broadcast(Health);
 
 	if (Health == 0)

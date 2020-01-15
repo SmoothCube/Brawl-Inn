@@ -9,12 +9,16 @@
 #include "Engine/World.h"
 #include "Components/SphereComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
 
 #include "Player/PlayerController_B.h"
+#include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Components/HealthComponent_B.h"
 #include "Items/Throwable_B.h"
-#include "Components/PunchComponent_B.h"
+#include "System/GameMode_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -29,6 +33,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCharacterMovement()->MaxCustomMovementSpeed = 600.f;
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -38,14 +44,27 @@ void APlayerCharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
+
+}
+
+float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	PlayerController->HealthComponent->TakeDamage(DamageAmount);
+	return DamageAmount;
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	HandleMovement(DeltaTime);
-	HandleRotation();
+	if (!(State == EState::EFallen))
+	{
+		if (State == EState::EWalking)
+			HandleMovement(DeltaTime);
+		else if (State == EState::EHolding)
+			HandleMovementHold();
+		HandleRotation();
+	}
 }
 
 void APlayerCharacter_B::HandleRotation()
@@ -57,9 +76,11 @@ void APlayerCharacter_B::HandleRotation()
 	}
 }
 
-
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
+	//shouldnt set this each tick
+	GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+
 	//Normalizes to make sure we dont move faster than max speed, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f) 
 		InputVector.Normalize();
@@ -67,15 +88,15 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	if (Speed >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
 	{
 		CurrentFallTime += DeltaTime;
-		if (CurrentFallTime >= TimeBeforeFall && !bHasFallen)
+		float Intensity = CurrentFallTime + 0.7;
+		if (!PunchComponent->bIsPunching && PlayerController)
+			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
+		if (CurrentFallTime >= TimeBeforeFall)
 		{
-			BWarn("[APlayerCharacter_B::HandleMovement] Falling! FallTime passed! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 			Fall();
-
 		}
-		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier && !bHasFallen)
+		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
 		{
-			BWarn("Falling! Speed over max! Velocity: %s Speed: %f", *GetMovementComponent()->Velocity.ToString(), Speed);
 			Fall();
 		}
 	}
@@ -85,42 +106,83 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	}
 	GetMovementComponent()->AddInputVector(InputVector);
 }
+
+void APlayerCharacter_B::HandleMovementHold()
+{
+	//Shouldnt set this each tick
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+
+	if (InputVector.SizeSquared() >= 1.f)
+		InputVector.Normalize();
+	GetCharacterMovement()->AddInputVector(InputVector);
+}
+
 void APlayerCharacter_B::Fall()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::HandleMovement] Falling! Velocity: %s"), *GetMovementComponent()->Velocity.ToString());
+		if (HoldComponent && HoldComponent->IsHolding())
+		{
+			HoldComponent->Drop();
+		}
+
+		State = EState::EFallen;
+		BWarn("Falling! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
 		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, NAME_None, true);
+
+		//Decides which parts of the controller to vibrate. Overkill? probably but i wanted to test it.
+		bool RU, RD, LU, LD;
+		RU = RD = LU = LD = true; // false
+
+		if (PlayerController)
+			PlayerController->PlayControllerVibration(1.f, 0.5f, LU, LD, RU, RD);	
+
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
-		bHasFallen = true;
 	}
 }
 
 void APlayerCharacter_B::StandUp()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
-	GetMovementComponent()->StopMovementImmediately();
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
-	FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
-	GetMesh()->AttachToComponent(GetRootComponent(), Rule);
-	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-	AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
-
-	bHasFallen = false;
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
+		State = EState::EWalking;
+		GetMovementComponent()->StopMovementImmediately();
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
+		FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
+		GetMesh()->AttachToComponent(GetRootComponent(), Rule);
+		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
+		AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	}
 }
 
-//TODO Cleanup, not in use.
+void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->DespawnCharacter_D.Broadcast(PlayerController);
+		GameMode->SpawnCharacter_D.Broadcast(PlayerController);
+	}
+	else
+	{
+		BError("GameMode Could Not Be Found!");
+	}
+}
+
 void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
+	PlayerController = Cast<APlayerController_B>(NewController);
 }
+
 void APlayerCharacter_B::PunchButtonPressed()
 {
 	if (PunchComponent)

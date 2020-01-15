@@ -5,11 +5,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "BrawlInn.h"
 #include "TimerManager.h"
+
+#include "Player/PlayerCharacter_B.h"
+#include "Player/PlayerController_B.h"
+#include "Components/HoldComponent_B.h"
+#include "Items/Throwable_B.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
@@ -41,6 +45,13 @@ void UPunchComponent_B::PunchStart()
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	
 	Dash();
+}
+
+void UPunchComponent_B::ItemPunchStart()
+{
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
+
+	Player->HoldComponent->GetHoldingItem()->PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 }
 
 void UPunchComponent_B::Dash()
@@ -81,6 +92,26 @@ void UPunchComponent_B::PunchEnd()
 		&UPunchComponent_B::setIsPunchingFalse,
 		PunchWaitingTime,
 		false);
+}
+
+void UPunchComponent_B::ItemPunchEnd()
+{
+	//just to see if we want to run the function	
+	if (!bIsPunching) { return; }
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+
+	SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//Dash ends
+	Player->GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(1000.f);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		TH_PunchAgainHandle,
+		this,
+		&UPunchComponent_B::setIsPunchingFalse,
+		PunchWaitingTime,
+		false);
 
 }
 
@@ -100,6 +131,7 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity());
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+	Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
 	bHasHit = true;
 	
 }

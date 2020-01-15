@@ -42,9 +42,12 @@ protected:
 
 	UFUNCTION()
 		void AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+		
 	UFUNCTION()
 		void RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+
+public:
+	void Drop();
 
 private:
 
