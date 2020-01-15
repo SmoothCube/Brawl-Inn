@@ -27,6 +27,5 @@ void AAOEDamageArea_B::Tick(float DeltaTime)
 	for (const auto& Player : Players)
 	{
 		UGameplayStatics::ApplyDamage(Player, 1, Cast<APlayerCharacter_B>(Player)->GetController(), this, AOEDamageType);
-		BLog("%s is taking fire damage", *GetNameSafe(Player));
 	}
 }

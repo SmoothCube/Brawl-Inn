@@ -72,7 +72,7 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		}
 		PlayersToMove.Add(Player);
 		
-		Player->GetPlayerController()->HealthComponent->FireDamageStop_D.Broadcast();
+		Player->GetPlayerController_B()->HealthComponent->FireDamageStop_D.Broadcast();
 	}
 	else
 	{
