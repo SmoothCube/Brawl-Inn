@@ -9,7 +9,7 @@
 
 #include "BrawlInn.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/HoldComponent_B.h"
 #include "Player/PlayerCharacter_B.h"
 
@@ -20,15 +20,15 @@ AThrowable_B::AThrowable_B()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
 
-	PickupSphere = CreateDefaultSubobject<USphereComponent>("Sphere");
-	PickupSphere->SetupAttachment(Mesh);
-	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+	PickupCapsule = CreateDefaultSubobject<UCapsuleComponent>("Sphere");
+	PickupCapsule->SetupAttachment(Mesh);
+	PickupCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
 }
 
 void AThrowable_B::BeginPlay()
 {
 	Super::BeginPlay();
-	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &AThrowable_B::OnThrowOverlapBegin);
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AThrowable_B::OnThrowOverlapBegin);
 }
 
 void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -75,7 +75,7 @@ void AThrowable_B::Dropped()
 	DetachFromActor(rules);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
-	PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	PickupCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 }
 
 bool AThrowable_B::IsHeld() const
