@@ -19,13 +19,14 @@ public:
 	// Sets default values for this actor's properties
 	ABounceActor_B();
 
-	
-protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
 
+	void Explode();
+
+	UPROPERTY(EditAnywhere)
+	float ExplodeTime = 5.f;
+
+	FTimerHandle TH_ExplodeTimer;
 };

@@ -3,7 +3,9 @@
 
 #include "BounceActor_B.h"
 #include "Components/StaticMeshComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 #include "BrawlInn.h"
 
 #include "Player/PlayerCharacter_B.h"
@@ -21,6 +23,7 @@ void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorRotation(FRotator(0, 50, 0));
+	GetWorld()->GetTimerManager().SetTimer(TH_ExplodeTimer,this, &ABounceActor_B::Explode, ExplodeTime, false);
 }
 
 // Called every frame
@@ -29,4 +32,10 @@ void ABounceActor_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	SetActorRotation(FRotator(GetActorRotation().Pitch, 50, GetActorRotation().Roll));
 
+}
+
+void ABounceActor_B::Explode()
+{
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), 0, GetActorLocation(), 500.f, BP_DamageType, {}, this);
+	Destroy();
 }

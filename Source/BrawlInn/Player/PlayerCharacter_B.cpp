@@ -18,6 +18,7 @@
 #include "Components/ThrowComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "System/DamageTypes/Fire_DamageType_B.h"
+#include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
 
@@ -45,6 +46,8 @@ void APlayerCharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
+	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
+
 
 }
 
@@ -55,6 +58,13 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
 	{
 		PlayerController->HealthComponent->FireDamageStart_D.Broadcast();
+	}
+	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
+	{
+		//DamageEvent.IsOfType();
+		
+		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
+		
 	}
 	else
 	{
@@ -217,4 +227,16 @@ void APlayerCharacter_B::CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 	{
 		//	BWarn("Overlaping with %s, Velocity %f", *GetNameSafe(Item), *Item->GetVelocity().ToString());
 	}
+}
+
+void APlayerCharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
+{
+	BWarn("Radial Damage Taken!");
+
+	//Calculates force vector
+	FVector Direction = GetActorLocation() - Origin;
+	Direction.Normalize();
+	Direction*=DamageType->DamageImpulse;
+
+	GetCharacterMovement()->AddImpulse(Direction);
 }
