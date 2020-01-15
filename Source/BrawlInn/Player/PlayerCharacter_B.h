@@ -86,6 +86,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	int FellOutOfWorldDamageAmount = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+		int FireHealthAmount = 100;
 private:
 	
 	FTransform RelativeMeshTransform;

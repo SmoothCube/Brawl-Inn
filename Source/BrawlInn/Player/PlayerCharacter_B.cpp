@@ -50,6 +50,7 @@ void APlayerCharacter_B::BeginPlay()
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
 	PlayerController->HealthComponent->TakeDamage(DamageAmount);
 	return DamageAmount;
 }
