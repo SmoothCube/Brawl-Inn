@@ -19,10 +19,10 @@ class BRAWLINN_API AThrowable_B : public AActor
 public:	
 	AThrowable_B();
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* Mesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USphereComponent* PickupSphere;
 
 	void PickedUp(APlayerCharacter_B* Player);
