@@ -65,6 +65,9 @@ protected:
 	void StandUp();
 
 public:	
+
+	APlayerController_B* GetPlayerController() const;
+	
 	void PunchButtonPressed();
 
 	// ** Variables **
@@ -86,6 +89,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	int FellOutOfWorldDamageAmount = 1;
+
 private:
 	
 	FTransform RelativeMeshTransform;

@@ -2,13 +2,16 @@
 
 
 #include "DragArea_B.h"
+
+#include "BrawlInn.h"
 #include "Components/BoxComponent.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Components/HealthComponent_B.h"
+#include "Player/PlayerController_B.h"
 
 // Sets default values
 ADragArea_B::ADragArea_B()
@@ -69,6 +72,7 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		}
 		PlayersToMove.Add(Player);
 		
+		Player->GetPlayerController()->HealthComponent->FireDamageStop_D.Broadcast();
 	}
 	else
 	{

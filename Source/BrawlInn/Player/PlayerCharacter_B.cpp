@@ -17,6 +17,7 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Components/HealthComponent_B.h"
+#include "System/DamageTypes/Fire_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
 
@@ -29,7 +30,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	HoldComponent->SetupAttachment(GetMesh());
 
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
-	
+
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -40,7 +41,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
@@ -50,7 +51,15 @@ void APlayerCharacter_B::BeginPlay()
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	PlayerController->HealthComponent->TakeDamage(DamageAmount);
+
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
+	{
+		PlayerController->HealthComponent->FireDamageStart_D.Broadcast();
+	}
+	else
+	{
+		PlayerController->HealthComponent->TakeDamage(DamageAmount);
+	}
 	return DamageAmount;
 }
 
@@ -82,7 +91,7 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	GetCharacterMovement()->MaxWalkSpeed = 1000.f;
 
 	//Normalizes to make sure we dont move faster than max speed, but still want to allow for slower movement.
-	if (InputVector.SizeSquared() >= 1.f) 
+	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
 	float Speed = GetMovementComponent()->Velocity.Size();
 	if (Speed >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
@@ -138,9 +147,9 @@ void APlayerCharacter_B::Fall()
 		RU = RD = LU = LD = true; // false
 
 		if (PlayerController)
-			PlayerController->PlayControllerVibration(1.f, 0.5f, LU, LD, RU, RD);	
+			PlayerController->PlayControllerVibration(1.f, 0.5f, LU, LD, RU, RD);
 
-		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer,this, &APlayerCharacter_B::StandUp, RecoveryTime,false);
+		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &APlayerCharacter_B::StandUp, RecoveryTime, false);
 	}
 }
 
@@ -160,6 +169,11 @@ void APlayerCharacter_B::StandUp()
 		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
 		AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	}
+}
+
+APlayerController_B* APlayerCharacter_B::GetPlayerController() const
+{
+	return PlayerController;
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
@@ -201,6 +215,6 @@ void APlayerCharacter_B::CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 	AThrowable_B* Item(Cast<AThrowable_B>(OtherActor));
 	if (Item)
 	{
-	//	BWarn("Overlaping with %s, Velocity %f", *GetNameSafe(Item), *Item->GetVelocity().ToString());
+		//	BWarn("Overlaping with %s, Velocity %f", *GetNameSafe(Item), *Item->GetVelocity().ToString());
 	}
 }
