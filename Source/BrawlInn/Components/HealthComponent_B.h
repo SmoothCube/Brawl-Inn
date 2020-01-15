@@ -9,6 +9,11 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthUpdate, int32, Amount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FZeroHealth);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFireDamageStart);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFireDamageStop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FZeroFireHealth);
+
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BRAWLINN_API UHealthComponent_B : public UActorComponent
 {
@@ -21,6 +26,9 @@ public:
 		int GetHealth() const;
 
 	UFUNCTION(BlueprintCallable)
+		int GetFireHealth() const;
+	
+	UFUNCTION(BlueprintCallable)
 		void SetHealth(int Value);
 
 	UFUNCTION(BlueprintCallable)
@@ -32,7 +40,48 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 		FZeroHealth HealthIsZero_D;
 
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
+		FFireDamageStart FireDamageStart_D;
+
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
+		FFireDamageStop FireDamageStop_D;
+
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
+		FZeroFireHealth FireHealthIsZero_D;
+
+
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Health)
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void StartFireDamage();
+	
+	UFUNCTION()
+	void StopFireDamage();
+
+	
+	FTimerHandle TH_IsOnFire;
+	FTimerHandle TH_ResetFire;
+
+
+	UFUNCTION()
+	void ResetFireTimer();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
 		int Health = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Variables")
+		float FireHealthAmount = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float FireTick = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float FireDamagePerTick = 1;
+
+	UFUNCTION()
+	void TakeFireDamage();
+
 };
