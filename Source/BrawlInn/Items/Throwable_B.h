@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Throwable_B.generated.h"
 
-class USphereComponent;
+class UCapsuleComponent;
 class UNiagaraSystem;
 class UDamageType;
 class APlayerCharacter_B;
@@ -23,7 +23,7 @@ public:
 	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	USphereComponent* PickupSphere;
+	UCapsuleComponent* PickupCapsule;
 
 	void PickedUp(APlayerCharacter_B* Player);
 

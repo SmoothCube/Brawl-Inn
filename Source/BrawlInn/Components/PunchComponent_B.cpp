@@ -51,7 +51,7 @@ void UPunchComponent_B::ItemPunchStart()
 {
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
 
-	Player->HoldComponent->GetHoldingItem()->PickupSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	Player->HoldComponent->GetHoldingItem()->PickupCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 }
 
 void UPunchComponent_B::Dash()
