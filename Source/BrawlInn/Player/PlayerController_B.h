@@ -25,6 +25,7 @@ public:
 	void PlayControllerVibration(float Strength,float Duration,bool bAffectsLeftLarge,bool bAffectsLeftSmall,bool bAffectsRightLarge,bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action= EDynamicForceFeedbackAction::Start);
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHealthComponent_B* HealthComponent;
 

@@ -33,21 +33,33 @@ void UHealthComponent_B::TakeDamage(int Value)
 	SetHealth(Health - Value);
 }
 
+void UHealthComponent_B::TakeOneDamage()
+{
+	FireHealthAmount = FireHealthMaxAmount;
+	SetHealth(Health - 1);
+}
+
 
 void UHealthComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FireHealthMaxAmount = FireHealthAmount;
+
 	FireDamageStart_D.AddDynamic(this, &UHealthComponent_B::StartFireDamage);
 	FireDamageStop_D.AddDynamic(this, &UHealthComponent_B::StopFireDamage);
+	FireHealthIsZero_D.AddDynamic(this, &UHealthComponent_B::TakeOneDamage);
+	FireHealthIsZero_D.AddDynamic(this, &UHealthComponent_B::StopFireDamage);
 
 }
 
 void UHealthComponent_B::StartFireDamage()
 {
 	if (!GetWorld()->GetTimerManager().IsTimerActive(TH_IsOnFire))
+	{
 		GetWorld()->GetTimerManager().SetTimer(TH_IsOnFire, this, &UHealthComponent_B::TakeFireDamage, FireTick, true);
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetFire, this, &UHealthComponent_B::ResetFireTimer, 5.f, false);
+	}
+	GetWorld()->GetTimerManager().SetTimer(TH_ResetFire, this, &UHealthComponent_B::ResetFireTimer, FireStopTimer, false);
 }
 
 void UHealthComponent_B::StopFireDamage()
@@ -57,8 +69,8 @@ void UHealthComponent_B::StopFireDamage()
 
 void UHealthComponent_B::TakeFireDamage()
 {
+	FireHealthAmount -= FireDamagePerTick;
 	BWarn("Fire health: %f", FireHealthAmount);
-	FireHealthAmount -= 1;
 
 	if (FireHealthAmount <= 0)
 		FireHealthIsZero_D.Broadcast();

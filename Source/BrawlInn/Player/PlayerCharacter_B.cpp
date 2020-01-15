@@ -181,7 +181,7 @@ void APlayerCharacter_B::StandUp()
 	}
 }
 
-APlayerController_B* APlayerCharacter_B::GetPlayerController() const
+APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
 {
 	return PlayerController;
 }
@@ -205,6 +205,8 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	PlayerController = Cast<APlayerController_B>(NewController);
+	PlayerController->HealthComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::Fall);
+
 }
 
 void APlayerCharacter_B::PunchButtonPressed()

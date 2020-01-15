@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void TakeDamage(int Value = 1);
 
+	UFUNCTION()
+	void TakeOneDamage();
+
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 		FHealthUpdate HealthUpdated_D;
 
@@ -81,7 +84,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float FireDamagePerTick = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float FireStopTimer = 5.f;
+
 	UFUNCTION()
 	void TakeFireDamage();
+
+
+private:
+
+	float FireHealthMaxAmount = 100;
 
 };

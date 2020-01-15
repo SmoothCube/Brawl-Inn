@@ -63,13 +63,15 @@ protected:
 
 	void HandleRotation();
 
+	UFUNCTION()
 	void Fall();
 
 	void StandUp();
 
 public:	
 
-	APlayerController_B* GetPlayerController() const;
+	UFUNCTION(BlueprintPure)
+	APlayerController_B* GetPlayerController_B() const;
 	
 	void PunchButtonPressed();
 
