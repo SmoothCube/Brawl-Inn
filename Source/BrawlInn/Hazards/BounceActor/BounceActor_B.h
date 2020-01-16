@@ -23,7 +23,8 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 
-	void Explode();
+	UFUNCTION()
+	void Explode(AActor* DestroyedActor);
 
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;
