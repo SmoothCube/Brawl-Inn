@@ -46,6 +46,7 @@ protected:
 	// ** Overriden functions **
 	virtual void BeginPlay() override;
 
+
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void PossessedBy(AController* NewController) override;
@@ -66,6 +67,9 @@ protected:
 	void HandleMovementHold();
 
 	void HandleRotation();
+
+	UFUNCTION()
+	void TakeFireDamage();
 
 	UFUNCTION()
 	void Fall();

@@ -49,7 +49,13 @@ void APlayerCharacter_B::BeginPlay()
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
-	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::Fall);
+	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
+}
+
+void APlayerCharacter_B::TakeFireDamage()
+{
+	Fall();
+	PlayerController->HealthComponent->TakeDamage(1);
 }
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -151,7 +157,7 @@ void APlayerCharacter_B::Fall()
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
-		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, NAME_None, true);
+		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_Head_JNT_center", true);
 
 		//Decides which parts of the controller to vibrate. Overkill? probably but i wanted to test it.
 		bool RU, RD, LU, LD;

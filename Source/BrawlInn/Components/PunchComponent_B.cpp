@@ -158,6 +158,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength)
 {
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 	float strength = InPunchStrength.Size();
+	GetPunched_D.Broadcast();
 	if (strength > MinPunchStrengthToFall)
 	{
 		PunchEnd();

@@ -4,10 +4,6 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 
-#include "Player/PlayerController_B.h"
-#include "Player/PlayerCharacter_B.h"
-#include "Components/HealthComponent_B.h"
-
 UFireDamageComponent_B::UFireDamageComponent_B()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -21,15 +17,8 @@ void UFireDamageComponent_B::BeginPlay()
 
 	FireDamageStart_D.AddDynamic(this, &UFireDamageComponent_B::StartFireDamage);
 	FireDamageStop_D.AddDynamic(this, &UFireDamageComponent_B::StopFireDamage);
-	FireHealthIsZero_D.AddDynamic(this, &UFireDamageComponent_B::TakeDamage);
 	FireHealthIsZero_D.AddDynamic(this, &UFireDamageComponent_B::StopFireDamage);
 	
-}
-
-void UFireDamageComponent_B::TakeDamage()
-{
-	FireHealthAmount = FireHealthMaxAmount;
-	Cast<APlayerCharacter_B>(GetOwner())->GetPlayerController_B()->HealthComponent->TakeDamage(1);
 }
 
 int UFireDamageComponent_B::GetFireHealth() const
@@ -49,6 +38,7 @@ void UFireDamageComponent_B::StartFireDamage()
 void UFireDamageComponent_B::StopFireDamage()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TH_IsOnFire);
+	FireHealthAmount = FireHealthMaxAmount;
 }
 
 void UFireDamageComponent_B::TakeFireDamage()
