@@ -6,10 +6,10 @@
 #include "Components/SphereComponent.h"
 #include "PunchComponent_B.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGetPunched);
-
-
 class APlayerCharacter_B;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPunched, APlayerCharacter_B*, PlayerThatPunched);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BRAWLINN_API UPunchComponent_B : public USphereComponent
 {
@@ -50,11 +50,12 @@ public:
 	void PunchHit(APlayerCharacter_B* OtherPlayer);
 	void PunchHit(UPrimitiveComponent* OtherComp);
 
-	void GetPunched(FVector InPunchStrength);
+	void GetPunched(FVector InPunchStrength, APlayerCharacter_B* PlayerThatPunched);
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
 	FOnGetPunched GetPunched_D;
 
+	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
 
 protected:
