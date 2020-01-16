@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
 
+#include "System/Interfaces/ControllerInterface_B.h"
 #include "Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
@@ -56,7 +57,11 @@ void APlayerCharacter_B::BeginPlay()
 void APlayerCharacter_B::TakeFireDamage()
 {
 	Fall();
-	PlayerController->HealthComponent->TakeDamage(1);
+	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
+	if (Interface)
+	{
+		Interface->Execute_TakeOneDamage(GetController());
+	}
 }
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -76,7 +81,11 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 	else
 	{
-		PlayerController->HealthComponent->TakeDamage(DamageAmount);
+		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
+		if (Interface)
+		{
+			Interface->Execute_TakeOneDamage(GetController());
+		}
 	}
 	return DamageAmount;
 }
