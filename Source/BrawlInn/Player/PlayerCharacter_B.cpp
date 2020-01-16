@@ -16,6 +16,7 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Components/FireDamageComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "System/DamageTypes/Fire_DamageType_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
@@ -32,6 +33,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	HoldComponent->SetupAttachment(GetMesh());
 
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
+	FireDamageComponent = CreateDefaultSubobject<UFireDamageComponent_B>("Fire Damage Component");
 
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
@@ -48,8 +50,7 @@ void APlayerCharacter_B::BeginPlay()
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
-
-
+	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::Fall);
 }
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -58,7 +59,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
 	{
-		PlayerController->HealthComponent->FireDamageStart_D.Broadcast();
+		FireDamageComponent->FireDamageStart_D.Broadcast();
 	}
 	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
@@ -238,7 +239,6 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	PlayerController = Cast<APlayerController_B>(NewController);
-	PlayerController->HealthComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::Fall);
 
 }
 
