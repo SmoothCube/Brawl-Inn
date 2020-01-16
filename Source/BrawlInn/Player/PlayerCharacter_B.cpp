@@ -21,6 +21,7 @@
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
+#include "Animations/PlayerAnimInstance_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -168,13 +169,14 @@ void APlayerCharacter_B::StandUp()
 	if (!GetCharacterMovement()->IsFalling())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
+		GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 		State = EState::EWalking;
 		GetMovementComponent()->StopMovementImmediately();
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
-		FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
+		FAttachmentTransformRules Rule(EAttachmentRule::KeepWorld, false);
 		GetMesh()->AttachToComponent(GetRootComponent(), Rule);
 		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
 		AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
