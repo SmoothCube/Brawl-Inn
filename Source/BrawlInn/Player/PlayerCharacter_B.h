@@ -9,6 +9,7 @@
 class UHealthComponent_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
+class UFireDamageComponent_B;
 class UPunchComponent_B;
 class APlayerController_B;
 
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UThrowComponent_B* ThrowComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UFireDamageComponent_B* FireDamageComponent;
 
 protected:
 
