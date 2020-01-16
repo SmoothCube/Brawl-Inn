@@ -95,6 +95,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	int FellOutOfWorldDamageAmount = 1;
 
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
+
 private:
 	
 	FTransform RelativeMeshTransform;
@@ -103,4 +106,6 @@ private:
 
 	APlayerController_B* PlayerController = nullptr;
 	friend class UPunchComponent_B;
+	FVector FindMeshLocation();
 };
+
