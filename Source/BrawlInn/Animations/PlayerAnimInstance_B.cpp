@@ -25,10 +25,10 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 
 	if (!IsReady())
 		return;
-
 	bIsPunching = Owner->PunchComponent->GetIsPunching();
 	bIsHolding = Owner->HoldComponent->IsHolding();
 	bIsThrowing = Owner->ThrowComponent->IsThrowing();
+	bHasFallen = Owner->State == EState::EFallen;
 	Speed = Owner->GetVelocity().Size();
 	Direction =  CalculateDirection(Owner->GetVelocity(), Owner->GetActorRotation());
 }
