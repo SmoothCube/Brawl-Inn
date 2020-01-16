@@ -202,8 +202,6 @@ FVector APlayerCharacter_B::FindMeshLocation()
 		return (MeshLoc - RelativeMeshTransform.GetLocation());
 	}
 
-
-
 }
 
 void APlayerCharacter_B::StandUp()

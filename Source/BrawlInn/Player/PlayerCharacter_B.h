@@ -85,7 +85,10 @@ public:
 
 	// ** Variables **
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector InputVector = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector RotationVector = FVector::ZeroVector;
 	EState State = EState::EWalking;
 
