@@ -4,18 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "System/Interfaces/ControllerInterface_B.h"
 #include "PlayerController_B.generated.h"
 
 class UHealthComponent_B;
 class APlayerCharacter_B;
 
 UCLASS()
-class BRAWLINN_API APlayerController_B : public APlayerController
+class BRAWLINN_API APlayerController_B : public APlayerController, public IControllerInterface_B
 {
 	GENERATED_BODY()
 
 public:
 	APlayerController_B();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UHealthComponent_B* HealthComponent;
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -26,8 +30,6 @@ public:
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UHealthComponent_B* HealthComponent;
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 
@@ -36,6 +38,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category="Variables")
 	bool bVibrateControllers = false;
+
+	virtual void TakeOneDamage_Implementation() override;
 
 
 private:

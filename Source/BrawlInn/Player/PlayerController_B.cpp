@@ -120,3 +120,8 @@ void APlayerController_B::PunchButtonPressed()
 	if(PlayerCharacter)
 		PlayerCharacter->PunchButtonPressed();
 }
+
+void APlayerController_B::TakeOneDamage_Implementation()
+{
+	HealthComponent->TakeDamage(1);
+}
