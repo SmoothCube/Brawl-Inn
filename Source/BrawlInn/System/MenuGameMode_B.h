@@ -7,6 +7,7 @@
 #include "MenuGameMode_B.generated.h"
 
 class ACameraActor;
+class UMainMenu_B;
 
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
@@ -20,9 +21,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ACameraActor* Camera = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UMainMenu_B> BP_MainMenu;
+
+
 	UFUNCTION()
 	void UpdateViewTarget(APlayerController_B* PlayerController);
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateViewTargets();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowMainMenu();
 };
