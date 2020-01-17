@@ -22,7 +22,6 @@ void AGameMode_B::BeginPlay()
 
 	/// Creates all the playercontrollers
 	uint8 CurrentPlayer = 0;
-	TArray<APlayerController*> PlayerControllers;
 
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerControllers.Add(PlayerController);
@@ -33,19 +32,10 @@ void AGameMode_B::BeginPlay()
 		CurrentPlayer++;
 	}
 
-	/// Spawns and setups camera
-	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
-	PlayerController->SetViewTargetWithBlend(GameCamera);
-
 	/// Bind delegates
 	SpawnCharacter_D.AddDynamic(this, &AGameMode_B::SpawnCharacter);
 	DespawnCharacter_D.AddDynamic(this, &AGameMode_B::DespawnCharacter);
 
-	/// Spawns characters for the players
-	for (int i = 0; i < NumberOfPlayers; i++)
-	{
-		SpawnCharacter_D.Broadcast(Cast<APlayerController_B>(PlayerControllers[i]));
-	}
 
 	Super::BeginPlay();
 }
@@ -59,8 +49,6 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController)
 		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
 		PlayerController->PlayerCharacter = Character;
-		if (IsValid(GameCamera))
-			PlayerController->SetViewTargetWithBlend(GameCamera);
 		SpawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
@@ -74,8 +62,6 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 		AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
 		PlayerController->PlayerCharacter = nullptr;
-		if (IsValid(GameCamera))
-			PlayerController->SetViewTargetWithBlend(GameCamera);
 		DespawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
