@@ -22,6 +22,7 @@
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
+#include "Animations/PlayerAnimInstance_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -49,7 +50,13 @@ void APlayerCharacter_B::BeginPlay()
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
-	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::Fall);
+	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
+}
+
+void APlayerCharacter_B::TakeFireDamage()
+{
+	Fall();
+	PlayerController->HealthComponent->TakeDamage(1);
 }
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -77,13 +84,18 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (!(State == EState::EFallen))
+	if (State == EState::EFallen)
+	{
+		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
+	}
+	else
 	{
 		if (State == EState::EWalking)
 			HandleMovement(DeltaTime);
 		else if (State == EState::EHolding)
 			HandleMovementHold();
 		HandleRotation();
+
 	}
 }
 
@@ -151,7 +163,7 @@ void APlayerCharacter_B::Fall()
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
-		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, NAME_None, true);
+		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
 
 		//Decides which parts of the controller to vibrate. Overkill? probably but i wanted to test it.
 		bool RU, RD, LU, LD;
@@ -164,21 +176,48 @@ void APlayerCharacter_B::Fall()
 	}
 }
 
+FVector APlayerCharacter_B::FindMeshLocation()
+{
+	//find a specified socket (bone)
+	FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
+	//ray trace to ground
+	FHitResult Hit;
+	bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
+	
+	if (bDidHit)
+	{
+		return (Hit.Location - RelativeMeshTransform.GetLocation());
+	}
+	else
+	{
+		return (MeshLoc - RelativeMeshTransform.GetLocation());
+	}
+
+
+
+}
+
 void APlayerCharacter_B::StandUp()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("[APlayerCharacter_B::StandUp] Getting Up!"));
+		GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 		State = EState::EWalking;
 		GetMovementComponent()->StopMovementImmediately();
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
-		FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
-		GetMesh()->AttachToComponent(GetRootComponent(), Rule);
-		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-		AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+
+		//to find the right place to set the capsule
+
+		FindMeshLocation();
+		//use this as location
+		//GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
+		FAttachmentTransformRules Rule(EAttachmentRule::KeepWorld, false);
+		//GetMesh()->AttachToComponent(GetRootComponent(), Rule);
+		//GetMesh()->SetRelativeTransform(RelativeMeshTransform);
+		//AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	}
 }
 

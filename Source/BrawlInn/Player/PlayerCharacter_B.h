@@ -46,6 +46,7 @@ protected:
 	// ** Overriden functions **
 	virtual void BeginPlay() override;
 
+
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void PossessedBy(AController* NewController) override;
@@ -66,6 +67,9 @@ protected:
 	void HandleMovementHold();
 
 	void HandleRotation();
+
+	UFUNCTION()
+	void TakeFireDamage();
 
 	UFUNCTION()
 	void Fall();
@@ -99,6 +103,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	int FellOutOfWorldDamageAmount = 1;
 
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
+
 private:
 	
 	FTransform RelativeMeshTransform;
@@ -107,4 +114,6 @@ private:
 
 	APlayerController_B* PlayerController = nullptr;
 	friend class UPunchComponent_B;
+	FVector FindMeshLocation();
 };
+

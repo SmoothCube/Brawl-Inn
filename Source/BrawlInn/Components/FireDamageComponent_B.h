@@ -44,9 +44,6 @@ public:
 protected:
 
 	UFUNCTION()
-		void TakeDamage();
-
-	UFUNCTION()
 		void StartFireDamage();
 
 	UFUNCTION()
