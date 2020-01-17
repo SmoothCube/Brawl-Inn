@@ -7,6 +7,7 @@
 #include "MainMenu_B.generated.h"
 
 class UButton;
+class AMenuGameMode_B;
 
 UCLASS()
 class BRAWLINN_API UMainMenu_B : public UUserWidget
@@ -43,6 +44,10 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		UButton* QuitButton;
+
+	// ** Variables **
+
+	AMenuGameMode_B* GameMode = nullptr;
 
 
 };

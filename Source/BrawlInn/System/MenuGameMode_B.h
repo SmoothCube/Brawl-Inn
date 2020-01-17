@@ -7,6 +7,8 @@
 #include "MenuGameMode_B.generated.h"
 
 class ACameraActor;
+class ULevelSequence;
+class ALevelSequenceActor;
 class UMainMenu_B;
 
 UCLASS()
@@ -38,4 +40,25 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void HideMainMenu();
+
+	UFUNCTION()
+	void LS_IntroFinished();
+
+	UFUNCTION()
+	void LS_QuitGame();
+
+
+	// ** Level Sequence **
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		ULevelSequence* LS_Intro = nullptr;
+	ALevelSequenceActor* LSA_Intro = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		ULevelSequence* LS_MainMenu = nullptr;
+	ALevelSequenceActor* LSA_MainMenu = nullptr;
+
+
+	bool bIsQuitting = false;
+
+
 };
