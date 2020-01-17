@@ -23,8 +23,7 @@ void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorRotation(FRotator(0, 50, 0));
-	//InitialLifeSpan = ExplodeTime;
-	InitialLifeSpan = 0.1f;
+	SetLifeSpan(ExplodeTime);
 	OnDestroyed.AddDynamic(this, &ABounceActor_B::Explode);
 }
 
