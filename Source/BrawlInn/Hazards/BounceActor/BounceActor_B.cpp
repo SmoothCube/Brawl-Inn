@@ -23,7 +23,8 @@ void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorRotation(FRotator(0, 50, 0));
-	GetWorld()->GetTimerManager().SetTimer(TH_ExplodeTimer,this, &ABounceActor_B::Explode, ExplodeTime, false);
+	SetLifeSpan(ExplodeTime);
+	OnDestroyed.AddDynamic(this, &ABounceActor_B::Explode);
 }
 
 // Called every frame
@@ -34,7 +35,8 @@ void ABounceActor_B::Tick(float DeltaTime)
 
 }
 
-void ABounceActor_B::Explode()
+
+void ABounceActor_B::Explode(AActor* DestroyedActor)
 {
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), 0, GetActorLocation(), 500.f, BP_DamageType, {}, this);
 	Destroy();
