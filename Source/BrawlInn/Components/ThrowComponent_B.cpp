@@ -124,6 +124,11 @@ void UThrowComponent_B::OneCharacterChanged()
 
 void UThrowComponent_B::Throw()
 {
+	if (!OwningPlayer) 
+	{ 
+		BError("No OwningPlayer for ThrowComponent %s!", *GetNameSafe(this));
+		return; 
+	}
 	if (!HoldComponent->IsHolding())
 	{
 		OwningPlayer->State = EState::EWalking;
@@ -135,7 +140,7 @@ void UThrowComponent_B::Throw()
 	HoldComponent->GetHoldingItem()->Dropped();
 
 	/// Throw with the help of AimAssist.
-	FVector TargetLocation = OwningPlayer->GetActorForwardVector();
+	FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
 	AimAssist(TargetLocation);
 	BScreen("TargetLocation %s", *TargetLocation.ToString());
 	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
