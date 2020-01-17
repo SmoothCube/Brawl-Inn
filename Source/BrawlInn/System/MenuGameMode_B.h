@@ -33,4 +33,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ShowMainMenu();
+
+	UMainMenu_B* MainMenuWidget = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+		void HideMainMenu();
 };

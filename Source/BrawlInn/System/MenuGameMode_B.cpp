@@ -41,14 +41,24 @@ void AMenuGameMode_B::ShowMainMenu()
 		return;
 
 
-	auto Widget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
-	Widget->AddToViewport();
+	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
+	MainMenuWidget->AddToViewport();
 
 	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(Widget->TakeWidget());
+	InputModeData.SetWidgetToFocus(MainMenuWidget->TakeWidget());
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
-
+	
 	PlayerControllers[0]->bShowMouseCursor = true;
+}
+
+void AMenuGameMode_B::HideMainMenu()
+{
+	MainMenuWidget->RemoveFromParent();
+	MainMenuWidget->RemoveFromViewport();
+
+	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
+	PlayerControllers[0]->bShowMouseCursor = false;
+
 }
