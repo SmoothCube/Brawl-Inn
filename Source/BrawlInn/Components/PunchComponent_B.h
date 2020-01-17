@@ -52,6 +52,8 @@ public:
 
 	void GetPunched(FVector InPunchStrength, APlayerCharacter_B* PlayerThatPunched);
 
+	FVector CalculatePunchStrenght();
+
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
 	FOnGetPunched GetPunched_D;
 
@@ -66,11 +68,14 @@ protected:
 	float MinPunchStrengthToFall = 1000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float BasePunchStrength = 175.f;
+	float BasePunchStrength = 50000.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float PunchStrengthMultiplier = 50.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float PunchWaitingTime = 0.1f;
-
+	
 	FTimerHandle TH_PunchAgainHandle;
 
 	void setIsPunchingFalse();

@@ -48,7 +48,7 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
 { \
     SET_WARN_COLOR( COLOR_YELLOW );\
     const FString Msg = FString::Printf(TEXT(Format), ##__VA_ARGS__); \
-    UE_LOG(Brawl, Warning, TEXT("**WARNING** %s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
+    UE_LOG(Brawl, Warning, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
     CLEAR_WARN_COLOR();\
 }
 
@@ -56,7 +56,7 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
 { \
     SET_WARN_COLOR( COLOR_RED );\
     const FString Msg = FString::Printf(TEXT(Format), ##__VA_ARGS__); \
-    UE_LOG(Brawl, Error, TEXT("**ERROR** %s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
+    UE_LOG(Brawl, Error, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
     CLEAR_WARN_COLOR();\
 }
 
