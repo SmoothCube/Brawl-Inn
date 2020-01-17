@@ -76,6 +76,8 @@ protected:
 
 	void StandUp();
 
+	void EnableInvincibility(float InvincibilityTime);
+	void DisableInvincibility();
 public:	
 
 	UFUNCTION(BlueprintPure)
@@ -113,6 +115,8 @@ private:
 	
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
+	FTimerHandle TH_InvincibilityTimer;
+	
 	float CurrentFallTime = 0.f;
 
 	APlayerController_B* PlayerController = nullptr;

@@ -228,6 +228,17 @@ void APlayerCharacter_B::StandUp()
 	}
 }
 
+void APlayerCharacter_B::EnableInvincibility(float InvincibilityTime)
+{
+	//	GetMesh()->SetMaterial(6, );
+	GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::DisableInvincibility, InvincibilityTime, false);
+}
+
+void APlayerCharacter_B::DisableInvincibility()
+{
+	//	GetMesh()->SetMaterial(6, );
+}
+
 APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
 {
 	return PlayerController;
