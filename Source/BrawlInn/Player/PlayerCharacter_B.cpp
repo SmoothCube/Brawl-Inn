@@ -75,9 +75,9 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
 		//DamageEvent.IsOfType();
-		
+
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
-		
+
 	}
 	else
 	{
@@ -192,7 +192,7 @@ FVector APlayerCharacter_B::FindMeshLocation()
 	//ray trace to ground
 	FHitResult Hit;
 	bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
-	
+
 	if (bDidHit)
 	{
 		return (Hit.Location - RelativeMeshTransform.GetLocation());
@@ -236,15 +236,22 @@ APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	if (PlayerController)
 	{
-		GameMode->DespawnCharacter_D.Broadcast(PlayerController);
-		GameMode->SpawnCharacter_D.Broadcast(PlayerController);
+		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+		{
+			GameMode->DespawnCharacter_D.Broadcast(PlayerController);
+			GameMode->SpawnCharacter_D.Broadcast(PlayerController);
+		}
+		else
+		{
+			BError("GameMode Could Not Be Found!");
+		}
 	}
 	else
 	{
-		BError("GameMode Could Not Be Found!");
+		Destroy();
 	}
 }
 
@@ -284,7 +291,7 @@ void APlayerCharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage,
 	//Calculates force vector
 	FVector Direction = GetActorLocation() - Origin;
 	Direction.Normalize();
-	Direction*=DamageType->DamageImpulse;
+	Direction *= DamageType->DamageImpulse;
 
 	GetCharacterMovement()->AddImpulse(Direction);
 }
