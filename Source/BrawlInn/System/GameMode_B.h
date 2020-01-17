@@ -9,7 +9,6 @@
 class APlayerStart;
 class APlayerController_B;
 class APlayerCharacter_B;
-class AGameCamera_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpawnCharacter, APlayerController_B*, PlayerControllerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*, PlayerControllerReference);
@@ -44,17 +43,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<APlayerStart*> Spawnpoints;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AGameCamera_B> BP_GameCamera;
+	TArray<APlayerController*> PlayerControllers;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<APlayerCharacter_B> BP_PlayerCharacter;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	int NumberOfPlayers = 4;
-private:
 
-	AGameCamera_B* GameCamera = nullptr;
 
 	UFUNCTION()
 	void SpawnCharacter(APlayerController_B* PlayerController);
