@@ -37,7 +37,6 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
-		BWarn("Spawning particles from %s system.", *GetNameSafe(ParticleSystem));
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, GetActorLocation());
 		if (OwningPlayer)
 		{

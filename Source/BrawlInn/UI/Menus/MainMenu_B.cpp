@@ -6,10 +6,14 @@
 #include "Components/Button.h"
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "System/MenuGameMode_B.h"
 
 bool UMainMenu_B::Initialize()
 {
 	bool success = Super::Initialize();
+
+	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	PlayButton->OnClicked.AddDynamic(this, &UMainMenu_B::PlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
@@ -37,4 +41,6 @@ void UMainMenu_B::CreditsButtonClicked()
 void UMainMenu_B::QuitButtonClicked()
 {
 	BScreen("Quitbutton clicked");
+	if (GameMode)
+		GameMode->LS_QuitGame();
 }

@@ -8,7 +8,7 @@ public class BrawlInn : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "UMG", "LevelSequence", "MovieScene" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
