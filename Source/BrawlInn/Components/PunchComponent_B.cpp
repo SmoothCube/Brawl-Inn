@@ -44,6 +44,26 @@ void UPunchComponent_B::PunchStart()
 
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
+
+	//Thought this would fix bug #39
+	TArray<UPrimitiveComponent*> OverlappingComponents;
+	GetOverlappingComponents(OverlappingComponents);
+	for (auto& comp : OverlappingComponents)
+	{
+		AActor* OtherActor = comp->GetOwner();
+		APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
+		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(comp);
+
+		if (!bHasHit && OtherActor != GetOwner())
+		{
+			if (OtherPlayer != nullptr && Capsule != nullptr)
+				PunchHit(OtherPlayer);
+			else
+				PunchHit(comp);
+		}
+
+	}
+
 	Dash();
 }
 
@@ -59,7 +79,6 @@ void UPunchComponent_B::Dash()
 	//Dash Logic
 	bIsDashing = true;
 
-	BError("%s", *GetNameSafe(Player->GetController()));
 	//This way, f is 0 if the player is looking behind him or standing still, 0.5 if they are facing sideways, and 1 if facing forward.
 	float f = -1;
 	if (!(Player->GetCharacterMovement()->Velocity.IsNearlyZero()))
@@ -128,8 +147,8 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
-	BWarn("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s", *GetNameSafe(this));
-	OtherPlayer->PunchComponent->GetPunched(Player->GetVelocity(), Player);
+	BWarn("Other Actor: %s", *GetNameSafe(OtherPlayer));
+	OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OtherPlayer);
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 	if (Player->PlayerController)
@@ -146,7 +165,7 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 	BWarn("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s", *GetNameSafe(this));
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-	OtherComp->AddImpulse(Player->GetVelocity() * BasePunchStrength);
+	OtherComp->AddImpulse(CalculatePunchStrenght());
 	bHasHit = true;
 
 }
@@ -161,16 +180,29 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, APlayerCharacter_B* 
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 	float strength = InPunchStrength.Size();
 	GetPunched_D.Broadcast(PlayerThatPunched);
-	if (strength > MinPunchStrengthToFall)
+	BWarn("Getting Punched with strength: %s", *InPunchStrength.ToString());
+
+	PunchEnd();
+	//Player->Fall();
+	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
+	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
+}
+
+//calculates the punch strength for the player. Has to be used by the puncher.
+FVector UPunchComponent_B::CalculatePunchStrenght()
+{
+	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return FVector(); }
+	FVector Strength;
+	if (!Player->GetVelocity().IsNearlyZero())
 	{
-		PunchEnd();
-		//Player->Fall();
-		Player->GetCharacterMovement()->AddImpulse(InPunchStrength * BasePunchStrength);
+		Strength= BasePunchStrength * Player->GetVelocity().GetSafeNormal() + Player->GetVelocity() * PunchStrengthMultiplier;
 	}
 	else
 	{
-		Player->GetCharacterMovement()->AddImpulse(InPunchStrength * BasePunchStrength);
+		Strength = Player->GetActorForwardVector()*BasePunchStrength;
 	}
+	BWarn("Strength: %s", *Strength.ToString())
+	return Strength;
 }
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
