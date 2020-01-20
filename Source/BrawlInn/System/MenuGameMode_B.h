@@ -47,16 +47,36 @@ public:
 	UFUNCTION()
 	void LS_QuitGame();
 
+	UFUNCTION()
+	void LS_PlayGame();
+
+	UFUNCTION()
+		void LS_ToSelectionFinished();
+
 
 	// ** Level Sequence **
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		ULevelSequence* LS_Intro = nullptr;
+
 	ALevelSequenceActor* LSA_Intro = nullptr;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		ULevelSequence* LS_MainMenu = nullptr;
+
 	ALevelSequenceActor* LSA_MainMenu = nullptr;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		ULevelSequence* LS_ToSelection = nullptr;
+
+	ALevelSequenceActor* LSA_ToSelection = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		ULevelSequence* LS_Selection = nullptr;
+
+	UPROPERTY(BlueprintReadWrite)
+	ALevelSequenceActor* LSA_Selection = nullptr;
 
 	bool bIsQuitting = false;
 

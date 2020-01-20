@@ -26,8 +26,9 @@ void AMenuGameMode_B::BeginPlay()
 	FMovieSceneSequencePlaybackSettings Settings;
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Intro, Settings, LSA_Intro);
 
+	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
+
 	LSA_Intro->GetSequencePlayer()->Play();
-	BScreen("Playing");
 	LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
 
 
@@ -71,7 +72,6 @@ void AMenuGameMode_B::ShowMainMenu()
 void AMenuGameMode_B::HideMainMenu()
 {
 	MainMenuWidget->RemoveFromParent();
-	MainMenuWidget->RemoveFromViewport();
 
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 	PlayerControllers[0]->bShowMouseCursor = false;
@@ -97,4 +97,22 @@ void AMenuGameMode_B::LS_QuitGame()
 	LSA_MainMenu->GetSequencePlayer()->Stop();
 	LSA_Intro->GetSequencePlayer()->PlayReverse();
 	bIsQuitting = true;
+}
+
+void AMenuGameMode_B::LS_PlayGame()
+{
+	LSA_MainMenu->GetSequencePlayer()->Stop();
+	FMovieSceneSequencePlaybackSettings Settings;
+	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
+
+	LSA_ToSelection->GetSequencePlayer()->Play();
+	
+	LSA_ToSelection->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_ToSelectionFinished);
+
+}
+
+void AMenuGameMode_B::LS_ToSelectionFinished()
+{
+	
+	LSA_Selection->GetSequencePlayer()->PlayLooping();
 }
