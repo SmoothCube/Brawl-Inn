@@ -78,6 +78,11 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	ALevelSequenceActor* LSA_Selection = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AGameCamera_B> BP_GameCamera; //TODO Temporary 
+
+	class AGameCamera_B* GameCamera = nullptr;
+
 	bool bIsQuitting = false;
 
 

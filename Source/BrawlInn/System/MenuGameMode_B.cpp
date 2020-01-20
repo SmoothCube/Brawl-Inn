@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "Player/PlayerController_B.h"
 #include "Camera/CameraActor.h"
+#include "System/GameCamera_B.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/Menus/MainMenu_B.h"
 #include "LevelSequencePlayer.h"
@@ -21,23 +22,25 @@ void AMenuGameMode_B::BeginPlay()
 	SpawnCharacter_D.AddDynamic(this, &AMenuGameMode_B::UpdateViewTarget);
 	DespawnCharacter_D.AddDynamic(this, &AMenuGameMode_B::UpdateViewTarget);
 
-	
+
 	/// Level sequence stuff
 	FMovieSceneSequencePlaybackSettings Settings;
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Intro, Settings, LSA_Intro);
-
+	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_MainMenu, Settings, LSA_MainMenu);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
+	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
+
+	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
 
 	LSA_Intro->GetSequencePlayer()->Play();
 	LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
-
 
 }
 
 void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController) //TODO TASK: #38
 {
-	if (IsValid(Camera))
-		PlayerController->SetViewTargetWithBlend(Camera);
+	if (IsValid(GameCamera))
+		PlayerController->SetViewTargetWithBlend(GameCamera);
 }
 
 void AMenuGameMode_B::UpdateViewTargets()
@@ -54,9 +57,8 @@ void AMenuGameMode_B::ShowMainMenu()
 	if (!PlayerControllers.IsValidIndex(0))
 		return;
 
-	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
 	if (!MainMenuWidget)
-		return; 
+		return;
 
 	MainMenuWidget->AddToViewport();
 
@@ -65,7 +67,6 @@ void AMenuGameMode_B::ShowMainMenu()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
-	
 	PlayerControllers[0]->bShowMouseCursor = true;
 }
 
@@ -85,9 +86,6 @@ void AMenuGameMode_B::LS_IntroFinished()
 		return;
 	}
 
-	FMovieSceneSequencePlaybackSettings Settings;
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_MainMenu, Settings, LSA_MainMenu);
-
 	LSA_MainMenu->GetSequencePlayer()->PlayLooping();
 	ShowMainMenu();
 }
@@ -102,17 +100,18 @@ void AMenuGameMode_B::LS_QuitGame()
 void AMenuGameMode_B::LS_PlayGame()
 {
 	LSA_MainMenu->GetSequencePlayer()->Stop();
-	FMovieSceneSequencePlaybackSettings Settings;
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
+
 
 	LSA_ToSelection->GetSequencePlayer()->Play();
-	
+
 	LSA_ToSelection->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_ToSelectionFinished);
 
 }
 
 void AMenuGameMode_B::LS_ToSelectionFinished()
 {
-	
-	LSA_Selection->GetSequencePlayer()->PlayLooping();
+	//TODO Temporary
+	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+
+	//	LSA_Selection->GetSequencePlayer()->PlayLooping();
 }
