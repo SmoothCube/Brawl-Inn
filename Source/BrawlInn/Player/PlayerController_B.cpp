@@ -47,13 +47,13 @@ void APlayerController_B::SetupInputComponent()
 bool APlayerController_B::HasValidCharacter()
 {
 	if (PlayerCharacter)
-			return true;
+		return true;
 	return false;
 }
 
 void APlayerController_B::PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action)
 {
-	if(bVibrateControllers)
+	if (bVibrateControllers)
 		PlayDynamicForceFeedback(Strength, Duration, bAffectsLeftLarge, bAffectsLeftSmall, bAffectsRightLarge, bAffectsRightSmall, Action);
 
 }
@@ -103,10 +103,7 @@ void APlayerController_B::KillPlayerCharacter()
 void APlayerController_B::PickupButtonPressed()
 {
 	if (PlayerCharacter)
-	{
-		if (!PlayerCharacter->HoldComponent->TryPickup())
-			PlayerCharacter->ThrowComponent->TryThrow();
-	}
+		PlayerCharacter->HoldComponent->TryPickup();
 }
 
 void APlayerController_B::PickupButtonRepeat()
@@ -117,8 +114,13 @@ void APlayerController_B::PickupButtonRepeat()
 
 void APlayerController_B::PunchButtonPressed()
 {
-	if(PlayerCharacter)
+	if (!PlayerCharacter)
+		return;
+
+	if (!PlayerCharacter->HoldComponent->IsHolding())
 		PlayerCharacter->PunchButtonPressed();
+	else
+		PlayerCharacter->ThrowComponent->TryThrow();
 }
 
 void APlayerController_B::TakeOneDamage_Implementation()
