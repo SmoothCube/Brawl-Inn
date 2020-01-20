@@ -10,6 +10,7 @@
 #include "Camera/CameraActor.h"
 #include "System/GameCamera_B.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Menus/CharacterSelection_B.h"
 #include "UI/Menus/MainMenu_B.h"
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
@@ -31,6 +32,8 @@ void AMenuGameMode_B::BeginPlay()
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
 
 	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
+	CharacterSelection = CreateWidget<UCharacterSelection_B>(PlayerControllers[0], BP_CharacterSelection);
+
 
 	LSA_Intro->GetSequencePlayer()->Play();
 	LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
@@ -110,8 +113,21 @@ void AMenuGameMode_B::LS_PlayGame()
 
 void AMenuGameMode_B::LS_ToSelectionFinished()
 {
-	//TODO Temporary
+	//TODO Temporary See #76
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+
+	if (!CharacterSelection)
+		return;
+
+	CharacterSelection->AddToViewport();
+
+	/*FInputModeUIOnly InputModeData;
+	InputModeData.SetWidgetToFocus(CharacterSelection->TakeWidget());
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+	PlayerControllers[0]->SetInputMode(InputModeData);
+	PlayerControllers[0]->bShowMouseCursor = true;*/
+
 
 	//	LSA_Selection->GetSequencePlayer()->PlayLooping();
 }

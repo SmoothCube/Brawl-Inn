@@ -38,12 +38,12 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
 
+	TArray<APlayerController*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<APlayerStart*> Spawnpoints;
 
-	TArray<APlayerController*> PlayerControllers;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

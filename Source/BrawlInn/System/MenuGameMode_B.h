@@ -9,6 +9,7 @@
 class ACameraActor;
 class ULevelSequence;
 class ALevelSequenceActor;
+class UCharacterSelection_B;
 class UMainMenu_B;
 
 UCLASS()
@@ -26,6 +27,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UMainMenu_B> BP_MainMenu;
 
+	UMainMenu_B* MainMenuWidget = nullptr;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<UCharacterSelection_B> BP_CharacterSelection;
+
+	UCharacterSelection_B* CharacterSelection = nullptr;
+
 
 	UFUNCTION()
 	void UpdateViewTarget(APlayerController_B* PlayerController);
@@ -36,7 +45,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ShowMainMenu();
 
-	UMainMenu_B* MainMenuWidget = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 		void HideMainMenu();
