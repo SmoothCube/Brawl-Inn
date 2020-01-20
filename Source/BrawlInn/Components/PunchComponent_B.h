@@ -38,14 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PunchStart();
 
-	void ItemPunchStart();
 	void Dash();
 
 	UFUNCTION(BlueprintCallable)
 	void PunchEnd();
-
-	void ItemPunchEnd();
-
 	
 	void PunchHit(APlayerCharacter_B* OtherPlayer);
 	void PunchHit(UPrimitiveComponent* OtherComp);
