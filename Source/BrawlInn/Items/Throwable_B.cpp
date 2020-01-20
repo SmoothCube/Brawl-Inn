@@ -22,7 +22,6 @@ AThrowable_B::AThrowable_B()
 
 	PickupCapsule = CreateDefaultSubobject<UCapsuleComponent>("Sphere");
 	PickupCapsule->SetupAttachment(Mesh);
-	PickupCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
 }
 
 void AThrowable_B::BeginPlay()
@@ -72,9 +71,9 @@ void AThrowable_B::Dropped()
 {
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
 	Mesh->SetSimulatePhysics(true);
-	PickupCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 }
 
 bool AThrowable_B::IsHeld() const

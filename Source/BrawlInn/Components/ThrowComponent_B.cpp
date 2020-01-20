@@ -113,7 +113,7 @@ void UThrowComponent_B::OneCharacterChanged()
 	{
 		if (Cast<APlayerCharacter_B>(Player) == OwningPlayer)
 			continue;
-	//	BScreen("Player %s, %i", *GetNameSafe(Player), TempArray.Num());
+		//	BScreen("Player %s, %i", *GetNameSafe(Player), TempArray.Num());
 		OtherPlayers.Add(Cast<APlayerCharacter_B>(Player));
 	}
 
@@ -124,10 +124,10 @@ void UThrowComponent_B::OneCharacterChanged()
 
 void UThrowComponent_B::Throw()
 {
-	if (!OwningPlayer) 
-	{ 
+	if (!OwningPlayer)
+	{
 		BError("No OwningPlayer for ThrowComponent %s!", *GetNameSafe(this));
-		return; 
+		return;
 	}
 	if (!HoldComponent->IsHolding())
 	{
@@ -143,8 +143,11 @@ void UThrowComponent_B::Throw()
 	FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
 	AimAssist(TargetLocation);
 	BScreen("TargetLocation %s", *TargetLocation.ToString());
-	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
-	HoldComponent->SetHoldingItem(nullptr);
+	if (HoldComponent->IsHolding())
+	{
+		HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
+		HoldComponent->SetHoldingItem(nullptr);
+	}
 	bIsThrowing = false;
 	OwningPlayer->State = EState::EWalking;
 }
