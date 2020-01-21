@@ -6,16 +6,17 @@
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/HealthComponent_B.h"
+#include "Components/CharacterSelectionComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Engine/World.h"
 #include "System/GameMode_B.h"
 #include "Kismet/GameplayStatics.h"
-
-#include "System/GameMode_B.h"
+#include "System/MenuGameMode_B.h"
 
 APlayerController_B::APlayerController_B()
 {
 	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
+
 }
 
 void APlayerController_B::BeginPlay()
@@ -41,6 +42,8 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
+		InputComponent->BindAction("SelectRight", IE_Pressed, this, &APlayerController_B::SelectRight);
+		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
 	}
 }
 
@@ -78,6 +81,23 @@ void APlayerController_B::MoveRight(float Value)
 	}
 }
 
+void APlayerController_B::SelectRight()
+{
+	if (!PlayerCharacter)
+	{
+		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+			GameMode->CharacterSelectionComponent->NextCharacter(this);
+	}
+}
+
+void APlayerController_B::Unselect()
+{
+	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->CharacterSelectionComponent->Unselect(this);
+}
+
 void APlayerController_B::RotateX(float Value)
 {
 	if (PlayerCharacter)
@@ -102,8 +122,17 @@ void APlayerController_B::KillPlayerCharacter()
 
 void APlayerController_B::PickupButtonPressed()
 {
+
 	if (PlayerCharacter)
+	{
 		PlayerCharacter->HoldComponent->TryPickup();
+	}
+	else
+	{
+		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+			GameMode->CharacterSelectionComponent->SelectCharacter(this);
+	}
 }
 
 void APlayerController_B::PickupButtonRepeat()

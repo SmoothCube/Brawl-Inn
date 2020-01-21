@@ -6,6 +6,7 @@
 #include "System/MenuGameMode_B.h"
 #include "Player/PlayerController_B.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CharacterSelectionComponent_B.h"
 
 bool UCharacterSelection_B::Initialize()
 {
@@ -14,8 +15,8 @@ bool UCharacterSelection_B::Initialize()
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SpawnCharacter_NOPARAM_D.AddDynamic(this, &UCharacterSelection_B::UpdateNumberOfPlayersText);
-		GameMode->DespawnCharacter_NOPARAM_D.AddDynamic(this, &UCharacterSelection_B::UpdateNumberOfPlayersText);
+		GameMode->CharacterSelectionComponent->CharacterSelected_D.BindUObject(this, &UCharacterSelection_B::UpdateNumberOfPlayersText);
+		GameMode->CharacterSelectionComponent->CharacterUnselected_D.BindUObject(this, &UCharacterSelection_B::UpdateNumberOfPlayersText);
 	}
 
 	return success;

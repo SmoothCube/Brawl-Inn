@@ -12,6 +12,8 @@ class ALevelSequenceActor;
 class UCharacterSelection_B;
 class UMainMenu_B;
 
+class UCharacterSelectionComponent_B;
+
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 {
@@ -19,10 +21,12 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 	
 public:
 
+	AMenuGameMode_B();
+
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ACameraActor* Camera = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UCharacterSelectionComponent_B* CharacterSelectionComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UMainMenu_B> BP_MainMenu;
@@ -86,10 +90,13 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	ALevelSequenceActor* LSA_Selection = nullptr;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AGameCamera_B> BP_GameCamera; //TODO Temporary 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		ACameraActor* Camera = nullptr;
 
-	class AGameCamera_B* GameCamera = nullptr;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACameraActor> BP_SelectionCamera; 
+
+	class ACameraActor* SelectionCamera = nullptr;
 
 	bool bIsQuitting = false;
 

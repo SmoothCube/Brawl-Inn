@@ -8,13 +8,19 @@
 #include "Engine/World.h"
 #include "Player/PlayerController_B.h"
 #include "Camera/CameraActor.h"
-#include "System/GameCamera_B.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/Menus/CharacterSelection_B.h"
 #include "UI/Menus/MainMenu_B.h"
+#include "Player/PlayerCharacter_B.h"
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
 #include "MovieSceneSequencePlayer.h"
+#include "Components/CharacterSelectionComponent_B.h"
+
+AMenuGameMode_B::AMenuGameMode_B()
+{
+	CharacterSelectionComponent = CreateDefaultSubobject<UCharacterSelectionComponent_B>("Character Selection");
+}
 
 void AMenuGameMode_B::BeginPlay()
 {
@@ -34,6 +40,10 @@ void AMenuGameMode_B::BeginPlay()
 	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
 	CharacterSelection = CreateWidget<UCharacterSelection_B>(PlayerControllers[0], BP_CharacterSelection);
 
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_SelectionCamera, Cameras);
+	SelectionCamera = Cast<ACameraActor>(Cameras[0]);
+
 
 	LSA_Intro->GetSequencePlayer()->Play();
 	LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
@@ -42,11 +52,11 @@ void AMenuGameMode_B::BeginPlay()
 
 void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController) //TODO TASK: #38
 {
-	if (IsValid(GameCamera))
-		PlayerController->SetViewTargetWithBlend(GameCamera);
+	if (IsValid(SelectionCamera))
+		PlayerController->SetViewTargetWithBlend(SelectionCamera);
 }
 
-void AMenuGameMode_B::UpdateViewTargets()
+void AMenuGameMode_B::UpdateViewTargets() // Used for sequences
 {
 	for (const auto& PlayerController : PlayerControllers)
 	{
@@ -114,12 +124,18 @@ void AMenuGameMode_B::LS_PlayGame()
 void AMenuGameMode_B::LS_ToSelectionFinished()
 {
 	//TODO Temporary See #76
-	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+//	SelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_SelectionCamera, FTransform());
 
 	if (!CharacterSelection)
 		return;
 
 	CharacterSelection->AddToViewport();
+
+	for (const auto& PlayerController : PlayerControllers)
+	{
+		if (IsValid(SelectionCamera))
+			PlayerController->SetViewTargetWithBlend(SelectionCamera);
+	}
 
 	/*FInputModeUIOnly InputModeData;
 	InputModeData.SetWidgetToFocus(CharacterSelection->TakeWidget());
