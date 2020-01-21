@@ -58,9 +58,6 @@ protected:
 	
 	// ** Overlap/Hit functions **
 	UFUNCTION()
-	void CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
 	void OnRadialDamageTaken(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin, FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
 
 	// ** Functions **
@@ -73,7 +70,7 @@ protected:
 	void TakeFireDamage();
 
 	UFUNCTION()
-	void Fall();
+	void Fall(float RecoveryTime);
 
 	void StandUp();
 
@@ -86,7 +83,7 @@ public:
 	
 	void PunchButtonPressed();
 
-	void MakeInvulnerable(float InvincibilityTime);
+	void MakeInvulnerable(float InvulnerabilityTime);
 	bool IsInvulnerable();
 
 	// ** Variables **
@@ -103,7 +100,10 @@ public:
 protected: 
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float RecoveryTime = 2.0;
+	float FellRecoveryTime = 2.0;					//For when a character fell by themselves
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float PunchedRecoveryTime= 4.0;					//For when an external force made the character fall. Name is a bit misleading
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float TimeBeforeFall = 1.f;
