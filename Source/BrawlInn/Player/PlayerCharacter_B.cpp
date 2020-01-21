@@ -11,6 +11,8 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
+#include "Materials/MaterialInterface.h"
+#include "Materials/Material.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
 #include "Player/PlayerController_B.h"
@@ -52,6 +54,8 @@ void APlayerCharacter_B::BeginPlay()
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::CapsuleBeginOverlap);
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
 	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
+
+	//MakeInvulnerable(-1.f);
 }
 
 void APlayerCharacter_B::TakeFireDamage()
@@ -151,7 +155,7 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 void APlayerCharacter_B::HandleMovementHold()
 {
 	//Shouldnt set this each tick
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -228,15 +232,23 @@ void APlayerCharacter_B::StandUp()
 	}
 }
 
-void APlayerCharacter_B::EnableInvincibility(float InvincibilityTime)
+//a number less than 0 will make the character invincible until toggled off again
+void APlayerCharacter_B::MakeInvulnerable(float InvincibilityTime)
 {
-	//	GetMesh()->SetMaterial(6, );
-	GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::DisableInvincibility, InvincibilityTime, false);
+	bIsInvulnerable = true;
+
+	if(InvulnerableMat)
+		GetMesh()->SetMaterial(6,InvulnerableMat);
+	if(InvincibilityTime > 0)
+		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::MakeVulnerable, InvincibilityTime, false);
 }
 
-void APlayerCharacter_B::DisableInvincibility()
+void APlayerCharacter_B::MakeVulnerable()
 {
-	//	GetMesh()->SetMaterial(6, );
+	if (InvulnerableMat)
+		GetMesh()->SetMaterial(6, InvisibleMat);
+	BWarn("Collision Profile: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString());
+	bIsInvulnerable = false;
 }
 
 APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const

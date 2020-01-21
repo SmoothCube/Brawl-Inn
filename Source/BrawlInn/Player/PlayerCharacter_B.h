@@ -76,8 +76,8 @@ protected:
 
 	void StandUp();
 
-	void EnableInvincibility(float InvincibilityTime);
-	void DisableInvincibility();
+	void MakeInvulnerable(float InvincibilityTime);
+	void MakeVulnerable();
 public:	
 
 	UFUNCTION(BlueprintPure)
@@ -111,6 +111,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
 
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+	UMaterial* InvulnerableMat;
+
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+	UMaterial* InvisibleMat;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsInvulnerable = false;
+
+
 private:
 	
 	FTransform RelativeMeshTransform;
@@ -119,6 +129,7 @@ private:
 	
 	float CurrentFallTime = 0.f;
 
+	
 	APlayerController_B* PlayerController = nullptr;
 	friend class UPunchComponent_B;
 	FVector FindMeshLocation();
