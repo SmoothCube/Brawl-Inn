@@ -26,38 +26,48 @@ public:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FSpawnCharacter SpawnCharacter_D;
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FDespawnCharacter DespawnCharacter_D;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
 
 	TArray<APlayerController*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)
-	TArray<APlayerStart*> Spawnpoints;
-
+		TArray<APlayerStart*> Spawnpoints;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<APlayerCharacter_B> BP_PlayerCharacter;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int NumberOfPlayers = 4;
+		TSubclassOf<APlayerCharacter_B> BP_PlayerCharacter;
 
 
-	UFUNCTION()
-	void SpawnCharacter(APlayerController_B* PlayerController);
+	/// ----- Spawn Character functions/variables -----
+
+public:
 
 	UFUNCTION()
-	void DespawnCharacter(APlayerController_B* PlayerController);
+		virtual void UpdateViewTarget(APlayerController_B* PlayerController) {};
 
+	/// ** Delegates ** 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FSpawnCharacter SpawnCharacter_D;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FDespawnCharacter DespawnCharacter_D;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+
+	UFUNCTION()
+		void SpawnCharacter(APlayerController_B* PlayerController);
+
+	UFUNCTION()
+		void DespawnCharacter(APlayerController_B* PlayerController);
+
+protected:
+
+	void CreatePlayerControllers();
+	void GetAllSpawnpointsInWorld();
 	FTransform GetRandomSpawnTransform();
 };

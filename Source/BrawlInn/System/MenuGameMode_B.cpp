@@ -26,10 +26,6 @@ void AMenuGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/// Delegates
-	SpawnCharacter_D.AddDynamic(this, &AMenuGameMode_B::UpdateViewTarget);
-	DespawnCharacter_D.AddDynamic(this, &AMenuGameMode_B::UpdateViewTarget);
-
 	CharacterSelectionComponent->CharacterSelected_D.BindUObject(this, &AMenuGameMode_B::UpdateNumberOfActivePlayers);
 	CharacterSelectionComponent->CharacterUnselected_D.BindUObject(this, &AMenuGameMode_B::UpdateNumberOfActivePlayers);
 
@@ -152,5 +148,6 @@ void AMenuGameMode_B::UpdateNumberOfActivePlayers()
 void AMenuGameMode_B::StartGame()
 {
 	BScreen("Start");
-	//UGameplayStatics::OpenLevel(GetWorld(), "Graybox_V3");
+
+	UGameplayStatics::OpenLevel(GetWorld(), "Graybox_V3");
 }

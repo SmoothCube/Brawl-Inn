@@ -26,7 +26,11 @@ protected:
 	UFUNCTION()
 		void OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
+	void PrepareStartGame();
+
 	FTimerHandle TH_StartTimer;
+
+	TArray<int> PlayerControllerIds;
 
 	AMenuGameMode_B* GameMode = nullptr;
 

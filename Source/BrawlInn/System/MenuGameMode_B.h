@@ -37,8 +37,7 @@ public:
 
 	UCharacterSelection_B* CharacterSelection = nullptr;
 
-	UFUNCTION()
-	void UpdateViewTarget(APlayerController_B* PlayerController);
+	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateViewTargets();

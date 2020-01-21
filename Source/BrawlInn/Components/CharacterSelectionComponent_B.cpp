@@ -85,7 +85,8 @@ void UCharacterSelectionComponent_B::Unselect(APlayerController_B* PlayerControl
 		});
 
 	bFirstTime = true;
-	CharacterUnselected_D.Execute();
+	if (CharacterUnselected_D.IsBound())
+		CharacterUnselected_D.Execute();
 }
 
 void UCharacterSelectionComponent_B::NextCharacter(APlayerController_B* PlayerController)
