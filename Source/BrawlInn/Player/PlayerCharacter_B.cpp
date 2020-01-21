@@ -55,12 +55,12 @@ void APlayerCharacter_B::BeginPlay()
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
 	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
 
-	MakeInvulnerable(5.f);
 }
 
 void APlayerCharacter_B::TakeFireDamage()
 {
 	Fall();
+	MakeInvulnerable(InvulnerabilityTime + RecoveryTime);
 	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
 	if (Interface)
 	{
@@ -140,6 +140,7 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
 		{
 			Fall();
+			MakeInvulnerable(InvulnerabilityTime + RecoveryTime);
 		}
 	}
 	else
@@ -202,7 +203,6 @@ FVector APlayerCharacter_B::FindMeshLocation()
 	{
 		return (MeshLoc - RelativeMeshTransform.GetLocation());
 	}
-
 }
 
 void APlayerCharacter_B::StandUp()
@@ -216,16 +216,6 @@ void APlayerCharacter_B::StandUp()
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		//to find the right place to set the capsule
-
-		FindMeshLocation();
-		//use this as location
-		//GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
-		FAttachmentTransformRules Rule(EAttachmentRule::KeepWorld, false);
-		//GetMesh()->AttachToComponent(GetRootComponent(), Rule);
-		//GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-		//AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	}
 }
 

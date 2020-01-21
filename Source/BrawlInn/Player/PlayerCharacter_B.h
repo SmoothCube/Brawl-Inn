@@ -77,7 +77,6 @@ protected:
 
 	void StandUp();
 
-	void MakeInvulnerable(float InvincibilityTime);
 	void MakeVulnerable();
 
 public:	
@@ -87,6 +86,7 @@ public:
 	
 	void PunchButtonPressed();
 
+	void MakeInvulnerable(float InvincibilityTime);
 	bool IsInvulnerable();
 
 	// ** Variables **
@@ -97,7 +97,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector RotationVector = FVector::ZeroVector;
 	EState State = EState::EWalking;
-
+	
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float InvulnerabilityTime = 3.f;
 protected: 
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
@@ -123,6 +125,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInvulnerable = false;
+
 
 
 private:
