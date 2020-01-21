@@ -14,7 +14,6 @@ ABounceActor_B::ABounceActor_B()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 
@@ -22,7 +21,6 @@ ABounceActor_B::ABounceActor_B()
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorRotation(FRotator(0, 50, 0));
 	SetLifeSpan(ExplodeTime);
 	OnDestroyed.AddDynamic(this, &ABounceActor_B::Explode);
 }
@@ -31,7 +29,6 @@ void ABounceActor_B::BeginPlay()
 void ABounceActor_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorRotation(FRotator(GetActorRotation().Pitch, 50, GetActorRotation().Roll));
 
 }
 

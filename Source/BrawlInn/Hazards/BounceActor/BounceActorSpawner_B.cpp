@@ -29,14 +29,13 @@ void ABounceActorSpawner_B::BeginPlay()
 void ABounceActorSpawner_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ABounceActorSpawner_B::SpawnBounceActor()
 {
 	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));
-
-	FVector LaunchVel = FVector::ZeroVector;
+	NewBounceActor->SetActorRotation(FRotator(0, 50, 0));
+	FVector LaunchVel = FVector::ZeroVector;	
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), BouncePoints[NextPath]->GetActorLocation(), 0.0f, 0.5f);
 	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
 

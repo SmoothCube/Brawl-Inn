@@ -40,6 +40,7 @@ void UPunchComponent_B::PunchStart()
 {
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
 
+	Player->MakeVulnerable();
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	//Thought this would fix bug #39
@@ -115,13 +116,20 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
-	BWarn("Other Actor: %s", *GetNameSafe(OtherPlayer));
-	OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OtherPlayer);
-	Player->CurrentFallTime = 0.f;
-	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-	if (Player->PlayerController)
-		Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
-	bHasHit = true;
+	//has the invulnerability check here to be able to do other stuff when you hit someone invulnerable
+	if (!OtherPlayer->bIsInvulnerable)
+	{
+		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OtherPlayer);
+		Player->CurrentFallTime = 0.f;
+		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+		if (Player->PlayerController)
+			Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
+		bHasHit = true;
+	}
+	else
+	{
+		Player->GetCharacterMovement()->Velocity *= -0.5;
+	}
 
 }
 
@@ -130,7 +138,6 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 	if (!OtherComp) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
-	BWarn("[UPunchComponent_B::PunchHit] Sphere Overlapped! Other Actor: %s", *GetNameSafe(this));
 	Player->CurrentFallTime = 0.f;
 	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 	OtherComp->AddImpulse(CalculatePunchStrenght());
@@ -146,6 +153,7 @@ bool UPunchComponent_B::GetIsPunching()
 void UPunchComponent_B::GetPunched(FVector InPunchStrength, APlayerCharacter_B* PlayerThatPunched)
 {
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+
 	float strength = InPunchStrength.Size();
 	GetPunched_D.Broadcast(PlayerThatPunched);
 	BWarn("Getting Punched with strength: %s", *InPunchStrength.ToString());

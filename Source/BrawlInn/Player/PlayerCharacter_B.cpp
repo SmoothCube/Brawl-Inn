@@ -55,12 +55,12 @@ void APlayerCharacter_B::BeginPlay()
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
 	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
 
-	//MakeInvulnerable(-1.f);
 }
 
 void APlayerCharacter_B::TakeFireDamage()
 {
 	Fall();
+	MakeInvulnerable(InvulnerabilityTime + RecoveryTime);
 	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
 	if (Interface)
 	{
@@ -70,6 +70,7 @@ void APlayerCharacter_B::TakeFireDamage()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (bIsInvulnerable) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
@@ -78,10 +79,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
-		//DamageEvent.IsOfType();
-
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
-
 	}
 	else
 	{
@@ -101,6 +99,10 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
+	//else if (State == EState::EStunned)
+	//{
+
+	//}
 	else
 	{
 		if (State == EState::EWalking)
@@ -108,7 +110,6 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		else if (State == EState::EHolding)
 			HandleMovementHold();
 		HandleRotation();
-
 	}
 }
 
@@ -136,13 +137,14 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		float Intensity = CurrentFallTime + 0.7;
 		if (!PunchComponent->bIsPunching && PlayerController)
 			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
-		if (CurrentFallTime >= TimeBeforeFall)
+		if (CurrentFallTime >= TimeBeforeFall && !bIsInvulnerable)
 		{
 			Fall();
 		}
 		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
 		{
 			Fall();
+			MakeInvulnerable(InvulnerabilityTime + RecoveryTime);
 		}
 	}
 	else
@@ -173,9 +175,10 @@ void APlayerCharacter_B::Fall()
 
 		State = EState::EFallen;
 		BWarn("Falling! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		GetMesh()->SetGenerateOverlapEvents(true);
 		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
 
 		//Decides which parts of the controller to vibrate. Overkill? probably but i wanted to test it.
@@ -205,7 +208,6 @@ FVector APlayerCharacter_B::FindMeshLocation()
 	{
 		return (MeshLoc - RelativeMeshTransform.GetLocation());
 	}
-
 }
 
 void APlayerCharacter_B::StandUp()
@@ -218,17 +220,8 @@ void APlayerCharacter_B::StandUp()
 		GetMovementComponent()->StopMovementImmediately();
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetMesh()->SetGenerateOverlapEvents(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		//to find the right place to set the capsule
-
-		FindMeshLocation();
-		//use this as location
-		//GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetRelativeTransform().GetLocation());
-		FAttachmentTransformRules Rule(EAttachmentRule::KeepWorld, false);
-		//GetMesh()->AttachToComponent(GetRootComponent(), Rule);
-		//GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-		//AddActorWorldOffset(FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	}
 }
 
@@ -247,8 +240,12 @@ void APlayerCharacter_B::MakeVulnerable()
 {
 	if (InvulnerableMat)
 		GetMesh()->SetMaterial(6, InvisibleMat);
-	BWarn("Collision Profile: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString());
 	bIsInvulnerable = false;
+}
+
+bool APlayerCharacter_B::IsInvulnerable()
+{
+	return bIsInvulnerable;
 }
 
 APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
@@ -287,6 +284,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 void APlayerCharacter_B::PunchButtonPressed()
 {
+	//if (State == EState::EStunned) { return; }
 	if (PunchComponent)
 	{
 		PunchComponent->bIsPunching = true;
@@ -310,11 +308,13 @@ void APlayerCharacter_B::CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 void APlayerCharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
 {
 	BWarn("Radial Damage Taken!");
+	if (!bIsInvulnerable)
+	{
+		//Calculates force vector
+		FVector Direction = GetActorLocation() - Origin;
+		Direction.Normalize();
+		Direction *= DamageType->DamageImpulse;
 
-	//Calculates force vector
-	FVector Direction = GetActorLocation() - Origin;
-	Direction.Normalize();
-	Direction *= DamageType->DamageImpulse;
-
-	GetCharacterMovement()->AddImpulse(Direction);
+		GetCharacterMovement()->AddImpulse(Direction);
+	}
 }
