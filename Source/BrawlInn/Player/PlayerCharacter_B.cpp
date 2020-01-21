@@ -99,6 +99,10 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
+	//else if (State == EState::EStunned)
+	//{
+
+	//}
 	else
 	{
 		if (State == EState::EWalking)
@@ -171,9 +175,10 @@ void APlayerCharacter_B::Fall()
 
 		State = EState::EFallen;
 		BWarn("Falling! Velocity: %s", *GetMovementComponent()->Velocity.ToString());
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		GetMesh()->SetGenerateOverlapEvents(true);
 		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
 
 		//Decides which parts of the controller to vibrate. Overkill? probably but i wanted to test it.
@@ -215,6 +220,7 @@ void APlayerCharacter_B::StandUp()
 		GetMovementComponent()->StopMovementImmediately();
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetMesh()->SetGenerateOverlapEvents(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 }
@@ -234,7 +240,6 @@ void APlayerCharacter_B::MakeVulnerable()
 {
 	if (InvulnerableMat)
 		GetMesh()->SetMaterial(6, InvisibleMat);
-	BWarn("Collision Profile: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString());
 	bIsInvulnerable = false;
 }
 
@@ -279,6 +284,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 void APlayerCharacter_B::PunchButtonPressed()
 {
+	//if (State == EState::EStunned) { return; }
 	if (PunchComponent)
 	{
 		PunchComponent->bIsPunching = true;

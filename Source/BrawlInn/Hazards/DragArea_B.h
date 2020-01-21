@@ -7,7 +7,8 @@
 #include "DragArea_B.generated.h"
 
 class UBoxComponent;
-class UStaticMeshComponent;
+class UStaticMeshComponent; //TODO delete?
+class USkeletalMeshComponent;
 class APlayerCharacter_B;
 
 UCLASS()
@@ -20,7 +21,14 @@ public:
 	ADragArea_B();
 
 	UPROPERTY(EditAnywhere, Category="Variables")
-	float DragStrength = 1000.f;
+	float ItemDragStrength = 100000.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float InputMultiplier = 0.25;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float SkeletalDragStrength= 4000.f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -28,8 +36,13 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* DragArea = nullptr;
 	
-	TArray<UPrimitiveComponent*> ComponentsToMove;
+
+	//for characters that has not fallen (movement components)
 	TArray<APlayerCharacter_B*> PlayersToMove;
+	//for all skeletal meshes? 
+	TArray<USkeletalMeshComponent*> SkeletonsToMove;
+	//for all other objects
+	TArray<UPrimitiveComponent*> ComponentsToMove;
 
 public:	
 	// Called every frame

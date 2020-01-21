@@ -36,42 +36,60 @@ void ADragArea_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//active players that have not fallen over
 	for (int i = 0; i < PlayersToMove.Num(); i++)
 	{
-		if (PlayersToMove.IsValidIndex(i))
+		if (PlayersToMove.IsValidIndex(i) && PlayersToMove[i])
 		{
-			if (PlayersToMove[i]->State == EState::EFallen)
-				PlayersToMove[i]->GetMesh()->AddForce(GetActorForwardVector() * DragStrength);
-			else
-				PlayersToMove[i]->GetCharacterMovement()->AddForce(GetActorForwardVector() * DragStrength);
-			PlayersToMove[i]->GetCharacterMovement()->AddInputVector(FVector::ZeroVector);
+			//this is not really how i want it :c
+			PlayersToMove[i]->GetCharacterMovement()->AddInputVector(GetActorForwardVector()*InputMultiplier, true);
 		}
 	}
 
+	//Skeletal meshes
+	for (int i = 0; i < SkeletonsToMove.Num(); i++)
+	{		
+		if (SkeletonsToMove.IsValidIndex(i) && SkeletonsToMove[i])
+		{
+			SkeletonsToMove[i]->AddForceToAllBodiesBelow(GetActorForwardVector() * SkeletalDragStrength);
+		}
+		else
+		{
+			BError("Invalid Index!: %s", *GetActorForwardVector().ToString())
+		}
+	}
+	
+	//all other stuff
 	for (int i=0; i<ComponentsToMove.Num(); i++)
 	{
 		if (ComponentsToMove.IsValidIndex(i) && ComponentsToMove[i])
 		{
-			ComponentsToMove[i]->AddForce(GetActorForwardVector() * DragStrength);
+			ComponentsToMove[i]->AddForce(GetActorForwardVector() * ItemDragStrength);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("[ADragArea_B::Tick] Invalid Index!: %s"), *GetActorForwardVector().ToString())
+			BError("Invalid Index!: %s", *GetActorForwardVector().ToString());
 		}
 	}
 }
 
 void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	//only adds to one of the three arrays
+	USkeletalMeshComponent* Skeleton = Cast<USkeletalMeshComponent>(OtherComp);
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
-	if (Player)
+	if (Skeleton)
+	{
+		SkeletonsToMove.Add(Skeleton);
+	}
+	else if (Player)
 	{
 		if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		{
 			return;
 		}
 		PlayersToMove.Add(Player);
-		
+		BWarn("Adding player %s", *GetNameSafe(Player));
 		Player->FireDamageComponent->FireDamageStop_D.Broadcast();
 	}
 	else
@@ -82,10 +100,35 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
+	USkeletalMeshComponent* Skeleton = Cast<USkeletalMeshComponent>(OtherComp);
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
-	if (Player)
+	if (Skeleton)
+	{
+		SkeletonsToMove.Remove(Skeleton);
+	}
+	else if (Player)
 	{
 		PlayersToMove.Remove(Player);
+
+		//Checks to see if the skeletalmesh is still overlapping. Adds it to SkeletonsToMove if it is
+		BWarn("Removing player %s", *GetNameSafe(Player));
+		TArray<UPrimitiveComponent*> OverlappingComponents;
+		GetOverlappingComponents(OverlappingComponents);
+		for (auto& comp : OverlappingComponents)
+		{
+			AActor* OtherActor = comp->GetOwner();
+			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
+			USkeletalMeshComponent* Mesh = Cast<USkeletalMeshComponent>(comp);
+			
+			if (OtherPlayer != nullptr && Mesh != nullptr)
+			{
+				BWarn("Found Mesh %s", *GetNameSafe(Mesh));
+				SkeletonsToMove.Add(Mesh);
+			}
+		}
 	}
-	ComponentsToMove.Remove(OtherComp);
+	else
+	{
+		ComponentsToMove.Remove(OtherComp);
+	}
 }
