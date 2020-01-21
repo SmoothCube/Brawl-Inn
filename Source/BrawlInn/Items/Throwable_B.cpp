@@ -50,7 +50,7 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	if (!IsHeld() || OtherActor == OwningPlayer || OtherActor->StaticClass() == this->StaticClass())
 		return;
 	APlayerCharacter_B* HitPlayer = Cast<APlayerCharacter_B>(OtherActor);
-	if (HitPlayer)
+	if (HitPlayer && !HitPlayer->IsInvulnerable())
 	{
 		HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 		BScreen("Overlapping with %s", *GetNameSafe(OtherActor));

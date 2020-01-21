@@ -10,6 +10,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFireDamageStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFireDamageStop);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FZeroFireHealth);
 
+class APlayerCharacter_B;
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BRAWLINN_API UFireDamageComponent_B : public UActorComponent
 {
@@ -76,4 +78,6 @@ private:
 	FTimerHandle TH_ResetFire;
 
 	float FireHealthMaxAmount = 100;
+
+	APlayerCharacter_B* OwningPlayer = nullptr;
 };

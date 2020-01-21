@@ -4,6 +4,8 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 
+#include "Player/PlayerCharacter_B.h"
+
 UFireDamageComponent_B::UFireDamageComponent_B()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -18,6 +20,8 @@ void UFireDamageComponent_B::BeginPlay()
 	FireDamageStart_D.AddDynamic(this, &UFireDamageComponent_B::StartFireDamage);
 	FireDamageStop_D.AddDynamic(this, &UFireDamageComponent_B::StopFireDamage);
 	FireHealthIsZero_D.AddDynamic(this, &UFireDamageComponent_B::StopFireDamage);
+
+	OwningPlayer = Cast<APlayerCharacter_B>(GetOwner());
 	
 }
 
@@ -43,6 +47,8 @@ void UFireDamageComponent_B::StopFireDamage()
 
 void UFireDamageComponent_B::TakeFireDamage()
 {
+	if (OwningPlayer && OwningPlayer->IsInvulnerable()) return;
+
 	FireHealthAmount -= FireDamagePerTick;
 
 	if (FireHealthAmount <= 0)

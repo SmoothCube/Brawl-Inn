@@ -41,6 +41,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UFireDamageComponent_B* FireDamageComponent;
 
+
 protected:
 
 	// ** Overriden functions **
@@ -78,12 +79,15 @@ protected:
 
 	void MakeInvulnerable(float InvincibilityTime);
 	void MakeVulnerable();
+
 public:	
 
 	UFUNCTION(BlueprintPure)
 	APlayerController_B* GetPlayerController_B() const;
 	
 	void PunchButtonPressed();
+
+	bool IsInvulnerable();
 
 	// ** Variables **
 

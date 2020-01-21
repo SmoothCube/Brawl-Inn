@@ -55,7 +55,7 @@ void APlayerCharacter_B::BeginPlay()
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
 	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
 
-	//MakeInvulnerable(-1.f);
+	MakeInvulnerable(5.f);
 }
 
 void APlayerCharacter_B::TakeFireDamage()
@@ -70,6 +70,7 @@ void APlayerCharacter_B::TakeFireDamage()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (bIsInvulnerable) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
@@ -78,10 +79,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
-		//DamageEvent.IsOfType();
-
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
-
 	}
 	else
 	{
@@ -108,7 +106,6 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		else if (State == EState::EHolding)
 			HandleMovementHold();
 		HandleRotation();
-
 	}
 }
 
@@ -136,7 +133,7 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		float Intensity = CurrentFallTime + 0.7;
 		if (!PunchComponent->bIsPunching && PlayerController)
 			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
-		if (CurrentFallTime >= TimeBeforeFall)
+		if (CurrentFallTime >= TimeBeforeFall && !bIsInvulnerable)
 		{
 			Fall();
 		}
@@ -251,6 +248,11 @@ void APlayerCharacter_B::MakeVulnerable()
 	bIsInvulnerable = false;
 }
 
+bool APlayerCharacter_B::IsInvulnerable()
+{
+	return bIsInvulnerable;
+}
+
 APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
 {
 	return PlayerController;
@@ -310,11 +312,13 @@ void APlayerCharacter_B::CapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 void APlayerCharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
 {
 	BWarn("Radial Damage Taken!");
+	if (!bIsInvulnerable)
+	{
+		//Calculates force vector
+		FVector Direction = GetActorLocation() - Origin;
+		Direction.Normalize();
+		Direction *= DamageType->DamageImpulse;
 
-	//Calculates force vector
-	FVector Direction = GetActorLocation() - Origin;
-	Direction.Normalize();
-	Direction *= DamageType->DamageImpulse;
-
-	GetCharacterMovement()->AddImpulse(Direction);
+		GetCharacterMovement()->AddImpulse(Direction);
+	}
 }
