@@ -3,6 +3,7 @@
 
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
+#include "BrawlInn.h"
 #include "System/GameCamera_B.h"
 #include "Player/PlayerController_B.h"
 
@@ -11,6 +12,7 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	BLog("I'm here");
 	/// Spawns and setups camera
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	for (const auto& PlayerController : PlayerControllers)

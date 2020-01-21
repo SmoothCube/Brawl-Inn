@@ -7,13 +7,14 @@
 #include "CharacterSelection_B.generated.h"
 
 class UTextBlock;
-class AMenuGameMode_B;
 
 UCLASS()
 class BRAWLINN_API UCharacterSelection_B : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+		void UpdateNumberOfPlayersText(int Value);
 protected:
 	// ** Overridden Functions **
 	virtual bool Initialize() override;
@@ -21,10 +22,4 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* NumberOfPlayersText;
 
-	UFUNCTION()
-	void UpdateNumberOfPlayersText();
-	
-	// ** Variables **
-
-	AMenuGameMode_B* GameMode = nullptr;
 };

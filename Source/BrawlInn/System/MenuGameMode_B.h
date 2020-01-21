@@ -11,7 +11,6 @@ class ULevelSequence;
 class ALevelSequenceActor;
 class UCharacterSelection_B;
 class UMainMenu_B;
-
 class UCharacterSelectionComponent_B;
 
 UCLASS()
@@ -33,12 +32,10 @@ public:
 
 	UMainMenu_B* MainMenuWidget = nullptr;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<UCharacterSelection_B> BP_CharacterSelection;
 
 	UCharacterSelection_B* CharacterSelection = nullptr;
-
 
 	UFUNCTION()
 	void UpdateViewTarget(APlayerController_B* PlayerController);
@@ -65,6 +62,10 @@ public:
 	UFUNCTION()
 		void LS_ToSelectionFinished();
 
+	void UpdateNumberOfActivePlayers();
+
+	void StartGame();
+
 
 	// ** Level Sequence **
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -77,7 +78,6 @@ public:
 		ULevelSequence* LS_MainMenu = nullptr;
 
 	ALevelSequenceActor* LSA_MainMenu = nullptr;
-
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		ULevelSequence* LS_ToSelection = nullptr;
@@ -100,5 +100,11 @@ public:
 
 	bool bIsQuitting = false;
 
+	// ** Ready up **
+
+public: 
+
+	int PlayersActive = 0;
+	int PlayersReady = 0;
 
 };

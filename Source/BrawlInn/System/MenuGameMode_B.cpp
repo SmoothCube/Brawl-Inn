@@ -26,9 +26,12 @@ void AMenuGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	/// Delegates
 	SpawnCharacter_D.AddDynamic(this, &AMenuGameMode_B::UpdateViewTarget);
 	DespawnCharacter_D.AddDynamic(this, &AMenuGameMode_B::UpdateViewTarget);
 
+	CharacterSelectionComponent->CharacterSelected_D.BindUObject(this, &AMenuGameMode_B::UpdateNumberOfActivePlayers);
+	CharacterSelectionComponent->CharacterUnselected_D.BindUObject(this, &AMenuGameMode_B::UpdateNumberOfActivePlayers);
 
 	/// Level sequence stuff
 	FMovieSceneSequencePlaybackSettings Settings;
@@ -40,14 +43,13 @@ void AMenuGameMode_B::BeginPlay()
 	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
 	CharacterSelection = CreateWidget<UCharacterSelection_B>(PlayerControllers[0], BP_CharacterSelection);
 
+	// Find Character selection camera
 	TArray<AActor*> Cameras;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_SelectionCamera, Cameras);
 	SelectionCamera = Cast<ACameraActor>(Cameras[0]);
 
-
 	LSA_Intro->GetSequencePlayer()->Play();
 	LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
-
 }
 
 void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController) //TODO TASK: #38
@@ -114,17 +116,13 @@ void AMenuGameMode_B::LS_PlayGame()
 {
 	LSA_MainMenu->GetSequencePlayer()->Stop();
 
-
 	LSA_ToSelection->GetSequencePlayer()->Play();
 
 	LSA_ToSelection->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_ToSelectionFinished);
-
 }
 
 void AMenuGameMode_B::LS_ToSelectionFinished()
 {
-	//TODO Temporary See #76
-//	SelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_SelectionCamera, FTransform());
 
 	if (!CharacterSelection)
 		return;
@@ -136,14 +134,23 @@ void AMenuGameMode_B::LS_ToSelectionFinished()
 		if (IsValid(SelectionCamera))
 			PlayerController->SetViewTargetWithBlend(SelectionCamera);
 	}
+}
 
-	/*FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(CharacterSelection->TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+void AMenuGameMode_B::UpdateNumberOfActivePlayers()
+{
+	int NumberOfPlayers = 0;
 
-	PlayerControllers[0]->SetInputMode(InputModeData);
-	PlayerControllers[0]->bShowMouseCursor = true;*/
+	for (const auto& Controller : PlayerControllers)
+	{
+		if (Cast<APlayerController_B>(Controller)->HasValidCharacter())
+			NumberOfPlayers++;
+	}
+	PlayersActive = NumberOfPlayers;
+	CharacterSelection->UpdateNumberOfPlayersText(PlayersActive);
+}
 
-
-	//	LSA_Selection->GetSequencePlayer()->PlayLooping();
+void AMenuGameMode_B::StartGame()
+{
+	BScreen("Start");
+	//UGameplayStatics::OpenLevel(GetWorld(), "Graybox_V3");
 }
