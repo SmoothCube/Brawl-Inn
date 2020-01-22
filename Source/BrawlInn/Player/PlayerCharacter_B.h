@@ -67,7 +67,7 @@ protected:
 	void HandleMovement(float DeltaTime);
 	void HandleMovementHold();
 
-	void HandleRotation();
+	void HandleRotation(float DeltaTime);
 
 	UFUNCTION()
 	void TakeFireDamage();
@@ -96,6 +96,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector RotationVector = FVector::ZeroVector;
+
 	EState State = EState::EWalking;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables")
