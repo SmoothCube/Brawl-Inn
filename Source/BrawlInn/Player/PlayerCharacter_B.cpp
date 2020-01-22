@@ -34,7 +34,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 
 	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
 	HoldComponent->SetupAttachment(GetMesh());
-
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
 	FireDamageComponent = CreateDefaultSubobject<UFireDamageComponent_B>("Fire Damage Component");
 
@@ -52,6 +51,9 @@ void APlayerCharacter_B::BeginPlay()
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
 	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
+	
+	
+	MakeInvulnerable(1.0f);
 
 }
 
