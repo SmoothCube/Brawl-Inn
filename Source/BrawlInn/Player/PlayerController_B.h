@@ -25,6 +25,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
+	void TryPauseGame();
+
 	bool HasValidCharacter();
 
 	void PlayControllerVibration(float Strength,float Duration,bool bAffectsLeftLarge,bool bAffectsLeftSmall,bool bAffectsRightLarge,bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action= EDynamicForceFeedbackAction::Start);
@@ -49,8 +51,6 @@ private:
 	void MoveRight(float Value);
 	void SelectRight();
 	void Unselect();
-	void RotateX(float Value);
-	void RotateY(float Value);
 
 	void PickupButtonPressed();
 	void PickupButtonRepeat();

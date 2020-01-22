@@ -10,6 +10,7 @@
 #include "Components/ThrowComponent_B.h"
 #include "Engine/World.h"
 #include "System/GameMode_B.h"
+#include "System/MainGameMode_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "System/MenuGameMode_B.h"
 
@@ -36,14 +37,25 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAxis("MoveUp", this, &APlayerController_B::MoveUp);
 		InputComponent->BindAxis("MoveRight", this, &APlayerController_B::MoveRight);
 
-		InputComponent->BindAxis("RotateX", this, &APlayerController_B::RotateX);
-		InputComponent->BindAxis("RotateY", this, &APlayerController_B::RotateY);
-
 		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
 		InputComponent->BindAction("SelectRight", IE_Pressed, this, &APlayerController_B::SelectRight);
 		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
+
+		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
+		InputComponent->SetTickableWhenPaused(true);
+
+	}
+}
+
+void APlayerController_B::TryPauseGame()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		
+		GameMode->PauseGame(this);
 	}
 }
 
@@ -96,21 +108,6 @@ void APlayerController_B::Unselect()
 	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 		GameMode->CharacterSelectionComponent->Unselect(this);
-}
-
-void APlayerController_B::RotateX(float Value)
-{
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->RotationVector.X = Value;
-	}
-}
-void APlayerController_B::RotateY(float Value)
-{
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->RotationVector.Y = Value;
-	}
 }
 
 // Called when the Health in HealthComponent is 0
