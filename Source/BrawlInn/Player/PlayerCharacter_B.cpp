@@ -105,17 +105,23 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 			HandleMovement(DeltaTime);
 		else if (State == EState::EHolding)
 			HandleMovementHold();
-		HandleRotation();
+		HandleRotation(DeltaTime);
 	}
 }
 
-void APlayerCharacter_B::HandleRotation()
+void APlayerCharacter_B::HandleRotation(float DeltaTime)
 {
-	if (RotationVector.Size() > 0.1)
+	/*if (RotationVector.Size() > 0.1)
 	{
 		RotationVector.Normalize();
 		SetActorRotation(RotationVector.ToOrientationRotator());
+	}*/
+	if (InputVector.Size() > 0.1)
+	{
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
+
 	}
+	//PrevRotation = GetActorRotation();
 }
 
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
@@ -134,14 +140,8 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		{
 			float Intensity = CurrentFallTime + 0.7;
 			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
-		}
-		//Fall because you moved too fast
-		if (CurrentFallTime >= TimeBeforeFall && !bIsInvulnerable)
-		{
-			Fall(FellRecoveryTime);
-		}
-		//Fall because something happened (Got punched, barrel exploded etc)
-		else if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
+	
+		if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
 		{
 			Fall(PunchedRecoveryTime);
 			MakeInvulnerable(InvulnerabilityTime + PunchedRecoveryTime);

@@ -20,6 +20,11 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
 
+public:
+	void PauseGame(APlayerController_B* ControllerThatPaused);
+
+protected:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
 

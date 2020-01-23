@@ -27,8 +27,10 @@ void UMainMenu_B::PlayButtonClicked()
 {
 	BScreen("Playbutton clicked");
 	if (GameMode)
+	{
 		GameMode->LS_PlayGame();
-	GameMode->HideMainMenu();
+		GameMode->HideMainMenu();
+	}
 }
 
 void UMainMenu_B::SettingsButtonClicked()

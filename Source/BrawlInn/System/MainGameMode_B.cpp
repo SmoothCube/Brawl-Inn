@@ -33,3 +33,9 @@ void AMainGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
 	if (IsValid(GameCamera))
 		PlayerController->SetViewTargetWithBlend(GameCamera);
 }
+
+void AMainGameMode_B::PauseGame(APlayerController_B* ControllerThatPaused)
+{
+	ControllerThatPaused->SetInputMode(FInputModeUIOnly());
+	UGameplayStatics::SetGamePaused(GetWorld(), UGameplayStatics::IsGamePaused(GetWorld()) ? false : true);
+}
