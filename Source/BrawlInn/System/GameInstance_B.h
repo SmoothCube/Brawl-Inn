@@ -14,4 +14,8 @@ class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
 
+public:
+
+    TArray<int> ActivePlayerControllerIDs = { 0,1,2,3 };
+
 };

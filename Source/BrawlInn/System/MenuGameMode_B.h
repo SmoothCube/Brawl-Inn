@@ -11,6 +11,7 @@ class ULevelSequence;
 class ALevelSequenceActor;
 class UCharacterSelection_B;
 class UMainMenu_B;
+class UCharacterSelectionComponent_B;
 
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
@@ -19,25 +20,24 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 	
 public:
 
+	AMenuGameMode_B();
+
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ACameraActor* Camera = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UCharacterSelectionComponent_B* CharacterSelectionComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UMainMenu_B> BP_MainMenu;
 
 	UMainMenu_B* MainMenuWidget = nullptr;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<UCharacterSelection_B> BP_CharacterSelection;
 
 	UCharacterSelection_B* CharacterSelection = nullptr;
 
-
-	UFUNCTION()
-	void UpdateViewTarget(APlayerController_B* PlayerController);
+	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateViewTargets();
@@ -61,6 +61,10 @@ public:
 	UFUNCTION()
 		void LS_ToSelectionFinished();
 
+	void UpdateNumberOfActivePlayers();
+
+	void StartGame();
+
 
 	// ** Level Sequence **
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -74,7 +78,6 @@ public:
 
 	ALevelSequenceActor* LSA_MainMenu = nullptr;
 
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		ULevelSequence* LS_ToSelection = nullptr;
 
@@ -86,12 +89,21 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	ALevelSequenceActor* LSA_Selection = nullptr;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AGameCamera_B> BP_GameCamera; //TODO Temporary 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		ACameraActor* Camera = nullptr;
 
-	class AGameCamera_B* GameCamera = nullptr;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACameraActor> BP_SelectionCamera; 
+
+	class ACameraActor* SelectionCamera = nullptr;
 
 	bool bIsQuitting = false;
 
+	// ** Ready up **
+
+public: 
+
+	int PlayersActive = 0;
+	int PlayersReady = 0;
 
 };

@@ -9,6 +9,7 @@
 
 class UHealthComponent_B;
 class APlayerCharacter_B;
+class UCharacterSelectionComponent_B;
 
 UCLASS()
 class BRAWLINN_API APlayerController_B : public APlayerController, public IControllerInterface_B
@@ -46,6 +47,8 @@ private:
 
 	void MoveUp(float Value);
 	void MoveRight(float Value);
+	void SelectRight();
+	void Unselect();
 	void RotateX(float Value);
 	void RotateY(float Value);
 

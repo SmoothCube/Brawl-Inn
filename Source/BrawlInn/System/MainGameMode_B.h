@@ -15,17 +15,15 @@ class BRAWLINN_API AMainGameMode_B : public AGameMode_B
 
 protected:
 
-		virtual void BeginPlay() override;
+	// ** Overridden functions **
 
+	virtual void BeginPlay() override;
+	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
 
-
+private:
 	AGameCamera_B* GameCamera = nullptr;
-
-	UFUNCTION()
-	void UpdateViewTarget(APlayerController_B* PlayerController);
-
 
 };
