@@ -59,6 +59,9 @@ void UCharacterSelectionComponent_B::SelectCharacter(APlayerController_B* Player
 
 void UCharacterSelectionComponent_B::Unselect(APlayerController_B* PlayerController)
 {
+	if (!PlayerController->HasValidCharacter())
+		return;
+
 	PlayerController->UnPossess();
 	CharacterSelected = PlayerController->PlayerCharacter;
 	PlayerController->PlayerCharacter = nullptr;
