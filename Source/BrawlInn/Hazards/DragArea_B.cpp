@@ -116,8 +116,8 @@ void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 		GetOverlappingComponents(OverlappingComponents);
 		for (auto& comp : OverlappingComponents)
 		{
-			AActor* OtherActor = comp->GetOwner();
-			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
+			AActor* Actor = comp->GetOwner();
+			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(Actor);
 			USkeletalMeshComponent* Mesh = Cast<USkeletalMeshComponent>(comp);
 			
 			if (OtherPlayer != nullptr && Mesh != nullptr)
