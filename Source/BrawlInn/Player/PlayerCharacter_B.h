@@ -11,7 +11,9 @@ class UHoldComponent_B;
 class UThrowComponent_B;
 class UFireDamageComponent_B;
 class UPunchComponent_B;
+class AGameCamera_B;
 class APlayerController_B;
+class UWidgetComponent;
 
 UENUM(BlueprintType)		//"BlueprintType" is essential to include
 enum class EState : uint8
@@ -33,6 +35,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UPunchComponent_B* PunchComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UWidgetComponent* HealthWidget;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UHoldComponent_B* HoldComponent;
 
@@ -50,6 +55,8 @@ protected:
 
 
 	virtual void Tick(float DeltaTime) override;
+
+	void UpdateHealthRotation();
 	
 	virtual void PossessedBy(AController* NewController) override;
 	
@@ -153,6 +160,8 @@ private:
 
 	
 	APlayerController_B* PlayerController = nullptr;
+	AGameCamera_B* GameCamera = nullptr;
+
 	friend class UPunchComponent_B;
 	FVector FindMeshLocation();
 };

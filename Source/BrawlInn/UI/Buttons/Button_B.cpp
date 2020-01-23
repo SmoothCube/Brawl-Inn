@@ -2,18 +2,18 @@
 
 
 #include "Button_B.h"
+#include "BrawlInn.h"
 
 void UButton_B::ButtonTick()
 {
-
 	if (IsHovered())
 	{
-		SetKeyboardFocus();
+		SetUserFocus(GetOwningPlayer());
 		SetStyle(MouseHover);
 	}
 	else
 	{
-		if (HasKeyboardFocus())
+		if (HasUserFocus(GetOwningPlayer()))
 		{
 			SetStyle(Selected);
 		}

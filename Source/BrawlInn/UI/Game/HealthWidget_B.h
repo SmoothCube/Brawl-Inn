@@ -6,9 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "HealthWidget_B.generated.h"
 
-/**
- * 
- */
+class UImage;
+
 UCLASS()
 class BRAWLINN_API UHealthWidget_B : public UUserWidget
 {
@@ -16,5 +15,8 @@ class BRAWLINN_API UHealthWidget_B : public UUserWidget
 protected:
 
 		virtual bool Initialize() override;
+
+		UPROPERTY(meta = (BindWidget))
+			UImage* HealthImage;
 	
 };

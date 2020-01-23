@@ -17,12 +17,13 @@ public:
 
 	void MenuTick();
 
+	UPROPERTY(meta = (BindWidget))
+		UButton_B* ContinueButton;
 protected:
 	// ** Overridden Functions **
 	virtual bool Initialize() override;
 
 	virtual void NativeConstruct() override;
-
 
 	// ** Delegates **
 	UFUNCTION()
@@ -31,8 +32,7 @@ protected:
 	UFUNCTION()
 		void ExitButtonClicked();
 
-	UPROPERTY(meta = (BindWidget))
-		UButton_B* ContinueButton;
+
 
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* ExitButton;

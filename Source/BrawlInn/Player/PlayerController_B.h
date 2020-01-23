@@ -36,6 +36,7 @@ public:
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 
+
 	UFUNCTION()
 		void KillPlayerCharacter();
 	

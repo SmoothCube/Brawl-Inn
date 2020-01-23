@@ -29,7 +29,9 @@ void UPauseMenu_B::NativeConstruct()
 	Buttons.Add(ContinueButton);
 	Buttons.Add(ExitButton);
 
-	ContinueButton->SetKeyboardFocus();
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
 void UPauseMenu_B::MenuTick()

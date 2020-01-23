@@ -32,7 +32,9 @@ void UMainMenu_B::NativeConstruct()
 	Buttons.Add(CreditsButton);
 	Buttons.Add(QuitButton);
 
-	PlayButton->SetKeyboardFocus();
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(PlayButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
 void UMainMenu_B::MenuTick()

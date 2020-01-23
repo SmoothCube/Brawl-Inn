@@ -7,12 +7,16 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "Components/SphereComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
+#include "Camera/CameraComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
+#include "GameFramework/SpringArmComponent.h"
+
 
 #include "System/Interfaces/ControllerInterface_B.h"
 #include "Player/PlayerController_B.h"
@@ -20,11 +24,13 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Components/FireDamageComponent_B.h"
+#include "Components/WidgetComponent.h"
 #include "Components/HealthComponent_B.h"
 #include "System/DamageTypes/Fire_DamageType_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
+#include "System/GameCamera_B.h"
 #include "Animations/PlayerAnimInstance_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
@@ -41,6 +47,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
+
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -51,10 +59,32 @@ void APlayerCharacter_B::BeginPlay()
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
 	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
-	
-	
+
 	MakeInvulnerable(1.0f);
 
+	for (TActorIterator<AGameCamera_B> itr(GetWorld()) ; itr; ++itr)
+	{
+		GameCamera = *itr;	
+	}
+}
+
+void APlayerCharacter_B::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (State == EState::EFallen)
+	{
+		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
+	}
+	else if (!(State == EState::EStunned))
+	{
+		if (State == EState::EWalking)
+			HandleMovement(DeltaTime);
+		else if (State == EState::EHolding)
+			HandleMovementHold();
+		HandleRotation(DeltaTime);
+	}
+
+	UpdateHealthRotation();
 }
 
 void APlayerCharacter_B::TakeFireDamage()
@@ -92,36 +122,39 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	return DamageAmount;
 }
 
-void APlayerCharacter_B::Tick(float DeltaTime)
+void APlayerCharacter_B::UpdateHealthRotation()
 {
-	Super::Tick(DeltaTime);
-	if (State == EState::EFallen)
-	{
-		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
-	}
-	else if(!(State == EState::EStunned))
-	{
-		if (State == EState::EWalking)
-			HandleMovement(DeltaTime);
-		else if (State == EState::EHolding)
-			HandleMovementHold();
-		HandleRotation(DeltaTime);
-	}
+	if (!GameCamera)
+		return;
+
+	HealthWidget->SetWorldRotation((GameCamera->Camera->GetForwardVector() * -1).Rotation());
+	
+	FVector2D DrawSize;
+	
+	float xMin = 25.f;
+	float xMax = 100.f;
+
+	float minPosZ = 150;
+	float maxPosZ = 200;
+	
+	float size = (GameCamera->SpringArm->TargetArmLength - GameCamera->SmallestSpringArmLength) *
+		((xMax - xMin) / (GameCamera->LargestSpringArmLength - GameCamera->SmallestSpringArmLength)) + xMin;
+
+	float posZ = (GameCamera->SpringArm->TargetArmLength - GameCamera->SmallestSpringArmLength) *
+		((maxPosZ - minPosZ) / (GameCamera->LargestSpringArmLength - GameCamera->SmallestSpringArmLength)) + minPosZ;
+
+	DrawSize.X = size * 4;
+	DrawSize.Y = size * 4;
+
+	HealthWidget->RelativeLocation.Z = posZ;
+	HealthWidget->SetDrawSize(DrawSize);
+
 }
 
 void APlayerCharacter_B::HandleRotation(float DeltaTime)
 {
-	/*if (RotationVector.Size() > 0.1)
-	{
-		RotationVector.Normalize();
-		SetActorRotation(RotationVector.ToOrientationRotator());
-	}*/
 	if (InputVector.Size() > 0.1)
-	{
-	SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
-
-	}
-	//PrevRotation = GetActorRotation();
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
 }
 
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
@@ -214,7 +247,7 @@ void APlayerCharacter_B::StandUp()
 
 		State = EState::EWalking;
 		GetMovementComponent()->StopMovementImmediately();
-		
+
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetMesh()->SetGenerateOverlapEvents(false);
@@ -227,10 +260,10 @@ void APlayerCharacter_B::MakeInvulnerable(float ITime)
 {
 	bIsInvulnerable = true;
 
-	if(InvulnerableMat)
-		GetMesh()->SetMaterial(6,InvulnerableMat);
+	if (InvulnerableMat)
+		GetMesh()->SetMaterial(6, InvulnerableMat);
 
-	if(ITime > 0)
+	if (ITime > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::MakeVulnerable, ITime, false);
 }
 

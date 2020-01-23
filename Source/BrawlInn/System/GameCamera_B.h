@@ -33,11 +33,14 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float SmallestSpringArmLength = 600.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float LargestSpringArmLength = 2500.f;
+
+protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float BorderWidth = 200.0f;
