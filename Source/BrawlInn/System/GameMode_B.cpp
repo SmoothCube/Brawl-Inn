@@ -18,7 +18,6 @@ void AGameMode_B::BeginPlay()
 	GetAllSpawnpointsInWorld();
 
 	/// Creates all playercontrollers
-	BScreen("Number of Players %i", GetNumPlayers());
 	CreatePlayerControllers();
 
 	/// Bind delegates
@@ -42,7 +41,6 @@ void AGameMode_B::CreatePlayerControllers()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), OutActors);
 	for (const auto& Actor : OutActors)
 		PlayerControllers.Add(Cast<APlayerController_B>(Actor));
-	BScreen("Number of players created %i", NumberOfPlayersCreated);
 }
 
 // ---------------- Spawn PlayerCharacter functions --------------------------

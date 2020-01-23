@@ -12,6 +12,12 @@
 bool UMainMenu_B::Initialize()
 {
 	bool success = Super::Initialize();
+	return success;
+}
+
+void UMainMenu_B::NativeConstruct()
+{
+	Super::NativeConstruct();
 
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 
@@ -19,13 +25,6 @@ bool UMainMenu_B::Initialize()
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
-
-	return success;
-}
-
-void UMainMenu_B::NativeConstruct()
-{
-	Super::NativeConstruct();
 
 	Buttons.Add(PlayButton);
 	Buttons.Add(SettingsButton);

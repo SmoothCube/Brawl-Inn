@@ -12,19 +12,16 @@
 
 bool UPauseMenu_B::Initialize()
 {
-
 	bool success = Super::Initialize();
-
-
-	
-	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
-	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
 	return success;
 }
 
 void UPauseMenu_B::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
+	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
 
 	Buttons.Add(ContinueButton);
 	Buttons.Add(ExitButton);

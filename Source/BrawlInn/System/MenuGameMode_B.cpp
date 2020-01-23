@@ -26,6 +26,8 @@ void AMenuGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetActorTickEnabled(true);
+
 	CharacterSelectionComponent->CharacterSelected_D.BindUObject(this, &AMenuGameMode_B::UpdateNumberOfActivePlayers);
 	CharacterSelectionComponent->CharacterUnselected_D.BindUObject(this, &AMenuGameMode_B::UpdateNumberOfActivePlayers);
 
@@ -51,14 +53,14 @@ void AMenuGameMode_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!IsValid(MainMenuWidget))
+	if (!MainMenuWidget || !IsValid(MainMenuWidget))
 		return;
 
 	MainMenuWidget->MenuTick();
 }
 
 
-void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController) //TODO TASK: #38
+void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
 {
 	if (IsValid(SelectionCamera))
 		PlayerController->SetViewTargetWithBlend(SelectionCamera);
