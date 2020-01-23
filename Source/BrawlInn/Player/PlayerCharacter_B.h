@@ -18,7 +18,8 @@ enum class EState : uint8
 {
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
-	EFallen		UMETA(DisplayName = "Fallen")
+	EFallen		UMETA(DisplayName = "Fallen"),
+	EStunned	UMETA(DisplayName = "Stunned")
 };
 
 UCLASS()
@@ -39,7 +40,7 @@ public:
 	UThrowComponent_B* ThrowComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UFireDamageComponent_B* FireDamageComponent;
+	UFireDamageComponent_B* FireDamageComponent;
 
 
 protected:
@@ -76,6 +77,8 @@ protected:
 
 	void MakeVulnerable();
 
+	void RemoveStun();
+
 public:	
 
 	UFUNCTION(BlueprintPure)
@@ -85,6 +88,8 @@ public:
 
 	void MakeInvulnerable(float InvulnerabilityTime);
 	bool IsInvulnerable();
+
+	void AddStun();
 
 	// ** Variables **
 
@@ -127,6 +132,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInvulnerable = false;
 
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float StunTime = 3.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	int PunchesToStun = 2;
+
+	int StunAmount = 0;
+
 
 
 private:
@@ -134,6 +147,7 @@ private:
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
 	FTimerHandle TH_InvincibilityTimer;
+	FTimerHandle TH_StunTimer;
 	
 	float CurrentFallTime = 0.f;
 

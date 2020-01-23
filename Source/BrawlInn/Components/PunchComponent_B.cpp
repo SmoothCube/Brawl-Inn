@@ -161,7 +161,9 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, APlayerCharacter_B* 
 	PunchEnd();
 	//Player->Fall();
 	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
-	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
+	Player->AddStun();
+	//Was there a reason there were two of these???
+	//	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
 }
 
 //calculates the punch strength for the player. Has to be used by the puncher.

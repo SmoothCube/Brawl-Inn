@@ -31,8 +31,10 @@ void UHoldComponent_B::BeginPlay()
 bool UHoldComponent_B::TryPickup()
 {
 	if (!OwningPlayer) return false;
+	if (!(OwningPlayer->State == EState::EWalking)) return false;
 	if (HoldingItem) return false;
 	if (ThrowableItemsInRange.Num() == 0) return false;
+	//Should only be able
 
 	FVector PlayerLocation = OwningPlayer->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;

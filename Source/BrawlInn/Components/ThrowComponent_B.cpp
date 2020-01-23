@@ -21,7 +21,7 @@ UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer
 
 bool UThrowComponent_B::TryThrow()
 {
-	if (!IsReady() || !HoldComponent->IsHolding())
+	if (!IsReady() || !HoldComponent->IsHolding() || !(OwningPlayer->State == EState::EHolding))
 		return false;
 
 	bIsThrowing = true;

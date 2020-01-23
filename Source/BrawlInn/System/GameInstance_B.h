@@ -16,6 +16,6 @@ class BRAWLINN_API UGameInstance_B : public UGameInstance
 
 public:
 
-    TArray<int> ActivePlayerControllerIDs = { 0,1,2,3 };
+    TArray<int> ActivePlayerControllerIDs = { 0,1};
 
 };
