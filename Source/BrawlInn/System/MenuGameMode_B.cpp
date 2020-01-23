@@ -36,7 +36,6 @@ void AMenuGameMode_B::BeginPlay()
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
 
-	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
 	CharacterSelection = CreateWidget<UCharacterSelection_B>(PlayerControllers[0], BP_CharacterSelection);
 
 	// Find Character selection camera
@@ -47,6 +46,17 @@ void AMenuGameMode_B::BeginPlay()
 	LSA_Intro->GetSequencePlayer()->Play();
 	LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
 }
+
+void AMenuGameMode_B::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!IsValid(MainMenuWidget))
+		return;
+
+	MainMenuWidget->MenuTick();
+}
+
 
 void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController) //TODO TASK: #38
 {
@@ -68,17 +78,16 @@ void AMenuGameMode_B::ShowMainMenu()
 	if (!PlayerControllers.IsValidIndex(0))
 		return;
 
+	MainMenuWidget = CreateWidget<UMainMenu_B>(PlayerControllers[0], BP_MainMenu);
+
 	if (!MainMenuWidget)
 		return;
 
 	MainMenuWidget->AddToViewport();
 
 	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(MainMenuWidget->TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
-	PlayerControllers[0]->bShowMouseCursor = true;
 }
 
 void AMenuGameMode_B::HideMainMenu()
@@ -86,7 +95,6 @@ void AMenuGameMode_B::HideMainMenu()
 	MainMenuWidget->RemoveFromParent();
 
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
-	PlayerControllers[0]->bShowMouseCursor = false;
 }
 
 void AMenuGameMode_B::LS_IntroFinished()

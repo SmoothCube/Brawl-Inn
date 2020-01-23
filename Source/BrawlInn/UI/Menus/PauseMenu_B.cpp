@@ -24,6 +24,7 @@ bool UPauseMenu_B::Initialize()
 
 void UPauseMenu_B::NativeConstruct()
 {
+	Super::NativeConstruct();
 
 	Buttons.Add(ContinueButton);
 	Buttons.Add(ExitButton);

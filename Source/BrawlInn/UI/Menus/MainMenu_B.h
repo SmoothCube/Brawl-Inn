@@ -6,21 +6,27 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu_B.generated.h"
 
-class UButton;
+class UButton_B;
 class AMenuGameMode_B;
 
 UCLASS()
 class BRAWLINN_API UMainMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
+		
+public:
+	void MenuTick();
 
 protected:
 	// ** Overridden Functions **
 	virtual bool Initialize() override;
 
+	virtual void NativeConstruct() override;
+
+
 	// ** Delegates **
 	UFUNCTION()
-	void PlayButtonClicked();
+		void PlayButtonClicked();
 
 	UFUNCTION()
 		void SettingsButtonClicked();
@@ -30,24 +36,27 @@ protected:
 
 	UFUNCTION()
 		void QuitButtonClicked();
-	
+
 	// ** Buttons **
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* PlayButton;
+		UButton_B* PlayButton;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* SettingsButton;
+		UButton_B* SettingsButton;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* CreditsButton;
+		UButton_B* CreditsButton;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* QuitButton;
+		UButton_B* QuitButton;
 
 	// ** Variables **
 
 	AMenuGameMode_B* GameMode = nullptr;
 
+private:
+
+	TArray<UButton_B*> Buttons;
 
 };

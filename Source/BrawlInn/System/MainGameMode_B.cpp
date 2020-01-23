@@ -38,8 +38,6 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	if (!IsValid(PauseMenuWidget))
 		return;
 
-	//BScreen("Hei");
-
 	PauseMenuWidget->MenuTick();
 }
 

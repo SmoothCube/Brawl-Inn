@@ -3,7 +3,7 @@
 
 #include "MainMenu_B.h"
 #include "BrawlInn.h"
-#include "Components/Button.h"
+#include "UI/Buttons/Button_B.h"
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -21,6 +21,24 @@ bool UMainMenu_B::Initialize()
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
 
 	return success;
+}
+
+void UMainMenu_B::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	Buttons.Add(PlayButton);
+	Buttons.Add(SettingsButton);
+	Buttons.Add(CreditsButton);
+	Buttons.Add(QuitButton);
+
+	PlayButton->SetKeyboardFocus();
+}
+
+void UMainMenu_B::MenuTick()
+{
+	for (const auto& Button : Buttons)
+		Button->ButtonTick();
 }
 
 void UMainMenu_B::PlayButtonClicked()
