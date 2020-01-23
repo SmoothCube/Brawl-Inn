@@ -140,7 +140,7 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 		{
 			float Intensity = CurrentFallTime + 0.7;
 			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
-	
+		}
 		if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
 		{
 			Fall(PunchedRecoveryTime);
@@ -223,15 +223,15 @@ void APlayerCharacter_B::StandUp()
 }
 
 //a number less than 0 will make the character invulnerable until toggled off again
-void APlayerCharacter_B::MakeInvulnerable(float InvulnerabilityTime)
+void APlayerCharacter_B::MakeInvulnerable(float ITime)
 {
 	bIsInvulnerable = true;
 
 	if(InvulnerableMat)
 		GetMesh()->SetMaterial(6,InvulnerableMat);
 
-	if(InvulnerabilityTime > 0)
-		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::MakeVulnerable, InvulnerabilityTime, false);
+	if(ITime > 0)
+		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::MakeVulnerable, ITime, false);
 }
 
 void APlayerCharacter_B::MakeVulnerable()
