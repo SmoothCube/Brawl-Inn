@@ -7,6 +7,7 @@
 #include "MainGameMode_B.generated.h"
 
 class AGameCamera_B;
+class UPauseMenu_B;
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B
@@ -18,15 +19,27 @@ protected:
 	// ** Overridden functions **
 
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
 
 public:
 	void PauseGame(APlayerController_B* ControllerThatPaused);
+	void ResumeGame();
+	APlayerController_B* PlayerControllerThatPaused = nullptr;
 
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
+
+
+	UPROPERTY(BlueprintReadWrite)
+	UPauseMenu_B* PauseMenuWidget = nullptr;
 
 private:
 	AGameCamera_B* GameCamera = nullptr;

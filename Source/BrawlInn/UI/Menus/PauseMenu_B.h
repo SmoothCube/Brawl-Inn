@@ -6,16 +6,23 @@
 #include "Blueprint/UserWidget.h"
 #include "PauseMenu_B.generated.h"
 
-class UButton;
+class UButton_B;
 
 UCLASS()
 class BRAWLINN_API UPauseMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+
+	void MenuTick();
+
 protected:
 	// ** Overridden Functions **
 	virtual bool Initialize() override;
+
+	virtual void NativeConstruct() override;
+
 
 	// ** Delegates **
 	UFUNCTION()
@@ -25,8 +32,12 @@ protected:
 		void ExitButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* ContinueButton;
+		UButton_B* ContinueButton;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* ExitButton;
+		UButton_B* ExitButton;
+
+private:
+
+	TArray<UButton_B*> Buttons;
 };

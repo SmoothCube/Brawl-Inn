@@ -2,26 +2,52 @@
 
 
 #include "PauseMenu_B.h"
-#include "Components/Button.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
+#include "UI/Buttons/Button_B.h"
+#include "System/MainGameMode_B.h"
 #include "BrawlInn.h"
+
 
 bool UPauseMenu_B::Initialize()
 {
+
 	bool success = Super::Initialize();
 
+
+	
 	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
 	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
-
 	return success;
+}
+
+void UPauseMenu_B::NativeConstruct()
+{
+
+	Buttons.Add(ContinueButton);
+	Buttons.Add(ExitButton);
+
+	ContinueButton->SetKeyboardFocus();
+}
+
+void UPauseMenu_B::MenuTick()
+{
+	for (const auto& Button : Buttons)
+		Button->ButtonTick();
 }
 
 void UPauseMenu_B::ContinueButtonClicked()
 {
-	BScreen("Playbutton clicked");
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!GameMode)
+		return;
+
+	GameMode->ResumeGame();
 }
 
 void UPauseMenu_B::ExitButtonClicked()
 {
-	BScreen("Playbutton clicked");
+	BScreen("Exit clicked");
+	UGameplayStatics::OpenLevel(GetWorld(), "MenuMap");
 }
