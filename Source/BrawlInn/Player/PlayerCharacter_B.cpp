@@ -99,7 +99,7 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else
+	else if(!(State == EState::EStunned))
 	{
 		if (State == EState::EWalking)
 			HandleMovement(DeltaTime);
@@ -247,6 +247,28 @@ bool APlayerCharacter_B::IsInvulnerable()
 	return bIsInvulnerable;
 }
 
+void APlayerCharacter_B::AddStun()
+{
+	if (!(State == EState::EStunned))
+	{
+		StunAmount++;
+		if (StunAmount >= PunchesToStun)
+		{
+			State = EState::EStunned;
+		}
+		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &APlayerCharacter_B::RemoveStun, StunTime, false);
+	}
+}
+
+void APlayerCharacter_B::RemoveStun()
+{
+	if (State == EState::EStunned)
+	{
+		State = EState::EWalking;
+	}
+	StunAmount = 0;
+}
+
 APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
 {
 	return PlayerController;
@@ -283,7 +305,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 void APlayerCharacter_B::PunchButtonPressed()
 {
-	//if (State == EState::EStunned) { return; }
+	if (!(State == EState::EWalking)) { return; }
 	if (PunchComponent)
 	{
 		PunchComponent->bIsPunching = true;

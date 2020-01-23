@@ -119,7 +119,6 @@ void APlayerController_B::KillPlayerCharacter()
 
 void APlayerController_B::PickupButtonPressed()
 {
-
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->HoldComponent->TryPickup();
@@ -134,8 +133,7 @@ void APlayerController_B::PickupButtonPressed()
 
 void APlayerController_B::PickupButtonRepeat()
 {
-	if (PlayerCharacter)
-		PlayerCharacter->HoldComponent->TryPickup();
+	PlayerCharacter->HoldComponent->TryPickup();
 }
 
 void APlayerController_B::PunchButtonPressed()
