@@ -6,6 +6,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "System/Interfaces/ThrowableInterface_B.h"
 #include "Items/Throwable_B.h"
 #include "Player/PlayerCharacter_B.h"
 #include "BrawlInn.h"
@@ -47,7 +48,11 @@ bool UHoldComponent_B::TryPickup()
 
 	for (const auto& Item : ThrowableItemsInRange)
 	{
-		if (Item->IsHeld()) continue;
+		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
+		if (Interface)
+		{
+			if(Interface->Execute_IsHeld(Item)) continue;
+		}
 		FVector ItemLocation = Item->GetActorLocation();
 		ItemLocation.Z = 0;
 
@@ -98,7 +103,12 @@ bool UHoldComponent_B::TryPickup()
 void UHoldComponent_B::Pickup(AThrowable_B* Item)
 {
 	OwningPlayer->State = EState::EHolding;
-	Item->PickedUp(OwningPlayer);
+
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
+	if (Interface)
+	{
+		Interface->Execute_PickedUp(Item,OwningPlayer);
+	}
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
@@ -140,6 +150,10 @@ void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AAct
 
 void UHoldComponent_B::Drop()
 {
-	GetHoldingItem()->Dropped();
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(GetHoldingItem());
+	if (Interface)
+	{
+		Interface->Execute_Dropped(GetHoldingItem());
+	}
 	SetHoldingItem(nullptr);
 }
