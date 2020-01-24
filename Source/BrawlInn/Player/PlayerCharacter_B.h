@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UStaticMeshComponent;
 class UHealthComponent_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
@@ -169,5 +170,7 @@ private:
 
 	friend class UPunchComponent_B;
 
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 };
 

@@ -16,7 +16,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
 #include "GameFramework/SpringArmComponent.h"
-
+#include "Components/StaticMeshComponent.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
 #include "Player/PlayerController_B.h"
@@ -48,6 +48,15 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
+	
+	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
+	DirectionIndicatorPlane->SetupAttachment(RootComponent);
+	DirectionIndicatorPlane->SetRelativeLocation(FVector(20, 0, -70));
+	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
+	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
+
+
 
 	GetCharacterMovement()->MaxWalkSpeed = 2000; 
 	GetCharacterMovement()->MaxAcceleration = 800;
