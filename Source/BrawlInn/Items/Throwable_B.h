@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "System/Interfaces/ThrowableInterface_B.h"
 #include "Throwable_B.generated.h"
 
 class UCapsuleComponent;
@@ -12,7 +13,7 @@ class UDamageType;
 class APlayerCharacter_B;
 
 UCLASS()
-class BRAWLINN_API AThrowable_B : public AActor
+class BRAWLINN_API AThrowable_B : public AActor, public IThrowableInterface_B
 {
 	GENERATED_BODY()
 	
@@ -25,11 +26,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UCapsuleComponent* PickupCapsule;
 
-	void PickedUp(APlayerCharacter_B* Player);
+	virtual void PickedUp_Implementation(APlayerCharacter_B* Player) override;
 
-	void Dropped();
+	virtual void Dropped_Implementation() override;
 
-	bool IsHeld() const;
+	virtual bool IsHeld_Implementation() const override;
 
 
 protected:

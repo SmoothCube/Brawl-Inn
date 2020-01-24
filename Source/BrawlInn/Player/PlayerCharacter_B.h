@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UStaticMeshComponent;
 class UHealthComponent_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
@@ -86,6 +87,9 @@ protected:
 
 	void RemoveStun();
 
+	FVector FindMeshLocation();
+
+
 public:	
 
 	UFUNCTION(BlueprintPure)
@@ -151,6 +155,7 @@ protected:
 
 private:
 	
+
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;
 	FTimerHandle TH_InvincibilityTimer;
@@ -158,11 +163,14 @@ private:
 	
 	float CurrentFallTime = 0.f;
 
+	float NormalMaxWalkSpeed;
 	
 	APlayerController_B* PlayerController = nullptr;
 	AGameCamera_B* GameCamera = nullptr;
 
 	friend class UPunchComponent_B;
-	FVector FindMeshLocation();
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 };
 

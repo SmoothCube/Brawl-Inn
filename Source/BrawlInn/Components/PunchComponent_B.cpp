@@ -69,15 +69,7 @@ void UPunchComponent_B::Dash()
 	//Dash Logic
 	bIsDashing = true;
 
-	//This way, f is 0 if the player is looking behind him or standing still, 0.5 if they are facing sideways, and 1 if facing forward.
-	float f = -1;
-	if (!(Player->GetCharacterMovement()->Velocity.IsNearlyZero()))
-	{
-		f = FVector::DotProduct(Player->GetActorForwardVector(), Player->GetCharacterMovement()->Velocity.GetSafeNormal());
-	}
-	f += 1;
-	f /= 2;
-
+	float f = Player->GetCharacterMovement()->Velocity.Size() / Player->GetCharacterMovement()->MaxWalkSpeed;
 	float dist = (MaxDashDistance - MinDashDistance) * f + MinDashDistance;
 	Player->GetCharacterMovement()->AddForce(Player->GetActorForwardVector() * dist * DashForceModifier);
 
@@ -122,8 +114,8 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OtherPlayer);
 		Player->CurrentFallTime = 0.f;
 		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-		if (Player->PlayerController)
-			Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
+		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
+			
 		bHasHit = true;
 	}
 	else
@@ -185,7 +177,6 @@ FVector UPunchComponent_B::CalculatePunchStrenght()
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
 	APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 

@@ -9,6 +9,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "System/Interfaces/ThrowableInterface_B.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Items/Throwable_B.h"
@@ -136,8 +137,11 @@ void UThrowComponent_B::Throw()
 	}
 
 	/// Prepare item to be thrown
-
-	HoldComponent->GetHoldingItem()->Dropped();
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
+	if (Interface)
+	{
+		Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
+	}
 
 	/// Throw with the help of AimAssist.
 	FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function

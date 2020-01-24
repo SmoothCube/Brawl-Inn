@@ -47,7 +47,12 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!IsHeld() || OtherActor == OwningPlayer || OtherActor->StaticClass() == this->StaticClass())
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
+	if (Interface)
+	{
+		if(!Interface->Execute_IsHeld(this)) return;
+	}
+	if (!IsHeld_Implementation() || OtherActor == OwningPlayer || OtherActor->StaticClass() == this->StaticClass())
 		return;
 	APlayerCharacter_B* HitPlayer = Cast<APlayerCharacter_B>(OtherActor);
 	if (HitPlayer && !HitPlayer->IsInvulnerable())
@@ -60,14 +65,14 @@ void AThrowable_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	Destroy();
 }
 
-void AThrowable_B::PickedUp(APlayerCharacter_B* Player)
+void AThrowable_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	OwningPlayer = Player;
 }
 
-void AThrowable_B::Dropped()
+void AThrowable_B::Dropped_Implementation()
 {
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
@@ -76,7 +81,7 @@ void AThrowable_B::Dropped()
 	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 }
 
-bool AThrowable_B::IsHeld() const
+bool AThrowable_B::IsHeld_Implementation() const 
 {
 	if (OwningPlayer)
 		return true;

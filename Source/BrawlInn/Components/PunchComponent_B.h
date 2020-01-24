@@ -63,26 +63,26 @@ protected:
 
 	float MinPunchStrengthToFall = 1000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
-	float BasePunchStrength = 50000.f;
+	UPROPERTY(EditAnywhere, Category = "Punch")
+	float BasePunchStrength = 150000.f;
 	
-	UPROPERTY(EditAnywhere, Category = "Variables")
-	float PunchStrengthMultiplier = 50.f;
+	UPROPERTY(EditAnywhere, Category = "Punch")
+	float PunchStrengthMultiplier = 135.f;
 	
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Punch")
 	float PunchWaitingTime = 0.1f;
 	
 	FTimerHandle TH_PunchAgainHandle;
 
 	void setIsPunchingFalse();
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
-	float MinDashDistance = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float MinDashDistance = 150.f;
 	
-	UPROPERTY(EditAnywhere, Category = "Variables")
-	float MaxDashDistance = 200.f;
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float MaxDashDistance = 300.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashForceModifier = 75000.f;
 private:
 

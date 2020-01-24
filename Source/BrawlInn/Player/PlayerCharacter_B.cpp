@@ -16,7 +16,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
 #include "GameFramework/SpringArmComponent.h"
-
+#include "Components/StaticMeshComponent.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
 #include "Player/PlayerController_B.h"
@@ -48,13 +48,26 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
+	
+	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
+	DirectionIndicatorPlane->SetupAttachment(RootComponent);
+	DirectionIndicatorPlane->SetRelativeLocation(FVector(20, 0, -70));
+	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
+	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 
+
+
+	GetCharacterMovement()->MaxWalkSpeed = 2000; 
+	GetCharacterMovement()->MaxAcceleration = 800;
+	GetCharacterMovement()->BrakingFrictionFactor = 1;
+	GetCharacterMovement()->GroundFriction = 3;
 }
 
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
-
+	NormalMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
@@ -160,7 +173,7 @@ void APlayerCharacter_B::HandleRotation(float DeltaTime)
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
 	//shouldnt set this each tick
-	GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+	GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed	;
 
 	//Checks to see if we need to fall
 	//can only fall if speed is more than 90% of max speed
