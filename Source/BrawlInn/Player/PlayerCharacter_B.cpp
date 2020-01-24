@@ -49,12 +49,16 @@ APlayerCharacter_B::APlayerCharacter_B()
 
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
 
+	GetCharacterMovement()->MaxWalkSpeed = 2000; 
+	GetCharacterMovement()->MaxAcceleration = 800;
+	GetCharacterMovement()->BrakingFrictionFactor = 1;
+	GetCharacterMovement()->GroundFriction = 3;
 }
 
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
-
+	NormalMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
@@ -160,7 +164,7 @@ void APlayerCharacter_B::HandleRotation(float DeltaTime)
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
 	//shouldnt set this each tick
-	GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+	GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed	;
 
 	//Checks to see if we need to fall
 	//can only fall if speed is more than 90% of max speed
