@@ -45,6 +45,8 @@ public:
 
 	virtual void TakeOneDamage_Implementation() override;
 
+	void DEBUG_TEST01();
+
 
 private:
 

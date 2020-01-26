@@ -44,7 +44,7 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
 
 		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
-		InputComponent->SetTickableWhenPaused(true);
+		InputComponent->BindAction("DEBUG_TEST01", IE_Pressed, this, &APlayerController_B::DEBUG_TEST01);
 
 	}
 }
@@ -54,7 +54,7 @@ void APlayerController_B::TryPauseGame()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		
+
 		GameMode->PauseGame(this);
 	}
 }
@@ -150,4 +150,14 @@ void APlayerController_B::PunchButtonPressed()
 void APlayerController_B::TakeOneDamage_Implementation()
 {
 	HealthComponent->TakeDamage(1);
+}
+
+void APlayerController_B::DEBUG_TEST01()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		if (GameMode->OnPlayerWin.IsBound())
+			GameMode->OnPlayerWin.Execute(this);
+	}
 }

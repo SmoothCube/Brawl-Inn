@@ -9,6 +9,7 @@
 #include "System/GameInstance_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/Menus/PauseMenu_B.h"
+#include "UI/Game/VictoryScreenWidget_B.h"
 
 void AMainGameMode_B::BeginPlay()
 {
@@ -28,6 +29,12 @@ void AMainGameMode_B::BeginPlay()
 		SpawnCharacter_D.Broadcast(PlayerController);
 
 	}
+
+	//Create and setup victory widget
+
+	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(PlayerControllers[0], BP_VictoryScreen);
+	VictoryScreen->AddToViewport();
+	OnPlayerWin.BindUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
 
 }
 
