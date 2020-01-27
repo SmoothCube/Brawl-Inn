@@ -45,9 +45,6 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 
 void AThrowable_B::Use_Implementation()
 {
-
-	BWarn("Use Called!");
-
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
@@ -55,8 +52,15 @@ void AThrowable_B::Use_Implementation()
 	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 
 	/// Throw with the help of AimAssist.
-	FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
-	OwningPlayer->ThrowComponent->AimAssist(TargetLocation);
+	if (OwningPlayer)
+	{
+		FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
+		OwningPlayer->ThrowComponent->AimAssist(TargetLocation);
+		Mesh->AddImpulse(TargetLocation * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
+	}
+	else
+	{
+		BError("No OwningPlayer for Throwable %s",*GetNameSafe(this))
+	}
 		
-	Mesh->AddImpulse(TargetLocation * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
 }

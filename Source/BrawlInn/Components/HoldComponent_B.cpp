@@ -109,9 +109,12 @@ void UHoldComponent_B::Pickup(AActor* Item)
 	{
 		Interface->Execute_PickedUp(Item, OwningPlayer);
 	}
+
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
+
+
 }
 
 bool UHoldComponent_B::IsHolding()
@@ -133,6 +136,7 @@ void UHoldComponent_B::SetHoldingItem(AActor* Item)
 
 void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor == OwningPlayer) return;
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
 	if (!Interface)
 		return;
@@ -142,6 +146,7 @@ void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor*
 
 void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
+	if (OtherActor == OwningPlayer) return;
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
 	if (!Interface)
 		return;
