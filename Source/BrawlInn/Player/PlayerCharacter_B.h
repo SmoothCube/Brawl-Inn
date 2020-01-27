@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "System/Interfaces/ThrowableInterface_B.h"
 #include "PlayerCharacter_B.generated.h"
 
 class UStaticMeshComponent;
@@ -22,11 +23,12 @@ enum class EState : uint8
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
 	EFallen		UMETA(DisplayName = "Fallen"),
-	EStunned	UMETA(DisplayName = "Stunned")
+	EStunned	UMETA(DisplayName = "Stunned"),
+	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
 };
 
 UCLASS()
-class BRAWLINN_API APlayerCharacter_B : public ACharacter
+class BRAWLINN_API APlayerCharacter_B : public ACharacter, public IThrowableInterface_B
 {
 	GENERATED_BODY()
 
@@ -53,7 +55,6 @@ protected:
 
 	// ** Overriden functions **
 	virtual void BeginPlay() override;
-
 
 	virtual void Tick(float DeltaTime) override;
 
@@ -101,6 +102,16 @@ public:
 	bool IsInvulnerable();
 
 	void AddStun();
+
+
+	//Picking up players
+	virtual void PickedUp_Implementation(APlayerCharacter_B* Player) override;
+
+	virtual void Dropped_Implementation() override;
+
+	virtual bool IsHeld_Implementation() const override;
+
+	virtual void Use_Implementation() override;
 
 	// ** Variables **
 
@@ -155,6 +166,7 @@ protected:
 
 private:
 	
+	APlayerCharacter_B* HoldingPlayer = nullptr;
 
 	FTransform RelativeMeshTransform;
 	FTimerHandle TH_RecoverTimer;

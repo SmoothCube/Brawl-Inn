@@ -144,6 +144,10 @@ void UThrowComponent_B::Throw()
 		BError("No OwningPlayer for ThrowComponent %s!", *GetNameSafe(this));
 		return;
 	}
+	if (!HoldComponent)
+	{
+		BError("No HoldComponent for ThrowComponent");
+	}
 	if (!HoldComponent->IsHolding())
 	{
 		OwningPlayer->State = EState::EWalking;
@@ -165,7 +169,7 @@ void UThrowComponent_B::Throw()
 	//{
 	//	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
 	//}
-		HoldComponent->SetHoldingItem(nullptr);
+	OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
 	bIsThrowing = false;
 	OwningPlayer->State = EState::EWalking;
 	BWarn("Throw end!");

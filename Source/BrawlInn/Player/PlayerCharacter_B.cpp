@@ -222,6 +222,7 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 		{
 			HoldComponent->Drop();
 		}
+		BWarn("Falling");
 
 		State = EState::EFallen;
 		GetMesh()->SetGenerateOverlapEvents(true);
@@ -235,6 +236,9 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 
 		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &APlayerCharacter_B::StandUp, RecoveryTime, false);
 	}
+	else
+		BWarn("Character is in air! Fall() does not run!");
+
 }
 
 FVector APlayerCharacter_B::FindMeshLocation()
@@ -305,6 +309,64 @@ void APlayerCharacter_B::AddStun()
 		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &APlayerCharacter_B::RemoveStun, StunTime, false);
 	}
 }
+
+void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
+{
+	BWarn("Picked up!");
+	HoldingPlayer = Player;
+	GetMovementComponent()->StopMovementImmediately();
+	State = EState::EHolding;
+	GetWorld()->GetTimerManager().ClearTimer(TH_RecoverTimer);
+	GetMesh()->SetSimulatePhysics(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetGenerateOverlapEvents(false);
+
+	GetCharacterMovement()->StopActiveMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	SetActorRotation(FRotator(-90, 0, 90));
+
+	//(Pitch = -87.891403, Yaw = -7.461156, Roll = 96.832733)
+
+	//(Pitch = -88.837349, Yaw = 37.917442, Roll = 50.508533)
+}
+
+void APlayerCharacter_B::Dropped_Implementation()
+{
+	BWarn("Dropped!");
+	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(rules);
+	Fall(PunchedRecoveryTime);
+	GetMesh()->SetSimulatePhysics(true);
+	HoldingPlayer = nullptr;
+	SetActorRotation(FRotator(0, 0, 0));
+}
+
+void APlayerCharacter_B::Use_Implementation()
+{
+	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(rules);
+	Fall(PunchedRecoveryTime);
+	GetMesh()->SetSimulatePhysics(true);
+
+	/// Throw with the help of AimAssist.
+	FVector TargetLocation = HoldingPlayer->GetActorForwardVector();
+	HoldingPlayer->ThrowComponent->AimAssist(TargetLocation);
+	GetMesh()->AddImpulse(TargetLocation * HoldingPlayer->ThrowComponent->ImpulseSpeed, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
+
+	HoldingPlayer = nullptr;
+
+	SetActorRotation(FRotator(0, 0, 0));
+}
+
+bool APlayerCharacter_B::IsHeld_Implementation() const
+{
+	BWarn("IsHeld!");
+	if (HoldingPlayer)
+		return true;
+	return false;
+}
+
 
 void APlayerCharacter_B::RemoveStun()
 {
