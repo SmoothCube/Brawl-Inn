@@ -11,6 +11,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
 #include "Player/PlayerCharacter_B.h"
 
 AThrowable_B::AThrowable_B()
@@ -86,4 +87,25 @@ bool AThrowable_B::IsHeld_Implementation() const
 	if (OwningPlayer)
 		return true;
 	return false;
+}
+
+void AThrowable_B::Use_Implementation()
+{
+
+	BWarn("Use Called!");
+
+	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(rules);
+	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
+	Mesh->SetSimulatePhysics(true);
+	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+
+	/// Throw with the help of AimAssist.
+	FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
+	OwningPlayer->ThrowComponent->AimAssist(TargetLocation);
+		
+	Mesh->AddImpulse(TargetLocation * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
+	
+
+
 }

@@ -44,15 +44,15 @@ bool UHoldComponent_B::TryPickup()
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
 
-	TArray<AThrowable_B*> ThrowableItemsInCone;
+	TArray<AActor*> ThrowableItemsInCone;
 
 	for (const auto& Item : ThrowableItemsInRange)
 	{
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
-		if (Interface)
-		{
-			if(Interface->Execute_IsHeld(Item)) continue;
-		}
+		if (!Interface) continue;
+		
+		if(Interface->Execute_IsHeld(Item)) continue;
+		
 		FVector ItemLocation = Item->GetActorLocation();
 		ItemLocation.Z = 0;
 
@@ -62,12 +62,12 @@ bool UHoldComponent_B::TryPickup()
 		if (AngleA <= PickupAngle)
 			ThrowableItemsInCone.Add(Item);
 	}
-	AThrowable_B* NearestItem = nullptr;
+	AActor* NearestItem = nullptr;
 
 	switch (ThrowableItemsInCone.Num())
 	{
 	case 0:
-		ThrowableItemsInRange.Sort([&](const AThrowable_B& LeftSide, const AThrowable_B& RightSide)
+		ThrowableItemsInRange.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -83,7 +83,7 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = ThrowableItemsInCone[0];
 		break;
 	default:
-		ThrowableItemsInCone.Sort([&](const AThrowable_B& LeftSide, const AThrowable_B& RightSide)
+		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -100,14 +100,14 @@ bool UHoldComponent_B::TryPickup()
 	return true;
 }
 
-void UHoldComponent_B::Pickup(AThrowable_B* Item)
+void UHoldComponent_B::Pickup(AActor* Item)
 {
 	OwningPlayer->State = EState::EHolding;
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
 	{
-		Interface->Execute_PickedUp(Item,OwningPlayer);
+		Interface->Execute_PickedUp(Item, OwningPlayer);
 	}
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
@@ -121,31 +121,31 @@ bool UHoldComponent_B::IsHolding()
 	return false;
 }
 
-AThrowable_B* UHoldComponent_B::GetHoldingItem() const
+AActor* UHoldComponent_B::GetHoldingItem() const
 {
 	return HoldingItem;
 }
 
-void UHoldComponent_B::SetHoldingItem(AThrowable_B* Item)
+void UHoldComponent_B::SetHoldingItem(AActor* Item)
 {
 	HoldingItem = Item;
 }
 
 void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AThrowable_B* Item = Cast<AThrowable_B>(OtherActor);
-	if (!IsValid(Item))
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
+	if (!Interface)
 		return;
-	ThrowableItemsInRange.Add(Item);
+	ThrowableItemsInRange.Add(OtherActor);
 	BWarn("%s Overlapping with: %s", *GetNameSafe(this), *GetNameSafe(OtherActor));
 }
 
 void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
-	AThrowable_B* Item = Cast<AThrowable_B>(OtherActor);
-	if (!IsValid(Item))
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
+	if (!Interface)
 		return;
-	ThrowableItemsInRange.Remove(Item);
+	ThrowableItemsInRange.Remove(OtherActor);
 }
 
 void UHoldComponent_B::Drop()

@@ -6,7 +6,6 @@
 #include "Components/SphereComponent.h"
 #include "HoldComponent_B.generated.h"
 
-class AThrowable_B;
 class APlayerCharacter_B;
 
 UCLASS()
@@ -22,8 +21,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsHolding();
 
-	AThrowable_B* GetHoldingItem() const;
-	void SetHoldingItem(AThrowable_B* Item);
+	AActor* GetHoldingItem() const;
+	void SetHoldingItem(AActor* Item);
 
 protected:
 	virtual void BeginPlay() override;
@@ -51,11 +50,11 @@ public:
 
 private:
 
-	void Pickup(AThrowable_B* Item);
+	void Pickup(AActor* Item);
 	float PickupRadius = 0;
-	TArray<AThrowable_B*> ThrowableItemsInRange;
+	TArray<AActor*> ThrowableItemsInRange;
 
-	AThrowable_B* HoldingItem = nullptr;
+	AActor* HoldingItem = nullptr;
 	APlayerCharacter_B* OwningPlayer = nullptr;
 
 };

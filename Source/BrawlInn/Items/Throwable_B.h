@@ -32,6 +32,7 @@ public:
 
 	virtual bool IsHeld_Implementation() const override;
 
+	virtual void Use_Implementation() override;
 
 protected:
 	virtual void BeginPlay() override;

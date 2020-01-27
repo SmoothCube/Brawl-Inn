@@ -24,16 +24,18 @@ public:
 	UFUNCTION(BlueprintPure)
 		bool IsThrowing() const;
 
+	bool AimAssist(FVector& TargetPlayerLocation);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
+		float ImpulseSpeed = 1500.f;
+
 protected:
 	virtual void BeginPlay() override;
-
-	bool AimAssist(FVector& TargetPlayerLocation);
 
 	UFUNCTION()
 	void OneCharacterChanged();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
-		float ImpulseSpeed = 1500.f;
+
 
 	/// Aiming
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")

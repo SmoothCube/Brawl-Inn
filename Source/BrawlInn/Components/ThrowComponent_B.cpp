@@ -22,9 +22,22 @@ UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer
 
 bool UThrowComponent_B::TryThrow()
 {
-	if (!IsReady() || !HoldComponent->IsHolding() || !(OwningPlayer->State == EState::EHolding))
+	if (!IsReady())
+	{
+		BWarn("Not Ready To Throw");
 		return false;
+	} 
+	else if (!HoldComponent->IsHolding())
+	{
+		BWarn("Not Holding Item!");
+	}
+	else if (!(OwningPlayer->State == EState::EHolding))
+	{
+		BWarn("Wrong Player State");
+		return false;
+	}
 
+	BWarn("Trying Throw!");
 	bIsThrowing = true;
 	return true;
 }
@@ -125,6 +138,7 @@ void UThrowComponent_B::OneCharacterChanged()
 
 void UThrowComponent_B::Throw()
 {
+	BWarn("Throw start!");
 	if (!OwningPlayer)
 	{
 		BError("No OwningPlayer for ThrowComponent %s!", *GetNameSafe(this));
@@ -135,29 +149,46 @@ void UThrowComponent_B::Throw()
 		OwningPlayer->State = EState::EWalking;
 		return;
 	}
+	BWarn("Throw mid!");
 
 	/// Prepare item to be thrown
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
 	if (Interface)
 	{
-		Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
+		Interface->Execute_Use(HoldComponent->GetHoldingItem());
 	}
 
 	/// Throw with the help of AimAssist.
-	FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
-	AimAssist(TargetLocation);
-	if (HoldComponent->IsHolding())
-	{
-		HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
-	}
+	//FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
+	//AimAssist(TargetLocation);
+	//if (HoldComponent->IsHolding())
+	//{
+	//	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
+	//}
 		HoldComponent->SetHoldingItem(nullptr);
 	bIsThrowing = false;
 	OwningPlayer->State = EState::EWalking;
+	BWarn("Throw end!");
+
 }
 
 bool UThrowComponent_B::IsReady() const
 {
-	if (GameMode && OwningPlayer && HoldComponent)
-		return true;
-	return false;
+	if (!GameMode)
+	{
+		BWarn("No game mode!");
+		return false;
+	}
+	if (!OwningPlayer)
+	{
+		BWarn("No Owning Player");
+		return false;
+	}
+	else if (!HoldComponent)
+	{
+		BWarn("No Hold Component!");
+		return false;
+	}
+	return true;
+
 }
