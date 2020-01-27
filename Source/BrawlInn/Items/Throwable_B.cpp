@@ -59,8 +59,4 @@ void AThrowable_B::Use_Implementation()
 	OwningPlayer->ThrowComponent->AimAssist(TargetLocation);
 		
 	Mesh->AddImpulse(TargetLocation * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
-	
-
-
-
 }

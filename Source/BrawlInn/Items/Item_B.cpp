@@ -31,6 +31,10 @@ bool AItem_B::IsHeld_Implementation() const
 	return false;
 }
 
+void AItem_B::Use_Implementation()
+{
+
+}
 void AItem_B::BeginPlay()
 {
 	Super::BeginPlay();

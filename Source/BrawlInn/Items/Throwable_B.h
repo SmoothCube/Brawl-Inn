@@ -18,8 +18,6 @@ public:
 
 	virtual void Dropped_Implementation() override;
 
-	virtual bool IsHeld_Implementation() const override;
-
 	virtual void Use_Implementation() override;
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 

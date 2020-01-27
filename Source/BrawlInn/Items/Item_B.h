@@ -35,6 +35,8 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	virtual bool IsHeld_Implementation() const override;
+
+	virtual void Use_Implementation() override;
 	
 	// ** Delegates ** 
 
