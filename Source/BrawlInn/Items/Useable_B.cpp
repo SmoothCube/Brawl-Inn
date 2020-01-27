@@ -52,7 +52,6 @@ void AUseable_B::Use_Implementation()
 	PickupCapsule->DestroyComponent();
 	NiagaraSystemComponent->DestroyComponent();
 
-
 	Execute_Dropped(this);
 }
 
