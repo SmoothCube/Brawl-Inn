@@ -1,21 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Useable_B.h"
 #include "BrawlInn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 AUseable_B::AUseable_B()
 {
+
+	NiagaraSystemComponent = CreateDefaultSubobject<UNiagaraComponent>("Particle System");
+	NiagaraSystemComponent->SetupAttachment(RootComponent);
+
 	Mesh->SetSimulatePhysics(false);
+
+	PickupCapsule->SetRelativeLocation(FVector(0, 37, 0));
+	PickupCapsule->SetCapsuleHalfHeight(60);
+	PickupCapsule->SetCapsuleRadius(60);
 
 	DrinkMesh = CreateDefaultSubobject<UStaticMeshComponent>("Drink Mesh");
 	DrinkMesh->SetupAttachment(RootComponent);
-	DrinkMesh->SetRelativeLocation(FVector(-3,-38,18));
-	DrinkMesh->SetRelativeScale3D(FVector(0.12f, 0.12f, 0.05f));
+	DrinkMesh->SetRelativeLocation(FVector(2.3f,36.5f,38));
+	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
@@ -40,7 +50,7 @@ void AUseable_B::Use_Implementation()
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation());
 	DrinkMesh->DestroyComponent();
 	PickupCapsule->DestroyComponent();
-	
+	NiagaraSystemComponent->DestroyComponent();
 
 
 	Execute_Dropped(this);

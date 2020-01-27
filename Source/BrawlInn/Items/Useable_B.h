@@ -7,6 +7,7 @@
 #include "Useable_B.generated.h"
 
 class USoundCue;
+class UNiagaraComponent;
 
 UCLASS()
 class BRAWLINN_API AUseable_B : public AItem_B
@@ -19,6 +20,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DrinkMesh;
+
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* NiagaraSystemComponent;
 	
 	// ** Overridden functions **
 
