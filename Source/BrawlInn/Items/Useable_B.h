@@ -12,6 +12,8 @@ class BRAWLINN_API AUseable_B : public AItem_B
 	GENERATED_BODY()
 
 public:
+
+	AUseable_B();
 	
 	// ** Overridden functions **
 

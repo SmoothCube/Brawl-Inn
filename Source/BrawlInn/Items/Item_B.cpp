@@ -7,8 +7,6 @@
 #include "Components/CapsuleComponent.h"
 
 #include "Player/PlayerCharacter_B.h"
-#include "Components/HoldComponent_B.h"
-
 
 AItem_B::AItem_B()
 {
@@ -48,7 +46,6 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation());
 		if (OwningPlayer)
 		{
-			OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
 			OwningPlayer = nullptr;
 		}
 	}
