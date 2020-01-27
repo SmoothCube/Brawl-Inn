@@ -15,7 +15,6 @@ ABar_B::ABar_B()
 
 	House = CreateDefaultSubobject<UBarMeshComponent_B>("House");
 	SetRootComponent(House);
-
 }
 
 void ABar_B::BeginPlay()
@@ -24,7 +23,7 @@ void ABar_B::BeginPlay()
 	
 	StartTimerForNextSpawn();
 	
-	House->OnItemDetach.BindUObject(this, &ABar_B::StartTimerForNextSpawn);
+	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextSpawn);
 }
 
 void ABar_B::SpawnUseable()

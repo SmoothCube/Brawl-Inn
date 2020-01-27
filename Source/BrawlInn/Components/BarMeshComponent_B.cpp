@@ -6,6 +6,5 @@ void UBarMeshComponent_B::OnChildDetached(USceneComponent* ChildComponent)
 {
 	Super::OnChildDetached(ChildComponent);
 
-	if (OnItemDetach.IsBound())
-		OnItemDetach.Execute();
+	OnItemDetach.Broadcast();
 }

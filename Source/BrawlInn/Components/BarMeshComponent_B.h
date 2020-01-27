@@ -6,8 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "BarMeshComponent_B.generated.h"
 
-DECLARE_DELEGATE_OneParam(FItemDetached, USceneComponent*)
-DECLARE_DELEGATE(FItemDetached_NOPARAM)
+DECLARE_MULTICAST_DELEGATE(FItemDetached_NOPARAM);
 
 UCLASS()
 class BRAWLINN_API UBarMeshComponent_B : public UStaticMeshComponent
