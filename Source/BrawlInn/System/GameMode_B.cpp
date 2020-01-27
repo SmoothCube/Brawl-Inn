@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "BrawlInn.h"
 #include "System/InitPawn_B.h"
-#include "System/GameCamera_B.h"
+#include "System/Camera/GameCamera_B.h"
 #include "Player/PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
 

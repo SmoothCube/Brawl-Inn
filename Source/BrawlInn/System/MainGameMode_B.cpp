@@ -3,11 +3,12 @@
 
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "BrawlInn.h"
-#include "System/GameCamera_B.h"
+
+#include "System/Camera/GameCamera_B.h"
 #include "Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
-#include "Kismet/GameplayStatics.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
 

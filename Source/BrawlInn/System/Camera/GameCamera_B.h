@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class APlayerController_B;
+class ACameraTrackingBox_B;
 
 UCLASS()
 class BRAWLINN_API AGameCamera_B : public AActor
@@ -58,4 +59,5 @@ private:
 
 	void SetSpringArmLength(float distanceToFurthestPlayer);
 
+	ACameraTrackingBox_B* TrackingBox = nullptr;
 };

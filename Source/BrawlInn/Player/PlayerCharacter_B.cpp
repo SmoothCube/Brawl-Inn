@@ -30,7 +30,7 @@
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
-#include "System/GameCamera_B.h"
+#include "System/Camera/GameCamera_B.h"
 #include "Animations/PlayerAnimInstance_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
@@ -195,7 +195,6 @@ void APlayerCharacter_B::CheckFall(float DeltaTime)
 void APlayerCharacter_B::HandleMovementHold()
 {
 	//Shouldnt set this each tick
-	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -210,8 +209,6 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 		{
 			HoldComponent->Drop();
 		}
-		BWarn("Falling");
-
 		SetState(EState::EFallen);
 		GetMesh()->SetGenerateOverlapEvents(true);
 		GetMesh()->SetSimulatePhysics(true);
@@ -226,7 +223,6 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 	}
 	else
 		BWarn("Character is in air! Fall() does not run!");
-
 }
 
 FVector APlayerCharacter_B::FindMeshLocation()
@@ -300,7 +296,6 @@ void APlayerCharacter_B::AddStun()
 
 void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 {
-	BWarn("Picked up!");
 	HoldingPlayer = Player;
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EHolding);
@@ -321,7 +316,6 @@ void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 
 void APlayerCharacter_B::Dropped_Implementation()
 {
-	BWarn("Dropped!");
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
 	Fall(PunchedRecoveryTime);
@@ -368,7 +362,6 @@ EState APlayerCharacter_B::GetState() const
 
 bool APlayerCharacter_B::IsHeld_Implementation() const
 {
-	BWarn("IsHeld!");
 	if (HoldingPlayer)
 		return true;
 	return false;

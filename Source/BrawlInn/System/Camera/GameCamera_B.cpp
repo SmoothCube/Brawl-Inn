@@ -7,9 +7,12 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "BrawlInn.h"
+
 #include "Player/PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "System/Camera/CameraTrackingBox_B.h"
 
 // Sets default values
 AGameCamera_B::AGameCamera_B()
@@ -35,13 +38,17 @@ void AGameCamera_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/// Find all PlayerControllers and cache them.
+	/// Find all PlayerControllers and cache them. Uses PlayerControllers since characters havent spawned yet(?)
 	TArray<AActor*> TempPlayerControllers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), TempPlayerControllers);
 	for (const auto& Controller : TempPlayerControllers)
 	{
 		PlayerControllers.Add(Cast<APlayerController_B>(Controller));
 	}
+
+	//TrackingBox
+	TrackingBox = Cast<ACameraTrackingBox_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ACameraTrackingBox_B::StaticClass()));
+//	Box->GetOverlappingActors()
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -60,11 +67,20 @@ void AGameCamera_B::UpdateCamera()
 	FVector sum = FVector::ZeroVector;
 	float distanceToFurthestPlayer = 0.f;
 	int ActivePlayers = 0;
+	if (!TrackingBox)
+	{
+		BWarn("CameraTrackingBox not found!"); 
+		return;
+	}
 
 	for (const auto Controller : PlayerControllers)
 	{
 		if (!Controller->HasValidCharacter())
+		{
+			BWarn("Controller has no valid character!!");
 			continue;
+		}
+		BWarn("Players in box: %d", TrackingBox->PlayerControllers.Num());
 
 		FVector PlayerMeshLocation = Controller->PlayerCharacter->GetMesh()->GetComponentLocation();
 		sum += PlayerMeshLocation;
@@ -73,6 +89,9 @@ void AGameCamera_B::UpdateCamera()
 		float distance = FVector::Dist(PlayerMeshLocation, GetActorLocation());
 		if (distance > distanceToFurthestPlayer)
 			distanceToFurthestPlayer = distance;
+
+		//BWarn("PlayerMeshLocation: %s , distance: %f", *PlayerMeshLocation.ToString(), distance);
+
 	}
 	if (ActivePlayers != 0)
 		sum /= ActivePlayers;
