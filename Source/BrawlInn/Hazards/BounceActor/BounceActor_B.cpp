@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BounceActor_B.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,29 +8,18 @@
 #include "BrawlInn.h"
 
 #include "Player/PlayerCharacter_B.h"
-// Sets default values
+
 ABounceActor_B::ABounceActor_B()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts or when spawned
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLifeSpan(ExplodeTime);
 	OnDestroyed.AddDynamic(this, &ABounceActor_B::Explode);
 }
-
-// Called every frame
-void ABounceActor_B::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 
 void ABounceActor_B::Explode(AActor* DestroyedActor)
 {

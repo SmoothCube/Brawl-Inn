@@ -21,8 +21,6 @@ public:
 
 	virtual void BeginPlay() override;
 	
-	virtual void Tick(float DeltaTime) override;
-
 	UFUNCTION()
 	void Explode(AActor* DestroyedActor);
 
