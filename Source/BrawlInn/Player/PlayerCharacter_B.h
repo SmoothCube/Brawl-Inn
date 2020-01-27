@@ -72,6 +72,7 @@ protected:
 
 	// ** Functions **
 	void HandleMovement(float DeltaTime);
+	void CheckFall(float DeltaTime);
 	void HandleMovementHold();
 
 	void HandleRotation(float DeltaTime);
@@ -121,11 +122,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector RotationVector = FVector::ZeroVector;
 
-	EState State = EState::EWalking;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float InvulnerabilityTime = 3.f;
+
+	void SetState(EState s);
+	EState GetState() const;
+
 protected: 
+
+	EState State = EState::EWalking;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float FellRecoveryTime = 2.0;					//For when a character fell by themselves

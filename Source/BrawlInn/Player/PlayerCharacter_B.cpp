@@ -56,8 +56,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 
-
-
 	GetCharacterMovement()->MaxWalkSpeed = 2000; 
 	GetCharacterMovement()->MaxAcceleration = 800;
 	GetCharacterMovement()->BrakingFrictionFactor = 1;
@@ -84,17 +82,21 @@ void APlayerCharacter_B::BeginPlay()
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (State == EState::EFallen)
+	if (GetState() == EState::EFallen)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if (!(State == EState::EStunned))
+	else
 	{
-		if (State == EState::EWalking)
-			HandleMovement(DeltaTime);
-		else if (State == EState::EHolding)
-			HandleMovementHold();
-		HandleRotation(DeltaTime);
+		CheckFall(DeltaTime);
+		if (!(GetState() == EState::EStunned))
+		{
+			if (GetState() == EState::EWalking)
+				HandleMovement(DeltaTime);
+			else if (GetState() == EState::EHolding)
+				HandleMovementHold();
+			HandleRotation(DeltaTime);
+		}
 	}
 
 	UpdateHealthRotation();
@@ -173,35 +175,21 @@ void APlayerCharacter_B::HandleRotation(float DeltaTime)
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
 	//shouldnt set this each tick
-	GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed	;
-
-	//Checks to see if we need to fall
-	//can only fall if speed is more than 90% of max speed
-	float Speed = GetMovementComponent()->Velocity.Size();
-	if (Speed >= GetMovementComponent()->GetMaxSpeed() * 0.9f)
-	{
-		CurrentFallTime += DeltaTime;
-		//Vibrates controller if we have one
-		if (!PunchComponent->bIsPunching && PlayerController)
-		{
-			float Intensity = CurrentFallTime + 0.7;
-			PlayerController->PlayControllerVibration(Intensity, 0.1f, true, true, true, true);
-		}
-		if (Speed >= GetMovementComponent()->GetMaxSpeed() * FallLimitMultiplier)
-		{
-			Fall(PunchedRecoveryTime);
-			MakeInvulnerable(InvulnerabilityTime + PunchedRecoveryTime);
-		}
-	}
-	else
-	{
-		CurrentFallTime = 0;
-	}
 
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
 	GetMovementComponent()->AddInputVector(InputVector);
+}
+
+void APlayerCharacter_B::CheckFall(float DeltaTime)
+{
+	float Speed = GetMovementComponent()->Velocity.Size();
+	if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
+	{
+		Fall(PunchedRecoveryTime);
+		MakeInvulnerable(InvulnerabilityTime + PunchedRecoveryTime);
+	}
 }
 
 void APlayerCharacter_B::HandleMovementHold()
@@ -224,7 +212,7 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 		}
 		BWarn("Falling");
 
-		State = EState::EFallen;
+		SetState(EState::EFallen);
 		GetMesh()->SetGenerateOverlapEvents(true);
 		GetMesh()->SetSimulatePhysics(true);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -262,7 +250,7 @@ void APlayerCharacter_B::StandUp()
 		//Saves snapshot for blending to animation
 		GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
-		State = EState::EWalking;
+		SetState(EState::EWalking);
 		GetMovementComponent()->StopMovementImmediately();
 
 		GetMesh()->SetSimulatePhysics(false);
@@ -299,12 +287,12 @@ bool APlayerCharacter_B::IsInvulnerable()
 
 void APlayerCharacter_B::AddStun()
 {
-	if (!(State == EState::EStunned))
+	if (!(GetState() == EState::EStunned))
 	{
 		StunAmount++;
 		if (StunAmount >= PunchesToStun)
 		{
-			State = EState::EStunned;
+			SetState(EState::EStunned);
 		}
 		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &APlayerCharacter_B::RemoveStun, StunTime, false);
 	}
@@ -315,7 +303,7 @@ void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 	BWarn("Picked up!");
 	HoldingPlayer = Player;
 	GetMovementComponent()->StopMovementImmediately();
-	State = EState::EHolding;
+	SetState(EState::EHolding);
 	GetWorld()->GetTimerManager().ClearTimer(TH_RecoverTimer);
 	GetMesh()->SetSimulatePhysics(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -359,6 +347,25 @@ void APlayerCharacter_B::Use_Implementation()
 	SetActorRotation(FRotator(0, 0, 0));
 }
 
+void APlayerCharacter_B::SetState(EState s)
+{
+	State = s;
+	switch (State) 
+	{
+	case EState::EWalking:
+		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
+		break;
+	case EState::EHolding:
+		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		break;
+	}
+}
+
+EState APlayerCharacter_B::GetState() const
+{
+	return State;
+}
+
 bool APlayerCharacter_B::IsHeld_Implementation() const
 {
 	BWarn("IsHeld!");
@@ -370,9 +377,9 @@ bool APlayerCharacter_B::IsHeld_Implementation() const
 
 void APlayerCharacter_B::RemoveStun()
 {
-	if (State == EState::EStunned)
+	if (GetState() == EState::EStunned)
 	{
-		State = EState::EWalking;
+		SetState(EState::EWalking);
 	}
 	StunAmount = 0;
 }
@@ -413,7 +420,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 void APlayerCharacter_B::PunchButtonPressed()
 {
-	if (!(State == EState::EWalking)) { return; }
+	if (!(GetState() == EState::EWalking)) { return; }
 	if (PunchComponent)
 	{
 		PunchComponent->bIsPunching = true;

@@ -32,7 +32,7 @@ void UHoldComponent_B::BeginPlay()
 bool UHoldComponent_B::TryPickup()
 {
 	if (!OwningPlayer) return false;
-	if (!(OwningPlayer->State == EState::EWalking)) return false;
+	if (!(OwningPlayer->GetState() == EState::EWalking)) return false;
 	if (HoldingItem) return false;
 	if (ThrowableItemsInRange.Num() == 0) return false;
 	//Should only be able
@@ -102,7 +102,7 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AActor* Item)
 {
-	OwningPlayer->State = EState::EHolding;
+	OwningPlayer->SetState(EState::EHolding);
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)

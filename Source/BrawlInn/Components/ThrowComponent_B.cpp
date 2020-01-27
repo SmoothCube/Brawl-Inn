@@ -31,7 +31,7 @@ bool UThrowComponent_B::TryThrow()
 	{
 		BWarn("Not Holding Item!");
 	}
-	else if (!(OwningPlayer->State == EState::EHolding))
+	else if (!(OwningPlayer->GetState() == EState::EHolding))
 	{
 		BWarn("Wrong Player State");
 		return false;
@@ -74,7 +74,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
-		if (OtherPlayer->State == EState::EFallen)
+		if (OtherPlayer->GetState() == EState::EFallen)
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
 		OtherPlayerLocation.Z = 0;
@@ -150,7 +150,7 @@ void UThrowComponent_B::Throw()
 	}
 	if (!HoldComponent->IsHolding())
 	{
-		OwningPlayer->State = EState::EWalking;
+		OwningPlayer->SetState(EState::EWalking);
 		return;
 	}
 	BWarn("Throw mid!");
@@ -171,7 +171,7 @@ void UThrowComponent_B::Throw()
 	//}
 	OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
 	bIsThrowing = false;
-	OwningPlayer->State = EState::EWalking;
+	OwningPlayer->SetState(EState::EWalking);
 	BWarn("Throw end!");
 
 }
