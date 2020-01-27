@@ -6,6 +6,8 @@
 #include "Items/Item_B.h"
 #include "Useable_B.generated.h"
 
+class USoundCue;
+
 UCLASS()
 class BRAWLINN_API AUseable_B : public AItem_B
 {
@@ -14,6 +16,9 @@ class BRAWLINN_API AUseable_B : public AItem_B
 public:
 
 	AUseable_B();
+
+	UPROPERTY(VisibleAnywhere)
+		UStaticMeshComponent* DrinkMesh;
 	
 	// ** Overridden functions **
 
@@ -24,4 +29,9 @@ public:
 	virtual void Use_Implementation() override;
 
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+
+protected:
+
+	UPROPERTY(EditAnywhere)
+		USoundCue* DrinkSound;
 };

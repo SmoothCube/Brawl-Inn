@@ -4,10 +4,20 @@
 #include "Useable_B.h"
 #include "BrawlInn.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 AUseable_B::AUseable_B()
 {
 	Mesh->SetSimulatePhysics(false);
+
+	DrinkMesh = CreateDefaultSubobject<UStaticMeshComponent>("Drink Mesh");
+	DrinkMesh->SetupAttachment(RootComponent);
+	DrinkMesh->SetRelativeLocation(FVector(-3,-38,18));
+	DrinkMesh->SetRelativeScale3D(FVector(0.12f, 0.12f, 0.05f));
+	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void AUseable_B::PickedUp_Implementation(APlayerCharacter_B* Player)
@@ -27,7 +37,12 @@ void AUseable_B::Dropped_Implementation()
 
 void AUseable_B::Use_Implementation()
 {
-	BLog("Using drink");
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation());
+	DrinkMesh->DestroyComponent();
+	PickupCapsule->DestroyComponent();
+	
+
+
 	Execute_Dropped(this);
 }
 
