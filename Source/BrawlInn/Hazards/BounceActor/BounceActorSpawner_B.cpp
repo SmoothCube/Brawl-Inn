@@ -8,7 +8,10 @@
 #include "TimerManager.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Components/DecalComponent.h"
 
+#include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 
 // Sets default values
@@ -35,11 +38,17 @@ void ABounceActorSpawner_B::SpawnBounceActor()
 {
 	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));
 	NewBounceActor->SetActorRotation(FRotator(0, 50, 0));
-	FVector LaunchVel = FVector::ZeroVector;	
-	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), BouncePoints[NextPath]->GetActorLocation(), 0.0f, 0.5f);
+	FVector LaunchVel = FVector::ZeroVector;
+	if (BouncePoints.IsValidIndex(NextPath) && BouncePoints[NextPath])
+	{
+		BouncePoints[NextPath]->Decal->SetActive(true, true);
+		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), BouncePoints[NextPath]->GetActorLocation(), 0.0f, 0.5f);
+	}
 	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
 
-	//	//cycles through the different paths instead of random spawning
+	
+
+	//cycles through the different paths instead of random spawning
 	NextPath++;
 	if (NextPath >= BouncePoints.Num())
 	{

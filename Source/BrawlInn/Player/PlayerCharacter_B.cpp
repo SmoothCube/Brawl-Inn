@@ -434,7 +434,6 @@ void APlayerCharacter_B::BreakFree()
 	{
 		HoldingPlayer->HoldComponent->SetHoldingItem(nullptr);
 		HoldingPlayer->AddStun();
-		HoldingPlayer->AddStun();
 		HoldingPlayer = nullptr;
 	}
 }

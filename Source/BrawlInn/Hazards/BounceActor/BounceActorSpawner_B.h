@@ -8,7 +8,7 @@
 #include "BounceActorSpawner_B.generated.h"
 class ABounceActor_B;
 class ABouncePath_B;
-class ATargetPoint;
+class ABarrelTargetPoint_B;
 UCLASS()
 class BRAWLINN_API ABounceActorSpawner_B : public AActor
 {
@@ -37,6 +37,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-		TArray<ATargetPoint*> BouncePoints;
+	TArray<ABarrelTargetPoint_B*> BouncePoints;
 
 };
