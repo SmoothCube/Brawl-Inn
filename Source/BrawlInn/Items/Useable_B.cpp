@@ -9,6 +9,8 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 AUseable_B::AUseable_B()
 {
@@ -24,7 +26,7 @@ AUseable_B::AUseable_B()
 
 	DrinkMesh = CreateDefaultSubobject<UStaticMeshComponent>("Drink Mesh");
 	DrinkMesh->SetupAttachment(RootComponent);
-	DrinkMesh->SetRelativeLocation(FVector(2.3f,36.5f,38));
+	DrinkMesh->SetRelativeLocation(FVector(2.3f, 36.5f, 38));
 	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -47,6 +49,9 @@ void AUseable_B::Dropped_Implementation()
 
 void AUseable_B::Use_Implementation()
 {
+	if (Duration > 0)
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::ResetBoost, Duration, false);
+
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation());
 	DrinkMesh->DestroyComponent();
 	PickupCapsule->DestroyComponent();
@@ -55,7 +60,14 @@ void AUseable_B::Use_Implementation()
 	Execute_Dropped(this);
 }
 
-void AUseable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AUseable_B::ResetBoost()
 {
 }
 
+void AUseable_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+	if (!GetWorld()->GetTimerManager().TimerExists(TH_DrinkHandle))
+	{
+		Super::FellOutOfWorld(dmgType);
+	}
+}

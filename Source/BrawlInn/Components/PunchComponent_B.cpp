@@ -18,22 +18,15 @@ UPunchComponent_B::UPunchComponent_B()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 	Player = Cast<APlayerCharacter_B>(GetOwner());
 }
-
 
 // Called when the game starts
 void UPunchComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
 	OnComponentBeginOverlap.AddDynamic(this, &UPunchComponent_B::OnOverlapBegin);
-}
-
-// Called every frame
-void UPunchComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UPunchComponent_B::PunchStart()
@@ -111,7 +104,8 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	//has the invulnerability check here to be able to do other stuff when you hit someone invulnerable
 	if (!OtherPlayer->bIsInvulnerable)
 	{
-		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OtherPlayer);
+		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),Player);
+		Player->StunStrength = 1;
 		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
 			
@@ -153,7 +147,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, APlayerCharacter_B* 
 	PunchEnd();
 	//Player->Fall();
 	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
-	Player->AddStun();
+	Player->AddStun(PlayerThatPunched->StunStrength);
 	//Was there a reason there were two of these???
 	//	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
 }

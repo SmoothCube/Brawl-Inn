@@ -281,11 +281,11 @@ bool APlayerCharacter_B::IsInvulnerable()
 	return bIsInvulnerable;
 }
 
-void APlayerCharacter_B::AddStun()
+void APlayerCharacter_B::AddStun(int Strength)
 {
 	if (!(GetState() == EState::EStunned))
 	{
-		StunAmount++;
+		StunAmount += Strength;
 		if (StunAmount >= PunchesToStun)
 		{
 			SetState(EState::EStunned);
@@ -309,6 +309,7 @@ void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 	GetCharacterMovement()->StopMovementImmediately();
 	SetActorRotation(FRotator(-90, 0, 90));
 
+	/// Espen trenger du dette ? (Kommentarer under)
 	//(Pitch = -87.891403, Yaw = -7.461156, Roll = 96.832733)
 
 	//(Pitch = -88.837349, Yaw = 37.917442, Roll = 50.508533)

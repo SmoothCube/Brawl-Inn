@@ -17,8 +17,6 @@ public:
 	
 protected:
 	
-	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
-
 	// ** Variables ** 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
 	float MovementSpeedBoost = 1000;
@@ -27,13 +25,11 @@ protected:
 	float AccelerationBoost = 400;
 
 private:
-	FTimerHandle TH_DrinkHandle;
 	class APlayerCharacter_B* Character;
 
 	float OldMovementSpeed = 0;
 	float OldAcceleration = 0;
 
 	// ** Functions ** 
-	UFUNCTION()
-	void ResetBoost();
+	virtual void ResetBoost() override;
 };

@@ -12,5 +12,11 @@ class BRAWLINN_API APunchUseable_B : public AUseable_B
 	GENERATED_BODY()
 
 public:
+
+	APunchUseable_B();
+
 	virtual void Use_Implementation() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+		int StunStrength = 2;
 };
