@@ -23,10 +23,8 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Components/FireDamageComponent_B.h"
 #include "Components/WidgetComponent.h"
 #include "Components/HealthComponent_B.h"
-#include "System/DamageTypes/Fire_DamageType_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
@@ -41,13 +39,13 @@ APlayerCharacter_B::APlayerCharacter_B()
 	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
 	HoldComponent->SetupAttachment(GetMesh());
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
-	FireDamageComponent = CreateDefaultSubobject<UFireDamageComponent_B>("Fire Damage Component");
 
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
+	HealthWidget->SetupAttachment(GetRootComponent());
 
 	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
 	DirectionIndicatorPlane->SetupAttachment(RootComponent);
@@ -69,7 +67,6 @@ void APlayerCharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
-	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
 
 	MakeInvulnerable(1.0f);
 
@@ -82,6 +79,7 @@ void APlayerCharacter_B::BeginPlay()
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UpdateHealthRotation();
 	if (GetState() == EState::EFallen)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
@@ -102,18 +100,6 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		}
 	}
 
-	UpdateHealthRotation();
-}
-
-void APlayerCharacter_B::TakeFireDamage()
-{
-	Fall(PunchedRecoveryTime);
-	MakeInvulnerable(InvulnerabilityTime + PunchedRecoveryTime);
-	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-	if (Interface)
-	{
-		Interface->Execute_TakeOneDamage(GetController());
-	}
 }
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -121,11 +107,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (bIsInvulnerable || bHasShield) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
-	{
-		FireDamageComponent->FireDamageStart_D.Broadcast();
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
 	}
@@ -143,7 +125,10 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 void APlayerCharacter_B::UpdateHealthRotation()
 {
 	if (!GameCamera)
+	{
+		BScreen("Camera not found");
 		return;
+	}
 
 	HealthWidget->SetWorldRotation((GameCamera->Camera->GetForwardVector() * -1).Rotation());
 
@@ -164,9 +149,10 @@ void APlayerCharacter_B::UpdateHealthRotation()
 	DrawSize.X = size * 4;
 	DrawSize.Y = size * 4;
 
-	FVector Location = HealthWidget->GetRelativeLocation();
+	FVector Location = GetActorLocation();
+	
 	Location.Z = posZ;
-	HealthWidget->SetRelativeLocation(Location);
+	HealthWidget->SetWorldLocation(Location);
 	HealthWidget->SetDrawSize(DrawSize);
 }
 
