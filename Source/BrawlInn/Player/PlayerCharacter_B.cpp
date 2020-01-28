@@ -399,7 +399,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 		if (GameMode)
 		{
 			GameMode->DespawnCharacter_D.Broadcast(PlayerController);
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController);
+			//GameMode->SpawnCharacter_D.Broadcast(PlayerController);
 		}
 		else
 		{

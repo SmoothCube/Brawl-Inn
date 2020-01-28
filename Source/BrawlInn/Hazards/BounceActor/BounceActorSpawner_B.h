@@ -32,7 +32,8 @@ protected:
 	FTimerHandle TH_SpawnTimer;
 	int NextPath = 0;
 public:	
-	void SpawnBounceActor();
+	void SpawnBarrelOnTimer();
+	ABounceActor_B* SpawnBounceActor(FVector TargetLocation);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -1,17 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "BrawlInn.h"
 
 #include "PlayerController_B.h"
-#include "BrawlInn.h"
 #include "Player/PlayerCharacter_B.h"
+#include "Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/CharacterSelectionComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Engine/World.h"
 #include "System/GameMode_B.h"
 #include "System/MainGameMode_B.h"
-#include "Kismet/GameplayStatics.h"
 #include "System/MenuGameMode_B.h"
 
 APlayerController_B::APlayerController_B()
@@ -86,12 +87,20 @@ void APlayerController_B::MoveUp(float Value)
 	{
 		PlayerCharacter->InputVector.X = Value;
 	}
+	else if (RespawnPawn)
+	{
+		RespawnPawn->InputVector.X = Value;
+	}
 }
 void APlayerController_B::MoveRight(float Value)
 {
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->InputVector.Y = Value;
+	}
+	else if (RespawnPawn)
+	{
+		RespawnPawn->InputVector.Y = Value;
 	}
 }
 
@@ -140,13 +149,17 @@ void APlayerController_B::PickupButtonRepeat()
 
 void APlayerController_B::PunchButtonPressed()
 {
-	if (!PlayerCharacter)
-		return;
-
-	if (!PlayerCharacter->HoldComponent->IsHolding())
-		PlayerCharacter->PunchButtonPressed();
-	else
-		PlayerCharacter->ThrowComponent->TryThrow();
+	if (PlayerCharacter)
+	{
+		if (!PlayerCharacter->HoldComponent->IsHolding())
+			PlayerCharacter->PunchButtonPressed();
+		else
+			PlayerCharacter->ThrowComponent->TryThrow();
+	}
+	else if (RespawnPawn)
+	{
+		RespawnPawn->ThrowBarrel();
+	}
 }
 
 void APlayerController_B::BreakFreeButtonPressed()

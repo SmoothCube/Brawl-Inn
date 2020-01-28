@@ -9,6 +9,7 @@
 class APlayerStart;
 class APlayerController_B;
 class APlayerCharacter_B;
+class ARespawnPawn_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpawnCharacter, APlayerController_B*, PlayerControllerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*, PlayerControllerReference);
@@ -35,6 +36,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<APlayerCharacter_B> BP_PlayerCharacter;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<ARespawnPawn_B> BP_RespawnPawn;
 
 	/// ----- Spawn Character functions/variables -----
 

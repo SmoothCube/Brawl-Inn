@@ -9,6 +9,7 @@
 #include "System/Camera/GameCamera_B.h"
 #include "Player/PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
+#include "Player/RespawnPawn_B.h"
 
 void AGameMode_B::BeginPlay()
 {
@@ -52,6 +53,7 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController)
 		Pawn->Destroy();
 		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
+		PlayerController->RespawnPawn = nullptr;
 		PlayerController->PlayerCharacter = Character;
 		UpdateViewTarget(PlayerController);
 		SpawnCharacter_NOPARAM_D.Broadcast();
@@ -64,9 +66,10 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 	if (IsValid(Pawn))
 	{
 		Pawn->Destroy();
-		AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
-		PlayerController->Possess(Character);
+		ARespawnPawn_B* Pawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
+		PlayerController->Possess(Pawn);
 		PlayerController->PlayerCharacter = nullptr;
+		PlayerController->RespawnPawn = Pawn;
 		UpdateViewTarget(PlayerController);
 		DespawnCharacter_NOPARAM_D.Broadcast();
 	}

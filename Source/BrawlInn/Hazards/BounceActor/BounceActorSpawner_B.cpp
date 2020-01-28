@@ -4,12 +4,8 @@
 #include "BounceActorSpawner_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
 #include "TimerManager.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "DrawDebugHelpers.h"
-#include "Components/DecalComponent.h"
 #include "BrawlInn.h"
 
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
@@ -26,7 +22,7 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 void ABounceActorSpawner_B::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBounceActor, SpawnDelay, true,0);
+	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBarrelOnTimer, SpawnDelay, true,0);
 }
 
 // Called every frame
@@ -35,25 +31,34 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ABounceActorSpawner_B::SpawnBounceActor()
+void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 {
-	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));
-	NewBounceActor->SetActorRotation(FRotator(0, 50, 0));
-	FVector LaunchVel = FVector::ZeroVector;
+	//cycles through the different paths instead of random spawning
 	if (BouncePoints.IsValidIndex(NextPath) && BouncePoints[NextPath])
 	{
-		NewBounceActor->Target = BouncePoints[NextPath];
 		BouncePoints[NextPath]->SetActorHiddenInGame(false);
-		BWarn("Setting hidden false");
-		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), BouncePoints[NextPath]->GetActorLocation(), 0.0f, 0.5f);
+		ABounceActor_B* NewBounceActor = SpawnBounceActor(BouncePoints[NextPath]->GetActorLocation());
+		NewBounceActor->Target = BouncePoints[NextPath];
 	}
-	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
+	else
+	{
+		ABounceActor_B* NewBounceActor = SpawnBounceActor(FVector::ZeroVector);
+	}
 
-	
-	//cycles through the different paths instead of random spawning
 	NextPath++;
 	if (NextPath >= BouncePoints.Num())
 	{
 		NextPath = 0;
 	}
+}
+
+ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
+{
+	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, GetActorLocation(), FRotator(90, 0, 0));
+	NewBounceActor->SetActorRotation(FRotator(0, 50, 0));
+	FVector LaunchVel = FVector::ZeroVector;
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), TargetLocation, 0.0f, 0.5f);
+	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
+	
+	return NewBounceActor;
 }
