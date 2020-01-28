@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "DrawDebugHelpers.h"
 #include "BrawlInn.h"
 
 #include "Player/PlayerCharacter_B.h"
@@ -23,6 +24,8 @@ void ABounceActor_B::BeginPlay()
 
 void ABounceActor_B::Explode(AActor* DestroyedActor)
 {
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), 0, GetActorLocation(), 500.f, BP_DamageType, {}, this);
+	float Radius = 500.f;
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), 0, GetActorLocation(), Radius, BP_DamageType, {}, this);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 10, FColor::Red, false, 2.f);
 	Destroy();
 }

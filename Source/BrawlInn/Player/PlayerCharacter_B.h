@@ -99,6 +99,9 @@ public:
 	
 	void PunchButtonPressed();
 
+	void BreakFreeButtonMash();
+	void BreakFree();
+
 	void MakeInvulnerable(float InvulnerabilityTime);
 	bool IsInvulnerable();
 
@@ -113,6 +116,9 @@ public:
 	virtual bool IsHeld_Implementation() const override;
 
 	virtual void Use_Implementation() override;
+
+	void SetState(EState s);
+	EState GetState() const;
 
 	// ** Variables **
 
@@ -131,6 +137,10 @@ public:
 
 	void SetState(EState s);
 	EState GetState() const;
+	
+	//The longest amount of time this character can be held
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MaxHoldTime = 4.f;
 
 protected: 
 
@@ -186,5 +196,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
+	float CurrentHoldTime = 0.f;
 };
 
