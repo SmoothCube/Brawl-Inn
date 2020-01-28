@@ -105,6 +105,9 @@ public:
 	void MakeInvulnerable(float InvulnerabilityTime);
 	bool IsInvulnerable();
 
+	void ApplyShield();
+	void RemoveShield();
+
 	void AddStun(int Strength = 1);
 
 
@@ -139,6 +142,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float MaxHoldTime = 4.f;
 
+	bool bHasShield = false;
 protected: 
 
 	EState State = EState::EWalking;
@@ -163,6 +167,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Visuals")
 	UMaterial* InvisibleMat;
+
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+		UMaterial* ShieldMat;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInvulnerable = false;

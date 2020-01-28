@@ -34,10 +34,18 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 	APlayerCharacter_B* HitPlayer = Cast<APlayerCharacter_B>(OtherActor);
 	if (HitPlayer && !HitPlayer->IsInvulnerable())
 	{
-		HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
-		BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
+		if (HitPlayer->bHasShield)
+		{
+			HitPlayer->RemoveShield();
+		}
+		else
+		{
 
-		UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningPlayer->GetController(), this, BP_DamageType);
+			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
+			BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
+
+			UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningPlayer->GetController(), this, BP_DamageType);
+		}
 	}
 	Destroy();
 }
@@ -59,7 +67,7 @@ void AThrowable_B::Use_Implementation()
 	}
 	else
 	{
-		BError("No OwningPlayer for Throwable %s",*GetNameSafe(this))
+		BError("No OwningPlayer for Throwable %s", *GetNameSafe(this))
 	}
-		
+
 }

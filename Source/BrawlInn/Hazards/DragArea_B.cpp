@@ -11,7 +11,6 @@
 #include "BrawlInn.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
-#include "Components/FireDamageComponent_B.h"
 
 // Sets default values
 ADragArea_B::ADragArea_B()
@@ -90,7 +89,6 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		}
 		PlayersToMove.Add(Player);
 		BWarn("Adding player %s", *GetNameSafe(Player));
-		Player->FireDamageComponent->FireDamageStop_D.Broadcast();
 	}
 	else
 	{

@@ -48,7 +48,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
-	
+
 	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
 	DirectionIndicatorPlane->SetupAttachment(RootComponent);
 	DirectionIndicatorPlane->SetRelativeLocation(FVector(20, 0, -70));
@@ -56,7 +56,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 
-	GetCharacterMovement()->MaxWalkSpeed = 2000; 
+	GetCharacterMovement()->MaxWalkSpeed = 2000;
 	GetCharacterMovement()->MaxAcceleration = 800;
 	GetCharacterMovement()->BrakingFrictionFactor = 1;
 	GetCharacterMovement()->GroundFriction = 3;
@@ -73,9 +73,9 @@ void APlayerCharacter_B::BeginPlay()
 
 	MakeInvulnerable(1.0f);
 
-	for (TActorIterator<AGameCamera_B> itr(GetWorld()) ; itr; ++itr)
+	for (TActorIterator<AGameCamera_B> itr(GetWorld()); itr; ++itr)
 	{
-		GameCamera = *itr;	
+		GameCamera = *itr;
 	}
 }
 
@@ -118,7 +118,7 @@ void APlayerCharacter_B::TakeFireDamage()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (bIsInvulnerable) return 0;
+	if (bIsInvulnerable || bHasShield) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
@@ -146,15 +146,15 @@ void APlayerCharacter_B::UpdateHealthRotation()
 		return;
 
 	HealthWidget->SetWorldRotation((GameCamera->Camera->GetForwardVector() * -1).Rotation());
-	
+
 	FVector2D DrawSize;
-	
+
 	float xMin = 25.f;
 	float xMax = 100.f;
 
 	float minPosZ = 150;
 	float maxPosZ = 200;
-	
+
 	float size = (GameCamera->SpringArm->TargetArmLength - GameCamera->SmallestSpringArmLength) *
 		((xMax - xMin) / (GameCamera->LargestSpringArmLength - GameCamera->SmallestSpringArmLength)) + xMin;
 
@@ -263,13 +263,32 @@ void APlayerCharacter_B::MakeVulnerable()
 {
 	bIsInvulnerable = false;
 
-	if (InvulnerableMat)
+	if (InvulnerableMat && !bHasShield)
 		GetMesh()->SetMaterial(6, InvisibleMat);
 }
 
 bool APlayerCharacter_B::IsInvulnerable()
 {
 	return bIsInvulnerable;
+}
+
+void APlayerCharacter_B::ApplyShield()
+{
+	bHasShield = true;
+
+	if (ShieldMat)
+		GetMesh()->SetMaterial(6, ShieldMat);
+}
+
+void APlayerCharacter_B::RemoveShield()
+{
+	if (!bHasShield)
+		return;
+
+	bHasShield = false;
+
+	if (ShieldMat)
+		GetMesh()->SetMaterial(6, InvisibleMat);
 }
 
 void APlayerCharacter_B::AddStun(int Strength)
@@ -341,7 +360,7 @@ void APlayerCharacter_B::Use_Implementation()
 void APlayerCharacter_B::SetState(EState s)
 {
 	State = s;
-	switch (State) 
+	switch (State)
 	{
 	case EState::EWalking:
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
@@ -444,11 +463,17 @@ void APlayerCharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage,
 	BWarn("Radial Damage Taken!");
 	if (!bIsInvulnerable)
 	{
-		//Calculates force vector
-		FVector Direction = GetActorLocation() - Origin;
-		Direction.Normalize();
-		Direction *= DamageType->DamageImpulse;
-
-		GetCharacterMovement()->AddImpulse(Direction);
+		if (bHasShield)
+		{
+			RemoveShield();
+		}
+		else
+		{
+			//Calculates force vector
+			FVector Direction = GetActorLocation() - Origin;
+			Direction.Normalize();
+			Direction *= DamageType->DamageImpulse;
+			GetCharacterMovement()->AddImpulse(Direction);
+		}
 	}
 }
