@@ -27,7 +27,7 @@ enum class EState : uint8
 	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
 };
 
-UCLASS()
+UCLASS(DontCollapseCategories)
 class BRAWLINN_API APlayerCharacter_B : public ACharacter, public IThrowableInterface_B
 {
 	GENERATED_BODY()
@@ -105,7 +105,7 @@ public:
 	void MakeInvulnerable(float InvulnerabilityTime);
 	bool IsInvulnerable();
 
-	void AddStun();
+	void AddStun(int Strength = 1);
 
 
 	//Picking up players
@@ -129,9 +129,12 @@ public:
 	FVector RotationVector = FVector::ZeroVector;
 
 	
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 	float InvulnerabilityTime = 3.f;
 
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+		int StunStrength = 1;
+	
 	//The longest amount of time this character can be held
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float MaxHoldTime = 4.f;
@@ -140,19 +143,19 @@ protected:
 
 	EState State = EState::EWalking;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
-	float FellRecoveryTime = 2.0;					//For when a character fell by themselves
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when a character fell by themselves"))
+	float FellRecoveryTime = 2.0;				
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
-	float PunchedRecoveryTime= 4.0;					//For when an external force made the character fall. Name is a bit misleading
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when an external force made the character fall. Name is a bit misleading"))
+	float PunchedRecoveryTime= 4.0;				
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float FallLimitMultiplier = 3.5f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 	int FellOutOfWorldDamageAmount = 1;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
 
 	UPROPERTY(EditAnywhere, Category = "Visuals")
@@ -164,15 +167,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInvulnerable = false;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 	float StunTime = 3.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 	int PunchesToStun = 2;
 
 	int StunAmount = 0;
-
-
 
 private:
 	

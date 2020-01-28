@@ -272,11 +272,11 @@ bool APlayerCharacter_B::IsInvulnerable()
 	return bIsInvulnerable;
 }
 
-void APlayerCharacter_B::AddStun()
+void APlayerCharacter_B::AddStun(int Strength)
 {
 	if (!(GetState() == EState::EStunned))
 	{
-		StunAmount++;
+		StunAmount += Strength;
 		if (StunAmount >= PunchesToStun)
 		{
 			SetState(EState::EStunned);

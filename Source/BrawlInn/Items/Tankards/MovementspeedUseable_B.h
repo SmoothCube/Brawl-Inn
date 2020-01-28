@@ -10,7 +10,26 @@ UCLASS()
 class BRAWLINN_API AMovementspeedUseable_B : public AUseable_B
 {
 	GENERATED_BODY()
-	
+
 public:
+	// ** Overridden functions **
 	virtual void Use_Implementation() override;
+	
+protected:
+	
+	// ** Variables ** 
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+	float MovementSpeedBoost = 1000;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+	float AccelerationBoost = 400;
+
+private:
+	class APlayerCharacter_B* Character;
+
+	float OldMovementSpeed = 0;
+	float OldAcceleration = 0;
+
+	// ** Functions ** 
+	virtual void ResetBoost() override;
 };

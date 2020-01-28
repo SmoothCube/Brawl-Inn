@@ -23,7 +23,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* NiagaraSystemComponent;
-	
+
 	// ** Overridden functions **
 
 	virtual void PickedUp_Implementation(APlayerCharacter_B* Player) override;
@@ -32,10 +32,17 @@ public:
 
 	virtual void Use_Implementation() override;
 
-	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-
 protected:
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Juice")
 		USoundCue* DrinkSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The duration of the powerup. Set to -1 if it shouldn't expire by time"))
+		float Duration = 5;
+	
+	FTimerHandle TH_DrinkHandle;
+
+	UFUNCTION()
+		virtual void ResetBoost();
 };

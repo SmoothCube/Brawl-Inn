@@ -12,7 +12,7 @@ class UNiagaraSystem;
 class UDamageType;
 class APlayerCharacter_B;
 
-UCLASS()
+UCLASS(DontCollapseCategories)
 class BRAWLINN_API AItem_B : public AActor, public IThrowableInterface_B
 {
 	GENERATED_BODY()
@@ -44,7 +44,7 @@ protected:
 		void OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// ** Variables **
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Juice")
 		UNiagaraSystem* PS_OnDestroy;
 
 	APlayerCharacter_B* OwningPlayer = nullptr;
