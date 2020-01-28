@@ -26,7 +26,7 @@ bool UThrowComponent_B::TryThrow()
 	{
 		BWarn("Not Ready To Throw");
 		return false;
-	} 
+	}
 	else if (!HoldComponent->IsHolding())
 	{
 		BWarn("Not Holding Item!");
@@ -54,8 +54,11 @@ void UThrowComponent_B::BeginPlay()
 	OwningPlayer = Cast<APlayerCharacter_B>(GetOwner());
 
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->SpawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
-	GameMode->DespawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
+	if (GameMode)
+	{
+		GameMode->SpawnCharacter_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
+		GameMode->DespawnCharacter_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
+	}
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
@@ -117,7 +120,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 	return true;
 }
-void UThrowComponent_B::OneCharacterChanged()
+void UThrowComponent_B::OneCharacterChanged(APlayerController_B* PlayerController)
 {
 	/// Finds all characters
 	OtherPlayers.Empty();

@@ -7,6 +7,7 @@
 #include "ThrowComponent_B.generated.h"
 
 class APlayerCharacter_B;
+class APlayerController_B;
 class AGameMode_B;
 class UHoldComponent_B;
 
@@ -33,7 +34,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OneCharacterChanged();
+	void OneCharacterChanged(APlayerController_B* PlayerController);
 
 
 
