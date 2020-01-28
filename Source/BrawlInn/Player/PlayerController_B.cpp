@@ -46,6 +46,8 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
 		InputComponent->BindAction("DEBUG_TEST01", IE_Pressed, this, &APlayerController_B::DEBUG_TEST01);
 
+		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
+
 	}
 }
 
@@ -145,6 +147,15 @@ void APlayerController_B::PunchButtonPressed()
 		PlayerCharacter->PunchButtonPressed();
 	else
 		PlayerCharacter->ThrowComponent->TryThrow();
+}
+
+void APlayerController_B::BreakFreeButtonPressed()
+{
+	if (!PlayerCharacter)
+		return;
+
+	if (PlayerCharacter->GetState() == EState::EBeingHeld)
+		PlayerCharacter->BreakFreeButtonMash();
 }
 
 void APlayerController_B::TakeOneDamage_Implementation()

@@ -86,15 +86,18 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
+	else if (GetState() == EState::EBeingHeld)
+	{
+		CurrentHoldTime += DeltaTime;
+		if (CurrentHoldTime >= MaxHoldTime)
+			BreakFree();
+	}
 	else
 	{
 		CheckFall(DeltaTime);
 		if (!(GetState() == EState::EStunned))
 		{
-			if (GetState() == EState::EWalking)
-				HandleMovement(DeltaTime);
-			else if (GetState() == EState::EHolding)
-				HandleMovementHold();
+			HandleMovement(DeltaTime);
 			HandleRotation(DeltaTime);
 		}
 	}
@@ -163,7 +166,6 @@ void APlayerCharacter_B::UpdateHealthRotation()
 
 	HealthWidget->RelativeLocation.Z = posZ;
 	HealthWidget->SetDrawSize(DrawSize);
-
 }
 
 void APlayerCharacter_B::HandleRotation(float DeltaTime)
@@ -174,8 +176,6 @@ void APlayerCharacter_B::HandleRotation(float DeltaTime)
 
 void APlayerCharacter_B::HandleMovement(float DeltaTime)
 {
-	//shouldnt set this each tick
-
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -190,15 +190,6 @@ void APlayerCharacter_B::CheckFall(float DeltaTime)
 		Fall(PunchedRecoveryTime);
 		MakeInvulnerable(InvulnerabilityTime + PunchedRecoveryTime);
 	}
-}
-
-void APlayerCharacter_B::HandleMovementHold()
-{
-	//Shouldnt set this each tick
-
-	if (InputVector.SizeSquared() >= 1.f)
-		InputVector.Normalize();
-	GetCharacterMovement()->AddInputVector(InputVector);
 }
 
 void APlayerCharacter_B::Fall(float RecoveryTime)
@@ -294,11 +285,20 @@ void APlayerCharacter_B::AddStun()
 	}
 }
 
+void APlayerCharacter_B::RemoveStun()
+{
+	if (GetState() == EState::EStunned)
+	{
+		SetState(EState::EWalking);
+	}
+	StunAmount = 0;
+}
+
 void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 {
 	HoldingPlayer = Player;
 	GetMovementComponent()->StopMovementImmediately();
-	SetState(EState::EHolding);
+	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_RecoverTimer);
 	GetMesh()->SetSimulatePhysics(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -308,10 +308,6 @@ void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 	GetCharacterMovement()->StopActiveMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 	SetActorRotation(FRotator(-90, 0, 90));
-
-	//(Pitch = -87.891403, Yaw = -7.461156, Roll = 96.832733)
-
-	//(Pitch = -88.837349, Yaw = 37.917442, Roll = 50.508533)
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
@@ -322,6 +318,7 @@ void APlayerCharacter_B::Dropped_Implementation()
 	GetMesh()->SetSimulatePhysics(true);
 	HoldingPlayer = nullptr;
 	SetActorRotation(FRotator(0, 0, 0));
+	CurrentHoldTime = 0.f;
 }
 
 void APlayerCharacter_B::Use_Implementation()
@@ -365,16 +362,6 @@ bool APlayerCharacter_B::IsHeld_Implementation() const
 	if (HoldingPlayer)
 		return true;
 	return false;
-}
-
-
-void APlayerCharacter_B::RemoveStun()
-{
-	if (GetState() == EState::EStunned)
-	{
-		SetState(EState::EWalking);
-	}
-	StunAmount = 0;
 }
 
 APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
@@ -421,6 +408,34 @@ void APlayerCharacter_B::PunchButtonPressed()
 	else
 	{
 		BError("No Punch Component for player %s", *GetNameSafe(this));
+	}
+}
+
+void APlayerCharacter_B::BreakFreeButtonMash()
+{
+	CurrentHoldTime += 0.01;
+}
+
+void APlayerCharacter_B::BreakFree()
+{
+	//Detaches usselves from the other player
+	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(rules);
+	SetActorRotation(FRotator(0, 0, 0));
+
+	//Moves forward a bit before turning on collisions, so we dont fly6 to hell because we overlap with the other player
+	if (HoldingPlayer)
+		AddActorLocalOffset(HoldingPlayer->GetActorForwardVector() * 100);
+	StandUp();
+
+	CurrentHoldTime = 0.f;
+	//Fixes up the other player
+	if (HoldingPlayer)
+	{
+		HoldingPlayer->HoldComponent->SetHoldingItem(nullptr);
+		HoldingPlayer->AddStun();
+		HoldingPlayer->AddStun();
+		HoldingPlayer = nullptr;
 	}
 }
 

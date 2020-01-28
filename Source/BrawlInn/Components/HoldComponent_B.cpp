@@ -6,6 +6,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "Components/PunchComponent_B.h"
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Items/Throwable_B.h"
 #include "Player/PlayerCharacter_B.h"
@@ -35,6 +36,7 @@ bool UHoldComponent_B::TryPickup()
 	if (!(OwningPlayer->GetState() == EState::EWalking)) return false;
 	if (HoldingItem) return false;
 	if (ThrowableItemsInRange.Num() == 0) return false;
+	if (OwningPlayer->PunchComponent->bIsPunching) return false;
 	//Should only be able
 
 	FVector PlayerLocation = OwningPlayer->GetMesh()->GetComponentLocation();

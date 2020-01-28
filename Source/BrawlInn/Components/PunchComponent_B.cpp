@@ -182,7 +182,6 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 
 	if (!bHasHit && OtherActor != GetOwner())
 	{
-		BWarn("PunchComponent hit: %s ", *GetNameSafe(OtherActor))
 		if (OtherPlayer != nullptr && Capsule != nullptr)
 			PunchHit(OtherPlayer);
 		else
