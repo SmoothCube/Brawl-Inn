@@ -96,6 +96,17 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
+	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(NearestItem);
+	if (Player)
+	{
+		if ((Player->GetState() == EState::EFallen || Player->GetState() == EState::EStunned) && !Player->IsInvulnerable())
+		{
+			Pickup(NearestItem);
+			return true;
+		}
+		return false;
+	}
+
 	Pickup(NearestItem);
 	return true;
 }

@@ -42,7 +42,6 @@ void ACameraTrackingBox_B::BeginPlay()
 
 void ACameraTrackingBox_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	BWarn("Overlapping with %s", *GetNameSafe(OtherActor));
 
 	APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(OtherActor);
 	if (Character)
@@ -52,15 +51,10 @@ void ACameraTrackingBox_B::OnBeginOverlap(AActor* OverlappedActor, AActor* Other
 		else
 			BWarn("Cant Find Player Controller");
 	}
-	else
-	{
-		BWarn("Cant find character");
-	}
 }
 
 void ACameraTrackingBox_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	BWarn("End Overlap with %s", *GetNameSafe(OtherActor));
 
 	APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(OtherActor);
 	if (Character && Character->GetPlayerController_B())

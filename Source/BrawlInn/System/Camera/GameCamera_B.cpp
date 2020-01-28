@@ -77,10 +77,9 @@ void AGameCamera_B::UpdateCamera()
 	{
 		if (!Controller->HasValidCharacter())
 		{
-			BWarn("Controller has no valid character!!");
+			//BWarn("Controller has no valid character!!");
 			continue;
 		}
-		BWarn("Players in box: %d", TrackingBox->PlayerControllers.Num());
 
 		FVector PlayerMeshLocation = Controller->PlayerCharacter->GetMesh()->GetComponentLocation();
 		sum += PlayerMeshLocation;
