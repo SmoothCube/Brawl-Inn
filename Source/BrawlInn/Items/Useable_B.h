@@ -23,7 +23,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* NiagaraSystemComponent;
-	
+
 	// ** Overridden functions **
 
 	virtual void PickedUp_Implementation(APlayerCharacter_B* Player) override;
@@ -36,6 +36,9 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Juice")
 		USoundCue* DrinkSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+		float Duration = 5;
 };
