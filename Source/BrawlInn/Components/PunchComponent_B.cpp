@@ -102,7 +102,7 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
 	//has the invulnerability check here to be able to do other stuff when you hit someone invulnerable
-	if (!OtherPlayer->bIsInvulnerable)
+	if (!OtherPlayer->bIsInvulnerable || !OtherPlayer->bHasShield)
 	{
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),Player);
 		Player->StunStrength = 1; // This ends the effect after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
@@ -148,6 +148,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, APlayerCharacter_B* 
 	//Player->Fall();
 	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
 	Player->AddStun(PlayerThatPunched->StunStrength);
+	Player->RemoveShield();
 	//Was there a reason there were two of these???
 	//	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
 }

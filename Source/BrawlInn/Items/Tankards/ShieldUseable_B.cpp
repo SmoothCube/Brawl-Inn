@@ -2,12 +2,20 @@
 
 
 #include "ShieldUseable_B.h"
-
+#include "Player/PlayerCharacter_B.h"
 #include "BrawlInn.h"
 
 void AShieldUseable_B::Use_Implementation()
 {
-	Super::Use_Implementation();
+	Character = Cast<APlayerCharacter_B>(GetAttachParentActor());
+	if (!Character) { BWarn("Could not find player while using, something is wrong! ABORT!"); return; }
 
-	BScreen("Shield");
+	Character->ApplyShield();
+
+	Super::Use_Implementation();
+}
+
+void AShieldUseable_B::ResetBoost()
+{
+	Character->RemoveShield();
 }

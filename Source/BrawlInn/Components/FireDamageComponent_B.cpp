@@ -47,7 +47,7 @@ void UFireDamageComponent_B::StopFireDamage()
 
 void UFireDamageComponent_B::TakeFireDamage()
 {
-	if (OwningPlayer && OwningPlayer->IsInvulnerable()) return;
+	if (OwningPlayer && (OwningPlayer->IsInvulnerable() || OwningPlayer->bHasShield)) return;
 
 	FireHealthAmount -= FireDamagePerTick;
 
