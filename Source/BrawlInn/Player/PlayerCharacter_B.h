@@ -140,9 +140,6 @@ protected:
 	float PunchedRecoveryTime= 4.0;					//For when an external force made the character fall. Name is a bit misleading
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float TimeBeforeFall = 1.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables")
 	float FallLimitMultiplier = 3.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
@@ -179,8 +176,6 @@ private:
 	FTimerHandle TH_InvincibilityTimer;
 	FTimerHandle TH_StunTimer;
 	
-	float CurrentFallTime = 0.f;
-
 	float NormalMaxWalkSpeed;
 	
 	APlayerController_B* PlayerController = nullptr;

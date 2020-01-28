@@ -112,7 +112,6 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	if (!OtherPlayer->bIsInvulnerable)
 	{
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OtherPlayer);
-		Player->CurrentFallTime = 0.f;
 		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
 			
@@ -129,10 +128,11 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 {
 	if (!OtherComp) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
-
-	Player->CurrentFallTime = 0.f;
-	Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-	OtherComp->AddImpulse(CalculatePunchStrenght());
+	if (OtherComp->IsSimulatingPhysics())
+	{
+		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+		OtherComp->AddImpulse(CalculatePunchStrenght());
+	}
 	bHasHit = true;
 
 }
@@ -182,6 +182,7 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 
 	if (!bHasHit && OtherActor != GetOwner())
 	{
+		BWarn("PunchComponent hit: %s ", *GetNameSafe(OtherActor))
 		if (OtherPlayer != nullptr && Capsule != nullptr)
 			PunchHit(OtherPlayer);
 		else
