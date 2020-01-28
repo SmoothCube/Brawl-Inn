@@ -134,9 +134,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;
-
-	void SetState(EState s);
-	EState GetState() const;
 	
 	//The longest amount of time this character can be held
 	UPROPERTY(EditAnywhere, Category = "Variables")
