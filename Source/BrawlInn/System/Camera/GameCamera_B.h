@@ -8,8 +8,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class APlayerController_B;
-class ACameraTrackingBox_B;
+class APlayerCharacter_B;
+class ATriggerBox;
 
 UCLASS()
 class BRAWLINN_API AGameCamera_B : public AActor
@@ -53,11 +53,11 @@ protected:
 		float MinCameraHeight = 0.f;
 private:
 
-	TArray<APlayerController_B*> PlayerControllers;
+	TArray<APlayerCharacter_B*> PlayerCharacters;
 
 	void UpdateCamera();
 
 	void SetSpringArmLength(float distanceToFurthestPlayer);
 
-	ACameraTrackingBox_B* TrackingBox = nullptr;
+	ATriggerBox* TrackingBox = nullptr;
 };

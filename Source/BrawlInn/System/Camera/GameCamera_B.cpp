@@ -8,16 +8,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "BrawlInn.h"
+#include "Engine/TriggerBox.h"
 
 #include "Player/PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "System/Camera/CameraTrackingBox_B.h"
 
-// Sets default values
 AGameCamera_B::AGameCamera_B()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	Scene = CreateDefaultSubobject<USceneComponent>("Scene");
@@ -38,17 +36,9 @@ void AGameCamera_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/// Find all PlayerControllers and cache them. Uses PlayerControllers since characters havent spawned yet(?)
-	TArray<AActor*> TempPlayerControllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), TempPlayerControllers);
-	for (const auto& Controller : TempPlayerControllers)
-	{
-		PlayerControllers.Add(Cast<APlayerController_B>(Controller));
-	}
-
-	//TrackingBox
-	TrackingBox = Cast<ACameraTrackingBox_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ACameraTrackingBox_B::StaticClass()));
-//	Box->GetOverlappingActors()
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
+	TrackingBox = Cast<ATriggerBox>(Actors[0]);
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -61,36 +51,38 @@ void AGameCamera_B::Tick(float DeltaTime)
 
 void AGameCamera_B::UpdateCamera()
 {
-	if (PlayerControllers.Num() == 0)
+	if (!TrackingBox)
+	{
+		BWarn("CameraTrackingBox not found!");
 		return;
+	}
+
+	TArray<AActor*> TempArray;
+	TrackingBox->GetOverlappingActors(TempArray, APlayerCharacter_B::StaticClass());
 
 	FVector sum = FVector::ZeroVector;
 	float distanceToFurthestPlayer = 0.f;
 	int ActivePlayers = 0;
-	if (!TrackingBox)
-	{
-		BWarn("CameraTrackingBox not found!"); 
-		return;
-	}
+	PlayerCharacters.Empty();
 
-	for (const auto Controller : PlayerControllers)
+	for (const auto& Actor : TempArray)
 	{
-		if (!Controller->HasValidCharacter())
-		{
-			BWarn("Controller has no valid character!!");
+		APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(Actor);
+		if (!Character || !Character->GetPlayerController_B())
 			continue;
-		}
-		BWarn("Players in box: %d", TrackingBox->PlayerControllers.Num());
 
-		FVector PlayerMeshLocation = Controller->PlayerCharacter->GetMesh()->GetComponentLocation();
+		if (Character->GetPlayerController_B())
+		{
+			PlayerCharacters.Add(Character);
+		}
+
+		FVector PlayerMeshLocation = Character->GetMesh()->GetComponentLocation();
 		sum += PlayerMeshLocation;
 		ActivePlayers++;
 
 		float distance = FVector::Dist(PlayerMeshLocation, GetActorLocation());
 		if (distance > distanceToFurthestPlayer)
 			distanceToFurthestPlayer = distance;
-
-		//BWarn("PlayerMeshLocation: %s , distance: %f", *PlayerMeshLocation.ToString(), distance);
 
 	}
 	if (ActivePlayers != 0)
@@ -110,18 +102,15 @@ void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
 {
 	float longestVector = 0.f;
 
-	for (int i = 0; i < PlayerControllers.Num(); i++)
+	for (int i = 0; i < PlayerCharacters.Num(); i++)
 	{
-		for (int j = i + 1; j < PlayerControllers.Num(); j++)
+		for (int j = i + 1; j < PlayerCharacters.Num(); j++)
 		{
-			if (PlayerControllers.IsValidIndex(i) && PlayerControllers.IsValidIndex(j))
+			if (PlayerCharacters.IsValidIndex(i) && PlayerCharacters.IsValidIndex(j))
 			{
-				if (PlayerControllers[i]->HasValidCharacter() && PlayerControllers[j]->HasValidCharacter())
-				{
-					float Temp = FMath::Abs((PlayerControllers[i]->PlayerCharacter->GetMesh()->GetComponentLocation() - PlayerControllers[j]->PlayerCharacter->GetMesh()->GetComponentLocation()).X);
-					if (longestVector < Temp)
-						longestVector = Temp;
-				}
+				float Temp = FMath::Abs((PlayerCharacters[i]->GetMesh()->GetComponentLocation() - PlayerCharacters[j]->GetMesh()->GetComponentLocation()).X);
+				if (longestVector < Temp)
+					longestVector = Temp;
 			}
 		}
 	}
