@@ -6,6 +6,8 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
+#include "Components/DecalComponent.h"
+#include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "BrawlInn.h"
 
 #include "Player/PlayerCharacter_B.h"
@@ -27,5 +29,7 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 	float Radius = 500.f;
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), 0, GetActorLocation(), Radius, BP_DamageType, {}, this);
 	DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 10, FColor::Red, false, 2.f);
+	if (Target)
+		Target->SetActorHiddenInGame(true);
 	Destroy();
 }

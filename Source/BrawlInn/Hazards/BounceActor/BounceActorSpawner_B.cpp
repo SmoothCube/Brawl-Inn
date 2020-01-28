@@ -10,6 +10,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Components/DecalComponent.h"
+#include "BrawlInn.h"
 
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
@@ -41,13 +42,14 @@ void ABounceActorSpawner_B::SpawnBounceActor()
 	FVector LaunchVel = FVector::ZeroVector;
 	if (BouncePoints.IsValidIndex(NextPath) && BouncePoints[NextPath])
 	{
-		BouncePoints[NextPath]->Decal->SetActive(true, true);
+		NewBounceActor->Target = BouncePoints[NextPath];
+		BouncePoints[NextPath]->SetActorHiddenInGame(false);
+		BWarn("Setting hidden false");
 		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), BouncePoints[NextPath]->GetActorLocation(), 0.0f, 0.5f);
 	}
 	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
 
 	
-
 	//cycles through the different paths instead of random spawning
 	NextPath++;
 	if (NextPath >= BouncePoints.Num())

@@ -14,9 +14,10 @@ UCLASS()
 class BRAWLINN_API ABarrelTargetPoint_B : public ATargetPoint
 {
 	GENERATED_BODY()
-
-	ABarrelTargetPoint_B();
 public:
+	ABarrelTargetPoint_B();
+	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UDecalComponent* Decal;
 };
