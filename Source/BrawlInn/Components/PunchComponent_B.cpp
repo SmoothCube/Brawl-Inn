@@ -105,7 +105,7 @@ void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
 	if (!OtherPlayer->bIsInvulnerable)
 	{
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),Player);
-		Player->StunStrength = 1;
+		Player->StunStrength = 1; // This ends the effect after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
 		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
 			
