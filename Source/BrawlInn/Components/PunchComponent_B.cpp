@@ -37,9 +37,9 @@ void UPunchComponent_B::PunchStart()
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	//Thought this would fix bug #39
-	TArray<UPrimitiveComponent*> OverlappingComponents;
-	GetOverlappingComponents(OverlappingComponents);
-	for (auto& comp : OverlappingComponents)
+	TArray<UPrimitiveComponent*> OurOverlappingComponents;
+	GetOverlappingComponents(OurOverlappingComponents);
+	for (auto& comp : OurOverlappingComponents)
 	{
 		AActor* OtherActor = comp->GetOwner();
 		APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);

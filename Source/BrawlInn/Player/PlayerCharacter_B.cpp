@@ -164,7 +164,9 @@ void APlayerCharacter_B::UpdateHealthRotation()
 	DrawSize.X = size * 4;
 	DrawSize.Y = size * 4;
 
-	HealthWidget->RelativeLocation.Z = posZ;
+	FVector Location = HealthWidget->GetRelativeLocation();
+	Location.Z = posZ;
+	HealthWidget->SetRelativeLocation(Location);
 	HealthWidget->SetDrawSize(DrawSize);
 }
 
