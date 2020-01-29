@@ -61,7 +61,7 @@ void ARespawnPawn_B::ThrowBarrel()
 		if (GameMode)
 		{
 			APlayerController_B* PlayerController = Cast<APlayerController_B>(GetController());
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController);
+			//GameMode->SpawnCharacter_D.Broadcast(PlayerController, true, TRANSFORMHERE);
 		}
 		else
 		{

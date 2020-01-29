@@ -47,8 +47,10 @@ public:
 
 	virtual void TakeOneDamage_Implementation() override;
 
+	// DEBUG
 	void DEBUG_TEST01();
-
+	void DEBUG_Spawn();
+	void DEBUG_Despawn();
 
 private:
 

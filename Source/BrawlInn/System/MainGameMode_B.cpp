@@ -27,7 +27,7 @@ void AMainGameMode_B::BeginPlay()
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", ID); continue; }
 
-		SpawnCharacter_D.Broadcast(PlayerController);
+		SpawnCharacter_D.Broadcast(PlayerController,false,FTransform());
 
 	}
 
