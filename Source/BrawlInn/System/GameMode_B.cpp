@@ -45,13 +45,13 @@ void AGameMode_B::CreatePlayerControllers()
 }
 
 // ---------------- Spawn PlayerCharacter functions --------------------------
-void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController)
+void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool ShouldUseVector, FTransform SpawnTransform)
 {
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
 		Pawn->Destroy();
-		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, GetRandomSpawnTransform());
+		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
 		PlayerController->RespawnPawn = nullptr;
 		PlayerController->PlayerCharacter = Character;
@@ -66,10 +66,10 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 	if (IsValid(Pawn))
 	{
 		Pawn->Destroy();
-		ARespawnPawn_B* Pawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
-		PlayerController->Possess(Pawn);
+		ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
+		PlayerController->Possess(RespawnPawn);
 		PlayerController->PlayerCharacter = nullptr;
-		PlayerController->RespawnPawn = Pawn;
+		PlayerController->RespawnPawn = RespawnPawn;
 		UpdateViewTarget(PlayerController);
 		DespawnCharacter_NOPARAM_D.Broadcast();
 	}

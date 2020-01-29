@@ -45,9 +45,13 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
 
 		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
+		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
+
+		// Debug
+		InputComponent->BindAction("DEBUG_Spawn", IE_Pressed, this, &APlayerController_B::DEBUG_Spawn);
+		InputComponent->BindAction("DEBUG_Despawn", IE_Pressed, this, &APlayerController_B::DEBUG_Despawn);
 		InputComponent->BindAction("DEBUG_TEST01", IE_Pressed, this, &APlayerController_B::DEBUG_TEST01);
 
-		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
 
 	}
 }
@@ -183,5 +187,23 @@ void APlayerController_B::DEBUG_TEST01()
 	{
 		if (GameMode->OnPlayerWin.IsBound())
 			GameMode->OnPlayerWin.Execute(this);
+	}
+}
+
+void APlayerController_B::DEBUG_Spawn()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->SpawnCharacter_D.Broadcast(this, false, FTransform());
+	}
+}
+
+void APlayerController_B::DEBUG_Despawn()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->DespawnCharacter_D.Broadcast(this);
 	}
 }
