@@ -70,12 +70,12 @@ void AGameCamera_B::UpdateCamera()
 	int ActivePlayers = 0;
 	PlayerCharacters.Empty();
 	TArray<USceneComponent*> CompsToRemove;
-	for (const auto& Actor : ComponentsToTrack)
+	for (const auto& Comp : ComponentsToTrack)
 	{
-		if (!IsValid(Actor))
+		if (!IsValid(Comp))
 		{
 			BWarn("Invalid component in camera!");
-			CompsToRemove.Add(Actor);
+			CompsToRemove.Add(Comp);
 			continue;
 		}
 	//{
@@ -88,7 +88,7 @@ void AGameCamera_B::UpdateCamera()
 	//		PlayerCharacters.Add(Character);
 	//	}
 
-		FVector PlayerMeshLocation = Actor->GetComponentLocation();
+		FVector PlayerMeshLocation = Comp->GetComponentLocation();
 		sum += PlayerMeshLocation;
 		ActivePlayers++;
 
@@ -146,6 +146,7 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 {
 	BWarn("Removing Component!");
 	//The right component doesnt neccesarily run on overlap end
+	//GetComponents returns UActorComponent, which inherits from USceneComponent. Cast should always be safe. 
 	for(auto& comp : OtherActor->GetComponents())
 		ComponentsToTrack.Remove(Cast<USceneComponent>(comp));
 		
