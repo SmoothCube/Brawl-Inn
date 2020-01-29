@@ -439,7 +439,7 @@ void ACharacter_B::BreakFree()
 	if (HoldingPlayer)
 	{
 		HoldingPlayer->HoldComponent->SetHoldingItem(nullptr);
-		HoldingPlayer->AddStun();
+		HoldingPlayer->AddStun(PunchesToStun);
 		HoldingPlayer = nullptr;
 	}
 }
