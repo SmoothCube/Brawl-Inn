@@ -10,7 +10,7 @@
 class UCapsuleComponent;
 class UNiagaraSystem;
 class UDamageType;
-class APlayerCharacter_B;
+class ACharacter_B;
 
 UCLASS(DontCollapseCategories)
 class BRAWLINN_API AItem_B : public AActor, public IThrowableInterface_B
@@ -47,6 +47,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Juice")
 		UNiagaraSystem* PS_OnDestroy;
 
-	APlayerCharacter_B* OwningPlayer = nullptr;
+	ACharacter_B* OwningPlayer = nullptr;
 
 };

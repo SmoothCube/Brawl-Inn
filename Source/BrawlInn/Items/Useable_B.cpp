@@ -32,7 +32,7 @@ AUseable_B::AUseable_B()
 
 }
 
-void AUseable_B::PickedUp_Implementation(APlayerCharacter_B* Player)
+void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

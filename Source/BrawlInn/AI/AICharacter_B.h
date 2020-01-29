@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "System/BaseActors/Character_B.h"
-#include "PlayerCharacter_B.generated.h"
+#include "AICharacter_B.generated.h"
 
 UCLASS()
-class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
+class BRAWLINN_API AAICharacter_B : public ACharacter_B
 {
 	GENERATED_BODY()
-
+	
 };
