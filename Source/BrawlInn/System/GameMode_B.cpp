@@ -4,9 +4,12 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "Components/DecalComponent.h"
 #include "BrawlInn.h"
+
 #include "System/InitPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
+#include "System/MainGameMode_B.h"
 #include "Player/PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
 #include "Player/RespawnPawn_B.h"
@@ -55,6 +58,16 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 		PlayerController->Possess(Character);
 		PlayerController->RespawnPawn = nullptr;
 		PlayerController->PlayerCharacter = Character;
+		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+		if (MainMode)
+		{
+			USceneComponent* Mesh = Cast<USceneComponent>(Character->GetMesh());
+			if (Mesh)
+				MainMode->AddCameraFocusPoint(Mesh);
+			else
+				BWarn("Cannot Find Mesh");
+
+		}
 		UpdateViewTarget(PlayerController);
 		SpawnCharacter_NOPARAM_D.Broadcast();
 	}
@@ -70,6 +83,16 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 		PlayerController->Possess(RespawnPawn);
 		PlayerController->PlayerCharacter = nullptr;
 		PlayerController->RespawnPawn = RespawnPawn;
+		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+		if (MainMode)
+		{
+			USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
+			if (Decal)
+				MainMode->AddCameraFocusPoint(Decal);
+			else
+				BWarn("Cannot Find Decal");
+
+		}
 		UpdateViewTarget(PlayerController);
 		DespawnCharacter_NOPARAM_D.Broadcast();
 	}

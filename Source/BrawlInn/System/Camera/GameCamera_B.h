@@ -41,6 +41,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float LargestSpringArmLength = 2500.f;
 
+	TArray<USceneComponent*> ComponentsToTrack;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
@@ -53,11 +55,17 @@ protected:
 		float MinCameraHeight = 0.f;
 private:
 
+	//TPair<AActor*, FVector*> ActorsToTrack;
+
 	TArray<APlayerCharacter_B*> PlayerCharacters;
 
 	void UpdateCamera();
 
 	void SetSpringArmLength(float distanceToFurthestPlayer);
 
+	UFUNCTION()
+	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 	ATriggerBox* TrackingBox = nullptr;
+
 };

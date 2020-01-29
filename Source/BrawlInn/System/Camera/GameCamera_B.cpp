@@ -4,11 +4,12 @@
 #include "GameCamera_B.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/ShapeComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "BrawlInn.h"
 #include "Engine/TriggerBox.h"
+#include "BrawlInn.h"
 
 #include "Player/PlayerController_B.h"
 #include "Player/PlayerCharacter_B.h"
@@ -39,6 +40,10 @@ void AGameCamera_B::BeginPlay()
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
 	TrackingBox = Cast<ATriggerBox>(Actors[0]);
+	if (TrackingBox)
+	{
+		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AGameCamera_B::OnTrackingBoxEndOverlap);
+	}
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -64,19 +69,26 @@ void AGameCamera_B::UpdateCamera()
 	float distanceToFurthestPlayer = 0.f;
 	int ActivePlayers = 0;
 	PlayerCharacters.Empty();
-
-	for (const auto& Actor : TempArray)
+	TArray<USceneComponent*> CompsToRemove;
+	for (const auto& Actor : ComponentsToTrack)
 	{
-		APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(Actor);
-		if (!Character || !Character->GetPlayerController_B())
-			continue;
-
-		if (Character->GetPlayerController_B())
+		if (!IsValid(Actor))
 		{
-			PlayerCharacters.Add(Character);
+			BWarn("Invalid component in camera!");
+			CompsToRemove.Add(Actor);
+			continue;
 		}
+	//{
+	//	APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(Actor);
+	//	if (!Character || !Character->GetPlayerController_B())
+	//		continue;
 
-		FVector PlayerMeshLocation = Character->GetMesh()->GetComponentLocation();
+	//	if (Character->GetPlayerController_B())
+	//	{
+	//		PlayerCharacters.Add(Character);
+	//	}
+
+		FVector PlayerMeshLocation = Actor->GetComponentLocation();
 		sum += PlayerMeshLocation;
 		ActivePlayers++;
 
@@ -85,6 +97,9 @@ void AGameCamera_B::UpdateCamera()
 			distanceToFurthestPlayer = distance;
 
 	}
+	for (auto& Comp : CompsToRemove)
+		ComponentsToTrack.Remove(Comp);
+
 	if (ActivePlayers != 0)
 		sum /= ActivePlayers;
 
@@ -125,4 +140,15 @@ void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
 		SpringArm->TargetArmLength = LargestSpringArmLength;
 	else
 		SpringArm->TargetArmLength = newTargetLength;
+}
+
+void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	BWarn("Removing Component!");
+	//The right component doesnt neccesarily run on overlap end
+	for(auto& comp : OtherActor->GetComponents())
+		ComponentsToTrack.Remove(Cast<USceneComponent>(comp));
+		
+		//USceneComponen
+	
 }
