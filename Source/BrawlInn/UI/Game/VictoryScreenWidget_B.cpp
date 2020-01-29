@@ -5,7 +5,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerController_B.h"
 
 
 bool UVictoryScreenWidget_B::Initialize()

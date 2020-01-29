@@ -8,7 +8,7 @@
 #include "TimerManager.h"
 #include "BrawlInn.h"
 
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerController_B.h"
 #include "System/GameMode_B.h"
 #include "Hazards/BounceActor/BounceActorSpawner_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"

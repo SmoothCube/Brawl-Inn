@@ -9,7 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "BrawlInn.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 
 // Sets default values

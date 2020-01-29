@@ -7,12 +7,13 @@
 #include "Components/DecalComponent.h"
 #include "BrawlInn.h"
 
-#include "System/InitPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/MainGameMode_B.h"
-#include "Player/PlayerController_B.h"
-#include "Player/PlayerCharacter_B.h"
-#include "Player/RespawnPawn_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "Characters/Player/InitPawn_B.h"
+#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 
 void AGameMode_B::BeginPlay()
 {

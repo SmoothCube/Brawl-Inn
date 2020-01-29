@@ -5,8 +5,8 @@
 #include "BrawlInn.h"
 
 #include "PlayerController_B.h"
-#include "Player/PlayerCharacter_B.h"
-#include "Player/RespawnPawn_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/CharacterSelectionComponent_B.h"

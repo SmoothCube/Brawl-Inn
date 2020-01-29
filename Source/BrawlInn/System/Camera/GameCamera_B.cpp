@@ -11,8 +11,8 @@
 #include "Engine/TriggerBox.h"
 #include "BrawlInn.h"
 
-#include "Player/PlayerController_B.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
 AGameCamera_B::AGameCamera_B()

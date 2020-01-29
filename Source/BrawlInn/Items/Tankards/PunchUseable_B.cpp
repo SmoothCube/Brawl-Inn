@@ -2,7 +2,7 @@
 
 #include "PunchUseable_B.h"
 #include "BrawlInn.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 
 APunchUseable_B::APunchUseable_B()
 {
