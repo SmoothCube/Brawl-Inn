@@ -26,7 +26,7 @@ public:
 
 	// ** Overridden functions **
 
-	virtual void PickedUp_Implementation(APlayerCharacter_B* Player) override;
+	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
 

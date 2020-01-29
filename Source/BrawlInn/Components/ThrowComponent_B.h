@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ThrowComponent_B.generated.h"
 
-class APlayerCharacter_B;
+class ACharacter_B;
 class AGameMode_B;
 class UHoldComponent_B;
 
@@ -47,9 +47,9 @@ protected:
 private:
 	bool bIsThrowing = false;
 
-	TArray<APlayerCharacter_B*> OtherPlayers;
+	TArray<ACharacter_B*> OtherPlayers;
 
 	AGameMode_B* GameMode = nullptr;
 	UHoldComponent_B* HoldComponent = nullptr;
-	APlayerCharacter_B* OwningPlayer = nullptr;
+	ACharacter_B* OwningPlayer = nullptr;
 };

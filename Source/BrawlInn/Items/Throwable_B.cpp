@@ -13,7 +13,7 @@
 #include "Player/PlayerCharacter_B.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-void AThrowable_B::PickedUp_Implementation(APlayerCharacter_B* Player)
+void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
