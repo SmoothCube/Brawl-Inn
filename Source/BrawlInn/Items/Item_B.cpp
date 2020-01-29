@@ -6,7 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 
 AItem_B::AItem_B()
 {

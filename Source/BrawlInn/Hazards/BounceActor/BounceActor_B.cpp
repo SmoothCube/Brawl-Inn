@@ -7,7 +7,7 @@
 #include "DrawDebugHelpers.h"
 #include "BrawlInn.h"
 
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 
 ABounceActor_B::ABounceActor_B()
 {

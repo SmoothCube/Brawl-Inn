@@ -19,7 +19,7 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"

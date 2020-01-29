@@ -7,7 +7,7 @@
 #include "BrawlInn.h"
 
 #include "System/Camera/GameCamera_B.h"
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"

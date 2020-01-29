@@ -3,7 +3,7 @@
 
 #include "ReadyTrigger_B.h"
 #include "BrawlInn.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "System/MenuGameMode_B.h"
