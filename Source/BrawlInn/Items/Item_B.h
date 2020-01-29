@@ -26,6 +26,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UCapsuleComponent* PickupCapsule;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		TSubclassOf<UDamageType> BP_DamageType;
+
 protected:
 	// ** Overridden functions ** 
 	virtual void BeginPlay() override;
