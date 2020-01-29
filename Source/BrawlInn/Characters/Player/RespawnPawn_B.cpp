@@ -46,27 +46,34 @@ void ARespawnPawn_B::ThrowBarrel()
 		ABounceActorSpawner_B* BarrelSpawner = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
 
 		Barrel = BarrelSpawner->SpawnBounceActor(GetActorLocation());
-		GetWorld()->GetTimerManager().ClearTimer(TH_ThrowTimer);
+		GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilThrow);
 	
 		bBarrelIsThrown = true;
 	}
-	else
+	else if(!bHasRespawned)
 	{
+		GetWorld()->GetTimerManager().ClearTimer(TH_ThrowTimer);
+
+		FVector SpawnLocation;
+		bool bUseRandomSpawn = false;
 		if (Barrel)
 		{
+			SpawnLocation = Barrel->GetActorLocation();
 			Barrel->Destroy();
+			bUseRandomSpawn = false;
 		}
 
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
 			APlayerController_B* PlayerController = Cast<APlayerController_B>(GetController());
-			//GameMode->SpawnCharacter_D.Broadcast(PlayerController, true, TRANSFORMHERE);
+			GameMode->SpawnCharacter_D.Broadcast(PlayerController, bUseRandomSpawn, FTransform(SpawnLocation));
 		}
 		else
 		{
 			BError("GameMode Could Not Be Found!");
 		}
+		bHasRespawned = true;
 	}
 
 }

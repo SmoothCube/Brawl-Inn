@@ -57,8 +57,6 @@ private:
 
 	//TPair<AActor*, FVector*> ActorsToTrack;
 
-	TArray<APlayerCharacter_B*> PlayerCharacters;
-
 	void UpdateCamera();
 
 	void SetSpringArmLength(float distanceToFurthestPlayer);

@@ -68,8 +68,10 @@ void AGameCamera_B::UpdateCamera()
 	FVector sum = FVector::ZeroVector;
 	float distanceToFurthestPlayer = 0.f;
 	int ActivePlayers = 0;
-	PlayerCharacters.Empty();
+
+	//Cleanup in case some components dont get removed properly
 	TArray<USceneComponent*> CompsToRemove;
+
 	for (const auto& Comp : ComponentsToTrack)
 	{
 		if (!IsValid(Comp))
@@ -78,15 +80,6 @@ void AGameCamera_B::UpdateCamera()
 			CompsToRemove.Add(Comp);
 			continue;
 		}
-	//{
-	//	APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(Actor);
-	//	if (!Character || !Character->GetPlayerController_B())
-	//		continue;
-
-	//	if (Character->GetPlayerController_B())
-	//	{
-	//		PlayerCharacters.Add(Character);
-	//	}
 
 		FVector PlayerMeshLocation = Comp->GetComponentLocation();
 		sum += PlayerMeshLocation;
@@ -117,13 +110,13 @@ void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
 {
 	float longestVector = 0.f;
 
-	for (int i = 0; i < PlayerCharacters.Num(); i++)
+	for (int i = 0; i < ComponentsToTrack.Num(); i++)
 	{
-		for (int j = i + 1; j < PlayerCharacters.Num(); j++)
+		for (int j = i + 1; j < ComponentsToTrack.Num(); j++)
 		{
-			if (PlayerCharacters.IsValidIndex(i) && PlayerCharacters.IsValidIndex(j))
+			if (ComponentsToTrack.IsValidIndex(i) && ComponentsToTrack.IsValidIndex(j))
 			{
-				float Temp = FMath::Abs((PlayerCharacters[i]->GetMesh()->GetComponentLocation() - PlayerCharacters[j]->GetMesh()->GetComponentLocation()).X);
+				float Temp = FMath::Abs((ComponentsToTrack[i]->GetComponentLocation() - ComponentsToTrack[j]->GetComponentLocation()).X);
 				if (longestVector < Temp)
 					longestVector = Temp;
 			}
@@ -149,7 +142,4 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 	//GetComponents returns UActorComponent, which inherits from USceneComponent. Cast should always be safe. 
 	for(auto& comp : OtherActor->GetComponents())
 		ComponentsToTrack.Remove(Cast<USceneComponent>(comp));
-		
-		//USceneComponen
-	
 }
