@@ -185,8 +185,7 @@ void APlayerController_B::DEBUG_TEST01()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		if (GameMode->OnPlayerWin.IsBound())
-			GameMode->OnPlayerWin.Execute(this);
+		GameMode->OnPlayerWin.Broadcast(this);
 	}
 }
 

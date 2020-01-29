@@ -6,13 +6,11 @@
 #include "System/GameMode_B.h"
 #include "MainGameMode_B.generated.h"
 
-
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
 class UPauseMenu_B;
 
-
-DECLARE_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B

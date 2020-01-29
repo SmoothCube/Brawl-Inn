@@ -35,7 +35,7 @@ void AMainGameMode_B::BeginPlay()
 
 	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(PlayerControllers[0], BP_VictoryScreen);
 	VictoryScreen->AddToViewport();
-	OnPlayerWin.BindUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
+	OnPlayerWin.AddUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
 
 }
 
