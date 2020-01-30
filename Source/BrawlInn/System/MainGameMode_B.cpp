@@ -80,3 +80,19 @@ void AMainGameMode_B::ResumeGame()
 	SetTickableWhenPaused(true);
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
+
+void AMainGameMode_B::AddCameraFocusPoint(USceneComponent* FocusComponent)
+{
+	if (!IsValid(GameCamera) || !IsValid(FocusComponent)) return;
+	
+	GameCamera->ComponentsToTrack.Add(FocusComponent);
+}
+
+void AMainGameMode_B::RemoveCameraFocusPoint(USceneComponent* FocusComponent)
+{
+	if (!IsValid(GameCamera) || !IsValid(FocusComponent)) return;
+	
+	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
+	GameCamera->ComponentsToTrack.Remove(FocusComponent);
+
+}

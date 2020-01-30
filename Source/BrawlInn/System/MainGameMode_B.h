@@ -8,6 +8,7 @@
 
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
+class USceneComponent; 
 class UPauseMenu_B;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
@@ -33,6 +34,9 @@ public:
 	APlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	FPlayerWin OnPlayerWin;
+
+	void AddCameraFocusPoint(USceneComponent* FocusComponent);
+	void RemoveCameraFocusPoint(USceneComponent* FocusComponent);
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -46,7 +50,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	UPauseMenu_B* PauseMenuWidget = nullptr;
-
 
 private:
 	AGameCamera_B* GameCamera = nullptr;

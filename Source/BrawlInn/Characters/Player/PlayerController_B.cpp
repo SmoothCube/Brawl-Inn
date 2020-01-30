@@ -130,7 +130,7 @@ void APlayerController_B::Unselect()
 void APlayerController_B::KillPlayerCharacter()
 {
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->DespawnCharacter_D.Broadcast(this);
+	GameMode->DespawnCharacter_D.Broadcast(this, false);
 }
 
 void APlayerController_B::PickupButtonPressed()
@@ -204,6 +204,6 @@ void APlayerController_B::DEBUG_Despawn()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->DespawnCharacter_D.Broadcast(this);
+		GameMode->DespawnCharacter_D.Broadcast(this, false);
 	}
 }

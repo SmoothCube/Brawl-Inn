@@ -4,9 +4,13 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "Components/DecalComponent.h"
 #include "BrawlInn.h"
-#include "Characters/Player/InitPawn_B.h"
+
 #include "System/Camera/GameCamera_B.h"
+#include "System/MainGameMode_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
@@ -50,26 +54,57 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		Pawn->Destroy();
-		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform());
+		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform(), params);
 		PlayerController->Possess(Character);
 		PlayerController->RespawnPawn = nullptr;
 		PlayerController->PlayerCharacter = Character;
+		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+		if (MainMode && Character)
+		{
+			USceneComponent* Mesh = Cast<USceneComponent>(Character->GetMesh()); //Character was nullptr here. how? 
+			if (Mesh)
+				MainMode->AddCameraFocusPoint(Mesh);
+			else
+				BWarn("Cannot Find Mesh");
+
+		}
 		UpdateViewTarget(PlayerController);
 		SpawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
 
-void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
+void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool bShouldRespawn)
 {
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
 		Pawn->Destroy();
-		ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
-		PlayerController->Possess(RespawnPawn);
-		PlayerController->PlayerCharacter = nullptr;
-		PlayerController->RespawnPawn = RespawnPawn;
+		if (bShouldRespawn)
+		{
+			ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
+			PlayerController->Possess(RespawnPawn);
+			PlayerController->PlayerCharacter = nullptr;
+			PlayerController->RespawnPawn = RespawnPawn;
+			AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+			if (MainMode)
+			{
+				USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
+				if (Decal)
+					MainMode->AddCameraFocusPoint(Decal);
+				else
+					BWarn("Cannot Find Decal");
+
+			}
+		}
+		else
+		{
+			AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
+			PlayerController->Possess(Character);
+			PlayerController->PlayerCharacter = nullptr;
+		}
 		UpdateViewTarget(PlayerController);
 		DespawnCharacter_NOPARAM_D.Broadcast();
 	}

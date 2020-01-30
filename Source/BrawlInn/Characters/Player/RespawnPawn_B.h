@@ -25,7 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void ThrowBarrel();
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UDecalComponent* Decal;
 
@@ -33,13 +33,15 @@ public:
 	float MovementSpeed = 1000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float TimeUntilThrow = 30.f;
+	float TimeUntilThrow = 10.f;
 
 	FVector InputVector = FVector::ZeroVector;
 
 	FTimerHandle TH_ThrowTimer;
 
 	bool bBarrelIsThrown = false;
+
+	bool bHasRespawned = false;
 
 	ABounceActor_B* Barrel = nullptr;
 };

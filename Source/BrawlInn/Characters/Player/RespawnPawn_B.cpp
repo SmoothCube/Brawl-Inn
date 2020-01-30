@@ -9,7 +9,7 @@
 #include "BrawlInn.h"
 
 #include "Characters/Player/PlayerController_B.h"
-#include "System/GameMode_B.h"
+#include "System/MainGameMode_B.h"
 #include "Hazards/BounceActor/BounceActorSpawner_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 
@@ -20,6 +20,7 @@ ARespawnPawn_B::ARespawnPawn_B()
 	PrimaryActorTick.bCanEverTick = true;
 	Decal = CreateDefaultSubobject<UDecalComponent>("Decal");
 	Decal->AddLocalRotation(FRotator(90, 0, 0));
+	SetRootComponent(Decal);
 }
 
 // Called when the game starts or when spawned
@@ -34,8 +35,8 @@ void ARespawnPawn_B::BeginPlay()
 void ARespawnPawn_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed);
+	if(!bBarrelIsThrown)
+		AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed);
 }
 
 void ARespawnPawn_B::ThrowBarrel()
@@ -46,28 +47,25 @@ void ARespawnPawn_B::ThrowBarrel()
 		ABounceActorSpawner_B* BarrelSpawner = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
 
 		Barrel = BarrelSpawner->SpawnBounceActor(GetActorLocation());
-		GetWorld()->GetTimerManager().ClearTimer(TH_ThrowTimer);
-	
-		bBarrelIsThrown = true;
-	}
-	else
-	{
+
+		//Barrel now spawns the player...
 		if (Barrel)
 		{
-			Barrel->Destroy();
+			Barrel->PlayerController = Cast<APlayerController_B>(GetController());
+			AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+			if (GameMode)
+			{
+				BWarn("GameMode found");
+				GameMode->AddCameraFocusPoint(Cast<USceneComponent>(Barrel->Mesh));
+				GameMode->RemoveCameraFocusPoint(Cast<USceneComponent>(Decal));
+			}
+			
 		}
-
-		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
-		{
-			APlayerController_B* PlayerController = Cast<APlayerController_B>(GetController());
-			//GameMode->SpawnCharacter_D.Broadcast(PlayerController, true, TRANSFORMHERE);
-		}
-		else
-		{
-			BError("GameMode Could Not Be Found!");
-		}
+		bBarrelIsThrown = true;
 	}
-
+	else if(Barrel)
+	{
+		Barrel->Destroy();
+	}
 }
 
