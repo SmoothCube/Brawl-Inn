@@ -49,12 +49,12 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController)
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
-		BLog("Pawn: %s", *GetNameSafe(Pawn));
 		Pawn->Destroy();
 		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, GetRandomSpawnTransform());
 		PlayerController->Possess(Character);
 		PlayerController->PlayerCharacter = Character;
 		UpdateViewTarget(PlayerController);
+		SpawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
 
@@ -63,17 +63,12 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
-		BLog("Pawn: %s", *GetNameSafe(Pawn));
 		Pawn->Destroy();
-		BLog("After destroy");
 		AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
-		BLog("After spawn");
 		PlayerController->Possess(Character);
-		BLog("After possess");
 		PlayerController->PlayerCharacter = nullptr;
 		UpdateViewTarget(PlayerController);
-		BLog("After Camera update");
-		BLog("After despawn broadcast");
+		DespawnCharacter_NOPARAM_D.Broadcast();
 	}
 }
 

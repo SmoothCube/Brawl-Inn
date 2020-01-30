@@ -3,17 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "System/BaseActors/Character_B.h"
+#include "GameFramework/Character.h"
+#include "System/Interfaces/ThrowableInterface_B.h"
 #include "PlayerCharacter_B.generated.h"
 
 class UStaticMeshComponent;
 class UHealthComponent_B;
+class UHoldComponent_B;
+class UThrowComponent_B;
+class UFireDamageComponent_B;
+class UPunchComponent_B;
 class AGameCamera_B;
 class APlayerController_B;
 class UWidgetComponent;
 
-UCLASS()
-class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
+UENUM(BlueprintType)		//"BlueprintType" is essential to include
+enum class EState : uint8
+{
+	EWalking 	UMETA(DisplayName = "Walking"),
+	EHolding 	UMETA(DisplayName = "Holding"),
+	EFallen		UMETA(DisplayName = "Fallen"),
+	EStunned	UMETA(DisplayName = "Stunned"),
+	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
+};
+
+UCLASS(DontCollapseCategories)
+class BRAWLINN_API APlayerCharacter_B : public ACharacter, public IThrowableInterface_B
 {
 	GENERATED_BODY()
 
@@ -21,7 +36,20 @@ public:
 	APlayerCharacter_B();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPunchComponent_B* PunchComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UWidgetComponent* HealthWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UHoldComponent_B* HoldComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UThrowComponent_B* ThrowComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UFireDamageComponent_B* FireDamageComponent;
+
 
 protected:
 
@@ -30,7 +58,7 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void UpdateHealthRotation(); //Move into health widget
+	void UpdateHealthRotation();
 	
 	virtual void PossessedBy(AController* NewController) override;
 	
@@ -39,11 +67,30 @@ protected:
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 	
 	// ** Overlap/Hit functions **
-	virtual void OnRadialDamageTaken(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin, FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser) override;
+	UFUNCTION()
+	void OnRadialDamageTaken(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin, FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
 
 	// ** Functions **
+	void HandleMovement(float DeltaTime);
+	void CheckFall(float DeltaTime);
+	void HandleMovementHold();
+
+	void HandleRotation(float DeltaTime);
+
+	UFUNCTION()
+	void TakeFireDamage();
+
+	UFUNCTION()
+	void Fall(float RecoveryTime);
+
+	void StandUp();
 
 	void MakeVulnerable();
+
+	void RemoveStun();
+
+	FVector FindMeshLocation();
+
 
 public:	
 
@@ -53,12 +100,16 @@ public:
 	void PunchButtonPressed();
 
 	void BreakFreeButtonMash();
+	void BreakFree();
 
 	void MakeInvulnerable(float InvulnerabilityTime);
 	bool IsInvulnerable();
 
 	void ApplyShield();
 	void RemoveShield();
+
+	void AddStun(int Strength = 1);
+
 
 	//Picking up players
 	virtual void PickedUp_Implementation(APlayerCharacter_B* Player) override;
@@ -69,10 +120,17 @@ public:
 
 	virtual void Use_Implementation() override;
 
+	void SetState(EState s);
+	EState GetState() const;
+
 	// ** Variables **
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector InputVector = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector RotationVector = FVector::ZeroVector;
+
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 	float InvulnerabilityTime = 3.f;
@@ -80,15 +138,24 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;
 	
+	//The longest amount of time this character can be held
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MaxHoldTime = 4.f;
+
 	bool bHasShield = false;
 protected: 
 
+	EState State = EState::EWalking;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when a character fell by themselves"))
 	float FellRecoveryTime = 2.0;				
 
-	virtual bool CheckFall(float DeltaTime) override;
-	
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when an external force made the character fall. Name is a bit misleading"))
+	float PunchedRecoveryTime= 4.0;				
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
+	float FallLimitMultiplier = 3.5f;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 	int FellOutOfWorldDamageAmount = 1;
 
@@ -106,10 +173,25 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInvulnerable = false;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	float StunTime = 3.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	int PunchesToStun = 2;
+
+	int StunAmount = 0;
+
 private:
 	
+	APlayerCharacter_B* HoldingPlayer = nullptr;
 
+	FTransform RelativeMeshTransform;
+	FTimerHandle TH_RecoverTimer;
 	FTimerHandle TH_InvincibilityTimer;
+	FTimerHandle TH_StunTimer;
+	
+	float NormalMaxWalkSpeed;
 	
 	APlayerController_B* PlayerController = nullptr;
 	AGameCamera_B* GameCamera = nullptr;
@@ -118,4 +200,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
+	float CurrentHoldTime = 0.f;
 };
+
