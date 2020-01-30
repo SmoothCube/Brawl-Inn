@@ -10,6 +10,7 @@
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
 class ABarrelTargetPoint_B;
+class APlayerController_B;
 UCLASS()
 class BRAWLINN_API ABounceActor_B : public AThrowable_B
 {
@@ -29,4 +30,6 @@ public:
 
 	FTimerHandle TH_ExplodeTimer;
 	ABarrelTargetPoint_B* Target = nullptr;
+
+	APlayerController_B* PlayerController = nullptr;
 };

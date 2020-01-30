@@ -54,15 +54,17 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		Pawn->Destroy();
-		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform());
+		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform(), params);
 		PlayerController->Possess(Character);
 		PlayerController->RespawnPawn = nullptr;
 		PlayerController->PlayerCharacter = Character;
 		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
-		if (MainMode)
+		if (MainMode && Character)
 		{
-			USceneComponent* Mesh = Cast<USceneComponent>(Character->GetMesh());
+			USceneComponent* Mesh = Cast<USceneComponent>(Character->GetMesh()); //Character was nullptr here. how? 
 			if (Mesh)
 				MainMode->AddCameraFocusPoint(Mesh);
 			else

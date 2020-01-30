@@ -33,7 +33,7 @@ public:
 	float MovementSpeed = 1000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float TimeUntilThrow = 30.f;
+	float TimeUntilThrow = 10.f;
 
 	FVector InputVector = FVector::ZeroVector;
 
