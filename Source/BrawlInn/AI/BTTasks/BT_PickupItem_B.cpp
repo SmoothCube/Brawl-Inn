@@ -3,14 +3,10 @@
 
 #include "BT_PickupItem_B.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "AI/NavigationSystemBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "Items/Item_B.h"
-#include "Items/Throwable_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
 #include "Characters/AI/AIController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Characters/AI/AICharacter_B.h"
@@ -18,7 +14,6 @@
 
 UBT_PickupItem_B::UBT_PickupItem_B()
 {
-	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -28,7 +23,7 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if (!OwningAI)
 	{
 		BError("Can't find AI controller");
-		return EBTNodeResult::Failed;
+		return EBTNodeResult::Aborted;
 	}
 
 	AICharacter = Cast<AAICharacter_B>(OwningAI->GetCharacter());
@@ -42,20 +37,13 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 	if (Item)
 	{
-
-		BScreen("Found Item, Trying to pickup");
 		if (AICharacter->HoldComponent->TryPickup())
+		{
+		BScreen("Found Item, pickingup");
+			OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
+			OwnerComp.GetBlackboardComponent()->SetValueAsObject(HoldingItem.SelectedKeyName, Item);
 			return EBTNodeResult::Succeeded;
+		}
 	}
 	return EBTNodeResult::Failed;
-}
-
-void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
-{
-	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-
-	if (Item)
-	{
-	}
-
 }

@@ -4,29 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BT_PickupItem_B.generated.h"
+#include "BT_DropItem_B.generated.h"
 
 class AAIController_B;
 class AAICharacter_B;
 class AItem_B;
 
 UCLASS()
-class BRAWLINN_API UBT_PickupItem_B : public UBTTaskNode
+class BRAWLINN_API UBT_DropItem_B : public UBTTaskNode
 {
 	GENERATED_BODY()
-
+	
 protected:
-	UBT_PickupItem_B();
-
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	UPROPERTY(EditAnywhere)
-	FBlackboardKeySelector ItemToPickup;
+		FBlackboardKeySelector DropTargetPoint;
 
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector HoldingItem;
+		FBlackboardKeySelector HoldingActor;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AItem_B> BP_Item;
 
 	AAIController_B* OwningAI = nullptr;
 	AAICharacter_B* AICharacter = nullptr;
-	AItem_B* Item = nullptr;
+
 };

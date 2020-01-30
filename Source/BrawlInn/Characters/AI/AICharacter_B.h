@@ -10,5 +10,7 @@ UCLASS()
 class BRAWLINN_API AAICharacter_B : public ACharacter_B
 {
 	GENERATED_BODY()
-	
+
+		virtual void BeginPlay() override;
+
 };

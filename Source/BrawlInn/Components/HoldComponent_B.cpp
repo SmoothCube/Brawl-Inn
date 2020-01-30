@@ -174,4 +174,5 @@ void UHoldComponent_B::Drop()
 		Interface->Execute_Dropped(GetHoldingItem());
 	}
 	SetHoldingItem(nullptr);
+	OwningPlayer->SetState(EState::EWalking);
 }
