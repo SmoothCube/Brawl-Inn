@@ -6,19 +6,21 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
-#include "Components/SphereComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
-#include "Camera/CameraComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/StaticMeshComponent.h"
+#include "Sound/SoundCue.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
+#include "System/GameInstance_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
@@ -119,6 +121,22 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 			Interface->Execute_TakeOneDamage(GetController());
 		}
 	}
+	if (HurtSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			HurtSound,
+			GetActorLocation(),
+			volume
+		);
+	}
+
 	return DamageAmount;
 }
 

@@ -16,6 +16,7 @@ class AGameCamera_B;
 class APlayerController_B;
 class UWidgetComponent;
 class UMaterial;
+class USoundCue;
 
 UENUM(BlueprintType)		//"BlueprintType" is essential to include
 enum class EState : uint8
@@ -173,6 +174,9 @@ protected:
 		int PunchesToStun = 2;
 
 	int StunAmount = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* HurtSound;
 
 private:
 
