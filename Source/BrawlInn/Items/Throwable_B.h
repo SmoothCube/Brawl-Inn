@@ -23,8 +23,7 @@ public:
 
 protected:
 	// ** Variables **
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		TSubclassOf<UDamageType> BP_DamageType;
+
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float ThrowHitStrength = 100;
