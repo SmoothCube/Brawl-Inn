@@ -76,25 +76,34 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 	}
 }
 
-void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
+void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool bShouldRespawn)
 {
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
 		Pawn->Destroy();
-		ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
-		PlayerController->Possess(RespawnPawn);
-		PlayerController->PlayerCharacter = nullptr;
-		PlayerController->RespawnPawn = RespawnPawn;
-		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
-		if (MainMode)
+		if (bShouldRespawn)
 		{
-			USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
-			if (Decal)
-				MainMode->AddCameraFocusPoint(Decal);
-			else
-				BWarn("Cannot Find Decal");
+			ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
+			PlayerController->Possess(RespawnPawn);
+			PlayerController->PlayerCharacter = nullptr;
+			PlayerController->RespawnPawn = RespawnPawn;
+			AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+			if (MainMode)
+			{
+				USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
+				if (Decal)
+					MainMode->AddCameraFocusPoint(Decal);
+				else
+					BWarn("Cannot Find Decal");
 
+			}
+		}
+		else
+		{
+			AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
+			PlayerController->Possess(Character);
+			PlayerController->PlayerCharacter = nullptr;
 		}
 		UpdateViewTarget(PlayerController);
 		DespawnCharacter_NOPARAM_D.Broadcast();

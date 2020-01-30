@@ -12,7 +12,7 @@ class APlayerCharacter_B;
 class ARespawnPawn_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, APlayerController_B*, PlayerControllerReference, bool, ShouldUseVector, FTransform, SpawnTransform);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*, PlayerControllerReference);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDespawnCharacter, APlayerController_B*, PlayerControllerReference, bool, bShouldRespawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
 
@@ -64,7 +64,7 @@ public:
 		void SpawnCharacter(APlayerController_B* PlayerController, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
-		void DespawnCharacter(APlayerController_B* PlayerController);
+		void DespawnCharacter(APlayerController_B* PlayerController, bool bShouldRespawn);
 
 protected:
 
