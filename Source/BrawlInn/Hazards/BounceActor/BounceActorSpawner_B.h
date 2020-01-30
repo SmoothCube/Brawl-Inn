@@ -8,7 +8,7 @@
 #include "BounceActorSpawner_B.generated.h"
 class ABounceActor_B;
 class ABouncePath_B;
-class ATargetPoint;
+class ABarrelTargetPoint_B;
 UCLASS()
 class BRAWLINN_API ABounceActorSpawner_B : public AActor
 {
@@ -32,11 +32,12 @@ protected:
 	FTimerHandle TH_SpawnTimer;
 	int NextPath = 0;
 public:	
-	void SpawnBounceActor();
+	void SpawnBarrelOnTimer();
+	ABounceActor_B* SpawnBounceActor(FVector TargetLocation);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-		TArray<ATargetPoint*> BouncePoints;
+	TArray<ABarrelTargetPoint_B*> BouncePoints;
 
 };

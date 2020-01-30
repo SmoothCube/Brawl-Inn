@@ -2,7 +2,7 @@
 
 
 #include "ShieldUseable_B.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "BrawlInn.h"
 
 void AShieldUseable_B::Use_Implementation()

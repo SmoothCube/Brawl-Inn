@@ -10,8 +10,8 @@
 #include "BrawlInn.h"
 #include "TimerManager.h"
 
-#include "Player/PlayerCharacter_B.h"
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerController_B.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()

@@ -10,10 +10,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-void AThrowable_B::PickedUp_Implementation(APlayerCharacter_B* Player)
+void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

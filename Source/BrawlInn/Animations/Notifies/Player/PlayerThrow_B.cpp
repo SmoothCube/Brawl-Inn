@@ -4,7 +4,7 @@
 #include "PlayerThrow_B.h"
 
 #include "Components/SkeletalMeshComponent.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/ThrowComponent_B.h"
 
 void UPlayerThrow_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)

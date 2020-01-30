@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerCharacter_B.h"
+#include "Character_B.h"
 #include "BrawlInn.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -19,21 +19,19 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Components/FireDamageComponent_B.h"
 #include "Components/WidgetComponent.h"
 #include "Components/HealthComponent_B.h"
-#include "System/DamageTypes/Fire_DamageType_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Animations/PlayerAnimInstance_B.h"
 
-APlayerCharacter_B::APlayerCharacter_B()
+ACharacter_B::ACharacter_B()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bUseControllerRotationYaw = false;
@@ -41,13 +39,13 @@ APlayerCharacter_B::APlayerCharacter_B()
 	HoldComponent = CreateDefaultSubobject<UHoldComponent_B>("Hold Component");
 	HoldComponent->SetupAttachment(GetMesh());
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
-	FireDamageComponent = CreateDefaultSubobject<UFireDamageComponent_B>("Fire Damage Component");
 
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
+	HealthWidget->SetupAttachment(GetRootComponent());
 
 	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
 	DirectionIndicatorPlane->SetupAttachment(RootComponent);
@@ -62,14 +60,13 @@ APlayerCharacter_B::APlayerCharacter_B()
 	GetCharacterMovement()->GroundFriction = 3;
 }
 
-void APlayerCharacter_B::BeginPlay()
+void ACharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 	NormalMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
-	OnTakeRadialDamage.AddDynamic(this, &APlayerCharacter_B::OnRadialDamageTaken);
-	FireDamageComponent->FireHealthIsZero_D.AddDynamic(this, &APlayerCharacter_B::TakeFireDamage);
+	OnTakeRadialDamage.AddDynamic(this, &ACharacter_B::OnRadialDamageTaken);
 
 	MakeInvulnerable(1.0f);
 
@@ -79,9 +76,10 @@ void APlayerCharacter_B::BeginPlay()
 	}
 }
 
-void APlayerCharacter_B::Tick(float DeltaTime)
+void ACharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UpdateHealthRotation();
 	if (GetState() == EState::EFallen)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
@@ -102,30 +100,14 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		}
 	}
 
-	UpdateHealthRotation();
 }
 
-void APlayerCharacter_B::TakeFireDamage()
-{
-	Fall(PunchedRecoveryTime);
-	MakeInvulnerable(InvulnerabilityTime + PunchedRecoveryTime);
-	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-	if (Interface)
-	{
-		Interface->Execute_TakeOneDamage(GetController());
-	}
-}
-
-float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (bIsInvulnerable || bHasShield) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFire_DamageType_B::StaticClass()))
-	{
-		FireDamageComponent->FireDamageStart_D.Broadcast();
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
 	}
@@ -140,10 +122,13 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	return DamageAmount;
 }
 
-void APlayerCharacter_B::UpdateHealthRotation()
+void ACharacter_B::UpdateHealthRotation()
 {
 	if (!GameCamera)
+	{
+		BScreen("Camera not found");
 		return;
+	}
 
 	HealthWidget->SetWorldRotation((GameCamera->Camera->GetForwardVector() * -1).Rotation());
 
@@ -164,19 +149,20 @@ void APlayerCharacter_B::UpdateHealthRotation()
 	DrawSize.X = size * 4;
 	DrawSize.Y = size * 4;
 
-	FVector Location = HealthWidget->GetRelativeLocation();
+	FVector Location = GetActorLocation();
+
 	Location.Z = posZ;
-	HealthWidget->SetRelativeLocation(Location);
+	HealthWidget->SetWorldLocation(Location);
 	HealthWidget->SetDrawSize(DrawSize);
 }
 
-void APlayerCharacter_B::HandleRotation(float DeltaTime)
+void ACharacter_B::HandleRotation(float DeltaTime)
 {
 	if (InputVector.Size() > 0.1)
 		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
 }
 
-void APlayerCharacter_B::HandleMovement(float DeltaTime)
+void ACharacter_B::HandleMovement(float DeltaTime)
 {
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
@@ -184,7 +170,7 @@ void APlayerCharacter_B::HandleMovement(float DeltaTime)
 	GetMovementComponent()->AddInputVector(InputVector);
 }
 
-void APlayerCharacter_B::CheckFall(float DeltaTime)
+void ACharacter_B::CheckFall(float DeltaTime)
 {
 	float Speed = GetMovementComponent()->Velocity.Size();
 	if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
@@ -194,7 +180,7 @@ void APlayerCharacter_B::CheckFall(float DeltaTime)
 	}
 }
 
-void APlayerCharacter_B::Fall(float RecoveryTime)
+void ACharacter_B::Fall(float RecoveryTime)
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
@@ -212,13 +198,13 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 
-		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &APlayerCharacter_B::StandUp, RecoveryTime, false);
+		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
 	}
 	else
 		BWarn("Character is in air! Fall() does not run!");
 }
 
-FVector APlayerCharacter_B::FindMeshLocation()
+FVector ACharacter_B::FindMeshLocation()
 {
 	//find a specified socket (bone)
 	FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
@@ -232,7 +218,7 @@ FVector APlayerCharacter_B::FindMeshLocation()
 		return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
-void APlayerCharacter_B::StandUp()
+void ACharacter_B::StandUp()
 {
 	if (!GetCharacterMovement()->IsFalling())
 	{
@@ -250,7 +236,7 @@ void APlayerCharacter_B::StandUp()
 }
 
 //a number less than 0 will make the character invulnerable until toggled off again
-void APlayerCharacter_B::MakeInvulnerable(float ITime)
+void ACharacter_B::MakeInvulnerable(float ITime)
 {
 	bIsInvulnerable = true;
 
@@ -258,10 +244,10 @@ void APlayerCharacter_B::MakeInvulnerable(float ITime)
 		GetMesh()->SetMaterial(6, InvulnerableMat);
 
 	if (ITime > 0)
-		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &APlayerCharacter_B::MakeVulnerable, ITime, false);
+		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &ACharacter_B::MakeVulnerable, ITime, false);
 }
 
-void APlayerCharacter_B::MakeVulnerable()
+void ACharacter_B::MakeVulnerable()
 {
 	bIsInvulnerable = false;
 
@@ -269,12 +255,12 @@ void APlayerCharacter_B::MakeVulnerable()
 		GetMesh()->SetMaterial(6, InvisibleMat);
 }
 
-bool APlayerCharacter_B::IsInvulnerable()
+bool ACharacter_B::IsInvulnerable()
 {
 	return bIsInvulnerable;
 }
 
-void APlayerCharacter_B::ApplyShield()
+void ACharacter_B::ApplyShield()
 {
 	bHasShield = true;
 
@@ -282,7 +268,7 @@ void APlayerCharacter_B::ApplyShield()
 		GetMesh()->SetMaterial(6, ShieldMat);
 }
 
-void APlayerCharacter_B::RemoveShield()
+void ACharacter_B::RemoveShield()
 {
 	if (!bHasShield)
 		return;
@@ -293,7 +279,7 @@ void APlayerCharacter_B::RemoveShield()
 		GetMesh()->SetMaterial(6, InvisibleMat);
 }
 
-void APlayerCharacter_B::AddStun(int Strength)
+void ACharacter_B::AddStun(int Strength)
 {
 	if (!(GetState() == EState::EStunned))
 	{
@@ -302,11 +288,11 @@ void APlayerCharacter_B::AddStun(int Strength)
 		{
 			SetState(EState::EStunned);
 		}
-		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &APlayerCharacter_B::RemoveStun, StunTime, false);
+		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &ACharacter_B::RemoveStun, StunTime, false);
 	}
 }
 
-void APlayerCharacter_B::RemoveStun()
+void ACharacter_B::RemoveStun()
 {
 	if (GetState() == EState::EStunned)
 	{
@@ -315,7 +301,7 @@ void APlayerCharacter_B::RemoveStun()
 	StunAmount = 0;
 }
 
-void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
+void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	HoldingPlayer = Player;
 	GetMovementComponent()->StopMovementImmediately();
@@ -331,7 +317,7 @@ void APlayerCharacter_B::PickedUp_Implementation(APlayerCharacter_B* Player)
 	SetActorRotation(FRotator(-90, 0, 90));
 }
 
-void APlayerCharacter_B::Dropped_Implementation()
+void ACharacter_B::Dropped_Implementation()
 {
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
@@ -342,7 +328,7 @@ void APlayerCharacter_B::Dropped_Implementation()
 	CurrentHoldTime = 0.f;
 }
 
-void APlayerCharacter_B::Use_Implementation()
+void ACharacter_B::Use_Implementation()
 {
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
@@ -359,7 +345,7 @@ void APlayerCharacter_B::Use_Implementation()
 	SetActorRotation(FRotator(0, 0, 0));
 }
 
-void APlayerCharacter_B::SetState(EState s)
+void ACharacter_B::SetState(EState s)
 {
 	State = s;
 	switch (State)
@@ -373,24 +359,24 @@ void APlayerCharacter_B::SetState(EState s)
 	}
 }
 
-EState APlayerCharacter_B::GetState() const
+EState ACharacter_B::GetState() const
 {
 	return State;
 }
 
-bool APlayerCharacter_B::IsHeld_Implementation() const
+bool ACharacter_B::IsHeld_Implementation() const
 {
 	if (HoldingPlayer)
 		return true;
 	return false;
 }
 
-APlayerController_B* APlayerCharacter_B::GetPlayerController_B() const
+APlayerController_B* ACharacter_B::GetPlayerController_B() const
 {
 	return PlayerController;
 }
 
-void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+void ACharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
 	if (PlayerController)
@@ -399,7 +385,6 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 		if (GameMode)
 		{
 			GameMode->DespawnCharacter_D.Broadcast(PlayerController);
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController);
 		}
 		else
 		{
@@ -412,14 +397,14 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	}
 }
 
-void APlayerCharacter_B::PossessedBy(AController* NewController)
+void ACharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	PlayerController = Cast<APlayerController_B>(NewController);
 
 }
 
-void APlayerCharacter_B::PunchButtonPressed()
+void ACharacter_B::PunchButtonPressed()
 {
 	if (!(GetState() == EState::EWalking)) { return; }
 	if (PunchComponent)
@@ -432,12 +417,12 @@ void APlayerCharacter_B::PunchButtonPressed()
 	}
 }
 
-void APlayerCharacter_B::BreakFreeButtonMash()
+void ACharacter_B::BreakFreeButtonMash()
 {
 	CurrentHoldTime += 0.01;
 }
 
-void APlayerCharacter_B::BreakFree()
+void ACharacter_B::BreakFree()
 {
 	//Detaches usselves from the other player
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
@@ -454,13 +439,12 @@ void APlayerCharacter_B::BreakFree()
 	if (HoldingPlayer)
 	{
 		HoldingPlayer->HoldComponent->SetHoldingItem(nullptr);
-		HoldingPlayer->AddStun();
-		HoldingPlayer->AddStun();
+		HoldingPlayer->AddStun(PunchesToStun);
 		HoldingPlayer = nullptr;
 	}
 }
 
-void APlayerCharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
+void ACharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
 {
 	BWarn("Radial Damage Taken!");
 	if (!bIsInvulnerable)

@@ -10,7 +10,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "System/Interfaces/ThrowableInterface_B.h"
-#include "Player/PlayerCharacter_B.h"
+#include "System/BaseActors/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameMode_B.h"
@@ -26,7 +26,7 @@ bool UThrowComponent_B::TryThrow()
 	{
 		BWarn("Not Ready To Throw");
 		return false;
-	} 
+	}
 	else if (!HoldComponent->IsHolding())
 	{
 		BWarn("Not Holding Item!");
@@ -51,7 +51,7 @@ void UThrowComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwningPlayer = Cast<APlayerCharacter_B>(GetOwner());
+	OwningPlayer = Cast<ACharacter_B>(GetOwner());
 
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->SpawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
@@ -70,7 +70,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
 
-	TArray<APlayerCharacter_B*> PlayersInCone;
+	TArray<ACharacter_B*> PlayersInCone;
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
@@ -87,7 +87,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		if (AngleA <= AimAssistAngle)
 			PlayersInCone.Add(OtherPlayer);
 	}
-	APlayerCharacter_B* TargetPlayer = nullptr;
+	ACharacter_B* TargetPlayer = nullptr;
 
 	switch (PlayersInCone.Num())
 	{
@@ -97,7 +97,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		TargetPlayer = PlayersInCone[0];
 		break;
 	default:
-		PlayersInCone.Sort([&](const APlayerCharacter_B& LeftSide, const APlayerCharacter_B& RightSide)
+		PlayersInCone.Sort([&](const ACharacter_B& LeftSide, const ACharacter_B& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -122,17 +122,18 @@ void UThrowComponent_B::OneCharacterChanged()
 	/// Finds all characters
 	OtherPlayers.Empty();
 	TArray<AActor*> TempArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCharacter_B::StaticClass(), TempArray);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter_B::StaticClass(), TempArray);
 	for (const auto& Player : TempArray)
 	{
-		if (Cast<APlayerCharacter_B>(Player) == OwningPlayer)
+		if (Cast<ACharacter_B>(Player) == OwningPlayer)
 			continue;
-		//	BScreen("Player %s, %i", *GetNameSafe(Player), TempArray.Num());
-		OtherPlayers.Add(Cast<APlayerCharacter_B>(Player));
+		OtherPlayers.Add(Cast<ACharacter_B>(Player));
 	}
 
 	/// Finds the holdcomponent.
 	// Dette kan kanskje flyttes til BeginPlay ? Usikker på hvilke av komponentene som blir laget først
+	if (!OwningPlayer) { BError("Can't find owningplayer!"); return; }
+
 	HoldComponent = OwningPlayer->HoldComponent;
 }
 

@@ -9,6 +9,7 @@
 
 class UHealthComponent_B;
 class APlayerCharacter_B;
+class ARespawnPawn_B;
 class UCharacterSelectionComponent_B;
 
 UCLASS()
@@ -35,6 +36,7 @@ public:
 
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
+	ARespawnPawn_B* RespawnPawn = nullptr;
 
 
 	UFUNCTION()
@@ -45,8 +47,10 @@ public:
 
 	virtual void TakeOneDamage_Implementation() override;
 
+	// DEBUG
 	void DEBUG_TEST01();
-
+	void DEBUG_Spawn();
+	void DEBUG_Despawn();
 
 private:
 

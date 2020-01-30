@@ -27,7 +27,7 @@ class BRAWLINN_API IThrowableInterface_B
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	void PickedUp(APlayerCharacter_B* Player);
+	void PickedUp(ACharacter_B* Player);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
 	void Dropped();

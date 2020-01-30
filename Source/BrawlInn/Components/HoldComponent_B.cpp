@@ -9,7 +9,7 @@
 #include "Components/PunchComponent_B.h"
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Items/Throwable_B.h"
-#include "Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "BrawlInn.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)

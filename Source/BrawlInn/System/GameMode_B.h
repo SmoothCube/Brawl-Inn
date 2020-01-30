@@ -9,8 +9,9 @@
 class APlayerStart;
 class APlayerController_B;
 class APlayerCharacter_B;
+class ARespawnPawn_B;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpawnCharacter, APlayerController_B*, PlayerControllerReference);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, APlayerController_B*, PlayerControllerReference, bool, ShouldUseVector, FTransform, SpawnTransform);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*, PlayerControllerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
@@ -36,6 +37,9 @@ protected:
 		TSubclassOf<APlayerCharacter_B> BP_PlayerCharacter;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<ARespawnPawn_B> BP_RespawnPawn;
+
 	/// ----- Spawn Character functions/variables -----
 
 public:
@@ -57,7 +61,7 @@ public:
 		FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
 
 	UFUNCTION()
-		void SpawnCharacter(APlayerController_B* PlayerController);
+		void SpawnCharacter(APlayerController_B* PlayerController, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
 		void DespawnCharacter(APlayerController_B* PlayerController);

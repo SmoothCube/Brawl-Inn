@@ -9,7 +9,7 @@
 
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
-
+class ABarrelTargetPoint_B;
 UCLASS()
 class BRAWLINN_API ABounceActor_B : public AThrowable_B
 {
@@ -28,4 +28,5 @@ public:
 	float ExplodeTime = 5.f;
 
 	FTimerHandle TH_ExplodeTimer;
+	ABarrelTargetPoint_B* Target = nullptr;
 };

@@ -7,7 +7,7 @@
 #include "BrawlInn.h"
 
 #include "System/Camera/GameCamera_B.h"
-#include "Player/PlayerController_B.h"
+#include "Characters/Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
@@ -27,7 +27,7 @@ void AMainGameMode_B::BeginPlay()
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", ID); continue; }
 
-		SpawnCharacter_D.Broadcast(PlayerController);
+		SpawnCharacter_D.Broadcast(PlayerController,false,FTransform());
 
 	}
 
@@ -35,7 +35,7 @@ void AMainGameMode_B::BeginPlay()
 
 	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(PlayerControllers[0], BP_VictoryScreen);
 	VictoryScreen->AddToViewport();
-	OnPlayerWin.BindUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
+	OnPlayerWin.AddUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
 
 }
 

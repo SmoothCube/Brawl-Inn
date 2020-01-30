@@ -1,17 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerController_B.h"
+
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "BrawlInn.h"
-#include "Player/PlayerCharacter_B.h"
+
+#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/CharacterSelectionComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Engine/World.h"
 #include "System/GameMode_B.h"
 #include "System/MainGameMode_B.h"
-#include "Kismet/GameplayStatics.h"
 #include "System/MenuGameMode_B.h"
 
 APlayerController_B::APlayerController_B()
@@ -44,9 +46,13 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
 
 		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
+		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
+
+		// Debug
+		InputComponent->BindAction("DEBUG_Spawn", IE_Pressed, this, &APlayerController_B::DEBUG_Spawn);
+		InputComponent->BindAction("DEBUG_Despawn", IE_Pressed, this, &APlayerController_B::DEBUG_Despawn);
 		InputComponent->BindAction("DEBUG_TEST01", IE_Pressed, this, &APlayerController_B::DEBUG_TEST01);
 
-		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
 
 	}
 }
@@ -86,12 +92,20 @@ void APlayerController_B::MoveUp(float Value)
 	{
 		PlayerCharacter->InputVector.X = Value;
 	}
+	else if (RespawnPawn)
+	{
+		RespawnPawn->InputVector.X = Value;
+	}
 }
 void APlayerController_B::MoveRight(float Value)
 {
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->InputVector.Y = Value;
+	}
+	else if (RespawnPawn)
+	{
+		RespawnPawn->InputVector.Y = Value;
 	}
 }
 
@@ -140,13 +154,17 @@ void APlayerController_B::PickupButtonRepeat()
 
 void APlayerController_B::PunchButtonPressed()
 {
-	if (!PlayerCharacter)
-		return;
-
-	if (!PlayerCharacter->HoldComponent->IsHolding())
-		PlayerCharacter->PunchButtonPressed();
-	else
-		PlayerCharacter->ThrowComponent->TryThrow();
+	if (PlayerCharacter)
+	{
+		if (!PlayerCharacter->HoldComponent->IsHolding())
+			PlayerCharacter->PunchButtonPressed();
+		else
+			PlayerCharacter->ThrowComponent->TryThrow();
+	}
+	else if (RespawnPawn)
+	{
+		RespawnPawn->ThrowBarrel();
+	}
 }
 
 void APlayerController_B::BreakFreeButtonPressed()
@@ -168,7 +186,24 @@ void APlayerController_B::DEBUG_TEST01()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		if (GameMode->OnPlayerWin.IsBound())
-			GameMode->OnPlayerWin.Execute(this);
+		GameMode->OnPlayerWin.Broadcast(this);
+	}
+}
+
+void APlayerController_B::DEBUG_Spawn()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->SpawnCharacter_D.Broadcast(this, false, FTransform());
+	}
+}
+
+void APlayerController_B::DEBUG_Despawn()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->DespawnCharacter_D.Broadcast(this);
 	}
 }
