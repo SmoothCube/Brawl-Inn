@@ -9,7 +9,7 @@
 #include "Components/PunchComponent_B.h"
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Items/Throwable_B.h"
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "System/BaseActors/Character_B.h"
 #include "BrawlInn.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
@@ -27,7 +27,7 @@ void UHoldComponent_B::BeginPlay()
 	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::AddItem);
 	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::RemoveItem);
 
-	OwningPlayer = Cast<APlayerCharacter_B>(GetOwner());
+	OwningPlayer = Cast<ACharacter_B>(GetOwner());
 }
 
 bool UHoldComponent_B::TryPickup()
@@ -98,7 +98,7 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
-	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(NearestItem);
+	ACharacter_B* Player = Cast<ACharacter_B>(NearestItem);
 	if (Player)
 	{
 		if ((Player->GetState() == EState::EFallen || Player->GetState() == EState::EStunned) && !Player->IsInvulnerable())

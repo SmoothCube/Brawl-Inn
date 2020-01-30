@@ -8,7 +8,7 @@
 
 // This class does not need to be modified.
 
-class APlayerCharacter_B;
+class ACharacter_B;
 
 UINTERFACE(MinimalAPI)
 class UThrowableInterface_B : public UInterface

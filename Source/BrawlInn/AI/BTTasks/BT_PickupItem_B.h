@@ -14,15 +14,14 @@ UCLASS()
 class BRAWLINN_API UBT_PickupItem_B : public UBTTaskNode
 {
 	GENERATED_BODY()
-protected:
 
+protected:
 	UBT_PickupItem_B();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-protected:
 
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector ItemToPickup;

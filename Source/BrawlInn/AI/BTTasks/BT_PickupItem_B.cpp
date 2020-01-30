@@ -12,6 +12,7 @@
 #include "Items/Throwable_B.h"
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "Characters/AI/AIController_B.h"
+#include "Components/HoldComponent_B.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "BrawlInn.h"
 
@@ -30,9 +31,23 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
+	AICharacter = Cast<AAICharacter_B>(OwningAI->GetCharacter());
+	if (!AICharacter)
+	{
+		BError("Can't find the AI Character");
+		return EBTNodeResult::Aborted;
+	}
+
 	Item = Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(ItemToPickup.SelectedKeyName));
 
-	return EBTNodeResult::InProgress;
+	if (Item)
+	{
+
+		BScreen("Found Item, Trying to pickup");
+		if (AICharacter->HoldComponent->TryPickup())
+			return EBTNodeResult::Succeeded;
+	}
+	return EBTNodeResult::Failed;
 }
 
 void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
@@ -41,18 +56,6 @@ void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 	if (Item)
 	{
-
-		switch (OwningAI->MoveToActor(Item, 200.f))
-		{
-		case EPathFollowingRequestResult::AlreadyAtGoal:
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-			break;
-		case EPathFollowingRequestResult::RequestSuccessful:
-			BScreen("Moving to Item");
-			break;
-		default:
-			break;
-		}
 	}
 
 }

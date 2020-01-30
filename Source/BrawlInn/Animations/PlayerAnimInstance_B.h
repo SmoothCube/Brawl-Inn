@@ -6,7 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "PlayerAnimInstance_B.generated.h"
 
-class APlayerCharacter_B;
+class ACharacter_B;
 
 UCLASS()
 class BRAWLINN_API UPlayerAnimInstance_B : public UAnimInstance
@@ -21,7 +21,7 @@ protected:
 	UFUNCTION(BlueprintPure)
 	bool IsReady() const;
 
-	APlayerCharacter_B* Owner = nullptr;
+	ACharacter_B* Owner = nullptr;
 
 	/// Movement variables
 
