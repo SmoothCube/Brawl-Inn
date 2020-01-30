@@ -24,7 +24,10 @@ protected:
 
 protected:
 
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ItemToPickup;
+
 	AAIController_B* OwningAI = nullptr;
 	AAICharacter_B* AICharacter = nullptr;
-	TArray<AItem_B*> Items;
+	AItem_B* Item = nullptr;
 };

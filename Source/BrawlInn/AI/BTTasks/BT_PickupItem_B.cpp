@@ -5,6 +5,8 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "AI/NavigationSystemBase.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "Items/Item_B.h"
 #include "Items/Throwable_B.h"
@@ -27,40 +29,30 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		BError("Can't find AI controller");
 		return EBTNodeResult::Failed;
 	}
-	AICharacter = Cast<AAICharacter_B>(OwningAI->GetCharacter());
-	if (!AICharacter)
-	{
-		BError("Can't find AICharacter");
-		return EBTNodeResult::Failed;
-	}
 
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItem_B::StaticClass(), OutActors);
-	if (OutActors.Num() == 0)
-		return EBTNodeResult::Failed;
+	Item = Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(ItemToPickup.SelectedKeyName));
 
-	for (const auto& Actor : OutActors)
-	{
-		AItem_B* Item = Cast<AItem_B>(Actor);
-			Items.Add(Item);
-	}
-	if (Items.Num() == 0)
-		return EBTNodeResult::Failed;
-
-	Items.Sort([&](const AItem_B& LeftSide, const AItem_B& RightSide) {
-		float DistanceA = FVector::Dist(AICharacter->GetActorLocation(), LeftSide.GetActorLocation());
-		float DistanceB = FVector::Dist(AICharacter->GetActorLocation(), RightSide.GetActorLocation());
-		return DistanceA < DistanceB;
-		});
-
-	OwningAI->MoveToActor(Items[0], 10.f);
-
-	return EBTNodeResult::Succeeded;
+	return EBTNodeResult::InProgress;
 }
 
 void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	//FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	if (Item)
+	{
+
+		switch (OwningAI->MoveToActor(Item, 200.f))
+		{
+		case EPathFollowingRequestResult::AlreadyAtGoal:
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			break;
+		case EPathFollowingRequestResult::RequestSuccessful:
+			BScreen("Moving to Item");
+			break;
+		default:
+			break;
+		}
+	}
+
 }
