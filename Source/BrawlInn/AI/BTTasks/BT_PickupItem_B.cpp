@@ -3,19 +3,17 @@
 
 #include "BT_PickupItem_B.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "AI/NavigationSystemBase.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "Items/Item_B.h"
-#include "Items/Throwable_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
 #include "Characters/AI/AIController_B.h"
+#include "Components/HoldComponent_B.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "BrawlInn.h"
 
 UBT_PickupItem_B::UBT_PickupItem_B()
 {
-	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -25,42 +23,27 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if (!OwningAI)
 	{
 		BError("Can't find AI controller");
-		return EBTNodeResult::Failed;
+		return EBTNodeResult::Aborted;
 	}
+
 	AICharacter = Cast<AAICharacter_B>(OwningAI->GetCharacter());
 	if (!AICharacter)
 	{
-		BError("Can't find AICharacter");
-		return EBTNodeResult::Failed;
+		BError("Can't find the AI Character");
+		return EBTNodeResult::Aborted;
 	}
 
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItem_B::StaticClass(), OutActors);
-	if (OutActors.Num() == 0)
-		return EBTNodeResult::Failed;
+	Item = Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(ItemToPickup.SelectedKeyName));
 
-	for (const auto& Actor : OutActors)
+	if (Item)
 	{
-		AItem_B* Item = Cast<AItem_B>(Actor);
-			Items.Add(Item);
+		if (AICharacter->HoldComponent->TryPickup())
+		{
+		BScreen("Found Item, pickingup");
+			OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
+			OwnerComp.GetBlackboardComponent()->SetValueAsObject(HoldingItem.SelectedKeyName, Item);
+			return EBTNodeResult::Succeeded;
+		}
 	}
-	if (Items.Num() == 0)
-		return EBTNodeResult::Failed;
-
-	Items.Sort([&](const AItem_B& LeftSide, const AItem_B& RightSide) {
-		float DistanceA = FVector::Dist(AICharacter->GetActorLocation(), LeftSide.GetActorLocation());
-		float DistanceB = FVector::Dist(AICharacter->GetActorLocation(), RightSide.GetActorLocation());
-		return DistanceA < DistanceB;
-		});
-
-	OwningAI->MoveToActor(Items[0], 10.f);
-
-	return EBTNodeResult::Succeeded;
-}
-
-void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
-{
-	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-
-	//FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	return EBTNodeResult::Failed;
 }

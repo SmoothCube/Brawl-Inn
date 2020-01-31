@@ -2,7 +2,7 @@
 
 
 #include "PlayerAnimInstance_B.h"
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "System/BaseActors/Character_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
@@ -11,7 +11,7 @@ void UPlayerAnimInstance_B::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 
-	Owner = Cast<APlayerCharacter_B>(TryGetPawnOwner());
+	Owner = Cast<ACharacter_B>(TryGetPawnOwner());
 }
 
 bool UPlayerAnimInstance_B::IsReady() const

@@ -6,7 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "HoldComponent_B.generated.h"
 
-class APlayerCharacter_B;
+class ACharacter_B;
 
 UCLASS()
 class BRAWLINN_API UHoldComponent_B : public USphereComponent
@@ -55,6 +55,6 @@ private:
 	TArray<AActor*> ThrowableItemsInRange;
 
 	AActor* HoldingItem = nullptr;
-	APlayerCharacter_B* OwningPlayer = nullptr;
+	ACharacter_B* OwningPlayer = nullptr;
 
 };
