@@ -41,10 +41,11 @@ public:
 
 private:
 
+	UPROPERTY()
 	APlayerCharacter_B* CharacterSelected = nullptr;
+	
 	int CurrentIndex = 0;
 	bool bFirstTime = true;
-
 
 	TArray<APlayerCharacter_B*> Characters;
 	TArray<APlayerCharacter_B*> SelectedCharacters;

@@ -113,6 +113,8 @@ void AMenuGameMode_B::LS_IntroFinished()
 
 void AMenuGameMode_B::LS_QuitGame()
 {
+	MainMenuWidget->RemoveFromParent();
+
 	LSA_MainMenu->GetSequencePlayer()->Stop();
 	LSA_Intro->GetSequencePlayer()->PlayReverse();
 	bIsQuitting = true;

@@ -32,6 +32,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UMainMenu_B> BP_MainMenu;
 
+	UPROPERTY()
 	UMainMenu_B* MainMenuWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -72,6 +73,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		ULevelSequence* LS_Intro = nullptr;
 
+	UPROPERTY()
 	ALevelSequenceActor* LSA_Intro = nullptr;
 
 
@@ -97,6 +99,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACameraActor> BP_SelectionCamera; 
 
+	UPROPERTY()
 	class ACameraActor* SelectionCamera = nullptr;
 
 	bool bIsQuitting = false;

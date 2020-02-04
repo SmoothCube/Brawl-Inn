@@ -23,7 +23,6 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-
 	// ** Delegates **
 	UFUNCTION()
 		void PlayButtonClicked();
@@ -56,7 +55,5 @@ protected:
 	AMenuGameMode_B* GameMode = nullptr;
 
 private:
-
 	TArray<UButton_B*> Buttons;
-
 };
