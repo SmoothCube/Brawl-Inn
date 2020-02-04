@@ -7,6 +7,7 @@
 #include "PunchComponent_B.generated.h"
 
 class APlayerCharacter_B;
+class USoundCue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPunched, APlayerCharacter_B*, PlayerThatPunched);
 
@@ -82,6 +83,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashForceModifier = 75000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* PunchSound;
 private:
 
 

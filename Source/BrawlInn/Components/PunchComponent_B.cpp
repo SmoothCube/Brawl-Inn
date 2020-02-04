@@ -6,12 +6,15 @@
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "BrawlInn.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/PlayerController_B.h"
+#include "System/GameInstance_B.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
@@ -52,6 +55,21 @@ void UPunchComponent_B::PunchStart()
 			else
 				PunchHit(comp);
 		}
+	}
+	if (PunchSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			PunchSound,
+			GetComponentLocation(),
+			volume
+		);
 	}
 
 	Dash();

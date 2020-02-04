@@ -8,6 +8,7 @@
 #include "BrawlInn.h"
 #include "Components/BarMeshComponent_B.h"
 #include "Items/Useable_B.h"
+#include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
 {
@@ -35,7 +36,22 @@ void ABar_B::SpawnUseable()
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ItemSpawnSound, House->GetSocketLocation(ItemSocket));
+
+	if (ItemSpawnSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume = GameInstance->MasterVolume * GameInstance->MusicVolume;
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			ItemSpawnSound,
+			House->GetSocketLocation(ItemSocket),
+			volume
+			);
+	}
 }
 
 void ABar_B::StartTimerForNextSpawn()

@@ -37,14 +37,14 @@ bool UThrowComponent_B::TryThrow()
 		return false;
 	}
 
-	BWarn("Trying Throw!");
-	bIsThrowing = true;
+	//BWarn("Trying Charge!");
+	bIsCharging = true;
 	return true;
 }
 
-bool UThrowComponent_B::IsThrowing() const
+bool UThrowComponent_B::IsCharging() const
 {
-	return bIsThrowing;
+	return bIsCharging;
 }
 
 void UThrowComponent_B::BeginPlay()
@@ -56,6 +56,17 @@ void UThrowComponent_B::BeginPlay()
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->SpawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->DespawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
+}
+
+bool UThrowComponent_B::IsThrowing() const
+{
+	return bIsThrowing;
+}
+
+void UThrowComponent_B::StartThrow()
+{
+	bIsCharging = false;
+	bIsThrowing = true;
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
@@ -171,6 +182,7 @@ void UThrowComponent_B::Throw()
 	//	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
 	//}
 	OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
+	bIsCharging = false;
 	bIsThrowing = false;
 	OwningPlayer->SetState(EState::EWalking);
 	BWarn("Throw end!");
