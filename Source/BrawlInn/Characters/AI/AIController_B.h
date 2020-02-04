@@ -7,7 +7,9 @@
 #include "System/Interfaces/ControllerInterface_B.h"
 #include "AIController_B.generated.h"
 
-class UHealthComponent_B;
+class AItem_B;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FStoolReceived, AItem_B*);
 
 UCLASS()
 class BRAWLINN_API AAIController_B : public AAIController, public IControllerInterface_B
@@ -18,9 +20,9 @@ public:
 
 	AAIController_B();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UHealthComponent_B* HealthComponent;
-
 	virtual void TakeOneDamage_Implementation() override;
+
+	/// Called by the bar when it wants to place stools. Received by the BehaviourTree to the AI.
+	FStoolReceived OnStoolReceived_D;
 	
 };

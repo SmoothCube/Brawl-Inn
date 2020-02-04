@@ -196,8 +196,5 @@ private:
 
 	friend class UPunchComponent_B;
 
-	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
-
 	float CurrentHoldTime = 0.f;
 };

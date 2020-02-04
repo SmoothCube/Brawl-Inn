@@ -23,5 +23,6 @@ protected:
 		TSubclassOf<AItem_B> ItemToSpawn;
 
 public:
+	UPROPERTY()
 	AItem_B* Item = nullptr;
 };

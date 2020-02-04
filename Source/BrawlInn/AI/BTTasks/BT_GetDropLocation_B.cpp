@@ -7,7 +7,7 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "BrawlInn.h"
-#include "AI/AIItemManager_B.h"
+#include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
 #include "AI/AIDropPoint_B.h"
 
@@ -15,21 +15,20 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	Manager = Cast<AAIItemManager_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIItemManager_B::StaticClass()));
-	if (!Manager)
+	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	if (!Bar)
 	{
-		BError("Can't find the AI Manager");
+		BError("Can't find the Bar");
 		return EBTNodeResult::Aborted;
 	}
 
-	if (Manager->ItemQueue.IsEmpty())
+	if (Bar->StoolDropLocations.IsEmpty())
 		return EBTNodeResult::Failed;
 
-	AAIDropPoint_B* DropPoint = *Manager->ItemQueue.Peek();
+	AAIDropPoint_B* DropPoint = *Bar->StoolDropLocations.Peek();
 	if (DropPoint)
 	{
-		Manager->ItemQueue.Pop();
-		BScreen("Item");
+		Bar->StoolDropLocations.Pop();
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropActor.SelectedKeyName, DropPoint);
 		return EBTNodeResult::Succeeded;
 	}

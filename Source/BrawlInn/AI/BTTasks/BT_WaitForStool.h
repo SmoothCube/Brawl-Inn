@@ -4,33 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BT_DropItem_B.generated.h"
+#include "BT_WaitForStool.generated.h"
 
 class AAIController_B;
-class AAICharacter_B;
-class AItem_B;
+class UBehaviorTreeComponent;
 
 UCLASS()
-class BRAWLINN_API UBT_DropItem_B : public UBTTaskNode
+class BRAWLINN_API UBT_WaitForStool : public UBTTaskNode
 {
 	GENERATED_BODY()
-	
 protected:
+
+	UBT_WaitForStool();
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector DropTargetPoint;
+	UFUNCTION()
+	void RecieveStool(AItem_B* Stool);
 
 	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector HoldingActor;
 
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<AItem_B> BP_Item;
+	UPROPERTY()
+		AAIController_B* OwningAI = nullptr;
 
 	UPROPERTY()
-	AAIController_B* OwningAI = nullptr;
-
-	UPROPERTY()
-	AAICharacter_B* AICharacter = nullptr;
-
+		UBehaviorTreeComponent* OwnerComponent = nullptr;;
 };

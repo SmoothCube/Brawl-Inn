@@ -11,4 +11,11 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
 {
 	GENERATED_BODY()
 
+public:
+
+	APlayerCharacter_B();
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
 };

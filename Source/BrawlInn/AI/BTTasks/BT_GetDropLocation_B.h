@@ -7,7 +7,7 @@
 #include "BT_GetDropLocation_B.generated.h"
 
 class AItem_B;
-class AAIItemManager_B;
+class ABar_B;
 
 UCLASS()
 class BRAWLINN_API UBT_GetDropLocation_B : public UBTTaskNode
@@ -20,6 +20,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector DropActor;
 
+	UPROPERTY()
 	AItem_B* Item = nullptr;
-	AAIItemManager_B* Manager = nullptr;
+
+	UPROPERTY()
+	ABar_B* Bar = nullptr;
 };

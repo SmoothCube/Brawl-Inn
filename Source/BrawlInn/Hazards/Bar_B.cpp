@@ -2,12 +2,15 @@
 
 #include "Bar_B.h"
 #include "Sound/SoundCue.h"
+#include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "BrawlInn.h"
 #include "Components/BarMeshComponent_B.h"
+#include "Characters/AI/AIController_B.h"
 #include "Items/Useable_B.h"
+#include "Items/Item_B.h"
 #include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
@@ -16,18 +19,26 @@ ABar_B::ABar_B()
 
 	House = CreateDefaultSubobject<UBarMeshComponent_B>("House");
 	SetRootComponent(House);
+
+	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
+	Door->SetupAttachment(House);
+
+	ItemSpawnLocation = CreateDefaultSubobject<USceneComponent>("Item spawnlocation");
+	ItemSpawnLocation->SetupAttachment(House);
+
 }
 
 void ABar_B::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	StartTimerForNextSpawn();
-	
-	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextSpawn);
+
+	StartTimerForNextTankard();
+	StartTimerForNextStool();
+
+	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
 }
 
-void ABar_B::SpawnUseable()
+void ABar_B::SpawnTankard()
 {
 	if (BP_Useables.Num() == 0)
 		return;
@@ -37,7 +48,7 @@ void ABar_B::SpawnUseable()
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
 
-	if (ItemSpawnSound)
+	if (TankardSpawnSound)
 	{
 		float volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -47,14 +58,33 @@ void ABar_B::SpawnUseable()
 		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
-			ItemSpawnSound,
+			TankardSpawnSound,
 			House->GetSocketLocation(ItemSocket),
 			volume
-			);
+		);
 	}
 }
 
-void ABar_B::StartTimerForNextSpawn()
+void ABar_B::StartTimerForNextTankard()
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_NextSpawnTimer, this, &ABar_B::SpawnUseable, FMath::FRandRange(MinSpawnTimer, MaxSpawnTimer), false);
+	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
+}
+
+void ABar_B::SpawnStool()
+{
+	StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
+	if (IsValid(StoolToDeliver))
+	{
+		AAIController_B* AIController = Cast<AAIController_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIController_B::StaticClass()));
+		if (AIController)
+		{
+			AIController->OnStoolReceived_D.Broadcast(StoolToDeliver);
+		}
+	}
+
+}
+
+void ABar_B::StartTimerForNextStool()
+{
+	GetWorld()->GetTimerManager().SetTimer(TH_NextStoolTimer, this, &ABar_B::SpawnStool, FMath::FRandRange(MinStoolSpawnTimer, MaxStoolSpawnTimer), false);
 }
