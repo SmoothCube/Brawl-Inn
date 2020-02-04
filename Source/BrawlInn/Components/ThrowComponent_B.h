@@ -22,7 +22,12 @@ public:
 	void Throw();
 
 	UFUNCTION(BlueprintPure)
-		bool IsThrowing() const;
+	bool IsCharging() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsThrowing() const;
+
+	void StartThrow();
 
 	bool AimAssist(FVector& TargetPlayerLocation);
 
@@ -36,7 +41,6 @@ protected:
 	void OneCharacterChanged();
 
 
-
 	/// Aiming
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistAngle = 15.f;
@@ -45,6 +49,7 @@ protected:
 		float AimAssistRange = 2000.f;
 
 private:
+	bool bIsCharging = false;
 	bool bIsThrowing = false;
 
 	TArray<ACharacter_B*> OtherPlayers;

@@ -17,6 +17,7 @@ class APlayerController_B;
 class UWidgetComponent;
 class UMaterial;
 class USoundCue;
+class UNiagaraComponent;
 
 UENUM(BlueprintType)		//"BlueprintType" is essential to include
 enum class EState : uint8
@@ -177,6 +178,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* HurtSound;
+
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* NiagaraStunSystemComponent;
 
 private:
 

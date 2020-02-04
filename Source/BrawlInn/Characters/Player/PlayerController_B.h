@@ -62,5 +62,6 @@ private:
 	void PickupButtonPressed();
 	void PickupButtonRepeat();
 	void PunchButtonPressed();
+	void PunchButtonReleased();
 	void BreakFreeButtonPressed();
 };
