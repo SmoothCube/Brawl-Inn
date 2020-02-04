@@ -26,7 +26,7 @@ void APlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
-	HealthComponent->HealthIsZero_D.AddDynamic(this, &APlayerController_B::KillPlayerCharacter);
+	HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerController_B::KillPlayerCharacter);
 }
 
 void APlayerController_B::SetupInputComponent()
@@ -193,7 +193,7 @@ void APlayerController_B::BreakFreeButtonPressed()
 
 void APlayerController_B::TakeOneDamage_Implementation()
 {
-	HealthComponent->TakeDamage(1);
+	HealthComponent->TakeDamage(25);
 }
 
 void APlayerController_B::DEBUG_TEST01()

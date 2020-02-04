@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PunchComponent_B.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
@@ -12,7 +11,7 @@
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "System/BaseActors/Character_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
 
@@ -22,7 +21,7 @@ UPunchComponent_B::UPunchComponent_B()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-	Player = Cast<APlayerCharacter_B>(GetOwner());
+	Player = Cast<ACharacter_B>(GetOwner());
 }
 
 // Called when the game starts
@@ -45,7 +44,7 @@ void UPunchComponent_B::PunchStart()
 	for (auto& comp : OurOverlappingComponents)
 	{
 		AActor* OtherActor = comp->GetOwner();
-		APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
+		ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
 		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(comp);
 
 		if (!bHasHit && OtherActor != GetOwner())
@@ -113,7 +112,7 @@ void UPunchComponent_B::setIsPunchingFalse()
 	bHasHit = false;
 }
 
-void UPunchComponent_B::PunchHit(APlayerCharacter_B* OtherPlayer)
+void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
 	if (!OtherPlayer) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
@@ -154,13 +153,13 @@ bool UPunchComponent_B::GetIsPunching()
 	return bIsPunching;
 }
 
-void UPunchComponent_B::GetPunched(FVector InPunchStrength, APlayerCharacter_B* PlayerThatPunched)
+void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched)
 {
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
 	float strength = InPunchStrength.Size();
 	GetPunched_D.Broadcast(PlayerThatPunched);
-	BWarn("Getting Punched with strength: %s", *InPunchStrength.ToString());
+	BWarn("Getting Punched with strength: %f", InPunchStrength.Size());
 
 	PunchEnd();
 	//Player->Fall();
@@ -190,7 +189,7 @@ FVector UPunchComponent_B::CalculatePunchStrenght()
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(OtherActor);
+	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 
 	if (!bHasHit && OtherActor != GetOwner())

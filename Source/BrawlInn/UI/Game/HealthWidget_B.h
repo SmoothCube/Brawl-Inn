@@ -7,7 +7,8 @@
 #include "HealthWidget_B.generated.h"
 
 class UProgressBar;
-class UHorizontalBox;
+class UVerticalBox;
+class UImage;
 
 UCLASS()
 class BRAWLINN_API UHealthWidget_B : public UUserWidget
@@ -19,17 +20,20 @@ protected:
 	virtual bool Initialize() override;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UHorizontalBox* BarrelArea;
+		UVerticalBox* RespawnCharges;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UProgressBar* HealthProgressBar;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FSlateBrush brush;
+	UPROPERTY()
+	TArray<UImage*> Barrels;
 
 public:
 
 	UFUNCTION()
 	void UpdateHealthAmount(int Amount);
+
+	UFUNCTION()
+		void UpdateRespawnsAmount();
 
 };

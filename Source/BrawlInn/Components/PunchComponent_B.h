@@ -6,10 +6,10 @@
 #include "Components/SphereComponent.h"
 #include "PunchComponent_B.generated.h"
 
-class APlayerCharacter_B;
+class ACharacter_B;
 class USoundCue;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPunched, APlayerCharacter_B*, PlayerThatPunched);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*, PlayerThatPunched);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BRAWLINN_API UPunchComponent_B : public USphereComponent
@@ -30,7 +30,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	APlayerCharacter_B* Player = nullptr;
+	ACharacter_B* Player = nullptr;
 
 public:	
 
@@ -42,10 +42,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PunchEnd();
 	
-	void PunchHit(APlayerCharacter_B* OtherPlayer);
+	void PunchHit(ACharacter_B* OtherPlayer);
 	void PunchHit(UPrimitiveComponent* OtherComp);
 
-	void GetPunched(FVector InPunchStrength, APlayerCharacter_B* PlayerThatPunched);
+	void GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched);
 
 	FVector CalculatePunchStrenght();
 

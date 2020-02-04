@@ -6,8 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent_B.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthUpdate, int32, Amount);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FZeroHealth);
+DECLARE_MULTICAST_DELEGATE_OneParam(FHealthUpdate, int);
+DECLARE_MULTICAST_DELEGATE(FZeroHealth);
+DECLARE_MULTICAST_DELEGATE(FRespawn);
 
 class UHealthWidget_B;
 
@@ -28,19 +29,28 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TakeDamage(int Value = 1);
 
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FHealthUpdate HealthUpdated_D;
 
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FZeroHealth HealthIsZero_D;
+
+	FRespawn OnRespawn_D;
 
 	UFUNCTION()
 	void SetHealthWidget(UHealthWidget_B* Widget);
 
 protected:
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variables")
-		int Health = 12;
+		int Respawns = 3;
+
+	UPROPERTY()
+		int Health = 100;
 
 	UPROPERTY()
 	UHealthWidget_B* HealthWidget = nullptr;
+
+private:
+
+	int StartingHealth = 100;
 };
