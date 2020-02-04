@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+
 #include "Character_B.h"
 #include "BrawlInn.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,7 +25,6 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Components/WidgetComponent.h"
 #include "Components/HealthComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
@@ -44,9 +44,6 @@ ACharacter_B::ACharacter_B()
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	HealthWidget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
-	HealthWidget->SetupAttachment(GetRootComponent());
 
 	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
 	DirectionIndicatorPlane->SetupAttachment(RootComponent);
@@ -87,7 +84,7 @@ void ACharacter_B::BeginPlay()
 void ACharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateHealthRotation();
+
 	if (GetState() == EState::EFallen)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
@@ -143,40 +140,6 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	}
 
 	return DamageAmount;
-}
-
-void ACharacter_B::UpdateHealthRotation()
-{
-	if (!GameCamera)
-	{
-		BScreen("Camera not found");
-		return;
-	}
-
-	HealthWidget->SetWorldRotation((GameCamera->Camera->GetForwardVector() * -1).Rotation());
-
-	FVector2D DrawSize;
-
-	float xMin = 25.f;
-	float xMax = 100.f;
-
-	float minPosZ = 150;
-	float maxPosZ = 200;
-
-	float size = (GameCamera->SpringArm->TargetArmLength - GameCamera->SmallestSpringArmLength) *
-		((xMax - xMin) / (GameCamera->LargestSpringArmLength - GameCamera->SmallestSpringArmLength)) + xMin;
-
-	float posZ = (GameCamera->SpringArm->TargetArmLength - GameCamera->SmallestSpringArmLength) *
-		((maxPosZ - minPosZ) / (GameCamera->LargestSpringArmLength - GameCamera->SmallestSpringArmLength)) + minPosZ;
-
-	DrawSize.X = size * 4;
-	DrawSize.Y = size * 4;
-
-	FVector Location = GetActorLocation();
-
-	Location.Z = posZ;
-	HealthWidget->SetWorldLocation(Location);
-	HealthWidget->SetDrawSize(DrawSize);
 }
 
 void ACharacter_B::HandleRotation(float DeltaTime)

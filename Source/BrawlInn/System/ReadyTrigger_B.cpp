@@ -61,7 +61,7 @@ void AReadyTrigger_B::PrepareStartGame()
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	GameInstance->ActivePlayerControllerIDs = PlayerControllerIds;
+	GameInstance->SetActivePlayerControllerIDs(PlayerControllerIds);
 
 	GameMode->StartGame();
 }

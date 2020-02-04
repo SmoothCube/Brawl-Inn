@@ -11,6 +11,8 @@ class USoundBase;
 /**
  * 
  */
+DECLARE_MULTICAST_DELEGATE(FNumberOfPlayerControllersChanged);
+
 UCLASS()
 class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
@@ -23,8 +25,6 @@ public:
     //{
 
     //}
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
-    TArray<int> ActivePlayerControllerIDs = { 0,1};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
     float MasterVolume = 1.f;
@@ -34,4 +34,22 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
     float SfxVolume = 1.f;
+    UFUNCTION()
+    void AddPlayerControllerID(int ID);
+
+    UFUNCTION()
+    void RemovePlayerControllerID(int ID);  
+    
+    UFUNCTION()
+    TArray<int> GetActivePlayerControllerIDs() const;
+
+    UFUNCTION()
+    void SetActivePlayerControllerIDs(TArray<int> NewControllerIDs);
+    
+    FNumberOfPlayerControllersChanged OnNumberPlayerControllersChanged;
+
+protected:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
+        TArray<int> ActivePlayerControllerIDs = { 0,1 };
 };
