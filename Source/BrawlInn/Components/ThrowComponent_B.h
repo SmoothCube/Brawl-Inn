@@ -34,10 +34,10 @@ public:
 	bool AimAssist(FVector& TargetPlayerLocation);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
-		float MinImpulseSpeed = 100.f;
+		float MinImpulseSpeed = 1000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
-		float MaxImpulseSpeed = 200.f;
+		float MaxImpulseSpeed = 4000.f;
 
 	float ImpulseSpeed = 0.f;
 
