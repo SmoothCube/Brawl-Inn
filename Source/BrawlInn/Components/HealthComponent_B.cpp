@@ -36,5 +36,6 @@ void UHealthComponent_B::TakeDamage(int Value)
 void UHealthComponent_B::SetHealthWidget(UHealthWidget_B* Widget)
 {
 	HealthWidget = Widget;
-	HealthUpdated_D.AddDynamic(Widget, &UHealthWidget_B::UpdateHealthAmount);
+	if (!HealthUpdated_D.IsAlreadyBound(Widget, &UHealthWidget_B::UpdateHealthAmount))
+		HealthUpdated_D.AddDynamic(Widget, &UHealthWidget_B::UpdateHealthAmount);
 }

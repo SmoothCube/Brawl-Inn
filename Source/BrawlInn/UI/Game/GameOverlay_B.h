@@ -33,6 +33,9 @@ protected:
 	UPROPERTY()
 	TArray<UHealthWidget_B*> HealthWidgets;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UHealthWidget_B> BP_HealthWidget;
+
 	UPROPERTY()
 	UGameInstance_B* GameInstance = nullptr;
 

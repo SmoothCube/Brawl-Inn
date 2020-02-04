@@ -21,10 +21,12 @@ public:
     UFUNCTION()
     void RemovePlayerControllerID(int ID);  
     
+    UFUNCTION()
     TArray<int> GetActivePlayerControllerIDs() const;
 
+    UFUNCTION()
     void SetActivePlayerControllerIDs(TArray<int> NewControllerIDs);
-
+    
     FNumberOfPlayerControllersChanged OnNumberPlayerControllersChanged;
 
 protected:

@@ -22,7 +22,6 @@ bool UGameOverlay_B::Initialize()
 	if (GameInstance)
 		GameInstance->OnNumberPlayerControllersChanged.AddUObject(this, &UGameOverlay_B::UpdateHealthWidgets);
 
-	UpdateHealthWidgets();
 
 	return s;
 }

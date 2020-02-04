@@ -34,6 +34,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FZeroHealth HealthIsZero_D;
 
+	UFUNCTION()
 	void SetHealthWidget(UHealthWidget_B* Widget);
 
 protected:

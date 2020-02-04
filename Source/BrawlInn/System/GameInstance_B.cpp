@@ -6,13 +6,15 @@
 void UGameInstance_B::AddPlayerControllerID(int ID)
 {
 	ActivePlayerControllerIDs.Add(ID);
-	OnNumberPlayerControllersChanged.Broadcast();
+	if (OnNumberPlayerControllersChanged.IsBound())
+		OnNumberPlayerControllersChanged.Broadcast();
 }
 
 void UGameInstance_B::RemovePlayerControllerID(int ID)
 {
 	ActivePlayerControllerIDs.Remove(ID);
-	OnNumberPlayerControllersChanged.Broadcast();
+	if (OnNumberPlayerControllersChanged.IsBound())
+		OnNumberPlayerControllersChanged.Broadcast();
 }
 
 TArray<int> UGameInstance_B::GetActivePlayerControllerIDs() const
@@ -23,5 +25,6 @@ TArray<int> UGameInstance_B::GetActivePlayerControllerIDs() const
 void UGameInstance_B::SetActivePlayerControllerIDs(TArray<int> NewControllerIDs)
 {
 	ActivePlayerControllerIDs = NewControllerIDs;
-	OnNumberPlayerControllersChanged.Broadcast();
+	if (OnNumberPlayerControllersChanged.IsBound())
+		OnNumberPlayerControllersChanged.Broadcast();
 }
