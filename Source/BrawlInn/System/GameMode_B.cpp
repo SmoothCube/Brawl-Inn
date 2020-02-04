@@ -7,6 +7,7 @@
 #include "Components/DecalComponent.h"
 #include "BrawlInn.h"
 
+#include "System/GameInstance_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/MainGameMode_B.h"
 #include "System/Camera/GameCamera_B.h"
@@ -18,6 +19,8 @@
 void AGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
 	/// Finds spawnpoints
 	GetAllSpawnpointsInWorld();
@@ -54,6 +57,11 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 	{
+		if (Pawn->IsA(AInitPawn_B::StaticClass()))
+		{
+			GameInstance->AddPlayerControllerID(UGameplayStatics::GetPlayerControllerID(PlayerController));
+		}
+
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		Pawn->Destroy();
@@ -104,6 +112,8 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool b
 			AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
 			PlayerController->Possess(Character);
 			PlayerController->PlayerCharacter = nullptr;
+			if(GameInstance)
+				GameInstance->RemovePlayerControllerID(UGameplayStatics::GetPlayerControllerID(PlayerController));
 		}
 		UpdateViewTarget(PlayerController);
 		DespawnCharacter_NOPARAM_D.Broadcast();

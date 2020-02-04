@@ -11,6 +11,7 @@
 #include "System/GameInstance_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
+#include "UI/Game/GameOverlay_B.h"
 
 void AMainGameMode_B::BeginPlay()
 {
@@ -21,8 +22,12 @@ void AMainGameMode_B::BeginPlay()
 	/// Spawns and setups camera
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 
+	/// Create overlay
+	UGameOverlay_B* Overlay = CreateWidget<UGameOverlay_B>(GetWorld(), BP_GameOverlay);
+	Overlay->AddToViewport();
+
 	/// Spawns characters for the players
-	for (int ID : Cast<UGameInstance_B>(GetGameInstance())->ActivePlayerControllerIDs)
+	for (int ID : Cast<UGameInstance_B>(GetGameInstance())->GetActivePlayerControllerIDs())
 	{
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", ID); continue; }

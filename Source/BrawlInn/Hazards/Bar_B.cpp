@@ -35,7 +35,7 @@ void ABar_B::SpawnUseable()
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ItemSpawnSound, House->GetSocketLocation(ItemSocket));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ItemSpawnSound, House->GetSocketLocation(ItemSocket),0.3f);
 }
 
 void ABar_B::StartTimerForNextSpawn()

@@ -10,6 +10,7 @@ class APlayerStart;
 class APlayerController_B;
 class APlayerCharacter_B;
 class ARespawnPawn_B;
+class UGameInstance_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, APlayerController_B*, PlayerControllerReference, bool, ShouldUseVector, FTransform, SpawnTransform);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDespawnCharacter, APlayerController_B*, PlayerControllerReference, bool, bShouldRespawn);
@@ -67,6 +68,9 @@ public:
 		void DespawnCharacter(APlayerController_B* PlayerController, bool bShouldRespawn);
 
 protected:
+
+	UPROPERTY()
+	UGameInstance_B* GameInstance = nullptr;
 
 	void CreatePlayerControllers();
 	void GetAllSpawnpointsInWorld();

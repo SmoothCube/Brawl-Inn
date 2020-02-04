@@ -10,6 +10,7 @@ class AGameCamera_B;
 class UVictoryScreenWidget_B;
 class USceneComponent; 
 class UPauseMenu_B;
+class UGameOverlay_B;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
 
@@ -39,14 +40,17 @@ public:
 	void RemoveCameraFocusPoint(USceneComponent* FocusComponent);
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UVictoryScreenWidget_B> BP_VictoryScreen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
+		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
 
 	UPROPERTY(BlueprintReadWrite)
 	UPauseMenu_B* PauseMenuWidget = nullptr;

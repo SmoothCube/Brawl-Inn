@@ -38,9 +38,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UPunchComponent_B* PunchComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		UWidgetComponent* HealthWidget;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UHoldComponent_B* HoldComponent;
 
@@ -53,8 +50,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
-
-	void UpdateHealthRotation();
 
 	virtual void PossessedBy(AController* NewController) override;
 

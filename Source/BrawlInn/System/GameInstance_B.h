@@ -6,9 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "GameInstance_B.generated.h"
 
-/**
- * 
- */
+DECLARE_MULTICAST_DELEGATE(FNumberOfPlayerControllersChanged);
+
 UCLASS()
 class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
@@ -16,6 +15,20 @@ class BRAWLINN_API UGameInstance_B : public UGameInstance
 
 public:
 
-    TArray<int> ActivePlayerControllerIDs = { 0,1};
+    UFUNCTION()
+    void AddPlayerControllerID(int ID);
 
+    UFUNCTION()
+    void RemovePlayerControllerID(int ID);  
+    
+    TArray<int> GetActivePlayerControllerIDs() const;
+
+    void SetActivePlayerControllerIDs(TArray<int> NewControllerIDs);
+
+    FNumberOfPlayerControllersChanged OnNumberPlayerControllersChanged;
+
+protected:
+
+    UPROPERTY(EditDefaultsOnly)
+        TArray<int> ActivePlayerControllerIDs = { 0,1 };
 };
