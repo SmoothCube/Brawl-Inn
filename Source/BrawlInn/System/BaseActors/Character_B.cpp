@@ -60,9 +60,11 @@ ACharacter_B::ACharacter_B()
 	GetCharacterMovement()->BrakingFrictionFactor = 1;
 	GetCharacterMovement()->GroundFriction = 3;
 
-	NiagaraStunSystemComponent = CreateDefaultSubobject<UNiagaraComponent>("Particle System");
-	NiagaraStunSystemComponent->SetupAttachment(GetMesh());
-	
+	PS_Stun = CreateDefaultSubobject<UNiagaraComponent>("Stun Particle System");
+	PS_Stun->SetupAttachment(GetMesh());
+
+	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
+	PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
 }
 
 void ACharacter_B::BeginPlay()
@@ -72,7 +74,8 @@ void ACharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &ACharacter_B::OnRadialDamageTaken);
-	NiagaraStunSystemComponent->Deactivate();
+	PS_Stun->Deactivate();
+	PS_Charge->Deactivate();
 	MakeInvulnerable(1.0f);
 
 	for (TActorIterator<AGameCamera_B> itr(GetWorld()); itr; ++itr)
@@ -307,9 +310,6 @@ void ACharacter_B::AddStun(int Strength)
 		if (StunAmount >= PunchesToStun)
 		{
 			SetState(EState::EStunned);
-			if (IsValid(NiagaraStunSystemComponent))
-				NiagaraStunSystemComponent->Activate(true);
-
 		}
 		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &ACharacter_B::RemoveStun, StunTime, false);
 	}
@@ -320,8 +320,6 @@ void ACharacter_B::RemoveStun()
 	if (GetState() == EState::EStunned)
 	{
 		SetState(EState::EWalking);
-		if(IsValid(NiagaraStunSystemComponent))
-			NiagaraStunSystemComponent->DeactivateImmediate();
 	}
 	StunAmount = 0;
 }
@@ -372,7 +370,18 @@ void ACharacter_B::Use_Implementation()
 
 void ACharacter_B::SetState(EState s)
 {
+
+	//on leaving state
+	switch (State)
+	{
+	case EState::EStunned:
+		if (IsValid(PS_Stun))
+			PS_Stun->DeactivateImmediate();
+		break;
+	}
+
 	State = s;
+	//Entering state
 	switch (State)
 	{
 	case EState::EWalking:
@@ -380,6 +389,10 @@ void ACharacter_B::SetState(EState s)
 		break;
 	case EState::EHolding:
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		break;
+	case EState::EStunned:
+		if (IsValid(PS_Stun))
+			PS_Stun->Activate();
 		break;
 	}
 }

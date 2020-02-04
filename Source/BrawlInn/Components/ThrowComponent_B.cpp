@@ -8,6 +8,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "NiagaraComponent.h"
+
 
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "System/BaseActors/Character_B.h"
@@ -39,6 +41,8 @@ bool UThrowComponent_B::TryThrow()
 
 	//BWarn("Trying Charge!");
 	bIsCharging = true;
+	if (OwningPlayer && OwningPlayer->PS_Charge)
+		OwningPlayer->PS_Charge->Activate();
 	return true;
 }
 
@@ -75,6 +79,8 @@ bool UThrowComponent_B::IsThrowing() const
 void UThrowComponent_B::StartThrow()
 {
 	bIsCharging = false;
+	if(OwningPlayer && OwningPlayer->PS_Charge)
+		OwningPlayer->PS_Charge->DeactivateImmediate();
 	bIsThrowing = true;
 }
 
@@ -182,6 +188,8 @@ void UThrowComponent_B::Throw()
 	}
 
 	OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
+	if (OwningPlayer && OwningPlayer->PS_Charge)
+		OwningPlayer->PS_Charge->DeactivateImmediate();
 	bIsCharging = false;
 	bIsThrowing = false;
 	OwningPlayer->SetState(EState::EWalking);

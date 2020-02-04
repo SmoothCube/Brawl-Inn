@@ -85,7 +85,6 @@ protected:
 
 	FVector FindMeshLocation();
 
-
 public:
 
 	UFUNCTION(BlueprintPure)
@@ -137,6 +136,10 @@ public:
 		float MaxHoldTime = 4.f;
 
 	bool bHasShield = false;
+
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* PS_Charge = nullptr;
+
 protected:
 
 	EState State = EState::EWalking;
@@ -180,7 +183,7 @@ protected:
 	USoundCue* HurtSound;
 
 	UPROPERTY(VisibleAnywhere)
-		UNiagaraComponent* NiagaraStunSystemComponent;
+		UNiagaraComponent* PS_Stun = nullptr;
 
 private:
 
