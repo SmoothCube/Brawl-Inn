@@ -1,10 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameOverlay_B.h"
-#include "HealthWidget_B.h"
-#include "System/GameInstance_B.h"
 #include "Kismet/GameplayStatics.h"
+
 #include "System/MainGameMode_B.h"
+#include "System/GameInstance_B.h"
+#include "UI/Game/HealthWidget_B.h"
+#include "Characters/Player/PlayerController_B.h"
+#include "Components/HealthComponent_B.h"
 
 bool UGameOverlay_B::Initialize()
 {
@@ -35,6 +38,10 @@ void UGameOverlay_B::UpdateHealthWidgets()
 
 		TArray<int> Players = GameInstance->GetActivePlayerControllerIDs();
 		for (int PlayerID : Players)
+		{
 			HealthWidgets[PlayerID]->SetVisibility(ESlateVisibility::Visible);
+			APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID));
+			PlayerController->HealthComponent->SetHealthWidget(HealthWidgets[PlayerID]);
+		}
 	}
 }

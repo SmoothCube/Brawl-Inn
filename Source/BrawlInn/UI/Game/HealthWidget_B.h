@@ -14,9 +14,14 @@ class BRAWLINN_API UHealthWidget_B : public UUserWidget
 	GENERATED_BODY()
 protected:
 
-		virtual bool Initialize() override;
+	virtual bool Initialize() override;
 
-		UPROPERTY(meta = (BindWidget))
-			UImage* HealthImage;
-	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UImage* HealthImage;
+
+public:
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void UpdateHealthAmount(int Amount);
+
 };
