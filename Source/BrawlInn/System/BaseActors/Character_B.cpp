@@ -377,6 +377,8 @@ void ACharacter_B::SetState(EState s)
 	case EState::EStunned:
 		if (IsValid(PS_Stun))
 			PS_Stun->DeactivateImmediate();
+			CurrentHoldTime = 0.f;
+
 		break;
 	}
 
