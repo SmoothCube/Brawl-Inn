@@ -40,6 +40,7 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAxis("MoveRight", this, &APlayerController_B::MoveRight);
 
 		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
+		InputComponent->BindAction("Punch", IE_Released, this, &APlayerController_B::PunchButtonReleased);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
 		InputComponent->BindAction("SelectRight", IE_Pressed, this, &APlayerController_B::SelectRight);
@@ -154,6 +155,7 @@ void APlayerController_B::PickupButtonRepeat()
 
 void APlayerController_B::PunchButtonPressed()
 {
+	BWarn("Punch Pressed");
 	if (PlayerCharacter)
 	{
 		if (!PlayerCharacter->HoldComponent->IsHolding())
@@ -164,6 +166,19 @@ void APlayerController_B::PunchButtonPressed()
 	else if (RespawnPawn)
 	{
 		RespawnPawn->ThrowBarrel();
+	}
+}
+
+void APlayerController_B::PunchButtonReleased()
+{
+	BWarn("Punch Released");
+
+	if (PlayerCharacter &&
+		PlayerCharacter->HoldComponent &&
+		PlayerCharacter->ThrowComponent &&
+		PlayerCharacter->HoldComponent->IsHolding())
+	{
+		PlayerCharacter->ThrowComponent->StartThrow();
 	}
 }
 

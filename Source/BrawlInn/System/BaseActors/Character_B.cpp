@@ -6,19 +6,22 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
-#include "Components/SphereComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
-#include "Camera/CameraComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/StaticMeshComponent.h"
+#include "Sound/SoundCue.h"
+#include "NiagaraComponent.h"
 
 #include "System/Interfaces/ControllerInterface_B.h"
+#include "System/GameInstance_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
@@ -58,6 +61,9 @@ ACharacter_B::ACharacter_B()
 	GetCharacterMovement()->MaxAcceleration = 800;
 	GetCharacterMovement()->BrakingFrictionFactor = 1;
 	GetCharacterMovement()->GroundFriction = 3;
+
+	NiagaraStunSystemComponent = CreateDefaultSubobject<UNiagaraComponent>("Particle System");
+	NiagaraStunSystemComponent->SetupAttachment(GetMesh());
 }
 
 void ACharacter_B::BeginPlay()
@@ -67,7 +73,7 @@ void ACharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &ACharacter_B::OnRadialDamageTaken);
-
+	NiagaraStunSystemComponent->Deactivate();
 	MakeInvulnerable(1.0f);
 
 	for (TActorIterator<AGameCamera_B> itr(GetWorld()); itr; ++itr)
@@ -99,7 +105,6 @@ void ACharacter_B::Tick(float DeltaTime)
 			HandleRotation(DeltaTime);
 		}
 	}
-
 }
 
 float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -119,6 +124,22 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 			Interface->Execute_TakeOneDamage(GetController());
 		}
 	}
+	if (HurtSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			HurtSound,
+			GetActorLocation(),
+			volume
+		);
+	}
+
 	return DamageAmount;
 }
 
@@ -287,6 +308,9 @@ void ACharacter_B::AddStun(int Strength)
 		if (StunAmount >= PunchesToStun)
 		{
 			SetState(EState::EStunned);
+			if (IsValid(NiagaraStunSystemComponent))
+				NiagaraStunSystemComponent->Activate(true);
+
 		}
 		GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &ACharacter_B::RemoveStun, StunTime, false);
 	}
@@ -297,6 +321,9 @@ void ACharacter_B::RemoveStun()
 	if (GetState() == EState::EStunned)
 	{
 		SetState(EState::EWalking);
+		if(IsValid(NiagaraStunSystemComponent))
+			NiagaraStunSystemComponent->Deactivate();
+
 	}
 	StunAmount = 0;
 }
