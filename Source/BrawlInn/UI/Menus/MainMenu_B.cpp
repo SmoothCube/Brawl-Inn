@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MainMenu_B.h"
-#include "BrawlInn.h"
-#include "UI/Buttons/Button_B.h"
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "System/MenuGameMode_B.h"
+
+#include "BrawlInn.h"
+#include "UI/Buttons/Button_B.h"
+#include "System/GameModes/MenuGameMode_B.h"
 
 bool UMainMenu_B::Initialize()
 {

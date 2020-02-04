@@ -2,7 +2,7 @@
 
 
 #include "PlayerAnimInstance_B.h"
-#include "System/BaseActors/Character_B.h"
+#include "Characters/Character_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"

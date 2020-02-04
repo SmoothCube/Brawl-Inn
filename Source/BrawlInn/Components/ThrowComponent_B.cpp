@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ThrowComponent_B.h"
-#include "BrawlInn.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
@@ -10,12 +9,12 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "NiagaraComponent.h"
 
-
+#include "BrawlInn.h"
 #include "System/Interfaces/ThrowableInterface_B.h"
-#include "System/BaseActors/Character_B.h"
+#include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Items/Throwable_B.h"
-#include "System/GameMode_B.h"
+#include "System/GameModes/GameMode_B.h"
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
 {

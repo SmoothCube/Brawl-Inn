@@ -1,21 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ReadyTrigger_B.h"
-#include "BrawlInn.h"
-#include "Characters/Player/PlayerCharacter_B.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
-#include "System/MenuGameMode_B.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "BrawlInn.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/MenuGameMode_B.h"
 
 AReadyTrigger_B::AReadyTrigger_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	OnActorBeginOverlap.AddDynamic(this, &AReadyTrigger_B::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AReadyTrigger_B::OnEndOverlap);
-
 }
 
 void AReadyTrigger_B::BeginPlay()

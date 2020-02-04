@@ -9,7 +9,7 @@
 
 #include "System/GameInstance_B.h"
 #include "System/Camera/GameCamera_B.h"
-#include "System/MainGameMode_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerController_B.h"

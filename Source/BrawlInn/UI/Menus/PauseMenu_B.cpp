@@ -6,7 +6,7 @@
 #include "Engine/World.h"
 
 #include "UI/Buttons/Button_B.h"
-#include "System/MainGameMode_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "BrawlInn.h"
 
 

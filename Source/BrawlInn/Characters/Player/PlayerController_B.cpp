@@ -12,9 +12,8 @@
 #include "Components/HealthComponent_B.h"
 #include "Components/CharacterSelectionComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "System/GameMode_B.h"
-#include "System/MainGameMode_B.h"
-#include "System/MenuGameMode_B.h"
+#include "System/GameModes/MainGameMode_B.h"
+#include "System/GameModes/MenuGameMode_B.h"
 
 APlayerController_B::APlayerController_B()
 {

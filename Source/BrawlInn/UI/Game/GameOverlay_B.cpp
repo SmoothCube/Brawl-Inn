@@ -3,7 +3,7 @@
 #include "GameOverlay_B.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "System/MainGameMode_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "System/GameInstance_B.h"
 #include "UI/Game/HealthWidget_B.h"
 #include "Characters/Player/PlayerController_B.h"

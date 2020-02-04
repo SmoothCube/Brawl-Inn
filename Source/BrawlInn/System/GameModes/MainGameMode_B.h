@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "System/GameMode_B.h"
+#include "System/GameModes/GameMode_B.h"
 #include "MainGameMode_B.generated.h"
 
 class AGameCamera_B;

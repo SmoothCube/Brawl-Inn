@@ -9,7 +9,7 @@
 #include "BrawlInn.h"
 
 #include "Characters/Player/PlayerController_B.h"
-#include "System/MainGameMode_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "Hazards/BounceActor/BounceActorSpawner_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 

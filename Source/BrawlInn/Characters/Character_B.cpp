@@ -28,7 +28,7 @@
 #include "Components/HealthComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "Items/Throwable_B.h"
-#include "System/GameMode_B.h"
+#include "System/GameModes/GameMode_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Animations/PlayerAnimInstance_B.h"
 

@@ -7,7 +7,7 @@
 
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/PlayerController_B.h"
-#include "System/MenuGameMode_B.h"
+#include "System/GameModes/MenuGameMode_B.h"
 
 UCharacterSelectionComponent_B::UCharacterSelectionComponent_B()
 {

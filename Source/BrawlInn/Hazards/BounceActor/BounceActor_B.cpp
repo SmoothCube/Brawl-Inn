@@ -3,11 +3,11 @@
 #include "BounceActor_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "DrawDebugHelpers.h"
-#include "BrawlInn.h"
-#include "System/GameMode_B.h"
 
+#include "BrawlInn.h"
+#include "Hazards/BounceActor/BarrelTargetPoint_B.h"
+#include "System/GameModes/GameMode_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 
 ABounceActor_B::ABounceActor_B()

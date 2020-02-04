@@ -11,7 +11,7 @@
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 
-#include "System/BaseActors/Character_B.h"
+#include "Characters/Character_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
 

@@ -2,7 +2,7 @@
 
 
 #include "AICharacter_B.h"
-#include "System/MainGameMode_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
