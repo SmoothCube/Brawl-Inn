@@ -24,7 +24,6 @@ public:
 protected:
 	// ** Variables **
 
-
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float ThrowHitStrength = 100;
 

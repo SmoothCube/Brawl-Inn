@@ -40,7 +40,6 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		}
 		else
 		{
-
 			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 			BScreen("Overlapping with %s", *GetNameSafe(OtherActor));
 
@@ -63,7 +62,7 @@ void AThrowable_B::Use_Implementation()
 	{
 		FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
 		OwningPlayer->ThrowComponent->AimAssist(TargetLocation);
-		Mesh->AddImpulse(TargetLocation * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
+		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
 	}
 	else
 	{

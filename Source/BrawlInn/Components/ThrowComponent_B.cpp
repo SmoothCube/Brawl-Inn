@@ -17,7 +17,7 @@
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 bool UThrowComponent_B::TryThrow()
@@ -57,6 +57,15 @@ void UThrowComponent_B::BeginPlay()
 	GameMode->SpawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->DespawnCharacter_NOPARAM_D.AddDynamic(this, &UThrowComponent_B::OneCharacterChanged);
 }
+
+void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	if (bIsCharging)
+	{
+		ImpulseSpeed = MinImpulseSpeed + ((MaxImpulseSpeed - MinImpulseSpeed) * ImpulseTimer);
+	}
+}
+
 
 bool UThrowComponent_B::IsThrowing() const
 {
@@ -150,7 +159,6 @@ void UThrowComponent_B::OneCharacterChanged()
 
 void UThrowComponent_B::Throw()
 {
-	BWarn("Throw start!");
 	if (!OwningPlayer)
 	{
 		BError("No OwningPlayer for ThrowComponent %s!", *GetNameSafe(this));
@@ -165,7 +173,6 @@ void UThrowComponent_B::Throw()
 		OwningPlayer->SetState(EState::EWalking);
 		return;
 	}
-	BWarn("Throw mid!");
 
 	/// Prepare item to be thrown
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
@@ -174,13 +181,6 @@ void UThrowComponent_B::Throw()
 		Interface->Execute_Use(HoldComponent->GetHoldingItem());
 	}
 
-	/// Throw with the help of AimAssist.
-	//FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
-	//AimAssist(TargetLocation);
-	//if (HoldComponent->IsHolding())
-	//{
-	//	HoldComponent->GetHoldingItem()->Mesh->AddImpulse(TargetLocation * ImpulseSpeed, NAME_None, true);
-	//}
 	OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
 	bIsCharging = false;
 	bIsThrowing = false;

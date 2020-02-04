@@ -17,6 +17,8 @@ class BRAWLINN_API UThrowComponent_B : public UActorComponent
 public:
 	UThrowComponent_B(const FObjectInitializer& ObjectInitializer);
 
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
+
 	bool IsReady() const;
 	bool TryThrow();
 	void Throw();
@@ -32,7 +34,14 @@ public:
 	bool AimAssist(FVector& TargetPlayerLocation);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
-		float ImpulseSpeed = 1500.f;
+		float MinImpulseSpeed = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
+		float MaxImpulseSpeed = 200.f;
+
+	float ImpulseSpeed = 0.f;
+
+	float ImpulseTimer = 0.f;
 
 protected:
 	virtual void BeginPlay() override;

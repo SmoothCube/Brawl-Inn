@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character_B.h"
 #include "BrawlInn.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -64,6 +62,7 @@ ACharacter_B::ACharacter_B()
 
 	NiagaraStunSystemComponent = CreateDefaultSubobject<UNiagaraComponent>("Particle System");
 	NiagaraStunSystemComponent->SetupAttachment(GetMesh());
+	
 }
 
 void ACharacter_B::BeginPlay()
@@ -322,8 +321,7 @@ void ACharacter_B::RemoveStun()
 	{
 		SetState(EState::EWalking);
 		if(IsValid(NiagaraStunSystemComponent))
-			NiagaraStunSystemComponent->Deactivate();
-
+			NiagaraStunSystemComponent->DeactivateImmediate();
 	}
 	StunAmount = 0;
 }
