@@ -4,6 +4,10 @@
 #include "PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
 
+#include "Characters/Player/PlayerController_B.h"
+#include "Components/HealthComponent_B.h"
+#include "UI/Game/HealthWidget_B.h"
+
 APlayerCharacter_B::APlayerCharacter_B()
 {
 	DirectionIndicatorPlane = CreateDefaultSubobject<UStaticMeshComponent>("Direction Indicator Plane");
@@ -12,4 +16,13 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
+}
+
+void APlayerCharacter_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Sends the icons to to the health widget.
+	//GetPlayerController_B()->HealthComponent->HealthWidget->PostInitialize();
+
 }

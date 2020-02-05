@@ -14,8 +14,16 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
 public:
 
 	APlayerCharacter_B();
+	
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
+		UTexture2D* ColoredHealthIcon = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
+		UTexture2D* GreyHealthIcon = nullptr;
 
 };
