@@ -154,7 +154,6 @@ void APlayerController_B::PickupButtonRepeat()
 
 void APlayerController_B::PunchButtonPressed()
 {
-	BWarn("Punch Pressed");
 	if (PlayerCharacter)
 	{
 		if (!PlayerCharacter->HoldComponent->IsHolding())
@@ -170,7 +169,6 @@ void APlayerController_B::PunchButtonPressed()
 
 void APlayerController_B::PunchButtonReleased()
 {
-	BWarn("Punch Released");
 
 	if (PlayerCharacter &&
 		PlayerCharacter->HoldComponent &&

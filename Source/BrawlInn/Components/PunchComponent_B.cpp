@@ -79,6 +79,7 @@ void UPunchComponent_B::Dash()
 {
 	//Dash Logic
 	bIsDashing = true;
+	VelocityBeforeDash = Player->GetCharacterMovement()->Velocity;
 
 	float f = Player->GetCharacterMovement()->Velocity.Size() / Player->GetCharacterMovement()->MaxWalkSpeed;
 	float dist = (MaxDashDistance - MinDashDistance) * f + MinDashDistance;
@@ -96,8 +97,9 @@ void UPunchComponent_B::PunchEnd()
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	//Dash ends
-	Player->GetCharacterMovement()->MaxWalkSpeed = 1000.f;
-	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(1000.f);
+	Player->GetCharacterMovement()->MaxWalkSpeed = Player->NormalMaxWalkSpeed;
+	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(Player->NormalMaxWalkSpeed*PostDashRemainingVelocityPercentage);
+	
 
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
@@ -105,6 +107,7 @@ void UPunchComponent_B::PunchEnd()
 		&UPunchComponent_B::setIsPunchingFalse,
 		PunchWaitingTime,
 		false);
+	VelocityBeforeDash = FVector::ZeroVector;
 }
 
 void UPunchComponent_B::setIsPunchingFalse()
@@ -152,8 +155,9 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 
 float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
 {
-	float f = Player->GetCharacterMovement()->Velocity.Size() / (Player->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
-	f = FMath::Clamp(f-1, 0.f, 1.f);
+	float f = VelocityBeforeDash.Size() / (Player->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
+	BWarn("f: %f", f);
+	f = FMath::Clamp(f, 0.f, 1.f);
 	float TotalDamage = 5 + (30 * (f));
 	BScreen("Total Damage: %f", TotalDamage);
 	return TotalDamage;
@@ -188,9 +192,9 @@ FVector UPunchComponent_B::CalculatePunchStrenght()
 {
 	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return FVector(); }
 	FVector Strength;
-	if (!Player->GetVelocity().IsNearlyZero())
+	if (!VelocityBeforeDash.IsNearlyZero())
 	{
-		Strength= BasePunchStrength * Player->GetVelocity().GetSafeNormal() + Player->GetVelocity() * PunchStrengthMultiplier;
+		Strength= BasePunchStrength * VelocityBeforeDash.GetSafeNormal() + VelocityBeforeDash * PunchStrengthMultiplier;
 	}
 	else
 	{

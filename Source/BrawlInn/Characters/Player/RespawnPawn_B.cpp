@@ -45,6 +45,7 @@ void ARespawnPawn_B::ThrowBarrel()
 	{
 		BWarn("Throwing Barrel!");
 		ABounceActorSpawner_B* BarrelSpawner = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
+		if (!BarrelSpawner) return;
 
 		Barrel = BarrelSpawner->SpawnBounceActor(GetActorLocation());
 

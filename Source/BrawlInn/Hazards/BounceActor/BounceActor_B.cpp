@@ -24,8 +24,8 @@ void ABounceActor_B::BeginPlay()
 
 void ABounceActor_B::Explode(AActor* DestroyedActor)
 {
-	float Radius = 500.f;
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), 0, GetActorLocation(), Radius, BP_DamageType, {}, this);
+	UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), DamageAmount,0, GetActorLocation(),InnerRadius, Radius, Falloff, BP_DamageType, {}, this);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius, 10, FColor::Blue, false, 2.f);
 	DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 10, FColor::Red, false, 2.f);
 	if (Target)
 		Target->SetActorHiddenInGame(true);

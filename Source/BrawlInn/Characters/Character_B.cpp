@@ -191,7 +191,7 @@ void ACharacter_B::Fall(float RecoveryTime)
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
-		UGameplayStatics::ApplyDamage(this, FallDamageAmount,GetController(),this, BP_FallDamageType);
+		//UGameplayStatics::ApplyDamage(this, FallDamageAmount,GetController(),this, BP_FallDamageType);
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 
@@ -344,7 +344,6 @@ void ACharacter_B::Use_Implementation()
 
 void ACharacter_B::SetState(EState s)
 {
-
 	//on leaving state
 	switch (State)
 	{
@@ -478,10 +477,10 @@ void ACharacter_B::OnRadialDamageTaken(AActor* DamagedActor, float Damage, const
 		else
 		{
 			//Calculates force vector
-			FVector Direction = GetActorLocation() - Origin;
-			Direction.Normalize();
-			Direction *= DamageType->DamageImpulse;
-			GetCharacterMovement()->AddImpulse(Direction);
+			//FVector Direction = GetActorLocation() - Origin;
+			//Direction.Normalize();
+			//Direction *= DamageType->DamageImpulse;
+			//GetCharacterMovement()->AddImpulse(Direction);
 		}
 	}
 }

@@ -28,6 +28,16 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;
 
+	UPROPERTY(EditAnywhere)
+	float Falloff = 0.5f;
+
+	UPROPERTY(EditAnywhere)
+	float InnerRadius = 100.f;
+
+	UPROPERTY(EditAnywhere)
+	float Radius = 500.f;
+
+
 	FTimerHandle TH_ExplodeTimer;
 	ABarrelTargetPoint_B* Target = nullptr;
 

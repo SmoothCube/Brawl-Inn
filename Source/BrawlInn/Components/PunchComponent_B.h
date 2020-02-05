@@ -58,6 +58,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
 
+	FVector VelocityBeforeDash = FVector::ZeroVector;
 protected:
 	bool bHasHit = false;
 
@@ -86,6 +87,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashForceModifier = 75000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float PostDashRemainingVelocityPercentage = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* PunchSound;
