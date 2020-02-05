@@ -16,7 +16,7 @@ DECLARE_MULTICAST_DELEGATE(FOnAIArrivedHome);
 
 
 UCLASS()
-class BRAWLINN_API AAIController_B : public AAIController
+class BRAWLINN_API AAIController_B : public AAIController, public IControllerInterface_B
 {
 	GENERATED_BODY()
 
