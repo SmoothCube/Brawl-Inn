@@ -92,7 +92,8 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else
 	{
-		CheckFall(DeltaTime);
+		if(!PunchComponent->bIsPunching)
+			CheckFall(DeltaTime);
 		if (!(GetState() == EState::EStunned))
 		{
 			HandleMovement(DeltaTime);
