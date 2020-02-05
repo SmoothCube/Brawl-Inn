@@ -35,6 +35,15 @@ void ABar_B::BeginPlay()
 	StartTimerForNextTankard();
 	StartTimerForNextStool();
 
+	AIController = Cast<AAIController_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIController_B::StaticClass()));
+	if (AIController)
+	{
+		AIController->OnAIArrivedHome_D.AddUObject(this, &ABar_B::StartTimerForNextStool);
+	}
+	else
+	{
+		BError("AI Controller not found!");
+	}
 	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
 }
 
@@ -75,7 +84,6 @@ void ABar_B::SpawnStool()
 	StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
 	if (IsValid(StoolToDeliver))
 	{
-		AAIController_B* AIController = Cast<AAIController_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIController_B::StaticClass()));
 		if (AIController)
 		{
 			AIController->OnStoolReceived_D.Broadcast(StoolToDeliver);

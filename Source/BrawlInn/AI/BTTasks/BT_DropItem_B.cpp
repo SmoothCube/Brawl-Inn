@@ -46,7 +46,7 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 
 	Item = GetWorld()->SpawnActor<AItem_B>(BP_Item, DropPoint->GetActorTransform());
-	DropPoint->Item = Item;
+	DropPoint->SetNewItem(Item);
 
 	OwnerComp.GetBlackboardComponent()->ClearValue(DropTargetPoint.SelectedKeyName);
 

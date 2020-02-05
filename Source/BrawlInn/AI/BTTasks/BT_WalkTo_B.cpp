@@ -13,6 +13,7 @@
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "Characters/AI/AIController_B.h"
 #include "Characters/AI/AICharacter_B.h"
+#include "AI/PathFollowingComponent_B.h"
 #include "BrawlInn.h"
 
 UBT_WalkTo_B::UBT_WalkTo_B()
@@ -23,20 +24,8 @@ UBT_WalkTo_B::UBT_WalkTo_B()
 EBTNodeResult::Type UBT_WalkTo_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
-	OwningAI = Cast<AAIController_B>(OwnerComp.GetAIOwner());
-	if (!OwningAI)
-	{
-		BError("Can't find AI controller");
-		return EBTNodeResult::Aborted;
-	}
 
-	AICharacter = Cast<AAICharacter_B>(OwningAI->GetCharacter());
-	if (!AICharacter)
-	{
-		BError("Can't find the AI Character");
-		return EBTNodeResult::Aborted;
-	}
-
+//	Cast<UPathFollowingComponent_B>(OwningAI->GetPathFollowingComponent())->OnPathFinishedSuccess.BindUObject(this, &UBT_WalkTo_B::EndTask);
 	Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TargetActor.SelectedKeyName));
 
 	return EBTNodeResult::InProgress;
@@ -56,11 +45,15 @@ void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 		float Distance = FVector::Dist(CharacterLocation, TargetLocation);
 		if (Distance > AcceptanceRadius)
 		{
-			AICharacter->InputVector = Input.GetSafeNormal();
+			OwningAI->MoveToActor(Target);
+
 		}
 		else {
-			AICharacter->InputVector = FVector::ZeroVector;
+			OwningAI->StopMovement();
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}
+	}
+	else {
+		BError("Can't find target");
 	}
 }

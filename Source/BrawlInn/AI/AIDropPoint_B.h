@@ -22,7 +22,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AItem_B> ItemToSpawn;
 
-public:
 	UPROPERTY()
 	AItem_B* Item = nullptr;
+
+public:
+	UFUNCTION()
+		void SetNewItem(AItem_B* NewItem);
 };

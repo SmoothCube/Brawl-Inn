@@ -25,3 +25,12 @@ void AAIDropPoint_B::ItemDestroyed(AActor* DestroyedActor)
 		Bar->StoolDropLocations.Enqueue(this);
 	}
 }
+
+void AAIDropPoint_B::SetNewItem(AItem_B* NewItem)
+{
+	Item = NewItem;
+	if (Item)
+	{
+		Item->OnDestroyed.AddDynamic(this, &AAIDropPoint_B::ItemDestroyed);
+	}
+}

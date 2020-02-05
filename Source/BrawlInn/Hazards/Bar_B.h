@@ -13,6 +13,7 @@ class USoundCue;
 class UStaticMeshComponent;
 class AAIDropPoint_B;
 class AItem_B;
+class AAIController_B;
 
 UCLASS()
 class BRAWLINN_API ABar_B : public AActor
@@ -81,4 +82,7 @@ protected:
 
 	UFUNCTION()
 		void StartTimerForNextStool();
+
+	UPROPERTY()
+	AAIController_B* AIController = nullptr;
 };
