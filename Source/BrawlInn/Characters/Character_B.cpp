@@ -27,6 +27,7 @@
 #include "Components/ThrowComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
+#include "System/DamageTypes/Stool_DamageType_B.h"
 #include "Items/Throwable_B.h"
 #include "System/GameModes/GameMode_B.h"
 #include "System/Camera/GameCamera_B.h"
@@ -91,7 +92,8 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else
 	{
-		CheckFall(DeltaTime);
+		if(!PunchComponent->bIsPunching)
+			CheckFall(DeltaTime);
 		if (!(GetState() == EState::EStunned))
 		{
 			HandleMovement(DeltaTime);
@@ -109,14 +111,27 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
+		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
+		if (Interface)
+		{
+			Interface->Execute_TakeDamage(GetController(), DamageAmount);
+		}
 	}
-	else
+	else if(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
 	{
 		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
 		if (Interface)
 		{
-			Interface->Execute_TakeOneDamage(GetController());
+			Interface->Execute_TakeDamage(GetController(), ChairDamageAmount);
 		}
+	}
+	else
+	{
+		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
+			if (Interface)
+			{
+				Interface->Execute_TakeDamage(GetController(), DamageAmount);
+			}
 	}
 	if (HurtSound)
 	{

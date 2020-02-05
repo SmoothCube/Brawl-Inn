@@ -191,9 +191,9 @@ void APlayerController_B::BreakFreeButtonPressed()
 }
 
 //Send in damage from 1-100
-void APlayerController_B::TakeOneDamage_Implementation()
+void APlayerController_B::TakeDamage_Implementation(int DamageAmount)
 {
-	HealthComponent->TakeDamage(25);
+	HealthComponent->TakeDamage(DamageAmount);
 }
 
 void APlayerController_B::DEBUG_TEST01()

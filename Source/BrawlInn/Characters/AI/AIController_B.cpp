@@ -10,6 +10,6 @@ AAIController_B::AAIController_B(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-//void AAIController_B::TakeOneDamage_Implementation()
-//{
-//}
+void AAIController_B::TakeDamage_Implementation(int DamageAmount)
+{
+}
