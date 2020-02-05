@@ -14,6 +14,7 @@
 #include "Characters/Character_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
+#include "System/DamageTypes/Punch_DamageType_B.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
@@ -121,7 +122,10 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 	//has the invulnerability check here to be able to do other stuff when you hit someone invulnerable
 	if (!OtherPlayer->bIsInvulnerable || !OtherPlayer->bHasShield)
 	{
+
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),Player);
+		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(OtherPlayer), Player->GetController(), Player, BP_DamageType);
+		
 		Player->StunStrength = 1; // This ends the effect after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
 		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
@@ -132,7 +136,6 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 	{
 		Player->GetCharacterMovement()->Velocity *= -0.5;
 	}
-
 }
 
 void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
@@ -145,6 +148,15 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 		OtherComp->AddImpulse(CalculatePunchStrenght());
 	}
 	bHasHit = true;
+}
+
+float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
+{
+	float f = Player->GetCharacterMovement()->Velocity.Size() / (Player->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
+	f = FMath::Clamp(f-1, 0.f, 1.f);
+	float TotalDamage = 5 + (30 * (f));
+	BScreen("Total Damage: %f", TotalDamage);
+	return TotalDamage;
 
 }
 
@@ -163,11 +175,12 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 
 	PunchEnd();
 	//Player->Fall();
-	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
-	Player->AddStun(PlayerThatPunched->StunStrength);
+	if (!Player->IsInvulnerable())
+	{
+		Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
+		Player->AddStun(PlayerThatPunched->StunStrength);
+	}
 	Player->RemoveShield();
-	//Was there a reason there were two of these???
-	//	Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
 }
 
 //calculates the punch strength for the player. Has to be used by the puncher.
@@ -183,7 +196,6 @@ FVector UPunchComponent_B::CalculatePunchStrenght()
 	{
 		Strength = Player->GetActorForwardVector()*BasePunchStrength;
 	}
-	BWarn("Strength: %s", *Strength.ToString())
 	return Strength;
 }
 

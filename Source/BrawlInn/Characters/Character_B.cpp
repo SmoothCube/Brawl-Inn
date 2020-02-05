@@ -2,7 +2,6 @@
 
 #include "Character_B.h"
 #include "BrawlInn.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -12,6 +11,7 @@
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/DamageType.h"
 #include "Materials/MaterialInterface.h"
@@ -21,16 +21,17 @@
 
 #include "System/Interfaces/ControllerInterface_B.h"
 #include "System/GameInstance_B.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "System/GameModes/GameMode_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "System/DamageTypes/Barrel_DamageType_B.h"
+#include "System/DamageTypes/Stool_DamageType_B.h"
+#include "System/DamageTypes/Fall_DamageType_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Components/HealthComponent_B.h"
-#include "System/DamageTypes/Barrel_DamageType_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
+#include "Characters/Player/PlayerController_B.h"
 #include "Items/Throwable_B.h"
-#include "System/GameModes/GameMode_B.h"
-#include "System/Camera/GameCamera_B.h"
 #include "Animations/PlayerAnimInstance_B.h"
 
 ACharacter_B::ACharacter_B()
@@ -107,36 +108,34 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	BWarn("Taking Damage");
 	if (bIsInvulnerable || bHasShield) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	float ActualDamageAmount = 0.f;
 
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
+
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFall_DamageType_B::StaticClass()))
+	{
+			ActualDamageAmount = FallDamageAmount;
+	}
+	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
-		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-		if (Interface)
-		{
-			Interface->Execute_TakeDamage(GetController(), DamageAmount);
-		}
+		ActualDamageAmount = DamageAmount;
 	}
 	else if(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
 	{
-		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-		if (Interface)
-		{
-			Interface->Execute_TakeDamage(GetController(), ChairDamageAmount);
-		}
+		ActualDamageAmount = ChairDamageAmount;
 	}
 	else
 	{
-		IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-			if (Interface)
-			{
-				Interface->Execute_TakeDamage(GetController(), DamageAmount);
-			}
+		ActualDamageAmount = DamageAmount;
+	}
+
+	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
+	if (Interface)
+	{
+		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
 	}
 	if (HurtSound)
 	{
-		BWarn("Found Hurt Sound");
-
 		float volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
@@ -192,7 +191,7 @@ void ACharacter_B::Fall(float RecoveryTime)
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
-
+		UGameplayStatics::ApplyDamage(this, FallDamageAmount,GetController(),this, BP_FallDamageType);
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 

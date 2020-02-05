@@ -152,6 +152,9 @@ protected:
 		int FellOutOfWorldDamageAmount = 100;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+		int FallDamageAmount = 25;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int ChairDamageAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
@@ -182,6 +185,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UNiagaraComponent* PS_Stun = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<UDamageType> BP_FallDamageType;
 
 private:
 

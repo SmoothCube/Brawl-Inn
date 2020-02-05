@@ -8,6 +8,7 @@
 
 class ACharacter_B;
 class USoundCue;
+class UDamageType;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*, PlayerThatPunched);
 
@@ -46,6 +47,8 @@ public:
 	void PunchHit(UPrimitiveComponent* OtherComp);
 
 	void GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched);
+
+	float CalculatePunchDamage(ACharacter_B* OtherPlayer);
 
 	FVector CalculatePunchStrenght();
 
@@ -86,6 +89,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* PunchSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<UDamageType> BP_DamageType;
 private:
 
 

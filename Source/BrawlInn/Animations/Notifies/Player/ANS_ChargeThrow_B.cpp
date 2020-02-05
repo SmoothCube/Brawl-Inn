@@ -12,7 +12,6 @@
 void UANS_ChargeThrow_B::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	AnimLength = TotalDuration/ Animation->RateScale;
-	BWarn("AnimLength: %f", AnimLength);
 	CurrentTime = 0.f;
 }
 
@@ -22,7 +21,6 @@ void UANS_ChargeThrow_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 	if (IsValid(Player) && IsValid(Player->ThrowComponent))
 	{
 		CurrentTime += FrameDeltaTime;
-		BWarn("FrameDeltaTime: %f, CurrentTime: %f", FrameDeltaTime, CurrentTime);
 		Player->ThrowComponent->ImpulseTimer = (CurrentTime/ AnimLength);
 	}
 
