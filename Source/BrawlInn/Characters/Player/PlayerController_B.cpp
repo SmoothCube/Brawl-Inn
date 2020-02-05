@@ -190,6 +190,7 @@ void APlayerController_B::BreakFreeButtonPressed()
 		PlayerCharacter->BreakFreeButtonMash();
 }
 
+//Send in damage from 1-100
 void APlayerController_B::TakeOneDamage_Implementation()
 {
 	HealthComponent->TakeDamage(25);

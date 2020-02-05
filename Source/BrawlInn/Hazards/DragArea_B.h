@@ -10,6 +10,7 @@ class UBoxComponent;
 class UStaticMeshComponent; //TODO delete?
 class USkeletalMeshComponent;
 class APlayerCharacter_B;
+class USoundCue;
 
 UCLASS()
 class BRAWLINN_API ADragArea_B : public AActor
@@ -43,6 +44,9 @@ protected:
 	TArray<USkeletalMeshComponent*> SkeletonsToMove;
 	//for all other objects
 	TArray<UPrimitiveComponent*> ComponentsToMove;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* RiverSound;
 
 public:	
 	// Called every frame

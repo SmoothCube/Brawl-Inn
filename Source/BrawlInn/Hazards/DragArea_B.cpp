@@ -7,10 +7,14 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
+#include "System/GameInstance_B.h"
+
 
 // Sets default values
 ADragArea_B::ADragArea_B()
@@ -28,6 +32,22 @@ void ADragArea_B::BeginPlay()
 	Super::BeginPlay();
 	DragArea->OnComponentBeginOverlap.AddDynamic(this, &ADragArea_B::OnOverlapBegin);
 	DragArea->OnComponentEndOverlap.AddDynamic(this, &ADragArea_B::OnOverlapEnd);
+
+	if (RiverSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			RiverSound,
+			GetActorLocation(),
+			volume
+		);
+	}
 }
 
 // Called every frame
