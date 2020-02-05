@@ -20,7 +20,7 @@ public:
 
 	AAIController_B();
 
-	virtual void TakeOneDamage_Implementation() override;
+	virtual void TakeDamage_Implementation(int DamageAmount) override;
 
 	/// Called by the bar when it wants to place stools. Received by the BehaviourTree to the AI.
 	FStoolReceived OnStoolReceived_D;

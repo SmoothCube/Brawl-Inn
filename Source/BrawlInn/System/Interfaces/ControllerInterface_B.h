@@ -23,5 +23,5 @@ class BRAWLINN_API IControllerInterface_B
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-		 void TakeOneDamage();
+		 void TakeDamage(int DamageAmount);
 };

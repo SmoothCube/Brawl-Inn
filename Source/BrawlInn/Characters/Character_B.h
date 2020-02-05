@@ -149,7 +149,10 @@ protected:
 		float FallLimitMultiplier = 3.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int FellOutOfWorldDamageAmount = 1;
+		int FellOutOfWorldDamageAmount = 100;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+		int ChairDamageAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 		FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";

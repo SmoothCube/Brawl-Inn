@@ -45,7 +45,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Variables")
 	bool bVibrateControllers = false;
 
-	virtual void TakeOneDamage_Implementation() override;
+	virtual void TakeDamage_Implementation(int DamageAmount) override;
 
 	// DEBUG
 	void DEBUG_TEST01();
