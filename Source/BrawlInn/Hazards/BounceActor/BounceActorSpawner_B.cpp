@@ -6,10 +6,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "BrawlInn.h"
 
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
+#include "System/GameInstance_B.h"
+
 
 // Sets default values
 ABounceActorSpawner_B::ABounceActorSpawner_B()
@@ -40,6 +44,22 @@ void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 		ABounceActor_B* NewBounceActor = SpawnBounceActor(BouncePoints[NextPath]->GetActorLocation());
 		if (IsValid(NewBounceActor))
 			NewBounceActor->Target = BouncePoints[NextPath];
+
+		if (SpawnCue)
+		{
+			float volume = 1.f;
+			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+			if (GameInstance)
+			{
+				volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+			}
+			UGameplayStatics::PlaySoundAtLocation(
+				GetWorld(),
+				SpawnCue,
+				GetActorLocation(),
+				volume
+			);
+		}
 	}
 	else
 	{

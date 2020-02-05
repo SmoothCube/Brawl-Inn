@@ -5,8 +5,11 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 #include "Characters/Player/PlayerCharacter_B.h"
+#include "System/GameInstance_B.h"
 
 AItem_B::AItem_B()
 {
@@ -47,6 +50,22 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		if (OwningPlayer)
 		{
 			OwningPlayer = nullptr;
+		}
+
+		if (DestroyedCue)
+		{
+			float volume = 1.f;
+			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+			if (GameInstance)
+			{
+				volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+			}
+			UGameplayStatics::PlaySoundAtLocation(
+				GetWorld(),
+				DestroyedCue,
+				GetActorLocation(),
+				volume
+			);
 		}
 	}
 }

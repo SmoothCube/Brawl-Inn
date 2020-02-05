@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Components/DecalComponent.h"
+#include "Sound/SoundCue.h"
 #include "BrawlInn.h"
 
 #include "System/GameInstance_B.h"
@@ -22,6 +23,11 @@ void AGameMode_B::BeginPlay()
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
+	if (GameInstance && Music)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75* GameInstance->MasterVolume* GameInstance->MusicVolume);
+	}
+	
 	/// Finds spawnpoints
 	GetAllSpawnpointsInWorld();
 

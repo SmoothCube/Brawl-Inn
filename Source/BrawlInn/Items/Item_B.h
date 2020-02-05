@@ -11,6 +11,7 @@ class UCapsuleComponent;
 class UNiagaraSystem;
 class UDamageType;
 class ACharacter_B;
+class USoundCue;
 
 UCLASS(DontCollapseCategories)
 class BRAWLINN_API AItem_B : public AActor, public IThrowableInterface_B
@@ -51,5 +52,8 @@ protected:
 		UNiagaraSystem* PS_OnDestroy;
 
 	ACharacter_B* OwningPlayer = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* DestroyedCue;
 
 };

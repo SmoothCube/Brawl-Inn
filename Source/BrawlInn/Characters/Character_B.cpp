@@ -12,10 +12,10 @@
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/DamageType.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
 
@@ -55,6 +55,7 @@ ACharacter_B::ACharacter_B()
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
 	PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
+
 }
 
 void ACharacter_B::BeginPlay()
@@ -101,6 +102,7 @@ void ACharacter_B::Tick(float DeltaTime)
 
 float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	BWarn("Taking Damage");
 	if (bIsInvulnerable || bHasShield) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
@@ -118,6 +120,8 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	}
 	if (HurtSound)
 	{
+		BWarn("Found Hurt Sound");
+
 		float volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)

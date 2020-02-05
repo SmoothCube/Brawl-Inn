@@ -11,6 +11,7 @@ class APlayerController_B;
 class APlayerCharacter_B;
 class ARespawnPawn_B;
 class UGameInstance_B;
+class USoundCue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, APlayerController_B*, PlayerControllerReference, bool, ShouldUseVector, FTransform, SpawnTransform);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDespawnCharacter, APlayerController_B*, PlayerControllerReference, bool, bShouldRespawn);
@@ -75,4 +76,7 @@ protected:
 	void CreatePlayerControllers();
 	void GetAllSpawnpointsInWorld();
 	FTransform GetRandomSpawnTransform();
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* Music;
 };

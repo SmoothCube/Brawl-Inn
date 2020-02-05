@@ -178,7 +178,7 @@ protected:
 	USoundCue* HurtSound;
 
 	UPROPERTY(VisibleAnywhere)
-		UNiagaraComponent* PS_Stun = nullptr;
+	UNiagaraComponent* PS_Stun = nullptr;
 
 private:
 
@@ -197,4 +197,5 @@ private:
 	friend class UPunchComponent_B;
 
 	float CurrentHoldTime = 0.f;
+
 };

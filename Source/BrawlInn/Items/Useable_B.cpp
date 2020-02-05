@@ -12,6 +12,8 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+#include "System/GameInstance_B.h"
+
 AUseable_B::AUseable_B()
 {
 
@@ -52,7 +54,15 @@ void AUseable_B::Use_Implementation()
 	if (Duration > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::ResetBoost, Duration, false);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation());
+	if (DrinkSound)
+	{
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+		if (GameInstance)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation(), 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume);
+		}
+	}
+
 	DrinkMesh->DestroyComponent();
 	PickupCapsule->DestroyComponent();
 	NiagaraSystemComponent->DestroyComponent();

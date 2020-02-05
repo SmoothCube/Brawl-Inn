@@ -9,6 +9,7 @@
 class ABounceActor_B;
 class ABouncePath_B;
 class ABarrelTargetPoint_B;
+class USoundCue;
 UCLASS()
 class BRAWLINN_API ABounceActorSpawner_B : public AActor
 {
@@ -39,5 +40,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TArray<ABarrelTargetPoint_B*> BouncePoints;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* SpawnCue;
 
 };
