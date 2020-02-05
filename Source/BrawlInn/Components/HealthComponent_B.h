@@ -38,6 +38,8 @@ public:
 	UFUNCTION()
 	void SetHealthWidget(UHealthWidget_B* Widget);
 
+	UPROPERTY()
+	UHealthWidget_B* HealthWidget = nullptr;
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,8 +49,6 @@ protected:
 	UPROPERTY()
 		int Health = 100;
 
-	UPROPERTY()
-	UHealthWidget_B* HealthWidget = nullptr;
 
 private:
 

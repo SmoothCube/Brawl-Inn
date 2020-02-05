@@ -9,9 +9,9 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 
-bool UGameOverlay_B::Initialize()
+void UGameOverlay_B::NativeOnInitialized()
 {
-	bool s = Super::Initialize();
+	Super::NativeOnInitialized();
 
 	HealthWidgets.Add(Player0);
 	HealthWidgets.Add(Player1);
@@ -20,27 +20,34 @@ bool UGameOverlay_B::Initialize()
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (GameInstance)
-		GameInstance->OnNumberPlayerControllersChanged.AddUObject(this, &UGameOverlay_B::UpdateHealthWidgets);
+		GameInstance->OnNumberPlayerControllersChanged.AddUObject(this, &UGameOverlay_B::ChangeHealthWidgetVisibility);
 
+	/// Setup Icons and connect the health widgets to playercontrollers
+	TArray<ULocalPlayer*> Players = GameInstance->GetLocalPlayers();
+	for (ULocalPlayer* PlayerID : Players)
+	{
+		HealthWidgets[PlayerID->GetControllerId()]->SetVisibility(ESlateVisibility::Visible);
+		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID->GetControllerId()));
+		if (PlayerController)
+		{
+			HealthWidgets[PlayerID->GetControllerId()]->SetOwningPlayer(PlayerController);
+			PlayerController->HealthComponent->SetHealthWidget(HealthWidgets[PlayerID->GetControllerId()]);
 
-	return s;
+		}
+	}
+
+	ChangeHealthWidgetVisibility();
 }
 
-void UGameOverlay_B::UpdateHealthWidgets()
+void UGameOverlay_B::ChangeHealthWidgetVisibility()
 {
 	if (GameInstance)
 	{
 		for (auto& HealthWidget : HealthWidgets)
-		{
 			HealthWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
 
 		TArray<int> Players = GameInstance->GetActivePlayerControllerIDs();
 		for (int PlayerID : Players)
-		{
 			HealthWidgets[PlayerID]->SetVisibility(ESlateVisibility::Visible);
-			APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID));
-			PlayerController->HealthComponent->SetHealthWidget(HealthWidgets[PlayerID]);
-		}
 	}
 }

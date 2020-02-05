@@ -30,6 +30,9 @@ protected:
 
 public:
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PostInitialize();
+
 	UFUNCTION()
 	void UpdateHealthAmount(int Amount);
 

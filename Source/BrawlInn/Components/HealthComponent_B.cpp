@@ -47,6 +47,7 @@ void UHealthComponent_B::SetHealthWidget(UHealthWidget_B* Widget)
 
 	if (!OnRespawn_D.IsBoundToObject(Widget))
 		OnRespawn_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
+
 }
 
 void UHealthComponent_B::BeginPlay()

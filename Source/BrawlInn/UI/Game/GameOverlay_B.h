@@ -16,7 +16,7 @@ class BRAWLINN_API UGameOverlay_B : public UUserWidget
 
 protected:
 
-	virtual bool Initialize() override;
+	virtual void NativeOnInitialized() override;
 	
 	UPROPERTY(meta = (BindWidget))
 	UHealthWidget_B* Player0;
@@ -40,6 +40,6 @@ protected:
 	UGameInstance_B* GameInstance = nullptr;
 
 	UFUNCTION()
-	void UpdateHealthWidgets();
+	void ChangeHealthWidgetVisibility();
 
 };
