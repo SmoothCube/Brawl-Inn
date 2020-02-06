@@ -15,6 +15,11 @@ int UHealthComponent_B::GetHealth() const
 	return Health;
 }
 
+int UHealthComponent_B::GetRespawns() const
+{
+	return Respawns;
+}
+
 void UHealthComponent_B::SetHealth(int Value)
 {
 	Health = Value;
@@ -30,8 +35,11 @@ void UHealthComponent_B::SetHealth(int Value)
 		Respawns--;
 		OnRespawn_D.Broadcast();
 	}
-	if(Respawns < 0)
+	if (Respawns <= 0)
+	{
 		HealthIsZero_D.Broadcast();
+		BWarn("Out of respawns!");
+	}
 }
 
 void UHealthComponent_B::TakeDamage(int Value)
