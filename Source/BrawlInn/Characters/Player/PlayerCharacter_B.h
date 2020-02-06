@@ -6,6 +6,8 @@
 #include "Characters/Character_B.h"
 #include "PlayerCharacter_B.generated.h"
 
+class AController;
+
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
 {
@@ -20,6 +22,10 @@ public:
 	UFUNCTION()
 	void Die();
 
+	void StartRespawn();
+	
+	virtual void PossessedBy(AController* NewController) override;
+
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 
@@ -28,5 +34,11 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
 		UTexture2D* GreyHealthIcon = nullptr;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Variables | Respawn")
+	float RespawnDelay = 3.f;
+
+	FTimerHandle TH_RespawnTimer;
 
 };

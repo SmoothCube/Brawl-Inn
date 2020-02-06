@@ -411,6 +411,7 @@ void ACharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 		{
 			BError("GameMode Could Not Be Found!");
 		}
+		Destroy();
 	}
 	else
 	{
@@ -421,8 +422,6 @@ void ACharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 void ACharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	PlayerController = Cast<APlayerController_B>(NewController);
-
 }
 
 void ACharacter_B::PunchButtonPressed()
