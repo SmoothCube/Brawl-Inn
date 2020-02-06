@@ -146,7 +146,7 @@ protected:
 		float PunchedRecoveryTime = 4.0;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-		float FallLimitMultiplier = 1;
+		float FallLimitMultiplier = 1.5;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int FellOutOfWorldDamageAmount = 100;

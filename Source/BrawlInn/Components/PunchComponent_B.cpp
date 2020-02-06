@@ -156,10 +156,8 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
 {
 	float f = VelocityBeforeDash.Size() / (Player->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
-	BWarn("f: %f", f);
 	f = FMath::Clamp(f, 0.f, 1.f);
 	float TotalDamage = 5 + (30 * (f));
-	BScreen("Total Damage: %f", TotalDamage);
 	return TotalDamage;
 
 }
@@ -175,7 +173,6 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 
 	float strength = InPunchStrength.Size();
 	GetPunched_D.Broadcast(PlayerThatPunched);
-	BWarn("Getting Punched with strength: %f", InPunchStrength.Size());
 
 	PunchEnd();
 	//Player->Fall();

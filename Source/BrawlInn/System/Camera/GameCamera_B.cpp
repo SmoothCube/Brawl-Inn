@@ -43,6 +43,7 @@ void AGameCamera_B::BeginPlay()
 	if (TrackingBox)
 	{
 		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AGameCamera_B::OnTrackingBoxEndOverlap);
+		TrackingBox->GetCollisionComponent()->OnComponentBeginOverlap.AddDynamic(this, &AGameCamera_B::OnTrackingBoxBeginOverlap);
 	}
 }
 
@@ -142,4 +143,30 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 	//GetComponents returns UActorComponent, which inherits from USceneComponent. Cast should always be safe. 
 	for(auto& comp : OtherActor->GetComponents())
 		ComponentsToTrack.Remove(Cast<USceneComponent>(comp));
+
+	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
+	if (Player)
+	{
+		//Checks to see if the player is still overlapping. Same method as in DragArea
+		TArray<UPrimitiveComponent*> OverlappingComponents;
+		TrackingBox->GetOverlappingComponents(OverlappingComponents);
+		for (auto& comp : OverlappingComponents)
+		{
+			AActor* Actor = comp->GetOwner();
+			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(Actor);
+
+			if (OtherPlayer != nullptr)
+			{
+				ComponentsToTrack.Add(comp);
+			}
+		}
+	}
+
+}
+
+void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+	if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))	
+		ComponentsToTrack.Add(OtherComp);
 }

@@ -33,6 +33,8 @@ void ADragArea_B::BeginPlay()
 	DragArea->OnComponentBeginOverlap.AddDynamic(this, &ADragArea_B::OnOverlapBegin);
 	DragArea->OnComponentEndOverlap.AddDynamic(this, &ADragArea_B::OnOverlapEnd);
 
+
+	//Play sound with settings
 	if (RiverSound)
 	{
 		float volume = 1.f;
@@ -108,7 +110,6 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 			return;
 		}
 		PlayersToMove.Add(Player);
-		BWarn("Adding player %s", *GetNameSafe(Player));
 	}
 	else
 	{
@@ -129,7 +130,6 @@ void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 		PlayersToMove.Remove(Player);
 
 		//Checks to see if the skeletalmesh is still overlapping. Adds it to SkeletonsToMove if it is
-		BWarn("Removing player %s", *GetNameSafe(Player));
 		TArray<UPrimitiveComponent*> OverlappingComponents;
 		GetOverlappingComponents(OverlappingComponents);
 		for (auto& comp : OverlappingComponents)
@@ -140,7 +140,6 @@ void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 			
 			if (OtherPlayer != nullptr && Mesh != nullptr)
 			{
-				BWarn("Found Mesh %s", *GetNameSafe(Mesh));
 				SkeletonsToMove.Add(Mesh);
 			}
 		}

@@ -105,7 +105,6 @@ void ACharacter_B::Tick(float DeltaTime)
 
 float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	BWarn("Taking Damage");
 	if (bIsInvulnerable || bHasShield) return 0;
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	float ActualDamageAmount = 0.f;
