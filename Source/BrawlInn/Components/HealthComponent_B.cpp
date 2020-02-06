@@ -3,6 +3,10 @@
 #include "HealthComponent_B.h"
 #include "BrawlInn.h"
 #include "UI/Game/HealthWidget_B.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "Characters/Player/PlayerController_B.h"
+#include "System/GameModes/GameMode_B.h"
 
 
 UHealthComponent_B::UHealthComponent_B()
@@ -15,23 +19,39 @@ int UHealthComponent_B::GetHealth() const
 	return Health;
 }
 
+int UHealthComponent_B::GetRespawns() const
+{
+	return Respawns;
+}
+
 void UHealthComponent_B::SetHealth(int Value)
 {
 	Health = Value;
 	if (Health < 0)
 		Health = 0;
 
-	BScreen("Health:  %i", Health);
-	HealthUpdated_D.Broadcast(Health);
-
 	if (Health == 0)
 	{
 		Health = 100;
 		Respawns--;
+
 		OnRespawn_D.Broadcast();
+		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+		{
+			APlayerController_B* PlayerController = Cast<APlayerController_B>(GetOwner());
+			if (GetRespawns() <= 0)
+			{
+				HealthIsZero_D.Broadcast();
+				GameMode->DespawnCharacter_D.Broadcast(PlayerController, false);
+			}
+			else
+			{
+				GameMode->DespawnCharacter_D.Broadcast(PlayerController, true);
+			}
+		}
 	}
-	if(Respawns < 0)
-		HealthIsZero_D.Broadcast();
+	HealthUpdated_D.Broadcast(Health);
 }
 
 void UHealthComponent_B::TakeDamage(int Value)

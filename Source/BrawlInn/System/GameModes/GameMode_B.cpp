@@ -110,7 +110,6 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool b
 					MainMode->AddCameraFocusPoint(Decal);
 				else
 					BWarn("Cannot Find Decal");
-
 			}
 		}
 		else

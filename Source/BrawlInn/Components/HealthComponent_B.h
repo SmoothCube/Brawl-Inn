@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetHealth() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetRespawns() const;
+
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(int Value);
 
