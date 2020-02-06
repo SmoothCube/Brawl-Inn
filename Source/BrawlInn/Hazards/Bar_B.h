@@ -15,6 +15,9 @@ class AAIDropPoint_B;
 class AItem_B;
 class AAIController_B;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
+
 UCLASS()
 class BRAWLINN_API ABar_B : public AActor
 {
@@ -31,6 +34,17 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USceneComponent* ItemSpawnLocation;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OpenDoor();
+	UFUNCTION(BlueprintImplementableEvent)
+		void CloseDoor();
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnDoorOpen OnDoorOpen_D;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnDoorClosed OnDoorClosed_D;
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,16 +68,16 @@ protected:
 	FTimerHandle TH_NextTankardTimer;
 
 	void SpawnTankard();
-	
+
 	UFUNCTION()
-	void StartTimerForNextTankard();
+		void StartTimerForNextTankard();
 
 	/// **** Stools ****
 public:
 	TQueue<AAIDropPoint_B*> StoolDropLocations;
 
 	UPROPERTY()
-	AItem_B* StoolToDeliver = nullptr;
+		AItem_B* StoolToDeliver = nullptr;
 
 protected:
 
@@ -84,5 +98,5 @@ protected:
 		void StartTimerForNextStool();
 
 	UPROPERTY()
-	AAIController_B* AIController = nullptr;
+		AAIController_B* AIController = nullptr;
 };
