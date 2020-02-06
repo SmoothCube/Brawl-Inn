@@ -189,6 +189,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<UDamageType> BP_FallDamageType;
 
+	APlayerController_B* PlayerController = nullptr;
 private:
 
 	ACharacter_B* HoldingPlayer = nullptr;
@@ -200,7 +201,6 @@ private:
 
 	float NormalMaxWalkSpeed;
 
-	APlayerController_B* PlayerController = nullptr;
 	AGameCamera_B* GameCamera = nullptr;
 
 	friend class UPunchComponent_B;

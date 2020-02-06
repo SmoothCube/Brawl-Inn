@@ -16,6 +16,9 @@ public:
 	APlayerCharacter_B();
 	
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	void Die();
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;

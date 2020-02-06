@@ -7,8 +7,8 @@
 #include "HealthComponent_B.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FHealthUpdate, int);
-DECLARE_MULTICAST_DELEGATE(FZeroHealth);
-DECLARE_MULTICAST_DELEGATE(FRespawn);
+DECLARE_MULTICAST_DELEGATE(FRespawnIsZero);
+DECLARE_MULTICAST_DELEGATE(FHealthIsZero);
 
 class UHealthWidget_B;
 
@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetHealth() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetRespawns() const;
+
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(int Value);
 
@@ -31,9 +34,9 @@ public:
 
 	FHealthUpdate HealthUpdated_D;
 
-	FZeroHealth HealthIsZero_D;
+	FRespawnIsZero RespawnIsZero_D;
 
-	FRespawn OnRespawn_D;
+	FHealthIsZero HealthIsZero_D;
 
 	UFUNCTION()
 	void SetHealthWidget(UHealthWidget_B* Widget);

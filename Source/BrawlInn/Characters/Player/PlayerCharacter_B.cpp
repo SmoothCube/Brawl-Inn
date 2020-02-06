@@ -25,4 +25,13 @@ void APlayerCharacter_B::BeginPlay()
 	//Sends the icons to to the health widget.
 	//GetPlayerController_B()->HealthComponent->HealthWidget->PostInitialize();
 
+	//TODO: WHY THE FUCK DOES THIS CRASH!? SPØR JONAS
+	//PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
+
+}
+
+void APlayerCharacter_B::Die()
+{
+
+	Fall(-1);
 }

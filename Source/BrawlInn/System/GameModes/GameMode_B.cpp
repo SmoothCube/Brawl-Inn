@@ -67,10 +67,10 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 		{
 			GameInstance->AddPlayerControllerID(UGameplayStatics::GetPlayerControllerID(PlayerController));
 		}
-
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		Pawn->Destroy();
+		if (!BP_PlayerCharacter) { BError("GameMode Has no BP_PlayerCharacter!");  return; }
 		APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacter, ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform(), params);
 		PlayerController->Possess(Character);
 		PlayerController->RespawnPawn = nullptr;
@@ -110,7 +110,6 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool b
 					MainMode->AddCameraFocusPoint(Decal);
 				else
 					BWarn("Cannot Find Decal");
-
 			}
 		}
 		else
