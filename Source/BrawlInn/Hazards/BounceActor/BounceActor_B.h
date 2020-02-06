@@ -11,6 +11,7 @@ class UStaticMeshComponent;
 class UProjectileMovementComponent;
 class ABarrelTargetPoint_B;
 class APlayerController_B;
+class UNiagaraComponent;
 UCLASS()
 class BRAWLINN_API ABounceActor_B : public AThrowable_B
 {
@@ -42,4 +43,7 @@ public:
 	ABarrelTargetPoint_B* Target = nullptr;
 
 	APlayerController_B* PlayerController = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+	UNiagaraComponent* PS_Explosion = nullptr;
 };

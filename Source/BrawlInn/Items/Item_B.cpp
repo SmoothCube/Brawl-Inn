@@ -46,7 +46,7 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90,0,0));
 		if (OwningPlayer)
 		{
 			if (OwningPlayer->HoldComponent)

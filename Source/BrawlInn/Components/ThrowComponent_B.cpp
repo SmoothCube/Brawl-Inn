@@ -77,10 +77,13 @@ bool UThrowComponent_B::IsThrowing() const
 
 void UThrowComponent_B::StartThrow()
 {
-	bIsCharging = false;
-	if(OwningPlayer && OwningPlayer->PS_Charge)
-		OwningPlayer->PS_Charge->DeactivateImmediate();
-	bIsThrowing = true;
+	if (bIsCharging)
+	{
+		bIsCharging = false;
+		if(OwningPlayer && OwningPlayer->PS_Charge)
+			OwningPlayer->PS_Charge->DeactivateImmediate();
+		bIsThrowing = true;
+	}
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)

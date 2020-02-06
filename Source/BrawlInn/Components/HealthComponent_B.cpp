@@ -35,14 +35,14 @@ void UHealthComponent_B::SetHealth(int Value)
 		Health = 100;
 		Respawns--;
 
-		OnRespawn_D.Broadcast();
+		HealthIsZero_D.Broadcast();
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
 			APlayerController_B* PlayerController = Cast<APlayerController_B>(GetOwner());
 			if (GetRespawns() <= 0)
 			{
-				HealthIsZero_D.Broadcast();
+				RespawnIsZero_D.Broadcast();
 				GameMode->DespawnCharacter_D.Broadcast(PlayerController, false);
 			}
 			else
@@ -65,8 +65,8 @@ void UHealthComponent_B::SetHealthWidget(UHealthWidget_B* Widget)
 	if (!HealthUpdated_D.IsBoundToObject(Widget))
 		HealthUpdated_D.AddUObject(Widget, &UHealthWidget_B::UpdateHealthAmount);
 
-	if (!OnRespawn_D.IsBoundToObject(Widget))
-		OnRespawn_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
+	if (!HealthIsZero_D.IsBoundToObject(Widget))
+		HealthIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
 
 }
 

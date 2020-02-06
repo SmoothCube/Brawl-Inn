@@ -67,6 +67,7 @@ void ACharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 	OnTakeRadialDamage.AddDynamic(this, &ACharacter_B::OnRadialDamageTaken);
+
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 	MakeInvulnerable(1.0f);
@@ -193,8 +194,8 @@ void ACharacter_B::Fall(float RecoveryTime)
 		//UGameplayStatics::ApplyDamage(this, FallDamageAmount,GetController(),this, BP_FallDamageType);
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
-
-		GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
+		if(RecoveryTime>=0)
+			GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
 	}
 	else
 		BWarn("Character is in air! Fall() does not run!");

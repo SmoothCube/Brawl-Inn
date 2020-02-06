@@ -4,6 +4,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraComponent.h"
+
 
 #include "BrawlInn.h"
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
@@ -13,6 +15,12 @@
 ABounceActor_B::ABounceActor_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	PS_Explosion = CreateDefaultSubobject<UNiagaraComponent>("Stun Particle System");
+	PS_Explosion->SetupAttachment(Mesh);
+	PS_Explosion->SetRelativeLocation(FVector(0, 0,-55.f));
+	PS_Explosion->SetWorldRotation(FRotator(90, 0, 0));
+	PS_Explosion->SetAutoActivate(false);
 }
 
 void ABounceActor_B::BeginPlay()
@@ -24,6 +32,11 @@ void ABounceActor_B::BeginPlay()
 
 void ABounceActor_B::Explode(AActor* DestroyedActor)
 {
+	if (PS_Explosion)
+		PS_Explosion->Activate(true);
+	else
+		BWarn("No Explosion");
+
 	//UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), DamageAmount, 0, GetActorLocation(), InnerRadius, Radius, Falloff, BP_DamageType, {}, this);
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount,GetActorLocation(),Radius, BP_DamageType, {}, this,nullptr);
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius, 10, FColor::Blue, false, 2.f);
@@ -40,4 +53,6 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 			GameMode->SpawnCharacter_D.Broadcast(PlayerController, true,FTransform(GetActorLocation()));
 		}
 	}
+
+
 }

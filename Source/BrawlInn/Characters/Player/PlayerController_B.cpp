@@ -25,7 +25,7 @@ void APlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
-	HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerController_B::KillPlayerCharacter);
+	HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerController_B::KillPlayerCharacter);
 }
 
 void APlayerController_B::SetupInputComponent()
