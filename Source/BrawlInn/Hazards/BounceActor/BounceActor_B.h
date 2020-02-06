@@ -43,7 +43,4 @@ public:
 	ABarrelTargetPoint_B* Target = nullptr;
 
 	APlayerController_B* PlayerController = nullptr;
-
-	UPROPERTY(VisibleAnywhere)
-	UNiagaraComponent* PS_Explosion = nullptr;
 };
