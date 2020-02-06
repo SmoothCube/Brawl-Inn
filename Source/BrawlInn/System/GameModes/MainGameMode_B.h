@@ -55,7 +55,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	UPauseMenu_B* PauseMenuWidget = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* Birds;
+
 private:
 	AGameCamera_B* GameCamera = nullptr;
+
 
 };

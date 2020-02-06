@@ -4,6 +4,7 @@
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "BrawlInn.h"
 
 #include "System/Camera/GameCamera_B.h"
@@ -18,6 +19,11 @@ void AMainGameMode_B::BeginPlay()
 	Super::BeginPlay();
 
 	SetActorTickEnabled(false);
+
+	if (GameInstance && Birds)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume,1.0f, FMath::FRandRange(0, 100));
+	}
 
 	/// Spawns and setups camera
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
