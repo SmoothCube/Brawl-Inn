@@ -45,9 +45,6 @@ protected:
 	//for all other objects
 	TArray<UPrimitiveComponent*> ComponentsToMove;
 
-	UPROPERTY(EditAnywhere, Category = "Audio")
-	USoundCue* RiverSound;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

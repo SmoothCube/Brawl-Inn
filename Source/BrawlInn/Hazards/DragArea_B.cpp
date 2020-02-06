@@ -34,22 +34,22 @@ void ADragArea_B::BeginPlay()
 	DragArea->OnComponentEndOverlap.AddDynamic(this, &ADragArea_B::OnOverlapEnd);
 
 
-	//Play sound with settings
-	if (RiverSound)
-	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
-		}
-		UGameplayStatics::PlaySoundAtLocation(
-			GetWorld(),
-			RiverSound,
-			GetActorLocation(),
-			volume
-		);
-	}
+	////Play sound with settings
+	//if (RiverSound)
+	//{
+	//	float volume = 1.f;
+	//	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+	//	if (GameInstance)
+	//	{
+	//		volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+	//	}
+	//	UGameplayStatics::PlaySoundAtLocation(
+	//		GetWorld(),
+	//		RiverSound,
+	//		GetActorLocation(),
+	//		volume
+	//	);
+	//}
 }
 
 // Called every frame
