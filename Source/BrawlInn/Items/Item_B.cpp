@@ -10,7 +10,7 @@
 
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "System/GameInstance_B.h"
-
+#include "Components/HoldComponent_B.h"
 AItem_B::AItem_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -49,6 +49,11 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation());
 		if (OwningPlayer)
 		{
+			if (OwningPlayer->HoldComponent)
+			{
+				OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
+				OwningPlayer->SetState(EState::EWalking);
+			}
 			OwningPlayer = nullptr;
 		}
 

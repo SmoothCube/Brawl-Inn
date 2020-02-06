@@ -398,7 +398,7 @@ void ACharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 		{
 			if (PlayerController)
 			{
-				if(PlayerController->HealthComponent->GetHealth() <= 0)
+				if(PlayerController->HealthComponent->GetRespawns()<= 0)
 					GameMode->DespawnCharacter_D.Broadcast(PlayerController, false);
 				else
 					GameMode->DespawnCharacter_D.Broadcast(PlayerController, true);
