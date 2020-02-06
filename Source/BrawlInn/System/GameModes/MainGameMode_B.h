@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Birds;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* River;
+
 private:
 	AGameCamera_B* GameCamera = nullptr;
 
