@@ -6,9 +6,8 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BT_OpenDoor_B.generated.h"
 
-/**
- *
- */
+class ABar_B;
+
 UCLASS()
 class BRAWLINN_API UBT_OpenDoor_B : public UBTTaskNode
 {
@@ -28,4 +27,7 @@ protected:
 
 	UPROPERTY()
 	UBehaviorTreeComponent* BehaviorTree = nullptr;
+
+	UPROPERTY()
+		ABar_B* Bar_B = nullptr;
 };
