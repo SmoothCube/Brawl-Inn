@@ -9,7 +9,7 @@
 class UBoxComponent;
 class UStaticMeshComponent; //TODO delete?
 class USkeletalMeshComponent;
-class APlayerCharacter_B;
+class ACharacter_B;
 class USoundCue;
 
 UCLASS()
@@ -39,7 +39,7 @@ protected:
 	
 
 	//for characters that has not fallen (movement components)
-	TArray<APlayerCharacter_B*> PlayersToMove;
+	TArray<ACharacter_B*> PlayersToMove;
 	//for all skeletal meshes? 
 	TArray<USkeletalMeshComponent*> SkeletonsToMove;
 	//for all other objects

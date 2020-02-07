@@ -11,7 +11,7 @@
 #include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "System/GameInstance_B.h"
 
@@ -98,7 +98,7 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 {
 	//only adds to one of the three arrays
 	USkeletalMeshComponent* Skeleton = Cast<USkeletalMeshComponent>(OtherComp);
-	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
+	ACharacter_B* Player = Cast<ACharacter_B>(OtherActor);
 	if (Skeleton)
 	{
 		SkeletonsToMove.Add(Skeleton);
@@ -120,7 +120,7 @@ void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
 	USkeletalMeshComponent* Skeleton = Cast<USkeletalMeshComponent>(OtherComp);
-	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
+	ACharacter_B* Player = Cast<ACharacter_B>(OtherActor);
 	if (Skeleton)
 	{
 		SkeletonsToMove.Remove(Skeleton);
@@ -135,7 +135,7 @@ void ADragArea_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 		for (auto& comp : OverlappingComponents)
 		{
 			AActor* Actor = comp->GetOwner();
-			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(Actor);
+			ACharacter_B* OtherPlayer = Cast<ACharacter_B>(Actor);
 			USkeletalMeshComponent* Mesh = Cast<USkeletalMeshComponent>(comp);
 			
 			if (OtherPlayer != nullptr && Mesh != nullptr)

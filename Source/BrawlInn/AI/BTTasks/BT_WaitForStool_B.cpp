@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BT_WaitForStool.h"
+#include "BT_WaitForStool_B.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
@@ -10,11 +10,7 @@
 #include "Items/Item_B.h"
 #include "Characters/AI/AIController_B.h"
 
-UBT_WaitForStool::UBT_WaitForStool()
-{
-}
-
-EBTNodeResult::Type UBT_WaitForStool::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBT_WaitForStool_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
@@ -27,12 +23,12 @@ EBTNodeResult::Type UBT_WaitForStool::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Aborted;
 	}
 
-	OwningAI->OnStoolReceived_D.AddUObject(this, &UBT_WaitForStool::RecieveStool);
+	OwningAI->OnStoolReceived_D.AddUObject(this, &UBT_WaitForStool_B::RecieveStool);
 
 	return EBTNodeResult::InProgress;
 }
 
-void UBT_WaitForStool::RecieveStool(AItem_B* Stool)
+void UBT_WaitForStool_B::RecieveStool(AItem_B* Stool)
 {
 	if (OwnerComponent)
 	{
