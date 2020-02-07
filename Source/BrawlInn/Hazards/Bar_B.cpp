@@ -56,14 +56,13 @@ void ABar_B::SpawnTankard()
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
-
 	if (TankardSpawnSound)
 	{
 		float volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
 		{
-			volume = GameInstance->MasterVolume * GameInstance->MusicVolume;
+			volume = GameInstance->MasterVolume * GameInstance->SfxVolume;
 		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),

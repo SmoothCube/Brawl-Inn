@@ -14,14 +14,7 @@ EBTNodeResult::Type UBT_CloseDoor_B::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	BehaviorTree = &OwnerComp;
 
 	Bar_B = Cast<ABar_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(Bar.SelectedKeyName));
-	Bar_B->OnDoorClosed_D.AddDynamic(this, &UBT_CloseDoor_B::DoorIsClosed);
 	Bar_B->CloseDoor();
-	return EBTNodeResult::InProgress;
-}
-
-void UBT_CloseDoor_B::DoorIsClosed()
-{
-	BehaviorTree->GetBlackboardComponent()->SetValueAsBool(IsDoorOpen.SelectedKeyName, false);
-	FinishLatentTask(*BehaviorTree, EBTNodeResult::Succeeded);
-	Bar_B->OnDoorClosed_D.RemoveDynamic(this, &UBT_CloseDoor_B::DoorIsClosed);
+		BehaviorTree->GetBlackboardComponent()->SetValueAsBool(IsDoorOpen.SelectedKeyName, false);
+	return EBTNodeResult::Succeeded;
 }

@@ -13,7 +13,7 @@
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 #include "System/GameInstance_B.h"
-
+#include "Characters/Player/PlayerCharacter_B.h"
 
 // Sets default values
 ABounceActorSpawner_B::ABounceActorSpawner_B()
@@ -26,7 +26,8 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 void ABounceActorSpawner_B::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBarrelOnTimer, SpawnDelay, true, 0);
+	float RandomSpawnTime = FMath::FRandRange(MinSpawnTime, MaxSpawnTime);
+	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBarrelOnTimer, RandomSpawnTime, false);
 }
 
 // Called every frame
@@ -38,12 +39,34 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 {
 	//cycles through the different paths instead of random spawning
+	int NextPath = FMath::RandRange(0, BouncePoints.Num() - 1);
 	if (BouncePoints.IsValidIndex(NextPath) && BouncePoints[NextPath])
 	{
-		BouncePoints[NextPath]->SetActorHiddenInGame(false);
-		ABounceActor_B* NewBounceActor = SpawnBounceActor(BouncePoints[NextPath]->GetActorLocation());
-		if (IsValid(NewBounceActor))
-			NewBounceActor->Target = BouncePoints[NextPath];
+
+		TArray<AActor*> Players;
+		TSubclassOf<APlayerCharacter_B> PlayerClass;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCharacter_B::StaticClass(), Players);
+
+		int PlayerIndex = FMath::RandRange(0, Players.Num() - 1);
+		ABounceActor_B* NewBounceActor = nullptr;
+		if (Players.IsValidIndex(PlayerIndex) && Players[PlayerIndex])
+		{
+			NewBounceActor = SpawnBounceActor(Players[PlayerIndex]->GetActorLocation());
+			if (IsValid(NewBounceActor))
+			{
+				NewBounceActor->Target = GetWorld()->SpawnActor<ABarrelTargetPoint_B>(TargetPointClass, Players[PlayerIndex]->GetActorLocation(), FRotator(0, 0, 0));
+				NewBounceActor->Target->SetActorHiddenInGame(false);
+				NewBounceActor->bShouldDestroyTarget = true;
+			}
+
+		}
+		else
+		{
+			NewBounceActor = SpawnBounceActor(BouncePoints[NextPath]->GetActorLocation());
+			BouncePoints[NextPath]->SetActorHiddenInGame(false);
+			if (IsValid(NewBounceActor))
+				NewBounceActor->Target = BouncePoints[NextPath];
+		}
 
 		if (SpawnCue)
 		{
@@ -65,12 +88,9 @@ void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 	{
 		ABounceActor_B* NewBounceActor = SpawnBounceActor(FVector::ZeroVector);
 	}
+	float RandomSpawnTime = FMath::FRandRange(MinSpawnTime, MaxSpawnTime);
+	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBarrelOnTimer, RandomSpawnTime, false);
 
-	NextPath++;
-	if (NextPath >= BouncePoints.Num())
-	{
-		NextPath = 0;
-	}
 }
 
 ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
