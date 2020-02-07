@@ -4,52 +4,59 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "System/BrawlEnums.h"
 #include "GameInstance_B.generated.h"
 
+USTRUCT(BlueprintType)
+struct FPlayerInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ID = 0;
+
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//		EPlayerCharacterType Type = EPlayerCharacterType::YUGGO;
+};
 
 class USoundBase;
-/**
- * 
- */
+
 DECLARE_MULTICAST_DELEGATE(FNumberOfPlayerControllersChanged);
 
 UCLASS()
 class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 
-//    UFUNCTION(BlueprintCallable, Category = "Audio", meta = (WorldContext = "WorldContextObject", AdvancedDisplay = "3", UnsafeDuringActorConstruction = "true", Keywords = "play"))
-    //static void PlaySfxSoundAtLocation(const UObject* WorldContextObject, USoundBase* Sound, FVector Location, float VolumeMultiplier, float PitchMultiplier, float StartTime, USoundAttenuation* AttenuationSettings, USoundConcurrency* ConcurrencySettings)
-    //{
+	UGameInstance_B();
 
-    //}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+		float MasterVolume = 1.f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
-    float MasterVolume = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+		float MusicVolume = 1.f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
-    float MusicVolume = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+		float SfxVolume = 1.f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
-    float SfxVolume = 1.f;
-    UFUNCTION()
-    void AddPlayerControllerID(int ID);
+	UFUNCTION()
+		void AddPlayerInfo(FPlayerInfo PlayerInfo);
 
-    UFUNCTION()
-    void RemovePlayerControllerID(int ID);  
-    
-    UFUNCTION()
-    TArray<int> GetActivePlayerControllerIDs() const;
+	UFUNCTION()
+		void RemovePlayerInfo(int ID);
 
-    UFUNCTION()
-    void SetActivePlayerControllerIDs(TArray<int> NewControllerIDs);
-    
-    FNumberOfPlayerControllersChanged OnNumberPlayerControllersChanged;
+	UFUNCTION()
+		TArray<FPlayerInfo> GetPlayerInfos() const;
+
+	UFUNCTION()
+		void SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos);
+
+	FNumberOfPlayerControllersChanged OnPlayerInfoChanged;
 
 protected:
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
-        TArray<int> ActivePlayerControllerIDs = { 0,1 };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
+		TArray<FPlayerInfo> ActivePlayerInfos;
 };

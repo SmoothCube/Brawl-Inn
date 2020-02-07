@@ -20,7 +20,7 @@ void UGameOverlay_B::NativeOnInitialized()
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (GameInstance)
-		GameInstance->OnNumberPlayerControllersChanged.AddUObject(this, &UGameOverlay_B::ChangeHealthWidgetVisibility);
+		GameInstance->OnPlayerInfoChanged.AddUObject(this, &UGameOverlay_B::ChangeHealthWidgetVisibility);
 
 	/// Setup Icons and connect the health widgets to playercontrollers
 	TArray<ULocalPlayer*> Players = GameInstance->GetLocalPlayers();
@@ -46,8 +46,8 @@ void UGameOverlay_B::ChangeHealthWidgetVisibility()
 		for (auto& HealthWidget : HealthWidgets)
 			HealthWidget->SetVisibility(ESlateVisibility::Hidden);
 
-		TArray<int> Players = GameInstance->GetActivePlayerControllerIDs();
-		for (int PlayerID : Players)
-			HealthWidgets[PlayerID]->SetVisibility(ESlateVisibility::Visible);
+		TArray<FPlayerInfo> Players = GameInstance->GetPlayerInfos();
+		for (FPlayerInfo Info : Players)
+			HealthWidgets[Info.ID]->SetVisibility(ESlateVisibility::Visible);
 	}
 }

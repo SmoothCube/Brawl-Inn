@@ -65,7 +65,7 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 	{
 		if (Pawn->IsA(AInitPawn_B::StaticClass()))
 		{
-			GameInstance->AddPlayerControllerID(UGameplayStatics::GetPlayerControllerID(PlayerController));
+			GameInstance->AddPlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 		}
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -119,7 +119,7 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool b
 		PlayerController->Possess(Character);
 		PlayerController->PlayerCharacter = nullptr;
 		if (GameInstance)
-			GameInstance->RemovePlayerControllerID(UGameplayStatics::GetPlayerControllerID(PlayerController));
+			GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 	}
 	UpdateViewTarget(PlayerController);
 	DespawnCharacter_NOPARAM_D.Broadcast();

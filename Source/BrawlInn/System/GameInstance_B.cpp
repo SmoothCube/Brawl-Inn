@@ -6,45 +6,40 @@
 #include "Engine/World.h"
 #include "Sound/SoundBase.h"
 
-//void UGameInstance_B::PlaySfxSoundAtLocation(const UObject* WorldContextObject, USoundBase* Sound, FVector Location, float VolumeMultiplier, float PitchMultiplier, float StartTime, USoundAttenuation* AttenuationSettings, USoundConcurrency* ConcurrencySettings)
-//{
-//	UGameplayStatics::PlaySoundAtLocation(
-//		WorldContextObject,
-//		Sound,
-//		Location,
-//		VolumeMultiplier * MasterVolume * SfxVolume,
-//		PitchMultiplier,
-//		StartTime,
-//		AttenuationSettings,
-//		ConcurrencySettings);
-//}
-
-//static void UGameInstance_B::PlaySfxSoundAtLocation(const UObject* WorldContextObject, USoundBase* Sound, FVector Location, float VolumeMultiplier, float PitchMultiplier, float StartTime, USoundAttenuation* AttenuationSettings, USoundConcurrency* ConcurrencySettings)
-//{
-//    UGameplayStatics::PlaySoundAtLocation(WorldContextObject, Sound, Location, VolumeMultiplier * MasterVolume * SfxVolume, PitchMultiplier, StartTime, AttenuationSettings, ConcurrencySettings);
-//}
-void UGameInstance_B::AddPlayerControllerID(int ID)
+UGameInstance_B::UGameInstance_B()
 {
-	ActivePlayerControllerIDs.Add(ID);
-	if (OnNumberPlayerControllersChanged.IsBound())
-		OnNumberPlayerControllersChanged.Broadcast();
+	FPlayerInfo Info;
+	Info.ID = 0;
+//	Info.Type = EPlayerCharacterType::YUGGO;
+	ActivePlayerInfos.Add(Info);
+
+	FPlayerInfo Info2;
+	Info2.ID = 1;
+	//Info2.Type = EPlayerCharacterType::SWIFTBOOT;
+	ActivePlayerInfos.Add(Info2);
 }
 
-void UGameInstance_B::RemovePlayerControllerID(int ID)
+void UGameInstance_B::AddPlayerInfo(FPlayerInfo PlayerInfo)
 {
-	ActivePlayerControllerIDs.Remove(ID);
-	if (OnNumberPlayerControllersChanged.IsBound())
-		OnNumberPlayerControllersChanged.Broadcast();
+	ActivePlayerInfos.Add(PlayerInfo);
+	OnPlayerInfoChanged.Broadcast();
 }
 
-TArray<int> UGameInstance_B::GetActivePlayerControllerIDs() const
+void UGameInstance_B::RemovePlayerInfo(int ID)
 {
-	return ActivePlayerControllerIDs;
+	ActivePlayerInfos.RemoveAll([&](const FPlayerInfo& PlayerInfo) {
+		return PlayerInfo.ID == ID;
+		});
+	OnPlayerInfoChanged.Broadcast();
 }
 
-void UGameInstance_B::SetActivePlayerControllerIDs(TArray<int> NewControllerIDs)
+TArray<FPlayerInfo> UGameInstance_B::GetPlayerInfos() const
 {
-	ActivePlayerControllerIDs = NewControllerIDs;
-	if (OnNumberPlayerControllersChanged.IsBound())
-		OnNumberPlayerControllersChanged.Broadcast();
+	return ActivePlayerInfos;
+}
+
+void UGameInstance_B::SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos)
+{
+	ActivePlayerInfos = NewPlayerInfos;
+	OnPlayerInfoChanged.Broadcast();
 }

@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Characters/Character_B.h"
+#include "System/BrawlEnums.h"
 #include "PlayerCharacter_B.generated.h"
 
 class AController;
+enum EPlayerCharacterType;
 
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
@@ -34,6 +36,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
 		UTexture2D* GreyHealthIcon = nullptr;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//bdt::EPlayerCharacterType Type;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables | Respawn")
