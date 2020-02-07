@@ -159,7 +159,6 @@ void AMenuGameMode_B::UpdateNumberOfActivePlayers()
 
 void AMenuGameMode_B::StartGame()
 {
-	BScreen("Start");
 
-	UGameplayStatics::OpenLevel(GetWorld(), "Graybox_V3");
+	UGameplayStatics::OpenLevel(GetWorld(), PlayMap);
 }

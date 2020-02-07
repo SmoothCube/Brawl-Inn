@@ -104,11 +104,15 @@ public:
 
 	bool bIsQuitting = false;
 
+
 	// ** Ready up **
 
 public: 
 
 	int PlayersActive = 0;
 	int PlayersReady = 0;
+
+	UPROPERTY(EditDefaultsonly, Category = "Variables")
+	FName PlayMap = "Graybox_v4";
 
 };
