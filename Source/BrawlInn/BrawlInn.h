@@ -8,15 +8,9 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
 
-
-#define NETMODE_WORLD (((GEngine == nullptr) || (GetWorld() == nullptr)) ? TEXT("") \
-        : (GEngine->GetNetMode(GetWorld()) == NM_Client) ? TEXT("[Client] ") \
-        : (GEngine->GetNetMode(GetWorld()) == NM_ListenServer) ? TEXT("[ListenServer] ") \
-        : (GEngine->GetNetMode(GetWorld()) == NM_DedicatedServer) ? TEXT("[DedicatedServer] ") \
-        : TEXT("[Standalone] "))
-
 #if _MSC_VER
 #define FUNC_NAME    TEXT(__FUNCTION__)
+#define FUNC_NAMEF   FString(__FUNCTION__)
 #else // FIXME - GCC?
 #define FUNC_NAME    TEXT(__func__)
 #endif
@@ -27,11 +21,11 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
     const FString Msg = FString::Printf(TEXT(Format), ##__VA_ARGS__); \
     if (Msg == "") \
     { \
-        UE_LOG(Brawl, Log, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *GetNameSafe(this));\
+        UE_LOG(Brawl, Log, TEXT("%s() : %s"), FUNC_NAME, *GetNameSafe(this));\
     } \
     else \
     { \
-        UE_LOG(Brawl, Log, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
+        UE_LOG(Brawl, Log, TEXT("%s() : %s"), FUNC_NAME, *Msg);\
     } \
     CLEAR_WARN_COLOR();\
 }
@@ -48,7 +42,7 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
 { \
     SET_WARN_COLOR( COLOR_YELLOW );\
     const FString Msg = FString::Printf(TEXT(Format), ##__VA_ARGS__); \
-    UE_LOG(Brawl, Warning, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
+    UE_LOG(Brawl, Warning, TEXT("%s() : %s"), FUNC_NAME, *Msg);\
     CLEAR_WARN_COLOR();\
 }
 
@@ -56,7 +50,7 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
 { \
     SET_WARN_COLOR( COLOR_RED );\
     const FString Msg = FString::Printf(TEXT(Format), ##__VA_ARGS__); \
-    UE_LOG(Brawl, Error, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *Msg);\
+    UE_LOG(Brawl, Error, TEXT("%s() : %s"), FUNC_NAME, *Msg);\
     CLEAR_WARN_COLOR();\
 }
 
@@ -66,11 +60,11 @@ DECLARE_LOG_CATEGORY_EXTERN(Brawl, Log, All);
     if (Msg == "") \
     { \
         TCHAR StdMsg[MAX_SPRINTF] = TEXT(""); \
-        FCString::Sprintf(StdMsg, TEXT("%s%s() : %s"), NETMODE_WORLD, FUNC_NAME, *GetNameSafe(this)); \
+        FCString::Sprintf(StdMsg, TEXT("%s() : %s"), FUNC_NAME, *GetNameSafe(this)); \
         GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Emerald, StdMsg); \
     } \
     else \
     { \
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Emerald, Msg); \
-    } \
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Emerald, *(FUNC_NAMEF + ": " + Msg)); \
+	} \
 }

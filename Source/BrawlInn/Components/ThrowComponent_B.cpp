@@ -169,7 +169,7 @@ void UThrowComponent_B::Throw()
 {
 	if (!OwningPlayer)
 	{
-		BError("No OwningPlayer for ThrowComponent %s!", *GetNameSafe(this));
+		BError("No OwningCharacter for ThrowComponent %s!", *GetNameSafe(this));
 		return;
 	}
 	if (!HoldComponent)

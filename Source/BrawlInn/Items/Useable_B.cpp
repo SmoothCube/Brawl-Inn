@@ -38,7 +38,7 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	OwningPlayer = Player;
+	OwningCharacter = Player;
 }
 
 void AUseable_B::Dropped_Implementation()

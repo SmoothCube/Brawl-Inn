@@ -55,6 +55,6 @@ private:
 	TArray<AActor*> ThrowableItemsInRange;
 
 	AActor* HoldingItem = nullptr;
-	ACharacter_B* OwningPlayer = nullptr;
+	ACharacter_B* OwningCharacter = nullptr;
 
 };

@@ -27,21 +27,20 @@ void UHoldComponent_B::BeginPlay()
 	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::AddItem);
 	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::RemoveItem);
 
-	OwningPlayer = Cast<ACharacter_B>(GetOwner());
+	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
 
 bool UHoldComponent_B::TryPickup()
 {
-	if (!OwningPlayer) return false;
-	if (!(OwningPlayer->GetState() == EState::EWalking)) return false;
+	if (!OwningCharacter) return false;
+	if (!(OwningCharacter->GetState() == EState::EWalking)) return false;
 	if (HoldingItem) return false;
 	if (ThrowableItemsInRange.Num() == 0) return false;
-	if (OwningPlayer->PunchComponent->bIsPunching) return false;
-	//Should only be able
+	if (OwningCharacter->PunchComponent->bIsPunching) return false;
 
-	FVector PlayerLocation = OwningPlayer->GetMesh()->GetComponentLocation();
+	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
-	FVector PlayerForward = PlayerLocation + OwningPlayer->GetActorForwardVector() * PickupRange;
+	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * PickupRange;
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
@@ -115,18 +114,17 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AActor* Item)
 {
-	OwningPlayer->SetState(EState::EHolding);
+	OwningCharacter->SetState(EState::EHolding);
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
 	{
-		Interface->Execute_PickedUp(Item, OwningPlayer);
+		Interface->Execute_PickedUp(Item, OwningCharacter);
 	}
 
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
-	Item->AttachToComponent(Cast<USceneComponent>(OwningPlayer->GetMesh()), rules, HoldingSocketName);
+	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
-
 
 }
 
@@ -149,7 +147,7 @@ void UHoldComponent_B::SetHoldingItem(AActor* Item)
 
 void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == OwningPlayer) return;
+	if (OtherActor == OwningCharacter) return;
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
 	if (!Interface)
 		return;
@@ -159,7 +157,7 @@ void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor*
 
 void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
-	if (OtherActor == OwningPlayer) return;
+	if (OtherActor == OwningCharacter) return;
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
 	if (!Interface)
 		return;
@@ -174,5 +172,5 @@ void UHoldComponent_B::Drop()
 		Interface->Execute_Dropped(GetHoldingItem());
 	}
 	SetHoldingItem(nullptr);
-	OwningPlayer->SetState(EState::EWalking);
+	OwningCharacter->SetState(EState::EWalking);
 }

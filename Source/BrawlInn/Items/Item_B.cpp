@@ -27,7 +27,7 @@ AItem_B::AItem_B()
 
 bool AItem_B::IsHeld_Implementation() const
 {
-	if (OwningPlayer)
+	if (OwningCharacter)
 		return true;
 	return false;
 }
@@ -47,15 +47,7 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90,0,0));
-		if (OwningPlayer)
-		{
-			if (OwningPlayer->HoldComponent)
-			{
-				OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
-				OwningPlayer->SetState(EState::EWalking);
-			}
-			OwningPlayer = nullptr;
-		}
+
 
 		if (DestroyedCue)
 		{
@@ -82,7 +74,7 @@ void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	{
 		if (!Interface->Execute_IsHeld(this)) return;
 	}
-	if (!IsHeld_Implementation() || OtherActor == OwningPlayer || OtherActor->StaticClass() == this->StaticClass())
+	if (!IsHeld_Implementation() || OtherActor == OwningCharacter || OtherActor->StaticClass() == this->StaticClass())
 		return;
 
 	OnHit(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);

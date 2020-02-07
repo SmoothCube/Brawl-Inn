@@ -51,7 +51,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Juice")
 		UNiagaraSystem* PS_OnDestroy;
 
-	ACharacter_B* OwningPlayer = nullptr;
+	ACharacter_B* OwningCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* DestroyedCue;

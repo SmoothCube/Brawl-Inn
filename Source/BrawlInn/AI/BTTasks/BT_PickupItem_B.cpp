@@ -39,7 +39,6 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	{
 		if (AICharacter->HoldComponent->TryPickup())
 		{
-		BScreen("Found Item, pickingup");
 			OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 			OwnerComp.GetBlackboardComponent()->SetValueAsObject(HoldingItem.SelectedKeyName, Item);
 			return EBTNodeResult::Succeeded;

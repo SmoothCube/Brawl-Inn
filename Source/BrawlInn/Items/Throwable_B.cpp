@@ -10,14 +10,15 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Character_B.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	OwningPlayer = Player;
+	PickupCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	OwningCharacter = Player;
 }
 
 void AThrowable_B::Dropped_Implementation()
@@ -31,7 +32,7 @@ void AThrowable_B::Dropped_Implementation()
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APlayerCharacter_B* HitPlayer = Cast<APlayerCharacter_B>(OtherActor);
+	ACharacter_B* HitPlayer = Cast<ACharacter_B>(OtherActor);
 	if (HitPlayer && !HitPlayer->IsInvulnerable())
 	{
 		if (HitPlayer->bHasShield)
@@ -42,7 +43,7 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		{
 			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 
-			UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningPlayer->GetController(), this, BP_DamageType);
+			UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningCharacter->GetController(), this, BP_DamageType);
 		}
 	}
 	Destroy();
@@ -57,15 +58,15 @@ void AThrowable_B::Use_Implementation()
 	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 
 	/// Throw with the help of AimAssist.
-	if (OwningPlayer)
+	if (OwningCharacter)
 	{
-		FVector TargetLocation = OwningPlayer->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
-		OwningPlayer->ThrowComponent->AimAssist(TargetLocation);
-		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningPlayer->ThrowComponent->ImpulseSpeed, NAME_None, true);
+		FVector TargetLocation = OwningCharacter->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
+		OwningCharacter->ThrowComponent->AimAssist(TargetLocation);
+		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningCharacter->ThrowComponent->ImpulseSpeed, NAME_None, true);
 	}
 	else
 	{
-		BError("No OwningPlayer for Throwable %s", *GetNameSafe(this))
+		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
 	}
 
 }
