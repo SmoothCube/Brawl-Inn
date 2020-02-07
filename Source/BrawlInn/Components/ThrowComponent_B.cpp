@@ -188,13 +188,22 @@ void UThrowComponent_B::Throw()
 	{
 		Interface->Execute_Use(HoldComponent->GetHoldingItem());
 	}
-
-	OwningPlayer->HoldComponent->SetHoldingItem(nullptr);
-	if (OwningPlayer && OwningPlayer->PS_Charge)
-		OwningPlayer->PS_Charge->DeactivateImmediate();
+	if (OwningPlayer)
+	{
+		if (OwningPlayer->HoldComponent)
+			OwningPlayer->HoldComponent->SetHoldingItem(nullptr);	//had a crash on this line before these checks
+		else
+			BError("No HoldComponent for player %f", *GetNameSafe(OwningPlayer));
+		if (OwningPlayer->PS_Charge)
+			OwningPlayer->PS_Charge->DeactivateImmediate();
+		else
+			BError("No PS_Charge for player %f", *GetNameSafe(OwningPlayer));
+		OwningPlayer->SetState(EState::EWalking);
+	}
+	else
+		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
 	bIsCharging = false;
 	bIsThrowing = false;
-	OwningPlayer->SetState(EState::EWalking);
 	BWarn("Throw end!");
 
 }

@@ -10,10 +10,4 @@ void AAICharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Temporary so I can see what I'm doing while working on ai
-	AMainGameMode_B* Gamemode = Cast <AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (Gamemode)
-	{
-		Gamemode->AddCameraFocusPoint(Cast<USceneComponent>(GetMesh()));
-	}
 }

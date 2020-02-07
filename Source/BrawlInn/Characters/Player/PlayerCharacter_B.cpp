@@ -29,7 +29,6 @@ void APlayerCharacter_B::BeginPlay()
 
 void APlayerCharacter_B::Die()
 {
-	BWarn("Dying");	
 	Fall(-1);
 	PlayerController->UnPossess();
 	PlayerController->Player = nullptr;

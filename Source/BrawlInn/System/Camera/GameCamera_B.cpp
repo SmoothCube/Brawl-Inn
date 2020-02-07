@@ -138,7 +138,6 @@ void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
 
 void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	BWarn("Removing Component!");
 	//The right component doesnt neccesarily run on overlap end
 	//GetComponents returns UActorComponent, which inherits from USceneComponent. Cast should always be safe. 
 	for(auto& comp : OtherActor->GetComponents())
@@ -153,13 +152,35 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 		for (auto& comp : OverlappingComponents)
 		{
 			AActor* Actor = comp->GetOwner();
+			
 			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(Actor);
 
 			if (OtherPlayer != nullptr)
 			{
+				//Checks to see if player still exist in the array
+				bool bActorIsAdded = false;
+				for (auto& ExistingComponent : ComponentsToTrack)
+				{
+					if (Actor == ExistingComponent->GetOwner())
+					{
+						bActorIsAdded = true;
+						break;
+					}
+				}
+				if (bActorIsAdded)
+				{
+					continue;
+				}
+				
 				ComponentsToTrack.Add(comp);
 			}
 		}
+	}
+
+	//Logging the actors for debug purpouses
+	for (auto& c : ComponentsToTrack)
+	{
+		BWarn("Component in camera: %s, Owner: %s", *GetNameSafe(c), *GetNameSafe(c->GetOwner()))
 	}
 
 }

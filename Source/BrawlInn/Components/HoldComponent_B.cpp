@@ -152,7 +152,6 @@ void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor*
 	if (!Interface)
 		return;
 	ThrowableItemsInRange.Add(OtherActor);
-	BWarn("%s Overlapping with: %s", *GetNameSafe(this), *GetNameSafe(OtherActor));
 }
 
 void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)

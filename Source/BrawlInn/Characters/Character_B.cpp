@@ -197,8 +197,7 @@ void ACharacter_B::Fall(float RecoveryTime)
 		if(RecoveryTime>=0)
 			GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
 	}
-	else
-		BWarn("Character is in air! Fall() does not run!");
+	
 }
 
 FVector ACharacter_B::FindMeshLocation()

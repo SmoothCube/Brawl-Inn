@@ -27,7 +27,6 @@ ARespawnPawn_B::ARespawnPawn_B()
 void ARespawnPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
-	BWarn("RespawnPawn spawned");
 	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilThrow);
 }
 
