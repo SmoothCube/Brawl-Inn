@@ -363,7 +363,7 @@ void ACharacter_B::SetState(EState s)
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		break;
 	case EState::EHolding:
-		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;
 		break;
 	case EState::EStunned:
 		if (IsValid(PS_Stun))

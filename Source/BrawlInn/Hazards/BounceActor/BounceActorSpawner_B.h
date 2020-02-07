@@ -27,11 +27,19 @@ protected:
 	float SpawnDelay = 5.f;
 
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere , Category = "Variables")
 	TSubclassOf<ABounceActor_B> ActorToSpawn;
 
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	TSubclassOf<ABarrelTargetPoint_B> TargetPointClass;
+
 	FTimerHandle TH_SpawnTimer;
-	int NextPath = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MinSpawnTime = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+	float MaxSpawnTime = 15.f;
 public:	
 	void SpawnBarrelOnTimer();
 	ABounceActor_B* SpawnBounceActor(FVector TargetLocation);

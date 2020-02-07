@@ -22,9 +22,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector IsDoorOpen;
 
-	UFUNCTION()
-		void DoorIsClosed();
-
 	UPROPERTY()
 		UBehaviorTreeComponent* BehaviorTree = nullptr;
 

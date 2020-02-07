@@ -43,4 +43,6 @@ public:
 	ABarrelTargetPoint_B* Target = nullptr;
 
 	APlayerController_B* PlayerController = nullptr;
+
+	bool bShouldDestroyTarget = false;
 };
