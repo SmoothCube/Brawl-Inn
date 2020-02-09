@@ -32,6 +32,10 @@ void UCharacterSelectionComponent_B::BeginPlay()
 		StartLocations.Add(Cast<APlayerCharacter_B>(Character), Character->GetActorTransform());
 	}
 
+	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
+		return Left.GetActorLocation().X > Right.GetActorLocation().X;
+		});
+
 	CharacterSelected = Characters[CurrentIndex];
 
 	BLog("Found %i characters", Characters.Num());

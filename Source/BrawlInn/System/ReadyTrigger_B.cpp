@@ -31,14 +31,13 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 	{
 		BScreen("Started overlap with %s", *GetNameSafe(OtherActor));
 		GameMode->PlayersReady++;
-		FPlayerInfo info;
-		info.ID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
-		PlayerInfos.Add(info);
+		FPlayerInfo Info;
+		Info.ID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
+		Info.Type = PlayerCharacter->Type;
+		PlayerInfos.Add(Info);
 
 		if (GameMode->PlayersReady >= GameMode->PlayersActive)
-		{
 			GetWorld()->GetTimerManager().SetTimer(TH_StartTimer, this, &AReadyTrigger_B::PrepareStartGame, 0.2f, false);
-		}
 	}
 }
 

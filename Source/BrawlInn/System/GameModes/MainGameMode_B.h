@@ -9,6 +9,7 @@
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
 class USceneComponent; 
+class APlayerCharacter;
 class UPauseMenu_B;
 class UGameOverlay_B;
 
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
+		TArray<APlayerCharacter> BP_PlayerCharacters;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
