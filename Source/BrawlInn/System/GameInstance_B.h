@@ -4,20 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "System/BrawlEnums.h"
+#include "Characters/Player/PlayerInfo.h"
 #include "GameInstance_B.generated.h"
-
-USTRUCT(BlueprintType)
-struct FPlayerInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int ID = 0;
-
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-//		EPlayerCharacterType Type = EPlayerCharacterType::YUGGO;
-};
 
 class USoundBase;
 

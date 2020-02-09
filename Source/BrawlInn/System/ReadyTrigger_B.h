@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TriggerBox.h"
+#include "Characters/Player/PlayerInfo.h"
 #include "ReadyTrigger_B.generated.h"
 
 class AMenuGameMode_B;
@@ -30,7 +31,7 @@ protected:
 
 	FTimerHandle TH_StartTimer;
 
-	TArray<int> PlayerControllerIds;
+	TArray<FPlayerInfo> PlayerInfos;
 
 	AMenuGameMode_B* GameMode = nullptr;
 

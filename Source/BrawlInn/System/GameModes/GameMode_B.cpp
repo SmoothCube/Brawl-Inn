@@ -65,7 +65,9 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 	{
 		if (Pawn->IsA(AInitPawn_B::StaticClass()))
 		{
-			GameInstance->AddPlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
+			FPlayerInfo Info;
+			Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+			GameInstance->AddPlayerInfo(Info);
 		}
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
