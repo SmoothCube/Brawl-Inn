@@ -58,6 +58,7 @@ void UThrowComponent_B::BeginPlay()
 
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+	GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
 }
 

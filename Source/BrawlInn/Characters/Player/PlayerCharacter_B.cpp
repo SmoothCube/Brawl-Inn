@@ -49,6 +49,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 		Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
 		Info.Type = CharacterType;
 		PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
+		PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
 		PlayerController->PlayerInfo = Info;
 	}
 }

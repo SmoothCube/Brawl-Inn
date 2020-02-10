@@ -25,6 +25,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	void RemovePlayer();
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;

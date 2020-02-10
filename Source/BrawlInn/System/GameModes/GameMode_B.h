@@ -16,7 +16,7 @@ class USoundCue;
 struct FPlayerInfo;
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, FPlayerInfo, bool, FTransform);
-DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, FPlayerInfo);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FRespawnCharacter, FPlayerInfo);
 DECLARE_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
 DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
@@ -67,7 +67,7 @@ public:
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
-		void DespawnCharacter(FPlayerInfo PlayerInfo);
+		void DespawnCharacter(APlayerController_B* PlayerController);
 
 	UFUNCTION()
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
