@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Characters/Player/PlayerInfo.h"
 #include "GameMode_B.generated.h"
 
 class APlayerStart;
@@ -12,11 +13,12 @@ class APlayerCharacter_B;
 class ARespawnPawn_B;
 class UGameInstance_B;
 class USoundCue;
+struct FPlayerInfo;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, APlayerController_B*, PlayerControllerReference, bool, ShouldUseVector, FTransform, SpawnTransform);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDespawnCharacter, APlayerController_B*, PlayerControllerReference, bool, bShouldRespawn);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, FPlayerInfo, bool, FTransform);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FDespawnCharacter, FPlayerInfo, bool);
+DECLARE_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
+DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
 
 UCLASS()
 class BRAWLINN_API AGameMode_B : public AGameModeBase
@@ -26,20 +28,16 @@ public:
 
 	virtual void BeginPlay() override;
 
-
-
 	TArray<APlayerController*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)
 		TArray<APlayerStart*> Spawnpoints;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		TArray<TSubclassOf<APlayerCharacter_B>> BP_PlayerCharacters;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TSubclassOf<APlayerCharacter_B> BP_PlayerCharacter;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		TSubclassOf<ARespawnPawn_B> BP_RespawnPawn;
 
 	/// ----- Spawn Character functions/variables -----
@@ -50,23 +48,19 @@ public:
 		virtual void UpdateViewTarget(APlayerController_B* PlayerController) {};
 
 	/// ** Delegates ** 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FSpawnCharacter SpawnCharacter_D;
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FDespawnCharacter DespawnCharacter_D;
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
 
 	UFUNCTION()
-		void SpawnCharacter(APlayerController_B* PlayerController, bool ShouldUseVector, FTransform SpawnTransform);
+		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
-		void DespawnCharacter(APlayerController_B* PlayerController, bool bShouldRespawn);
+		void DespawnCharacter(FPlayerInfo PlayerInfo, bool bShouldRespawn);
 
 protected:
 

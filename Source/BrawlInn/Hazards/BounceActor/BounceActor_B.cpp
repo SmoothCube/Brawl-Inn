@@ -11,6 +11,7 @@
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "System/GameModes/GameMode_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerController_B.h"
 
 ABounceActor_B::ABounceActor_B()
 {
@@ -45,7 +46,10 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController, true,FTransform(GetActorLocation()));
+			FPlayerInfo Info;
+			Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+			Info.Type = PlayerController->PlayerCharacter->Type;
+			GameMode->SpawnCharacter_D.Broadcast(Info, true,FTransform(GetActorLocation()));
 		}
 	}
 
