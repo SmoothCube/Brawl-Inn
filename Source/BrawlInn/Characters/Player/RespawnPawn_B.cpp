@@ -30,11 +30,21 @@ void ARespawnPawn_B::BeginPlay()
 	Super::BeginPlay();
 	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilThrow);
 
-	if (Decal != NULL)
+}
+
+void ARespawnPawn_B::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	//set the color for the decal
+	if (Decal)
 	{
-		//Create new material instance and assign it
 		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(Decal->GetMaterial(0), this);
-		MI_ColoredDecal->SetVectorParameterValue(FName("Color"), FLinearColor::Blue);
+		APlayerController_B* PlayerController = Cast<APlayerController_B>(NewController);
+		if (PlayerController)
+			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->PlayerInfo.PlayerColor);
+		else
+			BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		Decal->SetMaterial(0, MI_ColoredDecal);
 	}
 }

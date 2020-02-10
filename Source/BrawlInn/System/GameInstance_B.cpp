@@ -10,12 +10,12 @@ UGameInstance_B::UGameInstance_B()
 {
 	FPlayerInfo Info;
 	Info.ID = 0;
-//	Info.Type = EPlayerCharacterType::YUGGO;
+	Info.Type = EPlayerCharacterType::YUGGO;
 	ActivePlayerInfos.Add(Info);
 
 	FPlayerInfo Info2;
 	Info2.ID = 1;
-	//Info2.Type = EPlayerCharacterType::SWIFTBOOT;
+	Info2.Type = EPlayerCharacterType::LEADJAW;
 	ActivePlayerInfos.Add(Info2);
 }
 

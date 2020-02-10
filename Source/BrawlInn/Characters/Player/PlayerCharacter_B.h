@@ -37,10 +37,10 @@ public:
 		UTexture2D* GreyHealthIcon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	EPlayerCharacterType CharacterType;
+		FPlayerInfo PlayerInfo;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Respawn")
+	UPROPERTY(EditAnywhere, Category = "Variables|Info")
 	float RespawnDelay = 3.f;
 
 

@@ -17,7 +17,7 @@ struct BRAWLINN_API FPlayerInfo
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 		int ID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

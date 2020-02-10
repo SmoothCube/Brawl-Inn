@@ -6,6 +6,7 @@
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "BrawlInn.h"
 #include "System/GameModes/GameMode_B.h"
@@ -22,11 +23,23 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
+
+
+
 }
 
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Create new material instance and assign it
+	if (DirectionIndicatorPlane)
+	{
+		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
+		MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
+		BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
+		DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
+	}
 }
 
 void APlayerCharacter_B::Die()
@@ -42,14 +55,12 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	PlayerController = Cast<APlayerController_B>(NewController);
-
 	if (PlayerController && PlayerController->HealthComponent)
 	{
-		FPlayerInfo Info;
-		Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
-		Info.Type = CharacterType;
+		PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+
 		PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-		PlayerController->PlayerInfo = Info;
+		PlayerController->PlayerInfo = PlayerInfo;
 	}
 }
 

@@ -19,6 +19,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void PossessedBy(AController* NewController) override;
 
 public:	
 	// Called every frame
