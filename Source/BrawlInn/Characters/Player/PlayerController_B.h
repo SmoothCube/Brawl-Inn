@@ -35,13 +35,15 @@ public:
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
-
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 	ARespawnPawn_B* RespawnPawn = nullptr;
 
+	bool bCanRespawn = true;
+	
+	void Respawn();
+	void StartRespawn(float RespawnDelay);
 
-	UFUNCTION()
-		void KillPlayerCharacter();
+	virtual void OnUnPossess() override;
 	
 	UPROPERTY(EditAnywhere, Category="Variables")
 	bool bVibrateControllers = false;
@@ -66,6 +68,8 @@ private:
 	void PunchButtonReleased();
 	void BreakFreeButtonPressed();
 
+	FTimerHandle TH_RespawnTimer;
+
 public:
-	EPlayerCharacterType CharacterType;
+	FPlayerInfo PlayerInfo;
 };

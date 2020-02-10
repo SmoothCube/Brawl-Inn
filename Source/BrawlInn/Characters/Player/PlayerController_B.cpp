@@ -4,6 +4,7 @@
 
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 #include "BrawlInn.h"
 
 #include "Characters/Player/PlayerCharacter_B.h"
@@ -25,7 +26,7 @@ void APlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
-	HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerController_B::KillPlayerCharacter);
+	HealthComponent->RespawnIsZero_D.AddLambda([&]() {bCanRespawn = false; });
 }
 
 void APlayerController_B::SetupInputComponent()
@@ -126,16 +127,6 @@ void APlayerController_B::Unselect()
 		GameMode->CharacterSelectionComponent->Unselect(this);
 }
 
-// Called when the Health in HealthComponent is 0
-void APlayerController_B::KillPlayerCharacter()
-{
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	FPlayerInfo Info;
-	Info.ID = UGameplayStatics::GetPlayerControllerID(this);
-	Info.Type = PlayerCharacter->Type;
-	GameMode->DespawnCharacter_D.Broadcast(Info, false);
-}
-
 void APlayerController_B::PickupButtonPressed()
 {
 	if (PlayerCharacter)
@@ -192,6 +183,26 @@ void APlayerController_B::BreakFreeButtonPressed()
 		PlayerCharacter->BreakFreeButtonMash();
 }
 
+void APlayerController_B::Respawn()
+{
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
+	}
+}
+
+void APlayerController_B::StartRespawn(float RespawnDelay)
+{
+	GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerController_B::Respawn, RespawnDelay, false);
+}
+
+void APlayerController_B::OnUnPossess()
+{
+	Super::OnUnPossess();
+	PlayerCharacter = nullptr;
+}
+
 //Send in damage from 1-100
 void APlayerController_B::TakeDamage_Implementation(int DamageAmount)
 {
@@ -209,24 +220,24 @@ void APlayerController_B::DEBUG_TEST01()
 
 void APlayerController_B::DEBUG_Spawn()
 {
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
-		FPlayerInfo Info;
-		Info.ID = UGameplayStatics::GetPlayerControllerID(this);
-		Info.Type = EPlayerCharacterType::YUGGO;
-		GameMode->SpawnCharacter_D.Broadcast(Info, false, FTransform());
-	}
+	//AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	//if (GameMode)
+	//{
+	//	FPlayerInfo Info;
+	//	Info.ID = UGameplayStatics::GetPlayerControllerID(this);
+	//	Info.Type = EPlayerCharacterType::YUGGO;
+	//	GameMode->SpawnCharacter_D.Broadcast(Info, false, FTransform());
+	//}
 }
 
 void APlayerController_B::DEBUG_Despawn()
 {
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
-		FPlayerInfo Info;
-		Info.ID = UGameplayStatics::GetPlayerControllerID(this);
-		Info.Type = PlayerCharacter->Type;
-		GameMode->DespawnCharacter_D.Broadcast(Info, false);
-	}
+	//AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	//if (GameMode)
+	//{
+	//	FPlayerInfo Info;
+	//	Info.ID = UGameplayStatics::GetPlayerControllerID(this);
+	//	Info.Type = PlayerCharacter->Type;
+	//	GameMode->DespawnCharacter_D.Broadcast(Info, false);
+	//}
 }

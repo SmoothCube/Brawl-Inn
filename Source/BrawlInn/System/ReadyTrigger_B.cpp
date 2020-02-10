@@ -33,7 +33,7 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 		GameMode->PlayersReady++;
 		FPlayerInfo Info;
 		Info.ID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
-		Info.Type = PlayerCharacter->Type;
+		Info.Type = PlayerCharacter->CharacterType;
 		PlayerInfos.Add(Info);
 
 		if (GameMode->PlayersReady >= GameMode->PlayersActive)

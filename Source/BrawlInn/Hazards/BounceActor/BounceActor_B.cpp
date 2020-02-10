@@ -46,10 +46,7 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
-			FPlayerInfo Info;
-			Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
-			Info.Type = PlayerController->CharacterType;
-			GameMode->SpawnCharacter_D.Broadcast(Info, true,FTransform(GetActorLocation()));
+			GameMode->SpawnCharacter_D.Broadcast(PlayerController->PlayerInfo, true,FTransform(GetActorLocation()));
 		}
 	}
 }

@@ -36,6 +36,8 @@ void AGameMode_B::BeginPlay()
 
 	/// Bind delegates
 	SpawnCharacter_D.AddUObject(this, &AGameMode_B::SpawnCharacter);
+	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
+
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
 
 }
@@ -93,38 +95,46 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	SpawnCharacter_NOPARAM_D.Broadcast();
 }
 
-void AGameMode_B::DespawnCharacter(FPlayerInfo PlayerInfo, bool bShouldRespawn)
+// Når man respawner gjennom en barrel
+void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 {
 	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
-	Pawn->Destroy();
+		Pawn->Destroy();
 
-	if (bShouldRespawn)
+	ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
+	PlayerController->Possess(RespawnPawn);
+	PlayerController->PlayerCharacter = nullptr;
+	PlayerController->RespawnPawn = RespawnPawn;
+	AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+	if (MainMode)
 	{
-		ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
-		PlayerController->Possess(RespawnPawn);
-		PlayerController->PlayerCharacter = nullptr;
-		PlayerController->RespawnPawn = RespawnPawn;
-		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
-		if (MainMode)
-		{
-			USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
-			if (Decal)
-				MainMode->AddCameraFocusPoint(Decal);
-			else
-				BWarn("Cannot Find Decal");
-		}
+		USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
+		if (Decal)
+			MainMode->AddCameraFocusPoint(Decal);
+		else
+			BWarn("Cannot Find Decal");
 	}
-	else
-	{
-		AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
-		PlayerController->Possess(Character);
-		PlayerController->PlayerCharacter = nullptr;
-		if (GameInstance)
-			GameInstance->RemovePlayerInfo(PlayerInfo.ID);
-	}
+	UpdateViewTarget(PlayerController);
+	OnRespawnCharacter_D.Broadcast();
+}
+
+void AGameMode_B::DespawnCharacter(FPlayerInfo PlayerInfo)
+{
+	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
+	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
+	APawn* Pawn = PlayerController->GetPawn();
+	if (IsValid(Pawn))
+		Pawn->Destroy();
+
+	AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
+	PlayerController->Possess(Character);
+	PlayerController->PlayerCharacter = nullptr;
+	if (GameInstance)
+		GameInstance->RemovePlayerInfo(PlayerInfo.ID);
+
 	UpdateViewTarget(PlayerController);
 	DespawnCharacter_NOPARAM_D.Broadcast();
 }

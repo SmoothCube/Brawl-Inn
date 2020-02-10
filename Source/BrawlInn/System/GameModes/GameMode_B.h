@@ -16,9 +16,12 @@ class USoundCue;
 struct FPlayerInfo;
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, FPlayerInfo, bool, FTransform);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FDespawnCharacter, FPlayerInfo, bool);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, FPlayerInfo);
+DECLARE_MULTICAST_DELEGATE_OneParam(FRespawnCharacter, FPlayerInfo);
 DECLARE_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
 DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
+DECLARE_MULTICAST_DELEGATE(FOnRespawnCharacter);
+
 
 UCLASS()
 class BRAWLINN_API AGameMode_B : public AGameModeBase
@@ -52,15 +55,22 @@ public:
 
 		FDespawnCharacter DespawnCharacter_D;
 
+		FRespawnCharacter RespawnCharacter_D;
+		
 		FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
 
 		FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+
+		FOnRespawnCharacter OnRespawnCharacter_D;
 
 	UFUNCTION()
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
-		void DespawnCharacter(FPlayerInfo PlayerInfo, bool bShouldRespawn);
+		void DespawnCharacter(FPlayerInfo PlayerInfo);
+
+	UFUNCTION()
+		void RespawnCharacter(FPlayerInfo PlayerInfo);
 
 protected:
 
