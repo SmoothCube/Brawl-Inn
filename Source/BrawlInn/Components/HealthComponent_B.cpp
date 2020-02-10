@@ -32,9 +32,12 @@ void UHealthComponent_B::SetHealth(int Value)
 	{
 		Health = 100;
 		Respawns--;
-
-		HealthIsZero_D.Broadcast();
+		if (Respawns <= 0)
+			RespawnIsZero_D.Broadcast();
+		else
+			HealthIsZero_D.Broadcast();
 	}
+
 	HealthUpdated_D.Broadcast(Health);
 }
 
@@ -50,8 +53,10 @@ void UHealthComponent_B::SetHealthWidget(UHealthWidget_B* Widget)
 		HealthUpdated_D.AddUObject(Widget, &UHealthWidget_B::UpdateHealthAmount);
 
 	if (!HealthIsZero_D.IsBoundToObject(Widget))
+	{
 		HealthIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
-
+		RespawnIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
+	}
 }
 
 void UHealthComponent_B::BeginPlay()

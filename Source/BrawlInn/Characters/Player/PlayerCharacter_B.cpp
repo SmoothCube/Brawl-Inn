@@ -33,16 +33,8 @@ void APlayerCharacter_B::Die()
 {
 	Fall(-1);
 	DirectionIndicatorPlane->DestroyComponent();
-	ThrowComponent->DestroyComponent();
-	TArray<USceneComponent*> TempChildren;
-	GetMesh()->GetChildrenComponents(true, TempChildren);
-	GetMesh()->bPauseAnims = true;
-	for (auto& Child : TempChildren)
-	{
-		Child->DestroyComponent();
-	}
 
-	PlayerController->StartRespawn(RespawnDelay);
+	PlayerController->TryRespawn(RespawnDelay);
 	PlayerController->UnPossess();
 }
 

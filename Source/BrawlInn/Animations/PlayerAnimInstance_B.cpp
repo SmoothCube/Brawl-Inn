@@ -24,9 +24,6 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
 
-
-	BScreen("%s", *GetNameSafe(Owner));
-
 	if (!IsReady())
 		return;
 	bIsPunching = Owner->PunchComponent->GetIsPunching();

@@ -41,7 +41,7 @@ public:
 	bool bCanRespawn = true;
 	
 	void Respawn();
-	void StartRespawn(float RespawnDelay);
+	void TryRespawn(float RespawnDelay);
 
 	virtual void OnUnPossess() override;
 	
