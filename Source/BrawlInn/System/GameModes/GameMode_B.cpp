@@ -83,11 +83,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
 	if (MainMode && Character)
 	{
-		USceneComponent* Mesh = Cast<USceneComponent>(Character->GetMesh()); //Character was nullptr here. how? 
-		if (Mesh)
-			MainMode->AddCameraFocusPoint(Mesh);
-		else
-			BWarn("Cannot Find Mesh");
+		MainMode->AddCameraFocusPoint(Character);
 	}
 	UpdateViewTarget(PlayerController);
 	SpawnCharacter_NOPARAM_D.Broadcast();
