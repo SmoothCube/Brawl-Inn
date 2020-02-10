@@ -56,8 +56,8 @@ void ARespawnPawn_B::ThrowBarrel()
 			if (GameMode)
 			{
 				BWarn("GameMode found");
-				GameMode->AddCameraFocusPoint(Cast<USceneComponent>(Barrel->Mesh));
-				GameMode->RemoveCameraFocusPoint(Cast<USceneComponent>(Decal));
+				GameMode->AddCameraFocusPoint(Barrel);
+				GameMode->RemoveCameraFocusPoint(this);
 			}
 			
 		}

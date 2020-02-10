@@ -80,12 +80,7 @@ void AGameMode_B::SpawnCharacter(APlayerController_B* PlayerController, bool Sho
 		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
 		if (MainMode && Character)
 		{
-			USceneComponent* Mesh = Cast<USceneComponent>(Character->GetMesh()); //Character was nullptr here. how? 
-			if (Mesh)
-				MainMode->AddCameraFocusPoint(Mesh);
-			else
-				BWarn("Cannot Find Mesh");
-
+			MainMode->AddCameraFocusPoint(Character);
 		}
 		UpdateViewTarget(PlayerController);
 		SpawnCharacter_NOPARAM_D.Broadcast();
@@ -102,17 +97,20 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController, bool b
 	if (bShouldRespawn)
 	{
 		ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
-		PlayerController->Possess(RespawnPawn);
-		PlayerController->PlayerCharacter = nullptr;
-		PlayerController->RespawnPawn = RespawnPawn;
-		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
-		if (MainMode)
+		if (RespawnPawn)
 		{
-			USceneComponent* Decal = Cast<USceneComponent>(RespawnPawn->Decal);
-			if (Decal)
-				MainMode->AddCameraFocusPoint(Decal);
-			else
-				BWarn("Cannot Find Decal");
+			PlayerController->Possess(RespawnPawn);
+			PlayerController->PlayerCharacter = nullptr;
+			PlayerController->RespawnPawn = RespawnPawn;
+			AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+			if (MainMode)
+			{
+				MainMode->AddCameraFocusPoint(RespawnPawn);
+			}
+		}
+		else
+		{
+			BError("RespawnPawn Couldnt Spawn!");	
 		}
 	}
 	else

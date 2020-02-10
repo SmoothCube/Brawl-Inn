@@ -37,8 +37,8 @@ public:
 
 	FPlayerWin OnPlayerWin;
 
-	void AddCameraFocusPoint(USceneComponent* FocusComponent);
-	void RemoveCameraFocusPoint(USceneComponent* FocusComponent);
+	void AddCameraFocusPoint(AActor* FocusComponent);
+	void RemoveCameraFocusPoint(AActor* FocusComponent);
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")

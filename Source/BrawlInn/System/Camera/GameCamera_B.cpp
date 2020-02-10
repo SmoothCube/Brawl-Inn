@@ -17,6 +17,8 @@
 
 AGameCamera_B::AGameCamera_B()
 {
+
+
 	PrimaryActorTick.bCanEverTick = true;
 
 	Scene = CreateDefaultSubobject<USceneComponent>("Scene");
@@ -31,6 +33,7 @@ AGameCamera_B::AGameCamera_B()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArm);
+	//VectorsToTrack.Add(new FVector(-1151.382568, 513.574097, 162.623901));
 }
 
 void AGameCamera_B::BeginPlay()
@@ -67,57 +70,61 @@ void AGameCamera_B::UpdateCamera()
 	TrackingBox->GetOverlappingActors(TempArray, APlayerCharacter_B::StaticClass());
 
 	FVector sum = FVector::ZeroVector;
-	float distanceToFurthestPlayer = 0.f;
-	int ActivePlayers = 0;
+	float distanceToFurthestPoint = 0.f;
+	int ActiveFocusPoints = 0;
 
 	//Cleanup in case some components dont get removed properly
-	TArray<USceneComponent*> CompsToRemove;
+	TArray<AActor*> ActorsToRemove;
 
-	for (const auto& Comp : ComponentsToTrack)
+	for (const auto& Actor : ActorsToTrack)
 	{
-		if (!IsValid(Comp))
+		if (!IsValid(Actor))
 		{
 			BWarn("Invalid component in camera!");
-			CompsToRemove.Add(Comp);
+			ActorsToRemove.Add(Actor);
 			continue;
 		}
 
-		FVector PlayerMeshLocation = Comp->GetComponentLocation();
-		sum += PlayerMeshLocation;
-		ActivePlayers++;
+		FVector FocusLocation = Actor->GetActorLocation();
+		//BWarn("Focus Location: %s", *FocusLocation.ToString())
+		sum += FocusLocation;
+		ActiveFocusPoints++;
 
-		float distance = FVector::Dist(PlayerMeshLocation, GetActorLocation());
-		if (distance > distanceToFurthestPlayer)
-			distanceToFurthestPlayer = distance;
+		float distance = FVector::Dist(FocusLocation, GetActorLocation());
+		if (distance > distanceToFurthestPoint)
+			distanceToFurthestPoint = distance;
 
 	}
-	for (auto& Comp : CompsToRemove)
-		ComponentsToTrack.Remove(Comp);
+	for (auto& Actor : ActorsToRemove)
+		ActorsToTrack.Remove(Actor);
 
-	if (ActivePlayers != 0)
-		sum /= ActivePlayers;
+	if (ActiveFocusPoints != 0)
+		sum /= ActiveFocusPoints;
 
 	if (sum.Z < MinCameraHeight)
 		sum.Z = MinCameraHeight;
 	else if (sum.Z > MaxCameraHeight)
 		sum.Z = MaxCameraHeight;
 
-	SetActorLocation(sum);
+	FHitResult OutHit; 
+	SetActorLocation(sum, false, &OutHit, ETeleportType::None);
 
-	SetSpringArmLength(distanceToFurthestPlayer);
+	//BWarn("Sum: %s, %i", *sum.ToString(), (SetActorLocation(sum, false, &OutHit, ETeleportType::None)))
+
+	SetSpringArmLength(distanceToFurthestPoint);
 }
 
 void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
 {
 	float longestVector = 0.f;
 
-	for (int i = 0; i < ComponentsToTrack.Num(); i++)
+	for (int i = 0; i < ActorsToTrack.Num(); i++)
 	{
-		for (int j = i + 1; j < ComponentsToTrack.Num(); j++)
+		for (int j = i + 1; j < ActorsToTrack.Num(); j++)
 		{
-			if (ComponentsToTrack.IsValidIndex(i) && ComponentsToTrack.IsValidIndex(j))
+			if (ActorsToTrack.IsValidIndex(i) && ActorsToTrack.IsValidIndex(j))
 			{
-				float Temp = FMath::Abs((ComponentsToTrack[i]->GetComponentLocation() - ComponentsToTrack[j]->GetComponentLocation()).X);
+				float Temp = FMath::Abs((ActorsToTrack[i]->GetActorLocation() - ActorsToTrack[j]->GetActorLocation()).X);
 				if (longestVector < Temp)
 					longestVector = Temp;
 			}
@@ -140,45 +147,22 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 {
 	//The right component doesnt neccesarily run on overlap end
 	//GetComponents returns UActorComponent, which inherits from USceneComponent. Cast should always be safe. 
-	for(auto& comp : OtherActor->GetComponents())
-		ComponentsToTrack.Remove(Cast<USceneComponent>(comp));
+	ActorsToTrack.Remove(OtherActor);
 
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
 	if (Player)
 	{
 		//Checks to see if the player is still overlapping. Same method as in DragArea
-		TArray<UPrimitiveComponent*> OverlappingComponents;
-		TrackingBox->GetOverlappingComponents(OverlappingComponents);
-		for (auto& comp : OverlappingComponents)
+		TArray<AActor*> OverlappingActors;
+		TrackingBox->GetOverlappingActors(OverlappingActors);
+		if (OverlappingActors.Find(Player) != INDEX_NONE)
 		{
-			AActor* Actor = comp->GetOwner();
-			
-			APlayerCharacter_B* OtherPlayer = Cast<APlayerCharacter_B>(Actor);
-
-			if (OtherPlayer != nullptr)
-			{
-				//Checks to see if player still exist in the array
-				bool bActorIsAdded = false;
-				for (auto& ExistingComponent : ComponentsToTrack)
-				{
-					if (Actor == ExistingComponent->GetOwner())
-					{
-						bActorIsAdded = true;
-						break;
-					}
-				}
-				if (bActorIsAdded)
-				{
-					continue;
-				}
-				
-				ComponentsToTrack.Add(comp);
-			}
+			ActorsToTrack.Add(Player);
 		}
 	}
 
 	//Logging the actors for debug purpouses
-	for (auto& c : ComponentsToTrack)
+	for (auto& c : ActorsToTrack)
 	{
 		BWarn("Component in camera: %s, Owner: %s", *GetNameSafe(c), *GetNameSafe(c->GetOwner()))
 	}
@@ -189,5 +173,5 @@ void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedCom
 {
 
 	if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))	
-		ComponentsToTrack.Add(OtherComp);
+		ActorsToTrack.Add(OtherActor);
 }

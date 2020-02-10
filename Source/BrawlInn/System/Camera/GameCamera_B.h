@@ -19,7 +19,7 @@ class BRAWLINN_API AGameCamera_B : public AActor
 public:	
 	AGameCamera_B();
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Scene = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
@@ -33,7 +33,6 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float SmallestSpringArmLength = 600.f;
@@ -41,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float LargestSpringArmLength = 2500.f;
 
-	TArray<USceneComponent*> ComponentsToTrack;
+	TArray<AActor*> ActorsToTrack;
 
 protected:
 

@@ -46,11 +46,11 @@ void APlayerCharacter_B::StartRespawn()
 		if (PlayerController->HealthComponent && PlayerController->HealthComponent->GetRespawns() <= 0)
 		{
 			PlayerController->HealthComponent->RespawnIsZero_D.Broadcast();
-			GameMode->DespawnCharacter_D.Broadcast(PlayerController, false);
+			//GameMode->DespawnCharacter_D.Broadcast(PlayerController, false);
 		}
 		else
 		{
-			GameMode->DespawnCharacter_D.Broadcast(PlayerController, true);
+			//GameMode->DespawnCharacter_D.Broadcast(PlayerController, true);
 		}
 	}
 }

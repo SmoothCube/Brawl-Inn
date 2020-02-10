@@ -68,6 +68,8 @@ void AMainGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
 {
 	if (IsValid(GameCamera))
 		PlayerController->SetViewTargetWithBlend(GameCamera);
+	else
+		BWarn("Cannot Set view Target!");
 }
 
 void AMainGameMode_B::PauseGame(APlayerController_B* ControllerThatPaused)
@@ -96,18 +98,19 @@ void AMainGameMode_B::ResumeGame()
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
-void AMainGameMode_B::AddCameraFocusPoint(USceneComponent* FocusComponent)
+void AMainGameMode_B::AddCameraFocusPoint(AActor* FocusActor)
 {
-	if (!IsValid(GameCamera) || !IsValid(FocusComponent)) return;
-	
-	GameCamera->ComponentsToTrack.Add(FocusComponent);
+	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
+	//TODO: check to see if they are inside the track box before adding.
+	BWarn("Adding Actor %s to camera", *GetNameSafe(FocusActor));
+	GameCamera->ActorsToTrack.Add(FocusActor);
 }
 
-void AMainGameMode_B::RemoveCameraFocusPoint(USceneComponent* FocusComponent)
+void AMainGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
 {
-	if (!IsValid(GameCamera) || !IsValid(FocusComponent)) return;
+	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
 	
 	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
-	GameCamera->ComponentsToTrack.Remove(FocusComponent);
+	GameCamera->ActorsToTrack.Remove(FocusActor);
 
 }

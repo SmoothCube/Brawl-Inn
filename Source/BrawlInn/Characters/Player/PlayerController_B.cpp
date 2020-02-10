@@ -26,6 +26,7 @@ void APlayerController_B::BeginPlay()
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
 	HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerController_B::KillPlayerCharacter);
+	bAutoManageActiveCameraTarget = false;
 }
 
 void APlayerController_B::SetupInputComponent()

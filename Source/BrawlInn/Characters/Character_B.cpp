@@ -390,6 +390,7 @@ APlayerController_B* ACharacter_B::GetPlayerController_B() const
 
 void ACharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
+	Super::FellOutOfWorld(dmgType);
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
 	if (PlayerController)
 	{
