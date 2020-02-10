@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "System/Interfaces/ControllerInterface_B.h"
+#include "Characters/Player/PlayerInfo.h"
 #include "PlayerController_B.generated.h"
 
 class UHealthComponent_B;
@@ -64,4 +65,7 @@ private:
 	void PunchButtonPressed();
 	void PunchButtonReleased();
 	void BreakFreeButtonPressed();
+
+public:
+	EPlayerCharacterType CharacterType;
 };

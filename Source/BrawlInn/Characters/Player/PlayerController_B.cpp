@@ -131,7 +131,10 @@ void APlayerController_B::Unselect()
 void APlayerController_B::KillPlayerCharacter()
 {
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->DespawnCharacter_D.Broadcast(this, false);
+	FPlayerInfo Info;
+	Info.ID = UGameplayStatics::GetPlayerControllerID(this);
+	Info.Type = PlayerCharacter->Type;
+	GameMode->DespawnCharacter_D.Broadcast(Info, false);
 }
 
 void APlayerController_B::PickupButtonPressed()
@@ -210,7 +213,10 @@ void APlayerController_B::DEBUG_Spawn()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SpawnCharacter_D.Broadcast(this, false, FTransform());
+		FPlayerInfo Info;
+		Info.ID = UGameplayStatics::GetPlayerControllerID(this);
+		Info.Type = EPlayerCharacterType::YUGGO;
+		GameMode->SpawnCharacter_D.Broadcast(Info, false, FTransform());
 	}
 }
 
@@ -219,6 +225,9 @@ void APlayerController_B::DEBUG_Despawn()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->DespawnCharacter_D.Broadcast(this, false);
+		FPlayerInfo Info;
+		Info.ID = UGameplayStatics::GetPlayerControllerID(this);
+		Info.Type = PlayerCharacter->Type;
+		GameMode->DespawnCharacter_D.Broadcast(Info, false);
 	}
 }

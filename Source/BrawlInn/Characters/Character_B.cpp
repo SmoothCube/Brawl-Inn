@@ -13,7 +13,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/DamageType.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
 #include "Sound/SoundCue.h"
@@ -386,37 +385,6 @@ bool ACharacter_B::IsHeld_Implementation() const
 APlayerController_B* ACharacter_B::GetPlayerController_B() const
 {
 	return PlayerController;
-}
-
-void ACharacter_B::FellOutOfWorld(const UDamageType& dmgType)
-{
-	Super::FellOutOfWorld(dmgType);
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
-	if (PlayerController)
-	{
-		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
-		{
-			if (PlayerController)
-			{
-				if(PlayerController->HealthComponent->GetRespawns()<= 0)
-					GameMode->DespawnCharacter_D.Broadcast(PlayerController, false);
-				else
-					GameMode->DespawnCharacter_D.Broadcast(PlayerController, true);
-			}
-			else
-				GameMode->DespawnCharacter_D.Broadcast(PlayerController, true);
-		}
-		else
-		{
-			BError("GameMode Could Not Be Found!");
-		}
-		Destroy();
-	}
-	else
-	{
-		Destroy();
-	}
 }
 
 void ACharacter_B::PossessedBy(AController* NewController)

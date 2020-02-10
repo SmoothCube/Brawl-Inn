@@ -23,6 +23,8 @@ public:
 	UFUNCTION()
 	void Die();
 
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
+
 	void StartRespawn();
 	
 	virtual void PossessedBy(AController* NewController) override;
@@ -37,7 +39,7 @@ public:
 		UTexture2D* GreyHealthIcon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	EPlayerCharacterType Type;
+	EPlayerCharacterType Type; //BYTT NAVN
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Respawn")
