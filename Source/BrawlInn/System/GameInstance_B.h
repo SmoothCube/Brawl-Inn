@@ -20,6 +20,8 @@ public:
 
 	UGameInstance_B();
 
+	virtual void Init() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		float MasterVolume = 1.f;
 
