@@ -112,9 +112,8 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	OnRespawnCharacter_D.Broadcast();
 }
 
-void AGameMode_B::DespawnCharacter(FPlayerInfo PlayerInfo)
+void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 {
-	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
@@ -124,7 +123,7 @@ void AGameMode_B::DespawnCharacter(FPlayerInfo PlayerInfo)
 	PlayerController->Possess(Character);
 	PlayerController->PlayerCharacter = nullptr;
 	if (GameInstance)
-		GameInstance->RemovePlayerInfo(PlayerInfo.ID);
+		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 
 	UpdateViewTarget(PlayerController);
 	DespawnCharacter_NOPARAM_D.Broadcast();

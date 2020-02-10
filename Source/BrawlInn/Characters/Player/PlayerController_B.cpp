@@ -54,8 +54,6 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("DEBUG_Spawn", IE_Pressed, this, &APlayerController_B::DEBUG_Spawn);
 		InputComponent->BindAction("DEBUG_Despawn", IE_Pressed, this, &APlayerController_B::DEBUG_Despawn);
 		InputComponent->BindAction("DEBUG_TEST01", IE_Pressed, this, &APlayerController_B::DEBUG_TEST01);
-
-
 	}
 }
 
@@ -196,7 +194,15 @@ void APlayerController_B::Respawn()
 void APlayerController_B::TryRespawn(float RespawnDelay)
 {
 	if (bCanRespawn)
+	{
 		GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerController_B::Respawn, RespawnDelay, false);
+	}
+	else
+	{
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+			GameMode->DespawnCharacter_D.Broadcast(this);
+	}
 }
 
 void APlayerController_B::OnUnPossess()
@@ -222,24 +228,14 @@ void APlayerController_B::DEBUG_TEST01()
 
 void APlayerController_B::DEBUG_Spawn()
 {
-	//AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	//if (GameMode)
-	//{
-	//	FPlayerInfo Info;
-	//	Info.ID = UGameplayStatics::GetPlayerControllerID(this);
-	//	Info.Type = EPlayerCharacterType::YUGGO;
-	//	GameMode->SpawnCharacter_D.Broadcast(Info, false, FTransform());
-	//}
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
 }
 
 void APlayerController_B::DEBUG_Despawn()
 {
-	//AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	//if (GameMode)
-	//{
-	//	FPlayerInfo Info;
-	//	Info.ID = UGameplayStatics::GetPlayerControllerID(this);
-	//	Info.Type = PlayerCharacter->Type;
-	//	GameMode->DespawnCharacter_D.Broadcast(Info, false);
-	//}
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->DespawnCharacter_D.Broadcast(this);
 }

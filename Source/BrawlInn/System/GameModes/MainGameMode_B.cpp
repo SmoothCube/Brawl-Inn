@@ -22,7 +22,7 @@ void AMainGameMode_B::BeginPlay()
 
 	if (GameInstance && Birds)
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume	,1.0f, FMath::FRandRange(0, 100));
+		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume, 1.0f, FMath::FRandRange(0, 100));
 	}
 	if (GameInstance && River)
 	{
@@ -42,7 +42,7 @@ void AMainGameMode_B::BeginPlay()
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
 
-		SpawnCharacter_D.Broadcast(Info,false,FTransform());
+		SpawnCharacter_D.Broadcast(Info, false, FTransform());
 
 	}
 
@@ -52,6 +52,15 @@ void AMainGameMode_B::BeginPlay()
 	VictoryScreen->AddToViewport();
 	OnPlayerWin.AddUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
 
+	DespawnCharacter_NOPARAM_D.AddUObject(this, &AMainGameMode_B::RemovePlayer);
+}
+
+void AMainGameMode_B::RemovePlayer()
+{
+	if (GameInstance->GetPlayerInfos().Num() == 1)
+	{
+		OnPlayerWin.Broadcast(Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID)));
+	}
 }
 
 void AMainGameMode_B::Tick(float DeltaTime)
@@ -90,8 +99,8 @@ void AMainGameMode_B::ResumeGame()
 	PauseMenuWidget->RemoveFromViewport();
 	if (PlayerControllerThatPaused)
 	{
-	FInputModeGameOnly InputMode;
-	PlayerControllerThatPaused->SetInputMode(InputMode);
+		FInputModeGameOnly InputMode;
+		PlayerControllerThatPaused->SetInputMode(InputMode);
 	}
 	SetActorTickEnabled(false);
 	SetTickableWhenPaused(true);
@@ -109,7 +118,7 @@ void AMainGameMode_B::AddCameraFocusPoint(AActor* FocusActor)
 void AMainGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
 {
 	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
-	
+
 	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
 	GameCamera->ActorsToTrack.Remove(FocusActor);
 

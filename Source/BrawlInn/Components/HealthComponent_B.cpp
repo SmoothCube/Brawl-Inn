@@ -32,7 +32,7 @@ void UHealthComponent_B::SetHealth(int Value)
 	{
 		Health = 100;
 		Respawns--;
-		if (Respawns <= 0)
+		if (Respawns <= 1)
 			RespawnIsZero_D.Broadcast();
 		else
 			HealthIsZero_D.Broadcast();

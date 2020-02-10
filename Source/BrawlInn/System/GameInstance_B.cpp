@@ -11,18 +11,21 @@ UGameInstance_B::UGameInstance_B()
 	FPlayerInfo Info;
 	Info.ID = 0;
 	Info.Type = EPlayerCharacterType::YUGGO;
-	ActivePlayerInfos.Add(Info);
+	AddPlayerInfo(Info);
 
 	FPlayerInfo Info2;
 	Info2.ID = 1;
 	Info2.Type = EPlayerCharacterType::LEADJAW;
-	ActivePlayerInfos.Add(Info2);
+	AddPlayerInfo(Info2);
 }
 
 void UGameInstance_B::AddPlayerInfo(FPlayerInfo PlayerInfo)
 {
-	ActivePlayerInfos.Add(PlayerInfo);
-	OnPlayerInfoChanged.Broadcast();
+	if (!ActivePlayerInfos.FindByPredicate([&](const FPlayerInfo& Info) {return Info.ID == PlayerInfo.ID; }))
+	{
+		ActivePlayerInfos.Add(PlayerInfo);
+		OnPlayerInfoChanged.Broadcast();
+	}
 }
 
 void UGameInstance_B::RemovePlayerInfo(int ID)
