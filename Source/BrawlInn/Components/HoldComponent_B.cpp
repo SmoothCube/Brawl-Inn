@@ -47,12 +47,19 @@ bool UHoldComponent_B::TryPickup()
 
 	TArray<AActor*> ThrowableItemsInCone;
 
+	//for cleanup.
+	TArray<AActor*> BrokenItems;
 	for (const auto& Item : ThrowableItemsInRange)
 	{
+		if (!IsValid(Item))
+		{
+			BrokenItems.Add(Item);
+			continue;
+		}
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 		if (!Interface) continue;
 		
-		if(Interface->Execute_IsHeld(Item)) continue;
+		if(Interface->Execute_IsHeld(Item)) continue; //Had a crash here before adding cleanup
 		
 		FVector ItemLocation = Item->GetActorLocation();
 		ItemLocation.Z = 0;
@@ -64,6 +71,11 @@ bool UHoldComponent_B::TryPickup()
 			ThrowableItemsInCone.Add(Item);
 	}
 	AActor* NearestItem = nullptr;
+	for (auto& brokenItem : BrokenItems)
+	{
+		ThrowableItemsInRange.Remove(brokenItem);
+	}
+	BrokenItems.Empty();
 
 	switch (ThrowableItemsInCone.Num())
 	{

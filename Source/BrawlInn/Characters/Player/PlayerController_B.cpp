@@ -114,7 +114,7 @@ void APlayerController_B::SelectRight()
 	if (!PlayerCharacter)
 	{
 		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
+		if (GameMode && GameMode->CharacterSelectionComponent)
 			GameMode->CharacterSelectionComponent->NextCharacter(this);
 	}
 }
@@ -122,7 +122,7 @@ void APlayerController_B::SelectRight()
 void APlayerController_B::Unselect()
 {
 	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	if (GameMode && GameMode->CharacterSelectionComponent)
 		GameMode->CharacterSelectionComponent->Unselect(this);
 }
 
