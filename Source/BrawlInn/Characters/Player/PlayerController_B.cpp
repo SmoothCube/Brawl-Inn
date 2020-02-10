@@ -27,7 +27,7 @@ void APlayerController_B::BeginPlay()
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
 	bAutoManageActiveCameraTarget = false;
-	HealthComponent->RespawnIsZero_D.AddLambda([&]() {bCanRespawn = false; });
+	HealthComponent->RespawnIsZero_D.AddLambda([&]() { bCanRespawn = false; BScreen("bCanRespawn = false"); });
 }
 
 void APlayerController_B::SetupInputComponent()
@@ -144,7 +144,7 @@ void APlayerController_B::PickupButtonPressed()
 
 void APlayerController_B::PickupButtonRepeat()
 {
-	if(PlayerCharacter && PlayerCharacter->HoldComponent)
+	if (PlayerCharacter && PlayerCharacter->HoldComponent)
 		PlayerCharacter->HoldComponent->TryPickup();
 }
 
@@ -193,9 +193,10 @@ void APlayerController_B::Respawn()
 	}
 }
 
-void APlayerController_B::StartRespawn(float RespawnDelay)
+void APlayerController_B::TryRespawn(float RespawnDelay)
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerController_B::Respawn, RespawnDelay, false);
+	if (bCanRespawn)
+		GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerController_B::Respawn, RespawnDelay, false);
 }
 
 void APlayerController_B::OnUnPossess()
