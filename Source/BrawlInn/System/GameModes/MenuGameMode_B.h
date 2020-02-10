@@ -38,6 +38,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<UCharacterSelection_B> BP_CharacterSelection;
 
+	UPROPERTY()
 	UCharacterSelection_B* CharacterSelection = nullptr;
 
 	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;

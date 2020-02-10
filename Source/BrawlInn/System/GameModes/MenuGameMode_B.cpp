@@ -38,7 +38,7 @@ void AMenuGameMode_B::BeginPlay()
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
 
-	CharacterSelection = CreateWidget<UCharacterSelection_B>(PlayerControllers[0], BP_CharacterSelection);
+	CharacterSelection = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelection);
 
 	// Find Character selection camera
 	TArray<AActor*> Cameras;
@@ -68,7 +68,7 @@ void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
 
 void AMenuGameMode_B::UpdateViewTargets() // Used for sequences
 {
-	for (const auto& PlayerController : PlayerControllers)
+	for (auto& PlayerController : PlayerControllers)
 	{
 		if (IsValid(Camera))
 			PlayerController->SetViewTargetWithBlend(Camera);
@@ -137,7 +137,7 @@ void AMenuGameMode_B::LS_ToSelectionFinished()
 
 	CharacterSelection->AddToViewport();
 
-	for (const auto& PlayerController : PlayerControllers)
+	for (auto& PlayerController : PlayerControllers)
 	{
 		if (IsValid(SelectionCamera))
 			PlayerController->SetViewTargetWithBlend(SelectionCamera);

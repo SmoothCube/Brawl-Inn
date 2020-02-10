@@ -31,6 +31,7 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
 	TArray<APlayerController*> PlayerControllers;
 protected:
 
