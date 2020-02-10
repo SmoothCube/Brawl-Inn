@@ -25,6 +25,7 @@
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "System/DamageTypes/Fall_DamageType_B.h"
+#include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
@@ -93,7 +94,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else
 	{
-		if(!PunchComponent->bIsPunching)
+		if (!PunchComponent->bIsPunching)
 			CheckFall(DeltaTime);
 		if (!(GetState() == EState::EStunned))
 		{
@@ -109,30 +110,28 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	float ActualDamageAmount = 0.f;
 
-
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFall_DamageType_B::StaticClass()))
 	{
-			ActualDamageAmount = FallDamageAmount;
+		ActualDamageAmount = FallDamageAmount;
 	}
 	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
 	{
 		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
 		ActualDamageAmount = DamageAmount;
 	}
-	else if(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
+	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
 	{
 		ActualDamageAmount = ChairDamageAmount;
+	}
+	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
+	{
+		ActualDamageAmount = FellOutOfWorldDamageAmount;
 	}
 	else
 	{
 		ActualDamageAmount = DamageAmount;
 	}
 
-	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-	if (Interface)
-	{
-		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
-	}
 	if (HurtSound)
 	{
 		float volume = 1.f;
@@ -149,6 +148,11 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		);
 	}
 
+	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
+	if (Interface)
+	{
+		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
+	}
 	return DamageAmount;
 }
 
@@ -193,10 +197,10 @@ void ACharacter_B::Fall(float RecoveryTime)
 		//UGameplayStatics::ApplyDamage(this, FallDamageAmount,GetController(),this, BP_FallDamageType);
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
-		if(RecoveryTime>=0)
+		if (RecoveryTime >= 0)
 			GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
 	}
-	
+
 }
 
 FVector ACharacter_B::FindMeshLocation()
@@ -348,7 +352,7 @@ void ACharacter_B::SetState(EState s)
 	case EState::EStunned:
 		if (IsValid(PS_Stun))
 			PS_Stun->DeactivateImmediate();
-			CurrentHoldTime = 0.f;
+		CurrentHoldTime = 0.f;
 
 		break;
 	}

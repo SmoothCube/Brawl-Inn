@@ -117,7 +117,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector RotationVector = FVector::ZeroVector;
 
-
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;
 

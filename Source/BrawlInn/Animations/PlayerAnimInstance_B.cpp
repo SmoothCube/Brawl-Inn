@@ -6,6 +6,7 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "BrawlInn.h"
 
 void UPlayerAnimInstance_B::NativeBeginPlay()
 {
@@ -24,7 +25,7 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 	Super::NativeUpdateAnimation(DeltaTime);
 
 
-	
+	BScreen("%s", *GetNameSafe(Owner));
 
 	if (!IsReady())
 		return;
