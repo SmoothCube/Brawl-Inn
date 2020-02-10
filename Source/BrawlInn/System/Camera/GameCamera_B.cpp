@@ -18,7 +18,6 @@
 AGameCamera_B::AGameCamera_B()
 {
 
-
 	PrimaryActorTick.bCanEverTick = true;
 
 	Scene = CreateDefaultSubobject<USceneComponent>("Scene");
@@ -40,6 +39,8 @@ void AGameCamera_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "CameraFocus", ActorsToTrack);
+
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
 	TrackingBox = Cast<ATriggerBox>(Actors[0]);
@@ -56,6 +57,11 @@ void AGameCamera_B::Tick(float DeltaTime)
 
 	UpdateCamera();
 
+}
+
+void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
+{
+	SetActorLocation(FMath::Lerp(GetActorLocation(), LerpLoc, LerpAlpha));
 }
 
 void AGameCamera_B::UpdateCamera()
@@ -107,7 +113,7 @@ void AGameCamera_B::UpdateCamera()
 		sum.Z = MaxCameraHeight;
 
 	FHitResult OutHit; 
-	SetActorLocation(sum, false, &OutHit, ETeleportType::None);
+	LerpCameraLocation(sum);
 
 	//BWarn("Sum: %s, %i", *sum.ToString(), (SetActorLocation(sum, false, &OutHit, ETeleportType::None)))
 
@@ -134,13 +140,14 @@ void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
 	float ActualBorderWidth = BorderWidth + OffsetX;
 
 	float newTargetLength = distanceToFurthestPlayer + ActualBorderWidth;
+	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, newTargetLength, LerpAlpha);
 
-	if (newTargetLength <= SmallestSpringArmLength)
+	if (SpringArm->TargetArmLength <= SmallestSpringArmLength)
 		SpringArm->TargetArmLength = SmallestSpringArmLength;
-	else if (newTargetLength >= LargestSpringArmLength)
+	else if (SpringArm->TargetArmLength >= LargestSpringArmLength)
 		SpringArm->TargetArmLength = LargestSpringArmLength;
-	else
-		SpringArm->TargetArmLength = newTargetLength;
+
+	
 }
 
 void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -172,6 +179,6 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))	
-		ActorsToTrack.Add(OtherActor);
+	//if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))	
+	//	ActorsToTrack.Add(OtherActor);
 }

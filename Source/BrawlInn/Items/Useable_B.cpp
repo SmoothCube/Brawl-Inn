@@ -13,6 +13,7 @@
 #include "TimerManager.h"
 
 #include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 AUseable_B::AUseable_B()
 {
@@ -34,10 +35,24 @@ AUseable_B::AUseable_B()
 
 }
 
+void AUseable_B::BeginPlay()
+{
+	//BWarn("Adding useable to camera!");
+	////Want to focus on useables as they spawn
+	//AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	//if (GameMode)
+	//{
+	//	GameMode->AddCameraFocusPoint(this);
+	//}
+}
+
 void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+
 	OwningCharacter = Player;
 }
 
@@ -66,6 +81,10 @@ void AUseable_B::Use_Implementation()
 	DrinkMesh->DestroyComponent();
 	PickupCapsule->DestroyComponent();
 	NiagaraSystemComponent->DestroyComponent();
+
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->RemoveCameraFocusPoint(this);
 
 	Execute_Dropped(this);
 }

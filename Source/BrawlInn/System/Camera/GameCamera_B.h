@@ -35,26 +35,29 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float SmallestSpringArmLength = 600.f;
+		float SmallestSpringArmLength = 1500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float LargestSpringArmLength = 2500.f;
+		float LargestSpringArmLength = 2300.f;
 
 	TArray<AActor*> ActorsToTrack;
 
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float BorderWidth = 200.0f;
+		float BorderWidth = 250.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float MaxCameraHeight = 500.f;
+		float MaxCameraHeight = 100000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float MinCameraHeight = 0.f;
+		float MinCameraHeight = -100000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float LerpAlpha = 0.5;
 private:
 
-	//TPair<AActor*, FVector*> ActorsToTrack;
+	void LerpCameraLocation(FVector LerpLoc);
 
 	void UpdateCamera();
 
