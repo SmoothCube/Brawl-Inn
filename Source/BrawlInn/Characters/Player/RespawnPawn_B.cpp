@@ -6,8 +6,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
-#include "BrawlInn.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
+#include "BrawlInn.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Hazards/BounceActor/BounceActorSpawner_B.h"
@@ -28,6 +29,14 @@ void ARespawnPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
 	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilThrow);
+
+	if (Decal != NULL)
+	{
+		//Create new material instance and assign it
+		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(Decal->GetMaterial(0), this);
+		MI_ColoredDecal->SetVectorParameterValue(FName("Color"), FLinearColor::Blue);
+		Decal->SetMaterial(0, MI_ColoredDecal);
+	}
 }
 
 // Called every frame

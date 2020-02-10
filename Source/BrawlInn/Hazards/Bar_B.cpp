@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 
 #include "BrawlInn.h"
 #include "Components/BarMeshComponent_B.h"
@@ -70,6 +71,11 @@ void ABar_B::SpawnTankard()
 			House->GetSocketLocation(ItemSocket),
 			volume
 		);
+	}
+	if (TankardSpawnParticle)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TankardSpawnParticle, House->GetSocketLocation(ItemSocket), FRotator(90, 0, 0),FVector(5,5,5));
+
 	}
 }
 

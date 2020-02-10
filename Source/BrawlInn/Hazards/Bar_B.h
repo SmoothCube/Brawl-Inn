@@ -60,6 +60,9 @@ protected:
 		USoundCue* TankardSpawnSound;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
+		UNiagaraSystem* TankardSpawnParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		float MinTankardSpawnTimer = 2.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")

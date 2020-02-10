@@ -22,4 +22,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EPlayerCharacterType Type = EPlayerCharacterType::YUGGO;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FLinearColor PlayerColor;
+
 };
