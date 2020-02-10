@@ -27,17 +27,19 @@ void APlayerCharacter_B::BeginPlay()
 	Super::BeginPlay();
 
 	BLog("Type: %i", Type);
+
+	
 }
 
 void APlayerCharacter_B::Die()
 {
 	Fall(-1);
-	PlayerController->UnPossess();
+	//PlayerController->UnPossess();
 	PlayerController->Player = nullptr;
 	DirectionIndicatorPlane->SetHiddenInGame(true);
 
-	GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerCharacter_B::StartRespawn, RespawnDelay, false);
-	StartRespawn();
+	//GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerCharacter_B::StartRespawn, RespawnDelay, false);
+	//StartRespawn();
 }
 
 void APlayerCharacter_B::StartRespawn()
@@ -46,7 +48,7 @@ void APlayerCharacter_B::StartRespawn()
 	if (GameMode)
 	{
 		FPlayerInfo Info;
-		Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+		Info.ID = PlayerController->GetLocalPlayer()->GetControllerId();
 		Info.Type = Type;
 		if (PlayerController->HealthComponent && PlayerController->HealthComponent->GetRespawns() <= 0)
 		{
@@ -68,12 +70,14 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 	if (PlayerController && PlayerController->HealthComponent)
 	{
 		PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
+		PlayerController->CharacterType = Type;
 	}
-
+	BScreen("LocalPlayer: %i", PlayerController->GetLocalPlayer()->GetControllerId());
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
+	Super::FellOutOfWorld(dmgType);
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
 	if (PlayerController)
 	{

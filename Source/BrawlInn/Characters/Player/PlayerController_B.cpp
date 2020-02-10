@@ -214,7 +214,7 @@ void APlayerController_B::DEBUG_Spawn()
 	{
 		FPlayerInfo Info;
 		Info.ID = UGameplayStatics::GetPlayerControllerID(this);
-		Info.Type = PlayerCharacter->Type;
+		Info.Type = EPlayerCharacterType::YUGGO;
 		GameMode->SpawnCharacter_D.Broadcast(Info, false, FTransform());
 	}
 }

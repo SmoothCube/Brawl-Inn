@@ -48,10 +48,8 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 		{
 			FPlayerInfo Info;
 			Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
-			Info.Type = PlayerController->PlayerCharacter->Type;
+			Info.Type = PlayerController->CharacterType;
 			GameMode->SpawnCharacter_D.Broadcast(Info, true,FTransform(GetActorLocation()));
 		}
 	}
-
-
 }

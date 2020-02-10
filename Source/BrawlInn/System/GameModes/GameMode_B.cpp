@@ -98,7 +98,7 @@ void AGameMode_B::DespawnCharacter(FPlayerInfo PlayerInfo, bool bShouldRespawn)
 	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
 	APawn* Pawn = PlayerController->GetPawn();
-	if (!IsValid(Pawn)) { BError("Can't find Pawn!"); return; }
+	if (IsValid(Pawn))
 	Pawn->Destroy();
 
 	if (bShouldRespawn)
