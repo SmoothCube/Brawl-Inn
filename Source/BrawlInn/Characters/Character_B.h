@@ -140,7 +140,7 @@ protected:
 		float FellRecoveryTime = 2.0;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when an external force made the character fall. Name is a bit misleading"))
-		float PunchedRecoveryTime = 4.0;
+		float PunchedRecoveryTime = 2.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 		float FallLimitMultiplier = 1.5;
