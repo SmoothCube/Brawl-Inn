@@ -32,7 +32,7 @@ bool UThrowComponent_B::TryThrow()
 	{
 		BWarn("Not Holding Item!");
 	}
-	else if (!(OwningPlayer->GetState() == EState::EHolding))
+	else if (!(OwningCharacter->GetState() == EState::EHolding))
 	{
 		BWarn("Wrong Player State");
 		return false;
@@ -40,8 +40,8 @@ bool UThrowComponent_B::TryThrow()
 
 	//BWarn("Trying Charge!");
 	bIsCharging = true;
-	if (OwningPlayer && OwningPlayer->PS_Charge)
-		OwningPlayer->PS_Charge->Activate();
+	if (OwningCharacter && OwningCharacter->PS_Charge)
+		OwningCharacter->PS_Charge->Activate();
 	return true;
 }
 
@@ -54,7 +54,7 @@ void UThrowComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwningPlayer = Cast<ACharacter_B>(GetOwner());
+	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
@@ -81,8 +81,8 @@ void UThrowComponent_B::StartThrow()
 	if (bIsCharging)
 	{
 		bIsCharging = false;
-		if(OwningPlayer && OwningPlayer->PS_Charge)
-			OwningPlayer->PS_Charge->DeactivateImmediate();
+		if(OwningCharacter && OwningCharacter->PS_Charge)
+			OwningCharacter->PS_Charge->DeactivateImmediate();
 		bIsThrowing = true;
 	}
 }
@@ -92,9 +92,9 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	if (OtherPlayers.Num() == 0)
 		return false;
 
-	FVector PlayerLocation = OwningPlayer->GetActorLocation();
+	FVector PlayerLocation = OwningCharacter->GetActorLocation();
 	PlayerLocation.Z = 0;
-	FVector PlayerForward = PlayerLocation + OwningPlayer->GetActorForwardVector() * AimAssistRange;
+	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * AimAssistRange;
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
@@ -154,21 +154,21 @@ void UThrowComponent_B::OneCharacterChanged()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter_B::StaticClass(), TempArray);
 	for (const auto& Player : TempArray)
 	{
-		if (Cast<ACharacter_B>(Player) == OwningPlayer)
+		if (Cast<ACharacter_B>(Player) == OwningCharacter)
 			continue;
 		OtherPlayers.Add(Cast<ACharacter_B>(Player));
 	}
 
 	/// Finds the holdcomponent.
 	// Dette kan kanskje flyttes til BeginPlay ? Usikker på hvilke av komponentene som blir laget først
-	if (!OwningPlayer) { BError("Can't find owningplayer!"); return; }
+	if (!OwningCharacter) { BError("Can't find owningplayer!"); return; }
 
-	HoldComponent = OwningPlayer->HoldComponent;
+	HoldComponent = OwningCharacter->HoldComponent;
 }
 
 void UThrowComponent_B::Throw()
 {
-	if (!OwningPlayer)
+	if (!OwningCharacter)
 	{
 		BError("No OwningCharacter for ThrowComponent %s!", *GetNameSafe(this));
 		return;
@@ -179,7 +179,7 @@ void UThrowComponent_B::Throw()
 	}
 	if (!HoldComponent->IsHolding())
 	{
-		OwningPlayer->SetState(EState::EWalking);
+		OwningCharacter->SetState(EState::EWalking);
 		return;
 	}
 
@@ -189,17 +189,17 @@ void UThrowComponent_B::Throw()
 	{
 		Interface->Execute_Use(HoldComponent->GetHoldingItem());
 	}
-	if (OwningPlayer)
+	if (IsValid(OwningCharacter))
 	{
-		if (OwningPlayer->HoldComponent)
-			OwningPlayer->HoldComponent->SetHoldingItem(nullptr);	//had a crash on this line before these checks
+		if (OwningCharacter->HoldComponent)
+			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);	//had a crash on this line before these checks
 		else
-			BError("No HoldComponent for player %f", *GetNameSafe(OwningPlayer));
-		if (OwningPlayer->PS_Charge)
-			OwningPlayer->PS_Charge->DeactivateImmediate();
+			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
+		if (OwningCharacter->PS_Charge)
+			OwningCharacter->PS_Charge->DeactivateImmediate();
 		else
-			BError("No PS_Charge for player %f", *GetNameSafe(OwningPlayer));
-		OwningPlayer->SetState(EState::EWalking);
+			BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
+		OwningCharacter->SetState(EState::EWalking);
 	}
 	else
 		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
@@ -216,7 +216,7 @@ bool UThrowComponent_B::IsReady() const
 		BWarn("No game mode!");
 		return false;
 	}
-	if (!OwningPlayer)
+	if (!OwningCharacter)
 	{
 		BWarn("No Owning Player");
 		return false;

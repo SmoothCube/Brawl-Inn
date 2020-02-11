@@ -8,6 +8,7 @@
 #include "GameInstance_B.generated.h"
 
 class USoundBase;
+class UCameraShake;
 
 DECLARE_MULTICAST_DELEGATE(FNumberOfPlayerControllersChanged);
 
@@ -21,6 +22,8 @@ public:
 	UGameInstance_B();
 
 	virtual void Init() override;
+
+	void PlayImpactCameraShake(FVector Epicenter);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		float MasterVolume = 1.f;
@@ -45,6 +48,8 @@ public:
 
 	FNumberOfPlayerControllersChanged OnPlayerInfoChanged;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+	TSubclassOf<UCameraShake> ImpactCameraShake;
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")

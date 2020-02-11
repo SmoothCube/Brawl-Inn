@@ -22,10 +22,6 @@
 #include "System/GameInstance_B.h"
 #include "System/GameModes/GameMode_B.h"
 #include "System/Camera/GameCamera_B.h"
-#include "System/DamageTypes/Barrel_DamageType_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
-#include "System/DamageTypes/Fall_DamageType_B.h"
-#include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
@@ -102,58 +98,6 @@ void ACharacter_B::Tick(float DeltaTime)
 			HandleRotation(DeltaTime);
 		}
 	}
-}
-
-float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	if (bIsInvulnerable || bHasShield) return 0;
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	float ActualDamageAmount = 0.f;
-
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFall_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = FallDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
-	{
-		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
-		ActualDamageAmount = DamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = ChairDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = FellOutOfWorldDamageAmount;
-	}
-	else
-	{
-		ActualDamageAmount = DamageAmount;
-	}
-
-	if (HurtSound)
-	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
-		}
-		UGameplayStatics::PlaySoundAtLocation(
-			GetWorld(),
-			HurtSound,
-			GetActorLocation(),
-			volume
-		);
-	}
-
-	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-	if (Interface)
-	{
-		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
-	}
-	return DamageAmount;
 }
 
 void ACharacter_B::HandleRotation(float DeltaTime)
