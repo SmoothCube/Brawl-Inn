@@ -29,16 +29,17 @@ void ABounceActor_B::BeginPlay()
 void ABounceActor_B::Explode(AActor* DestroyedActor)
 {
 
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount,GetActorLocation(),Radius, BP_DamageType, {}, this,nullptr);
-	//IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
-	//if (Interface)
-	//{
-	//	if (Interface->Execute_IsHeld(this))
-	//	{
-	//		OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
-	//		OwningCharacter->SetState(EState::EWalking);
-	//	}
-	//}
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, nullptr);
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
+	if (Interface && Interface->Execute_IsHeld(this))
+	{
+		if (OwningCharacter->HoldComponent->GetHoldingItem() == this)
+		{
+			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
+			OwningCharacter->SetState(EState::EWalking);
+		}
+	}
+
 
 	if (Target)
 	{
@@ -56,7 +57,7 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController->PlayerInfo, true,FTransform(GetActorLocation()));
+			GameMode->SpawnCharacter_D.Broadcast(PlayerController->PlayerInfo, true, FTransform(GetActorLocation()));
 		}
 	}
 }

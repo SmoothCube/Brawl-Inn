@@ -44,7 +44,6 @@ void APlayerCharacter_B::BeginPlay()
 	{
 		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
 		MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
-		BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
 	}
 }
