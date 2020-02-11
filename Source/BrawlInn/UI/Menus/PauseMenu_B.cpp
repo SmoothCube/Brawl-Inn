@@ -29,10 +29,13 @@ void UPauseMenu_B::NativeConstruct()
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
+	ContinueButton->SetKeyboardFocus();
+
 }
 
 void UPauseMenu_B::MenuTick()
 {
+	
 	for (const auto& Button : Buttons)
 		Button->ButtonTick();
 }

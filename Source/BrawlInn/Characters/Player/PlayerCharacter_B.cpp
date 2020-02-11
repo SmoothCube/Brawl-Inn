@@ -41,7 +41,6 @@ void APlayerCharacter_B::BeginPlay()
 	{
 		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
 		MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
-		BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
 	}
 }
@@ -78,7 +77,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 
-	if(!(DamageAmount == 100))
+	if(!(DamageAmount == 100.f))
 		if (bIsInvulnerable || bHasShield) return 0;
 
 	float ActualDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -105,6 +104,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
 		float trauma = DamageAmount / 100;
+		if(PlayerController)
 		PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
 	}
 	if (HurtSound)

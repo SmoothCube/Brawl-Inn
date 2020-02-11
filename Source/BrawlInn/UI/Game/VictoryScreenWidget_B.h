@@ -8,7 +8,7 @@
 #include "VictoryScreenWidget_B.generated.h"
 
 class UTextBlock;
-class UButton;
+class UButton_B;
 
 UCLASS()
 class BRAWLINN_API UVictoryScreenWidget_B : public UUserWidget
@@ -19,11 +19,13 @@ protected:
 	virtual bool Initialize() override;
 
 	virtual void NativeConstruct() override;
-protected:
+
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* PlayerWon;
 
+public:
 	UPROPERTY(meta = (BindWidget))
-		UButton* ContinueButton;
+		UButton_B* ContinueButton;
 };

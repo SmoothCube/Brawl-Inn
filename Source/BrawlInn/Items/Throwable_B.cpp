@@ -68,6 +68,5 @@ void AThrowable_B::Use_Implementation()
 	{
 		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
 	}
-	OwningCharacter = nullptr;
 
 }
