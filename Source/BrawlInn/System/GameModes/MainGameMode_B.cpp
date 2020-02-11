@@ -46,12 +46,6 @@ void AMainGameMode_B::BeginPlay()
 
 	}
 
-	//Create and setup victory widget
-
-	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(PlayerControllers[0], BP_VictoryScreen);
-	VictoryScreen->AddToViewport();
-	OnPlayerWin.AddUObject(VictoryScreen, &UVictoryScreenWidget_B::OnPlayerWin);
-
 	DespawnCharacter_NOPARAM_D.AddUObject(this, &AMainGameMode_B::RemovePlayer);
 }
 
@@ -59,7 +53,9 @@ void AMainGameMode_B::RemovePlayer()
 {
 	if (GameInstance->GetPlayerInfos().Num() == 1)
 	{
-		OnPlayerWin.Broadcast(Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID)));
+		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID), BP_VictoryScreen);
+		VictoryScreen->AddToViewport();
+		
 	}
 }
 
