@@ -67,6 +67,9 @@ public:
 
 	void UpdateNumberOfActivePlayers();
 
+	UFUNCTION()
+	void UpdateNumberOfReadyPlayers();
+
 	void StartGame();
 
 

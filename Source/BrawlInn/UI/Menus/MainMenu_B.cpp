@@ -44,7 +44,6 @@ void UMainMenu_B::MenuTick()
 
 void UMainMenu_B::PlayButtonClicked()
 {
-	BScreen("Playbutton clicked");
 	if (GameMode)
 	{
 		GameMode->LS_PlayGame();
@@ -54,17 +53,16 @@ void UMainMenu_B::PlayButtonClicked()
 
 void UMainMenu_B::SettingsButtonClicked()
 {
-	BScreen("Settingsbutton clicked");
+	BScreen("Settings is disabled");
 }
 
 void UMainMenu_B::CreditsButtonClicked()
 {
-	BScreen("Creditsbutton clicked");
+	BScreen("Credits: SmoothCube");
 }
 
 void UMainMenu_B::QuitButtonClicked()
 {
-	BScreen("Quitbutton clicked");
 	if (GameMode)
 		GameMode->LS_QuitGame();
 }

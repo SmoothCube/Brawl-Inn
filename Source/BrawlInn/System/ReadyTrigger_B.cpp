@@ -22,6 +22,7 @@ void AReadyTrigger_B::BeginPlay()
 	Super::BeginPlay();
 
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	OnReadyOverlapChange.AddUObject(GameMode, &AMenuGameMode_B::UpdateNumberOfReadyPlayers);
 }
 
 void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
@@ -29,13 +30,14 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 	APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(OtherActor);
 	if (PlayerCharacter && GameMode)
 	{
-		BScreen("Started overlap with %s", *GetNameSafe(OtherActor));
 		GameMode->PlayersReady++;
 		PlayerCharacter->PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
 		PlayerInfos.Add(PlayerCharacter->PlayerInfo);
+		
+		OnReadyOverlapChange.Broadcast();
 
 		if (GameMode->PlayersReady >= GameMode->PlayersActive)
-			GetWorld()->GetTimerManager().SetTimer(TH_StartTimer, this, &AReadyTrigger_B::PrepareStartGame, 0.2f, false);
+			GetWorld()->GetTimerManager().SetTimer(TH_StartTimer, this, &AReadyTrigger_B::PrepareStartGame, 3.f, false);
 	}
 }
 
@@ -44,11 +46,13 @@ void AReadyTrigger_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 	APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(OtherActor);
 	if (PlayerCharacter && GameMode)
 	{
-		BScreen("Ended overlap with %s", *GetNameSafe(OtherActor));
 		GameMode->PlayersReady--;
 		PlayerInfos.RemoveAll([&](const FPlayerInfo& Info) {
 			return Info.ID == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
 			});
+
+		OnReadyOverlapChange.Broadcast();
+
 
 		GetWorld()->GetTimerManager().ClearTimer(TH_StartTimer);
 	}

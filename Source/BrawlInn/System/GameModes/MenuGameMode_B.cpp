@@ -157,6 +157,12 @@ void AMenuGameMode_B::UpdateNumberOfActivePlayers()
 	CharacterSelection->UpdateNumberOfPlayersText(PlayersActive);
 }
 
+void AMenuGameMode_B::UpdateNumberOfReadyPlayers()
+{
+	
+	CharacterSelection->UpdateNumberOfPlayersReady(PlayersReady);
+}
+
 void AMenuGameMode_B::StartGame()
 {
 
