@@ -100,7 +100,6 @@ void UPunchComponent_B::PunchEnd()
 	Player->GetCharacterMovement()->MaxWalkSpeed = Player->NormalMaxWalkSpeed;
 	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(Player->NormalMaxWalkSpeed*PostDashRemainingVelocityPercentage);
 	
-
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
 		this,

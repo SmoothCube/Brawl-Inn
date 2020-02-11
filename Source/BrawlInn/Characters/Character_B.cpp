@@ -197,8 +197,6 @@ void ACharacter_B::MakeInvulnerable(float ITime)
 
 	if (InvulnerableMat)
 		GetMesh()->SetMaterial(SpecialMaterialIndex, InvulnerableMat);
-	BWarn("Special Material Index: %i", SpecialMaterialIndex);
-
 	if (ITime > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &ACharacter_B::MakeVulnerable, ITime, false);
 }
