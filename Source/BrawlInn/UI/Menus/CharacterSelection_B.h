@@ -14,12 +14,16 @@ class BRAWLINN_API UCharacterSelection_B : public UUserWidget
 	GENERATED_BODY()
 
 public:
-		void UpdateNumberOfPlayersText(int Value);
+	void UpdateNumberOfPlayersText(int Value);
+	void UpdateNumberOfPlayersReady(int Value);
 protected:
 	// ** Overridden Functions **
 	virtual bool Initialize() override;
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* NumberOfPlayersText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* NumberOfPlayersReady;
 
 };

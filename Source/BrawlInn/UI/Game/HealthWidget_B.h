@@ -9,6 +9,7 @@
 class UProgressBar;
 class UVerticalBox;
 class UImage;
+class APlayerCharacter_B;
 
 UCLASS()
 class BRAWLINN_API UHealthWidget_B : public UUserWidget
@@ -31,7 +32,7 @@ protected:
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void PostInitialize();
+	void PostInitialize(APlayerCharacter_B* Character);
 
 	UFUNCTION()
 	void UpdateHealthAmount(int Amount);

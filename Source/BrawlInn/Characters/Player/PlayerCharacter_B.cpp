@@ -30,6 +30,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
+
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -64,6 +65,8 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 		PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
 		PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
+		if(PlayerController->HealthComponent->HealthWidget)
+		PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
 		PlayerController->PlayerInfo = PlayerInfo;
 	}
 }

@@ -3,6 +3,7 @@
 #include "GameOverlay_B.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "BrawlInn.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/GameInstance_B.h"
 #include "UI/Game/HealthWidget_B.h"
@@ -32,7 +33,6 @@ void UGameOverlay_B::NativeOnInitialized()
 		{
 			HealthWidgets[PlayerID->GetControllerId()]->SetOwningPlayer(PlayerController);
 			PlayerController->HealthComponent->SetHealthWidget(HealthWidgets[PlayerID->GetControllerId()]);
-
 		}
 	}
 

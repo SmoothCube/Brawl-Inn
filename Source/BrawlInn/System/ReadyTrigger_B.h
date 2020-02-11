@@ -9,6 +9,8 @@
 
 class AMenuGameMode_B;
 
+DECLARE_MULTICAST_DELEGATE(FOnOverlapChange);
+
 UCLASS()
 class BRAWLINN_API AReadyTrigger_B : public ATriggerBox
 {
@@ -18,6 +20,8 @@ public:
 		AReadyTrigger_B();
 
 protected:
+
+	FOnOverlapChange OnReadyOverlapChange;
 
 	virtual void BeginPlay() override;
 
@@ -33,6 +37,7 @@ protected:
 
 	TArray<FPlayerInfo> PlayerInfos;
 
+	UPROPERTY()
 	AMenuGameMode_B* GameMode = nullptr;
 
 };

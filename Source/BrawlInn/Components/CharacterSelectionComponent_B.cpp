@@ -33,12 +33,10 @@ void UCharacterSelectionComponent_B::BeginPlay()
 	}
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
-		return Left.GetActorLocation().X > Right.GetActorLocation().X;
+		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
 	CharacterSelected = Characters[CurrentIndex];
-
-	BLog("Found %i characters", Characters.Num());
 
 }
 void UCharacterSelectionComponent_B::SelectCharacter(APlayerController_B* PlayerController)
@@ -67,9 +65,8 @@ void UCharacterSelectionComponent_B::Unselect(APlayerController_B* PlayerControl
 	if (!PlayerController->HasValidCharacter())
 		return;
 
-	PlayerController->UnPossess();
 	CharacterSelected = PlayerController->PlayerCharacter;
-	PlayerController->PlayerCharacter = nullptr;
+	PlayerController->UnPossess();
 
 	Characters.Add(CharacterSelected);
 	SelectedCharacters.Remove(CharacterSelected);
@@ -89,7 +86,7 @@ void UCharacterSelectionComponent_B::Unselect(APlayerController_B* PlayerControl
 	}
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
-		return Left.GetActorLocation().X > Right.GetActorLocation().X;
+		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
 	bFirstTime = true;
