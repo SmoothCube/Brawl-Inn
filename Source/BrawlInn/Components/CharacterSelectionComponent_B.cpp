@@ -118,3 +118,26 @@ void UCharacterSelectionComponent_B::NextCharacter(APlayerController_B* PlayerCo
 	BLog("Character selected: %s", *GetNameSafe(CharacterSelected));
 }
 
+void UCharacterSelectionComponent_B::PreviousCharacter(APlayerController_B* PlayerController)
+{
+	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->UpdateViewTarget(PlayerController);
+
+	if (!bFirstTime)
+		CharacterSelected->AddActorLocalRotation(FRotator(0, 180, 0));
+	if (Characters.IsValidIndex(CurrentIndex - 1))
+		CurrentIndex--;
+	else
+		CurrentIndex = Characters.Num() - 1;
+
+	CharacterSelected = Characters[CurrentIndex];
+
+	if (CharacterSelected)
+		CharacterSelected->AddActorLocalRotation(FRotator(0, 180, 0));
+	else
+		BError("Character Selected is invalid");
+
+	bFirstTime = false;
+	BLog("Character selected: %s", *GetNameSafe(CharacterSelected));
+}

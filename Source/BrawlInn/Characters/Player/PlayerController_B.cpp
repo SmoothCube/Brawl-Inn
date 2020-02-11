@@ -44,6 +44,8 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Punch", IE_Released, this, &APlayerController_B::PunchButtonReleased);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
+		InputComponent->BindAction("Select", IE_Pressed, this, &APlayerController_B::Select);
+		InputComponent->BindAction("SelectLeft", IE_Pressed, this, &APlayerController_B::SelectLeft);
 		InputComponent->BindAction("SelectRight", IE_Pressed, this, &APlayerController_B::SelectRight);
 		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
 
@@ -109,6 +111,26 @@ void APlayerController_B::MoveRight(float Value)
 	}
 }
 
+void APlayerController_B::Select()
+{
+	if (!PlayerCharacter)
+	{
+		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+			GameMode->CharacterSelectionComponent->SelectCharacter(this);
+	}
+}
+
+void APlayerController_B::SelectLeft()
+{
+	if (!PlayerCharacter)
+	{
+		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode && GameMode->CharacterSelectionComponent)
+			GameMode->CharacterSelectionComponent->PreviousCharacter(this);
+	}
+}
+
 void APlayerController_B::SelectRight()
 {
 	if (!PlayerCharacter)
@@ -118,6 +140,7 @@ void APlayerController_B::SelectRight()
 			GameMode->CharacterSelectionComponent->NextCharacter(this);
 	}
 }
+
 
 void APlayerController_B::Unselect()
 {
@@ -131,12 +154,6 @@ void APlayerController_B::PickupButtonPressed()
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->HoldComponent->TryPickup();
-	}
-	else
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
-			GameMode->CharacterSelectionComponent->SelectCharacter(this);
 	}
 }
 

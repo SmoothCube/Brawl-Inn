@@ -39,6 +39,8 @@ public:
 
 	void NextCharacter(APlayerController_B* PlayerController);
 
+	void PreviousCharacter(APlayerController_B* PlayerController);
+
 private:
 
 	UPROPERTY()

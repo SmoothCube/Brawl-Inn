@@ -49,7 +49,8 @@ void APlayerCharacter_B::BeginPlay()
 void APlayerCharacter_B::Die()
 {
 	Fall(-1);
-	DirectionIndicatorPlane->DestroyComponent();
+	if (DirectionIndicatorPlane)
+		DirectionIndicatorPlane->DestroyComponent();
 
 	PlayerController->TryRespawn(RespawnDelay);
 	PlayerController->UnPossess();
@@ -65,8 +66,8 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 		PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
 		PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-		if(PlayerController->HealthComponent->HealthWidget)
-		PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
+		if (PlayerController->HealthComponent->HealthWidget)
+			PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
 		PlayerController->PlayerInfo = PlayerInfo;
 	}
 }
@@ -80,7 +81,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 
-	if(!(DamageAmount == 100.f))
+	if (!(DamageAmount == 100.f))
 		if (bIsInvulnerable || bHasShield) return 0;
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -113,8 +114,8 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
 		float trauma = DamageAmount / 100;
-		if(PlayerController)
-		PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
+		if (PlayerController)
+			PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
 	}
 	if (HurtSound)
 	{
