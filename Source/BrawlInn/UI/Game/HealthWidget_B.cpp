@@ -37,6 +37,6 @@ void UHealthWidget_B::UpdateRespawnsAmount()
 	if (Barrels.Num() != 0)
 	{
 		UImage* Image = Barrels.Pop();
-		Image->RemoveFromParent();
+		Image->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

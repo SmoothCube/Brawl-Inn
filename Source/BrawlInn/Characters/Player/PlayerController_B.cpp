@@ -27,7 +27,7 @@ void APlayerController_B::BeginPlay()
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
 	bAutoManageActiveCameraTarget = false;
-	HealthComponent->RespawnIsZero_D.AddLambda([&]() { bCanRespawn = false; BScreen("bCanRespawn = false"); });
+	HealthComponent->RespawnIsZero_D.AddLambda([&]() { bCanRespawn = false; });
 }
 
 void APlayerController_B::SetupInputComponent()
