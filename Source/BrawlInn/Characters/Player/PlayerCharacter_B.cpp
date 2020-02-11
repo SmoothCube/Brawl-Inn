@@ -32,7 +32,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 	
 	//variables overridden from ACharacter_B
-	SpecialMaterialIndex = 1;
+	SpecialMaterialIndex = 0;
 	ForceSocketName = "spine7_export_C_jnt";
 }
 
