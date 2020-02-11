@@ -44,6 +44,7 @@ void AUseable_B::BeginPlay()
 	{
 		GameMode->AddCameraFocusPoint(this);
 	}
+	GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::RemoveFromCameraFocus, CameraFocusDuration, false);
 }
 
 void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
@@ -67,7 +68,7 @@ void AUseable_B::Dropped_Implementation()
 void AUseable_B::Use_Implementation()
 {
 	if (Duration > 0)
-		GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::ResetBoost, Duration, false);
+		GetWorld()->GetTimerManager().SetTimer(TH_UnfocusHandle, this, &AUseable_B::ResetBoost, Duration, false);
 
 	if (DrinkSound)
 	{
@@ -91,6 +92,15 @@ void AUseable_B::Use_Implementation()
 
 void AUseable_B::ResetBoost()
 {
+}
+
+void AUseable_B::RemoveFromCameraFocus()
+{
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->RemoveCameraFocusPoint(this);
+	}
 }
 
 void AUseable_B::FellOutOfWorld(const UDamageType& dmgType)

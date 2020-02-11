@@ -27,9 +27,7 @@ AItem_B::AItem_B()
 
 bool AItem_B::IsHeld_Implementation() const
 {
-	if (OwningCharacter)
-		return true;
-	return false;
+	return (IsValid(OwningCharacter));
 }
 
 void AItem_B::Use_Implementation()

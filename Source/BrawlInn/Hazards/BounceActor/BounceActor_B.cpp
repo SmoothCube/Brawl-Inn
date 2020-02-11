@@ -12,6 +12,7 @@
 #include "System/GameModes/GameMode_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/PlayerController_B.h"
+#include "Components/HoldComponent_B.h"
 
 ABounceActor_B::ABounceActor_B()
 {
@@ -29,6 +30,15 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 {
 
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount,GetActorLocation(),Radius, BP_DamageType, {}, this,nullptr);
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
+	if (Interface)
+	{
+		if (Interface->Execute_IsHeld(this))
+		{
+			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
+			OwningCharacter->SetState(EState::EWalking);
+		}
+	}
 
 	if (Target)
 	{
