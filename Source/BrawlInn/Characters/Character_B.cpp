@@ -29,6 +29,8 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "Items/Throwable_B.h"
 #include "Animations/PlayerAnimInstance_B.h"
+#include "System/DamageTypes/Barrel_DamageType_B.h"
+
 
 ACharacter_B::ACharacter_B()
 {
@@ -144,7 +146,6 @@ void ACharacter_B::Fall(float RecoveryTime)
 		if (RecoveryTime >= 0)
 			GetWorld()->GetTimerManager().SetTimer(TH_RecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
 	}
-
 }
 
 FVector ACharacter_B::FindMeshLocation()
@@ -159,6 +160,17 @@ FVector ACharacter_B::FindMeshLocation()
 		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	else
 		return (MeshLoc - RelativeMeshTransform.GetLocation());
+}
+
+float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
+	{
+		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
+	}
+
+	return DamageAmount;
 }
 
 void ACharacter_B::StandUp()

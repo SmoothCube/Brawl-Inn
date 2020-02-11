@@ -26,7 +26,7 @@ public:
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 	
 	virtual void PossessedBy(AController* NewController) override;
-
+	
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(VisibleAnywhere)

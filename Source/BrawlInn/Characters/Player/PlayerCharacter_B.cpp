@@ -30,9 +30,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
-
-
-
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -84,17 +81,11 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if(!(DamageAmount == 100))
 		if (bIsInvulnerable || bHasShield) return 0;
 
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	float ActualDamageAmount = 0.f;
+	float ActualDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFall_DamageType_B::StaticClass()))
 	{
 		ActualDamageAmount = FallDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
-	{
-		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
-		ActualDamageAmount = DamageAmount;
 	}
 	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
 	{
