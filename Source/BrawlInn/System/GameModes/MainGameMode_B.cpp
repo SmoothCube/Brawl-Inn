@@ -18,7 +18,6 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorTickEnabled(false);
 
 	if (GameInstance && Birds)
 	{
@@ -65,7 +64,6 @@ void AMainGameMode_B::Tick(float DeltaTime)
 
 	if (!IsValid(PauseMenuWidget))
 		return;
-
 	PauseMenuWidget->MenuTick();
 }
 
@@ -84,7 +82,6 @@ void AMainGameMode_B::PauseGame(APlayerController_B* ControllerThatPaused)
 	PauseMenuWidget->AddToViewport();
 	FInputModeUIOnly InputMode;
 	ControllerThatPaused->SetInputMode(InputMode);
-	SetActorTickEnabled(true);
 	SetTickableWhenPaused(true);
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
@@ -98,7 +95,6 @@ void AMainGameMode_B::ResumeGame()
 		FInputModeGameOnly InputMode;
 		PlayerControllerThatPaused->SetInputMode(InputMode);
 	}
-	SetActorTickEnabled(false);
 	SetTickableWhenPaused(true);
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }

@@ -81,7 +81,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 
-	if(!(DamageAmount == 100))
+	if(!(DamageAmount == 100.f))
 		if (bIsInvulnerable || bHasShield) return 0;
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -114,6 +114,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
 		float trauma = DamageAmount / 100;
+		if(PlayerController)
 		PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
 	}
 	if (HurtSound)
