@@ -30,7 +30,10 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeRotation(FRotator(0, 90, 0));
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
-
+	
+	//variables overridden from ACharacter_B
+	SpecialMaterialIndex = 1;
+	ForceSocketName = "spine7_export_C_jnt";
 }
 
 void APlayerCharacter_B::BeginPlay()

@@ -48,6 +48,9 @@ void UGameOverlay_B::ChangeHealthWidgetVisibility()
 
 		TArray<FPlayerInfo> Players = GameInstance->GetPlayerInfos();
 		for (FPlayerInfo Info : Players)
-			HealthWidgets[Info.ID]->SetVisibility(ESlateVisibility::Visible);
+		{
+			if(HealthWidgets.IsValidIndex(Info.ID))
+				HealthWidgets[Info.ID]->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }

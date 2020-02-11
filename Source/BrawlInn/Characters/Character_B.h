@@ -187,6 +187,10 @@ protected:
 	TSubclassOf<UDamageType> BP_FallDamageType;
 
 	APlayerController_B* PlayerController = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
+	int SpecialMaterialIndex = 6;
+
 private:
 
 	ACharacter_B* HoldingPlayer = nullptr;

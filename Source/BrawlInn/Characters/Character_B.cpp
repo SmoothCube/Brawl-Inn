@@ -196,7 +196,7 @@ void ACharacter_B::MakeInvulnerable(float ITime)
 	bIsInvulnerable = true;
 
 	if (InvulnerableMat)
-		GetMesh()->SetMaterial(6, InvulnerableMat);
+		GetMesh()->SetMaterial(SpecialMaterialIndex, InvulnerableMat);
 
 	if (ITime > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &ACharacter_B::MakeVulnerable, ITime, false);
@@ -207,7 +207,7 @@ void ACharacter_B::MakeVulnerable()
 	bIsInvulnerable = false;
 
 	if (InvulnerableMat && !bHasShield)
-		GetMesh()->SetMaterial(6, InvisibleMat);
+		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
 }
 
 bool ACharacter_B::IsInvulnerable()
@@ -220,7 +220,7 @@ void ACharacter_B::ApplyShield()
 	bHasShield = true;
 
 	if (ShieldMat)
-		GetMesh()->SetMaterial(6, ShieldMat);
+		GetMesh()->SetMaterial(SpecialMaterialIndex, ShieldMat);
 }
 
 void ACharacter_B::RemoveShield()
@@ -231,7 +231,7 @@ void ACharacter_B::RemoveShield()
 	bHasShield = false;
 
 	if (ShieldMat)
-		GetMesh()->SetMaterial(6, InvisibleMat);
+		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
 }
 
 void ACharacter_B::AddStun(int Strength)
