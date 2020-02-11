@@ -52,7 +52,7 @@ protected:
 
 	/// Aiming
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
-		float AimAssistAngle = 15.f;
+		float AimAssistAngle = 20.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistRange = 2000.f;
@@ -63,7 +63,10 @@ private:
 
 	TArray<ACharacter_B*> OtherPlayers;
 
+	UPROPERTY()
 	AGameMode_B* GameMode = nullptr;
+	UPROPERTY()
 	UHoldComponent_B* HoldComponent = nullptr;
-	ACharacter_B* OwningPlayer = nullptr;
+	UPROPERTY()
+	ACharacter_B* OwningCharacter = nullptr;
 };

@@ -35,6 +35,12 @@ void UGameInstance_B::Init()
 	//AddPlayerInfo(Info4);
 }
 
+void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
+{
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(),ImpactCameraShake, Epicenter,0.0f, 10000.f);
+
+}
+
 void UGameInstance_B::AddPlayerInfo(FPlayerInfo PlayerInfo)
 {
 	if (!ActivePlayerInfos.FindByPredicate([&](const FPlayerInfo& Info) {return Info.ID == PlayerInfo.ID; }))

@@ -13,8 +13,8 @@
 
 #include "Characters/Character_B.h"
 #include "Characters/Player/PlayerController_B.h"
-#include "System/GameInstance_B.h"
 #include "System/DamageTypes/Punch_DamageType_B.h"
+#include "System/GameInstance_B.h"
 
 // Sets default values for this component's properties
 UPunchComponent_B::UPunchComponent_B()
@@ -129,9 +129,9 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),Player);
 		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(OtherPlayer), Player->GetController(), Player, BP_DamageType);
 		
-		Player->StunStrength = 1; // This ends the effect after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
+		Player->StunStrength = 1; // This ends the punch powerup after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
 		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.7, 0.3, true, true, true, true);
+		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
 			
 		bHasHit = true;
 	}
