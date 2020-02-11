@@ -38,7 +38,7 @@ public:
 		float SmallestSpringArmLength = 1500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float LargestSpringArmLength = 2300.f;
+		float LargestSpringArmLength = 2500.f;
 
 	TArray<AActor*> ActorsToTrack;
 

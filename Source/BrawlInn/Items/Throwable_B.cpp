@@ -58,7 +58,7 @@ void AThrowable_B::Use_Implementation()
 	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 
 	/// Throw with the help of AimAssist.
-	if (OwningCharacter)
+	if (IsValid(OwningCharacter))
 	{
 		FVector TargetLocation = OwningCharacter->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
 		OwningCharacter->ThrowComponent->AimAssist(TargetLocation);
@@ -68,5 +68,6 @@ void AThrowable_B::Use_Implementation()
 	{
 		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
 	}
+	OwningCharacter = nullptr;
 
 }

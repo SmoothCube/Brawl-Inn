@@ -76,6 +76,7 @@ bool UHoldComponent_B::TryPickup()
 		ThrowableItemsInRange.Remove(brokenItem);
 	}
 	BrokenItems.Empty();
+	if (ThrowableItemsInRange.Num() == 0) return false;
 
 	switch (ThrowableItemsInCone.Num())
 	{

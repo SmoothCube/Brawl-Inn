@@ -42,9 +42,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The duration of the powerup. Set to -1 if it shouldn't expire by time"))
 		float Duration = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The amount of time the camera will focus on this after it spawns"))
+		float CameraFocusDuration = 3.f;
 	
 	FTimerHandle TH_DrinkHandle;
+	FTimerHandle TH_UnfocusHandle;
 
 	UFUNCTION()
 		virtual void ResetBoost();
+	void RemoveFromCameraFocus();
+
 };
