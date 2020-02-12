@@ -14,6 +14,7 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Components/HoldComponent_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "UI/Game/HealthWidget_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
@@ -33,7 +34,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
-	ForceSocketName = "spine7_export_C_jnt";
+	ForceSocketName = "spine2_export_C_jnt";
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -77,8 +78,11 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
+	if(HoldComponent)
+		HoldComponent->Drop();
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
 	Super::FellOutOfWorld(dmgType);
+
 }
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

@@ -133,7 +133,6 @@ public:
 		UNiagaraComponent* PS_Charge = nullptr;
 
 protected:
-
 	EState State = EState::EWalking;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when a character fell by themselves"))

@@ -139,8 +139,9 @@ void ACharacter_B::Fall(float RecoveryTime)
 		GetMesh()->SetSimulatePhysics(true);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->AddImpulse(GetMovementComponent()->Velocity, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
-		//UGameplayStatics::ApplyDamage(this, FallDamageAmount,GetController(),this, BP_FallDamageType);
+		FVector Force = GetMovementComponent()->Velocity ;
+		GetMesh()->AddImpulse(Force, ForceSocketName, true);	//TODO make the bone dynamic instead of a variable
+		BWarn("Adding force of %s to %s", *Force.ToString(), *ForceSocketName.ToString());
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 		if (RecoveryTime >= 0)
