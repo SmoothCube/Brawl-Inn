@@ -181,13 +181,13 @@ void ACharacter_B::StandUp()
 		//Saves snapshot for blending to animation
 		GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
-		SetState(EState::EWalking);
 		GetMovementComponent()->StopMovementImmediately();
 
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetMesh()->SetGenerateOverlapEvents(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		SetState(EState::EWalking);
 	}
 }
 
