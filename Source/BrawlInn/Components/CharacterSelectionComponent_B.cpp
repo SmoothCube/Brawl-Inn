@@ -106,6 +106,8 @@ void UCharacterSelectionComponent_B::NextCharacter(APlayerController_B* PlayerCo
 		CurrentIndex++;
 	else
 		CurrentIndex = 0;
+	
+	if (Characters.Num() == 0) return;
 
 	CharacterSelected = Characters[CurrentIndex];
 
@@ -130,6 +132,8 @@ void UCharacterSelectionComponent_B::PreviousCharacter(APlayerController_B* Play
 		CurrentIndex--;
 	else
 		CurrentIndex = Characters.Num() - 1;
+
+	if (Characters.Num() == 0) return;
 
 	CharacterSelected = Characters[CurrentIndex];
 

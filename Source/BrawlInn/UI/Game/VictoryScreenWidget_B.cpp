@@ -9,7 +9,7 @@
 bool UVictoryScreenWidget_B::Initialize()
 {
 	bool b = Super::Initialize();
-	
+
 	return b;
 }
 
@@ -23,6 +23,7 @@ void UVictoryScreenWidget_B::NativeConstruct()
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 	ContinueButton->SetKeyboardFocus();
+
 }
 
 void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

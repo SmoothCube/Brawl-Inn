@@ -24,15 +24,15 @@ void UGameInstance_B::Init()
 	Info2.Type = EPlayerCharacterType::LEADJAW;
 	AddPlayerInfo(Info2);
 
-//	FPlayerInfo Info3;
-//	Info3.ID = 2;
-//	Info3.Type = EPlayerCharacterType::SWIFTBOOT;
-//	AddPlayerInfo(Info3);
+	FPlayerInfo Info3;
+	Info3.ID = 2;
+	Info3.Type = EPlayerCharacterType::SWIFTBOOT;
+	AddPlayerInfo(Info3);
 
-	//FPlayerInfo Info4;
-	//Info4.ID = 3;
-	//Info4.Type = EPlayerCharacterType::DAGGER;
-	//AddPlayerInfo(Info4);
+	FPlayerInfo Info4;
+	Info4.ID = 3;
+	Info4.Type = EPlayerCharacterType::DAGGER;
+	AddPlayerInfo(Info4);
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
