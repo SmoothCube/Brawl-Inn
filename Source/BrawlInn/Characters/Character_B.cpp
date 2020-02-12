@@ -293,7 +293,7 @@ void ACharacter_B::Use_Implementation()
 	/// Throw with the help of AimAssist.
 	FVector TargetLocation = HoldingPlayer->GetActorForwardVector();
 	HoldingPlayer->ThrowComponent->AimAssist(TargetLocation);
-	GetMesh()->AddImpulse(TargetLocation * HoldingPlayer->ThrowComponent->ImpulseSpeed, "ProtoPlayer_BIND_SpineTop_JNT_center", true);
+	GetMesh()->AddImpulse(TargetLocation * HoldingPlayer->ThrowComponent->ImpulseSpeed, ForceSocketName, true);
 
 	HoldingPlayer = nullptr;
 
