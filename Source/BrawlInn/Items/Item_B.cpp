@@ -20,7 +20,7 @@ AItem_B::AItem_B()
 	Mesh->SetSimulatePhysics(true);
 	RootComponent = Mesh;
 
-	PickupCapsule = CreateDefaultSubobject<UCapsuleComponent>("Sphere");
+	PickupCapsule = CreateDefaultSubobject<UCapsuleComponent>("Pickup Capsule");
 	PickupCapsule->SetCollisionProfileName("Throwable-Trigger");
 	PickupCapsule->SetupAttachment(Mesh);
 }
@@ -67,13 +67,14 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!IsHeld_Implementation() || OtherActor == OwningCharacter || OtherActor->StaticClass() == this->StaticClass())
+		return;
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface)
 	{
 		if (!Interface->Execute_IsHeld(this)) return;
 	}
-	if (!IsHeld_Implementation() || OtherActor == OwningCharacter || OtherActor->StaticClass() == this->StaticClass())
-		return;
+
 
 	OnHit(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
