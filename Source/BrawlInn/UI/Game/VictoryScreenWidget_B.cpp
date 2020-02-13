@@ -17,7 +17,7 @@ void UVictoryScreenWidget_B::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerWon->SetText(FText::FromString("Player " + FString::FormatAsNumber(UGameplayStatics::GetPlayerControllerID(GetOwningPlayer()) + 1) + " won!"));
+	PlayerWon->SetText(FText::FromString("OwningCharacter " + FString::FormatAsNumber(UGameplayStatics::GetPlayerControllerID(GetOwningPlayer()) + 1) + " won!"));
 
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());

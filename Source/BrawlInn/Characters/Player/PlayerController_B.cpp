@@ -168,7 +168,7 @@ void APlayerController_B::PunchButtonPressed()
 	if (PlayerCharacter)
 	{
 		if (!PlayerCharacter->HoldComponent->IsHolding())
-			PlayerCharacter->PunchButtonPressed();
+			PlayerCharacter->TryPunch();
 		else
 			PlayerCharacter->ThrowComponent->TryThrow();
 	}

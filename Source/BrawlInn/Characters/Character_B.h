@@ -7,14 +7,9 @@
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Character_B.generated.h"
 
-class UStaticMeshComponent;
-class UHealthComponent_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
 class UPunchComponent_B;
-class AGameCamera_B;
-class APlayerController_B;
-class UWidgetComponent;
 class UMaterial;
 class USoundCue;
 class UNiagaraComponent;
@@ -48,101 +43,143 @@ public:
 
 protected:
 
-	// ** Overriden functions **
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void PossessedBy(AController* NewController) override;
+	// ********** Movement **********
 
-	// ** Overlap/Hit functions **
-	UFUNCTION()
-		void OnRadialDamageTaken(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin, FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
-
-	// ** Functions **
 	void HandleMovement(float DeltaTime);
+
+	float NormalMaxWalkSpeed = 0;
+public:
+	FVector InputVector = FVector::ZeroVector;
+
+	// ********** Falling **********
+protected:
 	void CheckFall(float DeltaTime);
 
-	void HandleRotation(float DeltaTime);
-
-	UFUNCTION()
-		void Fall(float RecoveryTime);
+	virtual void Fall(float RecoveryTime = -1);
 
 	void StandUp();
 
-	void MakeVulnerable();
-
-	void RemoveStun();
-
 	FVector FindMeshLocation();
-	
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	UPROPERTY(EditAnywhere, Category = "Variables|Fall", meta = (Tooltip = "For when an external force made the character fall."))
+		float FallRecoveryTime = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Fall")
+		float FallLimitMultiplier = 1.5;
+
+	FTimerHandle TH_FallRecoverTimer;
+
+	// ********** Hold players **********
 public:
 
-	UFUNCTION(BlueprintPure)
-		APlayerController_B* GetPlayerController_B() const;
-
-	void PunchButtonPressed();
-
-	void BreakFreeButtonMash();
-	void BreakFree();
-
-	void MakeInvulnerable(float InvulnerabilityTime);
-	bool IsInvulnerable();
-
-	void ApplyShield();
-	void RemoveShield();
-
-	void AddStun(int Strength = 1);
-
-
-	//Picking up players
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
 
-	virtual bool IsHeld_Implementation() const override;
-
 	virtual void Use_Implementation() override;
 
-	void SetState(EState s);
-	EState GetState() const;
+	virtual bool IsHeld_Implementation() const override;
 
-	// ** Variables **
+protected:
+	UPROPERTY()
+		ACharacter_B* HoldingCharacter = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FVector InputVector = FVector::ZeroVector;
+	// ********** Stun **********
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FVector RotationVector = FVector::ZeroVector;
+public:
+	void AddStun(int Strength = 1);
+protected:
+	virtual void RemoveStun();
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+		int StunStrength = 1;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+		float StunTime = 3.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+		int PunchesToStun = 2;
+
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* PS_Stun = nullptr;
+
+	int StunAmount = 0;
+
+	FTimerHandle TH_StunTimer;
+
+	// ********** Invulnerability **********
+
+	void MakeVulnerable();
+
+public:
+	bool IsInvulnerable();
+
+protected:
+	/// A number less than 0 will make the character invulnerable until toggled off again
+	void MakeInvulnerable(float InvulnerabilityTime = -1);
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		int StunStrength = 1;
+	UPROPERTY(BlueprintReadOnly)
+		bool bIsInvulnerable = false;
 
-	//The longest amount of time this character can be held
-	UPROPERTY(EditAnywhere, Category = "Variables")
-		float MaxHoldTime = 4.f;
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+		UMaterial* InvulnerableMat;
 
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+		UMaterial* InvisibleMat;
+
+	FTimerHandle TH_InvincibilityTimer;
+
+
+	// ********** Shield **********
+public:
+	void ApplyShield();
+
+	void RemoveShield();
+
+	bool HasShield() const;
+
+protected:
 	bool bHasShield = false;
 
-	UPROPERTY(VisibleAnywhere)
-		UNiagaraComponent* PS_Charge = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+		UMaterial* ShieldMat;
+
+
+	// ********** States **********
+
+public:
+	void SetState(EState s);
+
+	EState GetState() const;
 
 protected:
 	EState State = EState::EWalking;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when a character fell by themselves"))
-		float FellRecoveryTime = 2.0;
+	// ********** Punch **********
+public:
+	void TryPunch();
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch", meta = (Tooltip = "For when an external force made the character fall. Name is a bit misleading"))
-		float PunchedRecoveryTime = 2.f;
+	UNiagaraComponent* GetChargeParticle() const;
 
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-		float FallLimitMultiplier = 1.5;
+		FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
+
+	UPROPERTY(VisibleAnywhere, Category = "Variables|Punch")
+		UNiagaraComponent* PS_Charge = nullptr;
+
+	// ********** Damage **********
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int FellOutOfWorldDamageAmount = 100;
@@ -153,58 +190,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int ChairDamageAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-		FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
-
-	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* InvulnerableMat;
-
-	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* InvisibleMat;
-
-	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* ShieldMat;
-
-	UPROPERTY(BlueprintReadOnly)
-		bool bIsInvulnerable = false;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		float StunTime = 3.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		int PunchesToStun = 2;
-
-	int StunAmount = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
-	USoundCue* HurtSound;
+		USoundCue* HurtSound;
 
-	UPROPERTY(VisibleAnywhere)
-	UNiagaraComponent* PS_Stun = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	TSubclassOf<UDamageType> BP_FallDamageType;
-
-	APlayerController_B* PlayerController = nullptr;
+	// ********** Misc. **********
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
-	int SpecialMaterialIndex = 6;
-
-private:
-
-	ACharacter_B* HoldingPlayer = nullptr;
+		int SpecialMaterialIndex = 6;
 
 	FTransform RelativeMeshTransform;
-	FTimerHandle TH_RecoverTimer;
-	FTimerHandle TH_InvincibilityTimer;
-	FTimerHandle TH_StunTimer;
-
-	float NormalMaxWalkSpeed;
-
-	AGameCamera_B* GameCamera = nullptr;
 
 	friend class UPunchComponent_B;
 
-	float CurrentHoldTime = 0.f;
-
+	bool bIsAlive = true;
 };

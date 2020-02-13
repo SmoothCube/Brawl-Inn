@@ -22,7 +22,7 @@ UPunchComponent_B::UPunchComponent_B()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-	Player = Cast<ACharacter_B>(GetOwner());
+	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
 
 // Called when the game starts
@@ -34,9 +34,9 @@ void UPunchComponent_B::BeginPlay()
 
 void UPunchComponent_B::PunchStart()
 {
-	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No Player found for PunchComponent!"), *GetNameSafe(this)); return; }
+	if (!OwningCharacter) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::Punch]: %s No OwningCharacter found for PunchComponent!"), *GetNameSafe(this)); return; }
 
-	Player->MakeVulnerable();
+	OwningCharacter->MakeVulnerable();
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	//Thought this would fix bug #39
@@ -79,11 +79,11 @@ void UPunchComponent_B::Dash()
 {
 	//Dash Logic
 	bIsDashing = true;
-	VelocityBeforeDash = Player->GetCharacterMovement()->Velocity;
+	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
-	float f = Player->GetCharacterMovement()->Velocity.Size() / Player->GetCharacterMovement()->MaxWalkSpeed;
+	float f = OwningCharacter->GetCharacterMovement()->Velocity.Size() / OwningCharacter->GetCharacterMovement()->MaxWalkSpeed;
 	float dist = (MaxDashDistance - MinDashDistance) * f + MinDashDistance;
-	Player->GetCharacterMovement()->AddForce(Player->GetActorForwardVector() * dist * DashForceModifier);
+	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * DashForceModifier);
 
 	//UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent_B::Dash] Dashing: f: %f, dist: %f"), f, dist);
 }
@@ -92,13 +92,13 @@ void UPunchComponent_B::PunchEnd()
 {
 	//just to see if we want to run the function	
 	if (!bIsPunching) { return; }
-	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+	if (!OwningCharacter) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchEnd]: No OwningCharacter found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	//Dash ends
-	Player->GetCharacterMovement()->MaxWalkSpeed = Player->NormalMaxWalkSpeed;
-	Player->GetCharacterMovement()->Velocity = Player->GetCharacterMovement()->Velocity.GetClampedToMaxSize(Player->NormalMaxWalkSpeed*PostDashRemainingVelocityPercentage);
+	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
+	OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity.GetClampedToMaxSize(OwningCharacter->NormalMaxWalkSpeed*PostDashRemainingVelocityPercentage);
 	
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
@@ -119,34 +119,35 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
 	if (!OtherPlayer) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No PunchComponent found for OtherPlayer %s!"), *GetNameSafe(OtherPlayer)); return; }
-	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+	if (!OwningCharacter) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No OwningCharacter found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
 	//has the invulnerability check here to be able to do other stuff when you hit someone invulnerable
 	if (!OtherPlayer->bIsInvulnerable || !OtherPlayer->bHasShield)
 	{
 
-		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),Player);
-		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(OtherPlayer), Player->GetController(), Player, BP_DamageType);
+		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrenght(),OwningCharacter);
+		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(OtherPlayer), OwningCharacter->GetController(), OwningCharacter, BP_DamageType);
 		
-		Player->StunStrength = 1; // This ends the punch powerup after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
-		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
-		if (Player->PlayerController)Player->PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
+		OwningCharacter->StunStrength = 1; // This ends the punch powerup after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
+		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+
+		OnPunchHit_D.Broadcast();
 			
 		bHasHit = true;
 	}
 	else
 	{
-		Player->GetCharacterMovement()->Velocity *= -0.5;
+		OwningCharacter->GetCharacterMovement()->Velocity *= -0.5;
 	}
 }
 
 void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 {
 	if (!OtherComp) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: %s No OtherPlayer found!"), *GetNameSafe(this)); return; }
-	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+	if (!OwningCharacter) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::PunchHit]: No OwningCharacter found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 	if (OtherComp->IsSimulatingPhysics())
 	{
-		Player->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
+		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		OtherComp->AddImpulse(CalculatePunchStrenght());
 	}
 	bHasHit = true;
@@ -154,7 +155,7 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 
 float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
 {
-	float f = VelocityBeforeDash.Size() / (Player->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
+	float f = VelocityBeforeDash.Size() / (OwningCharacter->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
 	f = FMath::Clamp(f, 0.f, 1.f);
 	float TotalDamage = 5 + (30 * (f));
 	return TotalDamage;
@@ -168,25 +169,25 @@ bool UPunchComponent_B::GetIsPunching()
 
 void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched)
 {
-	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return; }
+	if (!OwningCharacter) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No OwningCharacter found for PunchComponent %s!"), *GetNameSafe(this)); return; }
 
 	float strength = InPunchStrength.Size();
 	GetPunched_D.Broadcast(PlayerThatPunched);
 
 	PunchEnd();
 	//Player->Fall();
-	if (!Player->IsInvulnerable())
+	if (!OwningCharacter->IsInvulnerable())
 	{
-		Player->GetCharacterMovement()->AddImpulse(InPunchStrength);
-		Player->AddStun(PlayerThatPunched->StunStrength);
+		OwningCharacter->GetCharacterMovement()->AddImpulse(InPunchStrength);
+		OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
 	}
-	Player->RemoveShield();
+	OwningCharacter->RemoveShield();
 }
 
 //calculates the punch strength for the player. Has to be used by the puncher.
 FVector UPunchComponent_B::CalculatePunchStrenght()
 {
-	if (!Player) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No Player found for PunchComponent %s!"), *GetNameSafe(this)); return FVector(); }
+	if (!OwningCharacter) { UE_LOG(LogTemp, Warning, TEXT("[UPunchComponent::GetPunched]: No OwningCharacter found for PunchComponent %s!"), *GetNameSafe(this)); return FVector(); }
 	FVector Strength;
 	if (!VelocityBeforeDash.IsNearlyZero())
 	{
@@ -194,7 +195,7 @@ FVector UPunchComponent_B::CalculatePunchStrenght()
 	}
 	else
 	{
-		Strength = Player->GetActorForwardVector()*BasePunchStrength;
+		Strength = OwningCharacter->GetActorForwardVector()*BasePunchStrength;
 	}
 	return Strength;
 }

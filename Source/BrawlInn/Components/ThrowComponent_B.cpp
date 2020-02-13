@@ -34,14 +34,14 @@ bool UThrowComponent_B::TryThrow()
 	}
 	else if (!(OwningCharacter->GetState() == EState::EHolding))
 	{
-		BWarn("Wrong Player State");
+		BWarn("Wrong OwningCharacter State");
 		return false;
 	}
 
 	//BWarn("Trying Charge!");
 	bIsCharging = true;
-	if (OwningCharacter && OwningCharacter->PS_Charge)
-		OwningCharacter->PS_Charge->Activate();
+	if (OwningCharacter && OwningCharacter->GetChargeParticle())
+		OwningCharacter->GetChargeParticle()->Activate();
 	return true;
 }
 
@@ -81,8 +81,8 @@ void UThrowComponent_B::StartThrow()
 	if (bIsCharging)
 	{
 		bIsCharging = false;
-		if(OwningCharacter && OwningCharacter->PS_Charge)
-			OwningCharacter->PS_Charge->DeactivateImmediate();
+		if(OwningCharacter && OwningCharacter->GetChargeParticle())
+			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
 	}
 }
@@ -195,8 +195,8 @@ void UThrowComponent_B::Throw()
 			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);	//had a crash on this line before these checks
 		else
 			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
-		if (OwningCharacter->PS_Charge)
-			OwningCharacter->PS_Charge->DeactivateImmediate();
+		if (OwningCharacter->GetChargeParticle())
+			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		else
 			BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
 		OwningCharacter->SetState(EState::EWalking);
@@ -218,7 +218,7 @@ bool UThrowComponent_B::IsReady() const
 	}
 	if (!OwningCharacter)
 	{
-		BWarn("No Owning Player");
+		BWarn("No Owning OwningCharacter");
 		return false;
 	}
 	else if (!HoldComponent)
@@ -227,5 +227,4 @@ bool UThrowComponent_B::IsReady() const
 		return false;
 	}
 	return true;
-
 }

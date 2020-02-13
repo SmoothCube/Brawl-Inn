@@ -10,7 +10,9 @@ class ACharacter_B;
 class USoundCue;
 class UDamageType;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*, PlayerThatPunched);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*);
+
+DECLARE_MULTICAST_DELEGATE(FOnPunchHit);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BRAWLINN_API UPunchComponent_B : public USphereComponent
@@ -31,7 +33,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	ACharacter_B* Player = nullptr;
+	ACharacter_B* OwningCharacter = nullptr;
 
 public:	
 
@@ -52,8 +54,9 @@ public:
 
 	FVector CalculatePunchStrenght();
 
-	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
 	FOnGetPunched GetPunched_D;
+
+	FOnPunchHit OnPunchHit_D;
 
 	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;

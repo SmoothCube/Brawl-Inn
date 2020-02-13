@@ -35,7 +35,7 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 	ACharacter_B* HitPlayer = Cast<ACharacter_B>(OtherActor);
 	if (HitPlayer && !HitPlayer->IsInvulnerable())
 	{
-		if (HitPlayer->bHasShield)
+		if (HitPlayer->HasShield())
 		{
 			HitPlayer->RemoveShield();
 		}

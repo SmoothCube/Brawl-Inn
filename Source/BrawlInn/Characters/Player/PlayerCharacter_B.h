@@ -8,6 +8,7 @@
 #include "PlayerCharacter_B.generated.h"
 
 class AController;
+class APlayerController_B;
 
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
@@ -19,9 +20,18 @@ public:
 	APlayerCharacter_B();
 	
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void Dropped_Implementation() override;
+
+	virtual void RemoveStun() override;
+
+
 	
 	UFUNCTION()
 	void Die();
+
+	virtual void Fall(float RecoveryTime = -1) override;
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 	
@@ -40,6 +50,20 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FPlayerInfo PlayerInfo;
+
+	APlayerController_B* PlayerController = nullptr;
+
+
+	void BreakFreeButtonMash();
+
+protected:
+	void BreakFree();
+
+	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The longest amount of time this character can be held"))
+		float MaxHoldTime = 4.f;
+
+private:
+	float CurrentHoldTime = 0.f;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Info")
