@@ -14,7 +14,7 @@ class UMaterial;
 class USoundCue;
 class UNiagaraComponent;
 
-UENUM(BlueprintType)		//"BlueprintType" is essential to include
+UENUM(BlueprintType)
 enum class EState : uint8
 {
 	EWalking 	UMETA(DisplayName = "Walking"),
@@ -42,6 +42,8 @@ public:
 		UThrowComponent_B* ThrowComponent;
 
 protected:
+	
+	// ********** AActor **********
 
 	virtual void BeginPlay() override;
 
@@ -92,6 +94,7 @@ protected:
 
 public:
 	void AddStun(int Strength = 1);
+
 protected:
 	virtual void RemoveStun();
 
@@ -138,7 +141,6 @@ protected:
 
 	FTimerHandle TH_InvincibilityTimer;
 
-
 	// ********** Shield **********
 public:
 	void ApplyShield();
@@ -152,7 +154,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Visuals")
 		UMaterial* ShieldMat;
-
 
 	// ********** States **********
 
@@ -189,7 +190,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int ChairDamageAmount = 25;
-
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HurtSound;

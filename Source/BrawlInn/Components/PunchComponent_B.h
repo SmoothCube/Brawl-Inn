@@ -52,9 +52,9 @@ public:
 
 	float CalculatePunchDamage(ACharacter_B* OtherPlayer);
 
-	FVector CalculatePunchStrenght();
+	FVector CalculatePunchStrength();
 
-	FOnGetPunched GetPunched_D;
+	FOnGetPunched OnGetPunched_D;
 
 	FOnPunchHit OnPunchHit_D;
 
@@ -80,8 +80,6 @@ protected:
 	
 	FTimerHandle TH_PunchAgainHandle;
 
-	void setIsPunchingFalse();
-
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float MinDashDistance = 150.f;
 	
@@ -99,9 +97,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<UDamageType> BP_DamageType;
-private:
-
-
-	bool bIsDashing = false;
-
 };

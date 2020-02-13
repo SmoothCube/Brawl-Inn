@@ -16,44 +16,31 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
 	GENERATED_BODY()
 
 public:
-
 	APlayerCharacter_B();
-	
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void Dropped_Implementation() override;
-
-	virtual void RemoveStun() override;
-
-
-	
-	UFUNCTION()
-	void Die();
-
-	virtual void Fall(float RecoveryTime = -1) override;
-
-	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
-	
-	virtual void PossessedBy(AController* NewController) override;
-	
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
-		UTexture2D* ColoredHealthIcon = nullptr;
+	// ********** AActor **********
+protected:
+	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
-		UTexture2D* GreyHealthIcon = nullptr;
+	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		FPlayerInfo PlayerInfo;
+	// ********** Falling **********
 
-	APlayerController_B* PlayerController = nullptr;
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
+	UFUNCTION()
+		void Die();
 
+	virtual void Fall(float RecoveryTime = -1) override;
+
+	// ********** Hold players **********
+
+	virtual void Dropped_Implementation() override;
+
+public:
 	void BreakFreeButtonMash();
 
 protected:
@@ -62,12 +49,34 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The longest amount of time this character can be held"))
 		float MaxHoldTime = 4.f;
 
-private:
 	float CurrentHoldTime = 0.f;
 
-protected:
+	// ********** Stun **********
+
+	virtual void RemoveStun() override;
+
+	// ********** Damage **********
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
+		UTexture2D* ColoredHealthIcon = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
+		UTexture2D* GreyHealthIcon = nullptr;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Info")
-	float RespawnDelay = 3.f;
+		float RespawnDelay = 3.f;
 
+	// ********** Misc. **********
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		FPlayerInfo PlayerInfo;
+
+protected:
+	UPROPERTY()
+		APlayerController_B* PlayerController = nullptr;
+
+	virtual void PossessedBy(AController* NewController) override;
 };

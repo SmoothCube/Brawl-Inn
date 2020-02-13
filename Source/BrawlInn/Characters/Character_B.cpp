@@ -68,7 +68,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if(GetState() != EState::EBeingHeld)
+	else if (GetState() != EState::EBeingHeld)
 	{
 		if (!PunchComponent->bIsPunching)
 			CheckFall(DeltaTime);
@@ -87,8 +87,8 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 		InputVector.Normalize();
 	GetMovementComponent()->AddInputVector(InputVector);
 
-	if(InputVector.Size() > 0)
-	SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
+	if (InputVector.SizeSquared() > 0)
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
 }
 
 void ACharacter_B::CheckFall(float DeltaTime)
@@ -311,7 +311,7 @@ void ACharacter_B::TryPunch()
 
 	PunchComponent->bIsPunching = true;
 }
- UNiagaraComponent* ACharacter_B::GetChargeParticle() const
+UNiagaraComponent* ACharacter_B::GetChargeParticle() const
 {
 	return PS_Charge;
 }

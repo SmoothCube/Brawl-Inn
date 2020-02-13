@@ -1,24 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
-#include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
-#include "TimerManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Sound/SoundCue.h"
 
-#include "BrawlInn.h"
-#include "System/GameModes/GameMode_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
-#include "Components/ThrowComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "UI/Game/HealthWidget_B.h"
-#include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "System/DamageTypes/Fall_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
@@ -43,12 +34,13 @@ void APlayerCharacter_B::BeginPlay()
 	Super::BeginPlay();
 
 	//Create new material instance and assign it
-	if (DirectionIndicatorPlane)
-	{
-		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
-		MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
-		DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
-	}
+	if (!DirectionIndicatorPlane)
+		return;
+
+	auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
+	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
+	DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
+
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
@@ -62,22 +54,18 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	}
 }
 
-void APlayerCharacter_B::Dropped_Implementation()
+void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
-	Super::Dropped_Implementation();
-	CurrentHoldTime = 0.f;
-}
-
-void APlayerCharacter_B::RemoveStun()
-{
-	Super::RemoveStun();
-	CurrentHoldTime = 0.f;
-
+	if (HoldComponent)
+		HoldComponent->Drop();
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
+	Super::FellOutOfWorld(dmgType);
 }
 
 void APlayerCharacter_B::Die()
 {
 	Fall(-1);
+	bIsAlive = false;
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
@@ -93,34 +81,15 @@ void APlayerCharacter_B::Fall(float RecoveryTime)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 }
 
-void APlayerCharacter_B::PossessedBy(AController* NewController)
+void APlayerCharacter_B::Dropped_Implementation()
 {
-	Super::PossessedBy(NewController);
-	PlayerController = Cast<APlayerController_B>(NewController);
-	if (PlayerController && PlayerController->HealthComponent)
-	{
-		PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
-
-		PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-		PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-		if (PlayerController->HealthComponent->HealthWidget)
-			PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
-		PlayerController->PlayerInfo = PlayerInfo;
-
-		PunchComponent->OnPunchHit_D.AddLambda([&]()
-			{
-				PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
-			});
-	}
+	Super::Dropped_Implementation();
+	CurrentHoldTime = 0.f;
 }
 
-void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+void APlayerCharacter_B::BreakFreeButtonMash()
 {
-	if (HoldComponent)
-		HoldComponent->Drop();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
-	Super::FellOutOfWorld(dmgType);
-
+	CurrentHoldTime += 0.01;
 }
 
 void APlayerCharacter_B::BreakFree()
@@ -142,11 +111,11 @@ void APlayerCharacter_B::BreakFree()
 	CurrentHoldTime = 0.f;
 }
 
-void APlayerCharacter_B::BreakFreeButtonMash()
+void APlayerCharacter_B::RemoveStun()
 {
-	CurrentHoldTime += 0.01;
+	Super::RemoveStun();
+	CurrentHoldTime = 0.f;
 }
-
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -189,4 +158,28 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 
 	return DamageAmount;
+}
+
+void APlayerCharacter_B::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	PlayerController = Cast<APlayerController_B>(NewController);
+
+	if (!(PlayerController && PlayerController->HealthComponent))
+		return;
+
+	PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+
+	PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
+	PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
+	if (PlayerController->HealthComponent->HealthWidget)
+		PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
+	PlayerController->PlayerInfo = PlayerInfo;
+
+	PunchComponent->OnPunchHit_D.AddLambda([&]()
+		{
+			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
+		});
+
 }
