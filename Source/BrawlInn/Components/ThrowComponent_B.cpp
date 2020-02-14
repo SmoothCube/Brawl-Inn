@@ -1,53 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ThrowComponent_B.h"
-#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "NiagaraComponent.h"
 
 #include "BrawlInn.h"
-#include "System/Interfaces/ThrowableInterface_B.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
-#include "Items/Throwable_B.h"
 #include "System/GameModes/GameMode_B.h"
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
-}
-
-bool UThrowComponent_B::TryThrow()
-{
-	if (!IsReady())
-	{
-		BWarn("Not Ready To Throw");
-		return false;
-	}
-	else if (!HoldComponent->IsHolding())
-	{
-		BWarn("Not Holding Item!");
-	}
-	else if (!(OwningCharacter->GetState() == EState::EHolding))
-	{
-		BWarn("Wrong Player State");
-		return false;
-	}
-
-	//BWarn("Trying Charge!");
-	bIsCharging = true;
-	if (OwningCharacter && OwningCharacter->GetChargeParticle())
-		OwningCharacter->GetChargeParticle()->Activate();
-	return true;
-}
-
-bool UThrowComponent_B::IsCharging() const
-{
-	return bIsCharging;
 }
 
 void UThrowComponent_B::BeginPlay()
@@ -70,10 +34,29 @@ void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		ImpulseSpeed = MinImpulseSpeed + ((MaxImpulseSpeed - MinImpulseSpeed) * ImpulseTimer);
 }
 
-
-bool UThrowComponent_B::IsThrowing() const
+bool UThrowComponent_B::TryThrow()
 {
-	return bIsThrowing;
+	if (!IsReady())
+	{
+		BWarn("Not Ready To Throw");
+		return false;
+	}
+	else if (!HoldComponent->IsHolding())
+	{
+		BWarn("Not Holding Item!");
+		return false;
+	}
+	else if (!(OwningCharacter->GetState() == EState::EHolding))
+	{
+		BWarn("Wrong Player State");
+		return false;
+	}
+
+	//BWarn("Trying Charge!");
+	bIsCharging = true;
+	if (OwningCharacter && OwningCharacter->GetChargeParticle())
+		OwningCharacter->GetChargeParticle()->Activate();
+	return true;
 }
 
 void UThrowComponent_B::StartThrow()
@@ -85,6 +68,62 @@ void UThrowComponent_B::StartThrow()
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
 	}
+}
+
+void UThrowComponent_B::Throw()
+{
+	if (!OwningCharacter)
+	{
+		BError("No OwningCharacter for ThrowComponent %s!", *GetNameSafe(this));
+		return;
+	}
+	if (!HoldComponent)
+	{
+		BError("No HoldComponent for ThrowComponent");
+	}
+	if (!HoldComponent->IsHolding())
+	{
+		OwningCharacter->SetState(EState::EWalking);
+		return;
+	}
+
+	/// Prepare item to be thrown
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
+	if (Interface)
+	{
+		Interface->Execute_Use(HoldComponent->GetHoldingItem());
+	}
+	if (IsValid(OwningCharacter))
+	{
+		if (OwningCharacter->HoldComponent)
+		{
+			OwningCharacter->HoldComponent->RemoveItem(OwningCharacter->HoldComponent->GetHoldingItem());
+			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
+		}
+		else
+		{
+			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
+		}
+		if (OwningCharacter->GetChargeParticle())
+			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
+		else
+			BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
+		OwningCharacter->SetState(EState::EWalking);
+	}
+	else
+		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
+	bIsCharging = false;
+	bIsThrowing = false;
+}
+
+bool UThrowComponent_B::IsThrowing() const
+{
+	return bIsThrowing;
+}
+
+bool UThrowComponent_B::IsCharging() const
+{
+	return bIsCharging;
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
@@ -146,6 +185,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 	return true;
 }
+
 void UThrowComponent_B::OneCharacterChanged()
 {
 	/// Finds all characters
@@ -164,52 +204,6 @@ void UThrowComponent_B::OneCharacterChanged()
 	if (!OwningCharacter) { BError("Can't find owningplayer!"); return; }
 
 	HoldComponent = OwningCharacter->HoldComponent;
-}
-
-void UThrowComponent_B::Throw()
-{
-	if (!OwningCharacter)
-	{
-		BError("No OwningCharacter for ThrowComponent %s!", *GetNameSafe(this));
-		return;
-	}
-	if (!HoldComponent)
-	{
-		BError("No HoldComponent for ThrowComponent");
-	}
-	if (!HoldComponent->IsHolding())
-	{
-		OwningCharacter->SetState(EState::EWalking);
-		return;
-	}
-
-	/// Prepare item to be thrown
-	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
-	if (Interface)
-	{
-		Interface->Execute_Use(HoldComponent->GetHoldingItem());
-	}
-	if (IsValid(OwningCharacter))
-	{
-		if (OwningCharacter->HoldComponent)
-		{
-			OwningCharacter->HoldComponent->RemoveItem(OwningCharacter->HoldComponent->GetHoldingItem());
-			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
-		}
-		else
-		{
-			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
-		}
-		if (OwningCharacter->GetChargeParticle())
-			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
-		else
-			BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
-		OwningCharacter->SetState(EState::EWalking);
-	}
-	else
-		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
-	bIsCharging = false;
-	bIsThrowing = false;
 }
 
 bool UThrowComponent_B::IsReady() const

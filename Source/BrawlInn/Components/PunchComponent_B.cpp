@@ -2,9 +2,7 @@
 
 #include "PunchComponent_B.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -12,8 +10,6 @@
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
-#include "Characters/Player/PlayerController_B.h"
-#include "System/DamageTypes/Punch_DamageType_B.h"
 #include "System/GameInstance_B.h"
 
 UPunchComponent_B::UPunchComponent_B()
