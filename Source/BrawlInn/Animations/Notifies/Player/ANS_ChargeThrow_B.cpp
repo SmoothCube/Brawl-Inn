@@ -22,9 +22,7 @@ void UANS_ChargeThrow_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 	{
 		CurrentTime += FrameDeltaTime;
 		Player->ThrowComponent->ImpulseTimer = (CurrentTime/ AnimLength);
-		BWarn("Time: %f", CurrentTime);
 	}
-
 }
 
 void UANS_ChargeThrow_B::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)

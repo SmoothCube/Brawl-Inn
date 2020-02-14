@@ -34,7 +34,7 @@ bool UThrowComponent_B::TryThrow()
 	}
 	else if (!(OwningCharacter->GetState() == EState::EHolding))
 	{
-		BWarn("Wrong OwningCharacter State");
+		BWarn("Wrong Player State");
 		return false;
 	}
 
@@ -64,10 +64,10 @@ void UThrowComponent_B::BeginPlay()
 
 void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 	if (bIsCharging)
-	{
 		ImpulseSpeed = MinImpulseSpeed + ((MaxImpulseSpeed - MinImpulseSpeed) * ImpulseTimer);
-	}
 }
 
 
@@ -81,7 +81,7 @@ void UThrowComponent_B::StartThrow()
 	if (bIsCharging)
 	{
 		bIsCharging = false;
-		if(OwningCharacter && OwningCharacter->GetChargeParticle())
+		if (OwningCharacter && OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
 	}
@@ -192,9 +192,14 @@ void UThrowComponent_B::Throw()
 	if (IsValid(OwningCharacter))
 	{
 		if (OwningCharacter->HoldComponent)
-			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);	//had a crash on this line before these checks
+		{
+			OwningCharacter->HoldComponent->RemoveItem(OwningCharacter->HoldComponent->GetHoldingItem());
+			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
+		}
 		else
+		{
 			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
+		}
 		if (OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		else
@@ -205,8 +210,6 @@ void UThrowComponent_B::Throw()
 		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
 	bIsCharging = false;
 	bIsThrowing = false;
-	BWarn("Throw end!");
-
 }
 
 bool UThrowComponent_B::IsReady() const
