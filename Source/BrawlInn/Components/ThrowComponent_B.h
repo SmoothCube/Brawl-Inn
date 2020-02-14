@@ -14,59 +14,69 @@ UCLASS()
 class BRAWLINN_API UThrowComponent_B : public UActorComponent
 {
 	GENERATED_BODY()
+
 public:
 	UThrowComponent_B(const FObjectInitializer& ObjectInitializer);
 
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
-
-	bool IsReady() const;
-	bool TryThrow();
-	void Throw();
-
-	UFUNCTION(BlueprintPure)
-	bool IsCharging() const;
-
-	UFUNCTION(BlueprintPure)
-	bool IsThrowing() const;
-
-	void StartThrow();
-
-	bool AimAssist(FVector& TargetPlayerLocation);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
-		float MinImpulseSpeed = 1000.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
-		float MaxImpulseSpeed = 4000.f;
-
-	float ImpulseSpeed = 0.f;
-
-	float ImpulseTimer = 0.f;
-
+	// ********** UActorComponent **********
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OneCharacterChanged();
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// ********** Throw **********
+public:
+	bool TryThrow();
 
-	/// Aiming
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
-		float AimAssistAngle = 20.f;
+	void StartThrow();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
-		float AimAssistRange = 2000.f;
+	void Throw();
 
-private:
-	bool bIsCharging = false;
+	bool IsThrowing() const;
+protected:
 	bool bIsThrowing = false;
 
-	TArray<ACharacter_B*> OtherPlayers;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
+		float MinImpulseSpeed = 1000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
+		float MaxImpulseSpeed = 4000.f;
+
+public:
+	float ImpulseSpeed = 0.f;
+	// ********** Charging **********
+
+	bool IsCharging() const;
+protected:
+	bool bIsCharging = false;
+public:
+	float ImpulseTimer = 0.f;
+
+	// ********** AimAssist **********
+	bool AimAssist(FVector& TargetPlayerLocation);
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
+		float AimAssistAngle = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
+		float AimAssistRange = 2000.f;
+
+	// ********** Misc. **********
+
+	UFUNCTION()
+		void OneCharacterChanged();
 
 	UPROPERTY()
-	AGameMode_B* GameMode = nullptr;
+		TArray<ACharacter_B*> OtherPlayers;
+
 	UPROPERTY()
-	UHoldComponent_B* HoldComponent = nullptr;
+		AGameMode_B* GameMode = nullptr;
+
 	UPROPERTY()
-	ACharacter_B* OwningCharacter = nullptr;
+		UHoldComponent_B* HoldComponent = nullptr;
+
+	UPROPERTY()
+		ACharacter_B* OwningCharacter = nullptr;
+
+	bool IsReady() const;
 };

@@ -2,21 +2,20 @@
 
 
 #include "HoldComponent_B.h"
-#include "Math/UnrealMathUtility.h"
-#include "Kismet/KismetSystemLibrary.h"
+//#include "Math/UnrealMathUtility.h"
+//#include "Kismet/KismetSystemLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
-
-#include "Components/PunchComponent_B.h"
-#include "System/Interfaces/ThrowableInterface_B.h"
-#include "Items/Throwable_B.h"
-#include "Characters/Character_B.h"
+//
 #include "BrawlInn.h"
+#include "Components/PunchComponent_B.h"
+//#include "System/Interfaces/ThrowableInterface_B.h"
+//#include "Items/Throwable_B.h"
+#include "Characters/Character_B.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	SphereRadius = PickupRange;
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void UHoldComponent_B::BeginPlay()
@@ -24,18 +23,16 @@ void UHoldComponent_B::BeginPlay()
 	Super::BeginPlay();
 	SphereRadius = PickupRange;
 
-	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::AddItem);
-	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::RemoveItem);
+	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
+	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
 
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
 
 bool UHoldComponent_B::TryPickup()
 {
-	if (!OwningCharacter) return false;
-	if (!(OwningCharacter->GetState() == EState::EWalking)) return false;
-	if (HoldingItem) return false;
-	if (ThrowableItemsInRange.Num() == 0) return false;
+	if (!OwningCharacter || OwningCharacter->GetState() != EState::EWalking) return false;
+	if (HoldingItem || ThrowableItemsInRange.Num() == 0) return false;
 	if (OwningCharacter->PunchComponent->bIsPunching) return false;
 
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
@@ -47,7 +44,6 @@ bool UHoldComponent_B::TryPickup()
 
 	TArray<AActor*> ThrowableItemsInCone;
 
-	//for cleanup.
 	TArray<AActor*> BrokenItems;
 	for (const auto& Item : ThrowableItemsInRange)
 	{
@@ -58,9 +54,9 @@ bool UHoldComponent_B::TryPickup()
 		}
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 		if (!Interface) continue;
-		
-		if(Interface->Execute_IsHeld(Item)) continue; //Had a crash here before adding cleanup
-		
+
+		if (Interface->Execute_IsHeld(Item)) continue; //Had a crash here before adding cleanup
+
 		FVector ItemLocation = Item->GetActorLocation();
 		ItemLocation.Z = 0;
 
@@ -125,27 +121,54 @@ bool UHoldComponent_B::TryPickup()
 	return true;
 }
 
+void UHoldComponent_B::AddItem(AActor* ActorToAdd)
+{
+	auto Index = ThrowableItemsInRange.Find(ActorToAdd); //Only add if it doesnt exist.
+	if (Index == INDEX_NONE)
+		ThrowableItemsInRange.Add(ActorToAdd);
+}
+
+void UHoldComponent_B::RemoveItem(AActor* ActorToRemove)
+{
+	ThrowableItemsInRange.Remove(ActorToRemove);
+}
+
 void UHoldComponent_B::Pickup(AActor* Item)
 {
 	OwningCharacter->SetState(EState::EHolding);
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
-	{
 		Interface->Execute_PickedUp(Item, OwningCharacter);
-	}
 
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
+}
 
+void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == OwningCharacter) return;
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
+	if (!Interface)
+		return;
+
+	AddItem(OtherActor);
+}
+
+void UHoldComponent_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
+{
+	if (OtherActor == OwningCharacter) return;
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
+	if (!Interface)
+		return;
+
+	RemoveItem(OtherActor);
 }
 
 bool UHoldComponent_B::IsHolding()
 {
-	if (HoldingItem)
-		return true;
-	return false;
+	return (HoldingItem ? true : false);
 }
 
 AActor* UHoldComponent_B::GetHoldingItem() const
@@ -156,24 +179,6 @@ AActor* UHoldComponent_B::GetHoldingItem() const
 void UHoldComponent_B::SetHoldingItem(AActor* Item)
 {
 	HoldingItem = Item;
-}
-
-void UHoldComponent_B::AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor == OwningCharacter) return;
-	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
-	if (!Interface)
-		return;
-	ThrowableItemsInRange.Add(OtherActor);
-}
-
-void UHoldComponent_B::RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
-{
-	if (OtherActor == OwningCharacter) return;
-	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
-	if (!Interface)
-		return;
-	ThrowableItemsInRange.Remove(OtherActor);
 }
 
 void UHoldComponent_B::Drop()

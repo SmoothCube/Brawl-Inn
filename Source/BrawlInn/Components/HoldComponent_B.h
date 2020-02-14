@@ -16,45 +16,60 @@ class BRAWLINN_API UHoldComponent_B : public USphereComponent
 public:
 	UHoldComponent_B(const FObjectInitializer& ObjectInitializer);
 
-	bool TryPickup();
-
-	UFUNCTION(BlueprintPure)
-	bool IsHolding();
-
-	AActor* GetHoldingItem() const;
-	void SetHoldingItem(AActor* Item);
+	// ********** UActorComponent **********
 
 protected:
 	virtual void BeginPlay() override;
 
+	// ********** Pickup **********
+public:
+	bool TryPickup();
+
+	void AddItem(AActor* ActorToAdd);
+
+	void RemoveItem(AActor* ActorToRemove);
+
+protected:
+	void Pickup(AActor* Item);
+
+	UFUNCTION()
+		void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float PickupAngle = 60.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float PickupRange = 125.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float InnerPickupRange = 25.f;
+
+	UPROPERTY()
+		TArray<AActor*> ThrowableItemsInRange;
+
+	// ********** Holding **********
+public:
+	bool IsHolding();
+
+	AActor* GetHoldingItem() const;
+
+	void SetHoldingItem(AActor* Item);
+protected:
+
+	UPROPERTY()
+		AActor* HoldingItem = nullptr;
+
 	UPROPERTY(EditAnywhere)
-	FName HoldingSocketName = FName("HoldingItemSocket");
+		FName HoldingSocketName = FName("HoldingItemSocket");
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float PickupAngle = 60.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float PickupRange = 125.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float InnerPickupRange = 25.f;
-
-	UFUNCTION()
-		void AddItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-		
-	UFUNCTION()
-		void RemoveItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
-
+	// ********** Misc. **********
 public:
 	void Drop();
 
-private:
-
-	void Pickup(AActor* Item);
-	float PickupRadius = 0;
-	TArray<AActor*> ThrowableItemsInRange;
-
-	AActor* HoldingItem = nullptr;
-	ACharacter_B* OwningCharacter = nullptr;
+protected:
+	UPROPERTY()
+		ACharacter_B* OwningCharacter = nullptr;
 
 };

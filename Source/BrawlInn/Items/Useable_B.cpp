@@ -1,17 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Useable_B.h"
-#include "BrawlInn.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
-#include "NiagaraSystem.h"
-#include "NiagaraFunctionLibrary.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+#include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 
@@ -32,7 +29,6 @@ AUseable_B::AUseable_B()
 	DrinkMesh->SetRelativeLocation(FVector(2.3f, 36.5f, 38));
 	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void AUseable_B::BeginPlay()
