@@ -47,7 +47,6 @@ void UMainMenu_B::PlayButtonClicked()
 	if (GameMode)
 	{
 		GameMode->LS_PlayGame();
-		GameMode->HideMainMenu();
 	}
 }
 

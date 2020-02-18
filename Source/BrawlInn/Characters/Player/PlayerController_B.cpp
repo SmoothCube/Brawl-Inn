@@ -10,7 +10,6 @@
 #include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/HealthComponent_B.h"
-#include "Components/CharacterSelectionComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
@@ -42,10 +41,6 @@ void APlayerController_B::SetupInputComponent()
 		InputComponent->BindAction("Punch", IE_Released, this, &APlayerController_B::PunchButtonReleased);
 		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
 		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
-		InputComponent->BindAction("Select", IE_Pressed, this, &APlayerController_B::Select);
-		InputComponent->BindAction("SelectLeft", IE_Pressed, this, &APlayerController_B::SelectLeft);
-		InputComponent->BindAction("SelectRight", IE_Pressed, this, &APlayerController_B::SelectRight);
-		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
 
 		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
 		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
@@ -107,44 +102,6 @@ void APlayerController_B::MoveRight(float Value)
 	{
 		RespawnPawn->InputVector.Y = Value;
 	}
-}
-
-void APlayerController_B::Select()
-{
-	if (!PlayerCharacter)
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
-			GameMode->CharacterSelectionComponent->SelectCharacter(this);
-	}
-}
-
-void APlayerController_B::SelectLeft()
-{
-	if (!PlayerCharacter)
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode && GameMode->CharacterSelectionComponent)
-			GameMode->CharacterSelectionComponent->PreviousCharacter(this);
-	}
-}
-
-void APlayerController_B::SelectRight()
-{
-	if (!PlayerCharacter)
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode && GameMode->CharacterSelectionComponent)
-			GameMode->CharacterSelectionComponent->NextCharacter(this);
-	}
-}
-
-
-void APlayerController_B::Unselect()
-{
-	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode && GameMode->CharacterSelectionComponent)
-		GameMode->CharacterSelectionComponent->Unselect(this);
 }
 
 void APlayerController_B::PickupButtonPressed()

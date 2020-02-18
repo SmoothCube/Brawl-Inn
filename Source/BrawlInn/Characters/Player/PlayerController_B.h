@@ -59,10 +59,7 @@ private:
 
 	void MoveUp(float Value);
 	void MoveRight(float Value);
-	void Select();
-	void SelectRight();
-	void SelectLeft();
-	void Unselect();
+	
 
 	void PickupButtonPressed();
 	void PickupButtonRepeat();
