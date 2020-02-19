@@ -53,6 +53,7 @@ public:
 
 	void RemovePlayerInfo(int ID);
 
+	UFUNCTION(BlueprintGetter)
 	TArray<FPlayerInfo> GetPlayerInfos() const;
 
 	void SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos);
