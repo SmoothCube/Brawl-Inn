@@ -327,7 +327,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		float volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
-			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),

@@ -74,7 +74,7 @@ void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 			if (GameInstance)
 			{
-				volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+				volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 			}
 			UGameplayStatics::PlaySoundAtLocation(
 				GetWorld(),

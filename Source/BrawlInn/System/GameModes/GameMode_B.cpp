@@ -25,7 +25,7 @@ void AGameMode_B::BeginPlay()
 
 	if (GameInstance && Music)
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75 * GameInstance->MasterVolume * GameInstance->MusicVolume);
+		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
 	}
 
 	/// Finds spawnpoints
