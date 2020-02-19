@@ -10,7 +10,6 @@
 
 class UBarMeshComponent_B;
 class USoundCue;
-class UStaticMeshComponent;
 class AAIDropPoint_B;
 class AItem_B;
 class AAIController_B;
@@ -22,10 +21,30 @@ UCLASS()
 class BRAWLINN_API ABar_B : public AActor
 {
 	GENERATED_BODY()
-
 public:
 	ABar_B();
 
+	// ********** AActor **********
+protected:
+	virtual void BeginPlay() override;
+
+	// ********** Bar **********
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void OpenDoor();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void CloseDoor();
+
+	USceneComponent* GetItemSpawnLocation() const;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FOnDoorOpen OnDoorOpen_D;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FOnDoorClosed OnDoorClosed_D;
+
+protected:
 	UPROPERTY(VisibleAnywhere)
 		UBarMeshComponent_B* House;
 
@@ -35,32 +54,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USceneComponent* ItemSpawnLocation;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void OpenDoor();
-	UFUNCTION(BlueprintImplementableEvent)
-		void CloseDoor();
+	// ********** Tankards **********
+	void StartTimerForNextTankard();
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FOnDoorOpen OnDoorOpen_D;
+	void SpawnTankard();
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FOnDoorClosed OnDoorClosed_D;
-
-protected:
-	virtual void BeginPlay() override;
-
-	/// **** Tankards ****
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		FName ItemSocket = FName("Item");
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		USoundCue* TankardSpawnSound;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		UNiagaraSystem* TankardSpawnParticle;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		float MinTankardSpawnTimer = 2.f;
@@ -70,19 +73,26 @@ protected:
 
 	FTimerHandle TH_NextTankardTimer;
 
-	void SpawnTankard();
+	UPROPERTY(EditAnywhere, Category = "Variables|Tankard|Sound")
+		USoundCue* TankardSpawnSound;
 
-	UFUNCTION()
-		void StartTimerForNextTankard();
+	UPROPERTY(EditAnywhere, Category = "Variables|Tankard|Vfx")
+		UNiagaraSystem* TankardSpawnParticle;
 
-	/// **** Stools ****
+	// ********** Stool Respawning **********
+
+	void StartTimerForNextStool();
+
+	void SpawnStool();
+
 public:
+	TQueue<AAIDropPoint_B*>& GetStoolDropLocations();
+
+protected:
 	TQueue<AAIDropPoint_B*> StoolDropLocations;
 
 	UPROPERTY()
 		AItem_B* StoolToDeliver = nullptr;
-
-protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
 		TSubclassOf<AItem_B> BP_Stool;
@@ -95,11 +105,7 @@ protected:
 
 	FTimerHandle TH_NextStoolTimer;
 
-	void SpawnStool();
-
-	UFUNCTION()
-		void StartTimerForNextStool();
-
+	// ********** Misc. **********
 	UPROPERTY()
 		AAIController_B* AIController = nullptr;
 };

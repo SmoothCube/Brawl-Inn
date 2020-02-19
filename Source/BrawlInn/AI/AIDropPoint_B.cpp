@@ -22,7 +22,7 @@ void AAIDropPoint_B::ItemDestroyed(AActor* DestroyedActor)
 	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	if (Bar)
 	{
-		Bar->StoolDropLocations.Enqueue(this);
+		Bar->GetStoolDropLocations().Enqueue(this);
 	}
 }
 
