@@ -70,7 +70,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else if (GetState() != EState::EBeingHeld)
 	{
-		if (!PunchComponent->bIsPunching)
+		if (!PunchComponent->bIsPunching && !bIsInvulnerable)
 			CheckFall(DeltaTime);
 
 		if (!(GetState() == EState::EStunned))
@@ -96,8 +96,8 @@ void ACharacter_B::CheckFall(float DeltaTime)
 	float Speed = GetMovementComponent()->Velocity.Size();
 	if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
 	{
+		MakeInvulnerable(FallRecoveryTime, false);
 		Fall(FallRecoveryTime);
-		MakeInvulnerable(InvulnerabilityTime + FallRecoveryTime); //TODO Move to getup?
 	}
 }
 
@@ -121,7 +121,6 @@ void ACharacter_B::Fall(float RecoveryTime)
 
 	if (RecoveryTime >= 0 && bIsAlive)
 		GetWorld()->GetTimerManager().SetTimer(TH_FallRecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
-
 }
 
 void ACharacter_B::StandUp()
@@ -138,7 +137,7 @@ void ACharacter_B::StandUp()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetGenerateOverlapEvents(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
+	MakeInvulnerable(InvulnerabilityTime);
 	SetState(EState::EWalking);
 }
 
@@ -225,11 +224,11 @@ void ACharacter_B::RemoveStun()
 	StunAmount = 0;
 }
 
-void ACharacter_B::MakeInvulnerable(float ITime)
+void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
 {
 	bIsInvulnerable = true;
 
-	if (InvulnerableMat)
+	if (bShowInvulnerabilityEffect && InvulnerableMat)
 		GetMesh()->SetMaterial(SpecialMaterialIndex, InvulnerableMat);
 	if (ITime > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &ACharacter_B::MakeVulnerable, ITime, false);

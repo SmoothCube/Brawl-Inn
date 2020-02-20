@@ -36,6 +36,8 @@ public:
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
 	APlayerCharacter_B* PlayerCharacter = nullptr;
+
+	// ********** Respawn **********
 	ARespawnPawn_B* RespawnPawn = nullptr;
 
 	bool bCanRespawn = true;
@@ -50,23 +52,26 @@ public:
 
 	virtual void TakeDamage_Implementation(int DamageAmount) override;
 
-	// DEBUG
+
+
+	// ********** Debug **********
 	void DEBUG_TEST01();
 	void DEBUG_Spawn();
 	void DEBUG_Despawn();
 
+	// ********** Input **********
 private:
-
 	void MoveUp(float Value);
 	void MoveRight(float Value);
 	
-
 	void PickupButtonPressed();
 	void PickupButtonRepeat();
 	void PunchButtonPressed();
 	void PunchButtonReleased();
 	void BreakFreeButtonPressed();
+	void DashButtonPressed();
 
+	// ********** Various **********
 	FTimerHandle TH_RespawnTimer;
 
 public:

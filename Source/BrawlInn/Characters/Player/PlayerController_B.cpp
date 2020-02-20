@@ -9,6 +9,7 @@
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/PunchComponent_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/GameModes/MainGameMode_B.h"
@@ -44,6 +45,7 @@ void APlayerController_B::SetupInputComponent()
 
 		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
 		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
+		InputComponent->BindAction("Dash", IE_Pressed, this, &APlayerController_B::DashButtonPressed);
 
 		// Debug
 		InputComponent->BindAction("DEBUG_Spawn", IE_Pressed, this, &APlayerController_B::DEBUG_Spawn);
@@ -152,6 +154,15 @@ void APlayerController_B::BreakFreeButtonPressed()
 
 	if (PlayerCharacter->GetState() == EState::EBeingHeld)
 		PlayerCharacter->BreakFreeButtonMash();
+}
+
+void APlayerController_B::DashButtonPressed()
+{
+	if (!PlayerCharacter)
+		return;
+
+	if (PlayerCharacter->PunchComponent)
+		PlayerCharacter->PunchComponent->Dash();
 }
 
 void APlayerController_B::Respawn()

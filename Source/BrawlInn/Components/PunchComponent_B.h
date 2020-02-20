@@ -40,6 +40,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PunchStart();
 
+	void PunchDash();
 	void Dash();
 
 	UFUNCTION(BlueprintCallable)
@@ -81,13 +82,16 @@ protected:
 	FTimerHandle TH_PunchAgainHandle;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float MinDashDistance = 150.f;
+	float MinPunchDashDistance = 150.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float MaxDashDistance = 300.f;
+	float MaxPunchDashDistance = 300.f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashForceModifier = 75000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashDistance = 22500000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;

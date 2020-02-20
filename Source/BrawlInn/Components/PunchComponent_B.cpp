@@ -66,16 +66,35 @@ void UPunchComponent_B::PunchStart()
 		);
 	}
 
-	Dash();
+	PunchDash();
 }
 
-void UPunchComponent_B::Dash()
+void UPunchComponent_B::PunchDash()
 {
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
 	float f = OwningCharacter->GetCharacterMovement()->Velocity.Size() / OwningCharacter->GetCharacterMovement()->MaxWalkSpeed;
-	float dist = (MaxDashDistance - MinDashDistance) * f + MinDashDistance;
+	float dist = (MaxPunchDashDistance - MinPunchDashDistance) * f + MinPunchDashDistance;
 	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * DashForceModifier);
+}
+
+void UPunchComponent_B::Dash()
+{
+	OwningCharacter->MakeInvulnerable(0.3f, false);
+	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
+
+	FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
+	if (NormInput.IsNearlyZero())
+	{
+		OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * DashDistance);
+	}
+	else
+	{
+		OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->InputVector * DashDistance);
+		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
+
+	}
+
 }
 
 void UPunchComponent_B::PunchEnd()

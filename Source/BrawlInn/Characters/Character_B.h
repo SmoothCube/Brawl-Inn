@@ -98,6 +98,7 @@ public:
 protected:
 	virtual void RemoveStun();
 
+
 public:
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;
@@ -117,15 +118,15 @@ protected:
 	FTimerHandle TH_StunTimer;
 
 	// ********** Invulnerability **********
-
-	void MakeVulnerable();
-
+	/// A number less than 0 will make the character invulnerable until toggled off again
+	void MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect = true);
 public:
 	bool IsInvulnerable();
-
 protected:
-	/// A number less than 0 will make the character invulnerable until toggled off again
-	void MakeInvulnerable(float InvulnerabilityTime = -1);
+	void MakeVulnerable();
+
+
+
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;
