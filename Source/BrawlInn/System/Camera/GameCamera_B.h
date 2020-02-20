@@ -19,8 +19,9 @@ class BRAWLINN_API AGameCamera_B : public AActor
 public:	
 	AGameCamera_B();
 
+
 	UPROPERTY(VisibleAnywhere)
-	USceneComponent* Scene = nullptr;
+	USceneComponent* SceneComp = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm = nullptr;
@@ -28,25 +29,21 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera = nullptr;
 
+
+	// ********** AActor **********
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float SmallestSpringArmLength = 1500.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float LargestSpringArmLength = 2500.f;
+	// ********** Camera Movement **********
+private:
+	float UpdateCameraPosition();
 
-	TArray<AActor*> ActorsToTrack;
+	void LerpCameraLocation(FVector LerpLoc);
 
 protected:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float BorderWidth = 250.f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float MaxCameraHeight = 100000.f;
 
@@ -54,20 +51,38 @@ protected:
 		float MinCameraHeight = -100000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float LerpAlpha = 0.5;
+		float LerpAlpha = 0.5;
+
+
+	// ********** Spring Arm **********
 private:
+	void SetSpringArmLength();
 
-	void LerpCameraLocation(FVector LerpLoc);
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float SmallestSpringArmLength = 1500.f;
 
-	void UpdateCamera();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float LargestSpringArmLength = 2500.f;
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float BorderWidth = 250.f;
 
-	void SetSpringArmLength(float distanceToFurthestPlayer);
+private:
+	float CameraZoom = 0.f;
 
+	// ********** Tracking **********
+private:
 	UFUNCTION()
 	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 	UFUNCTION()
 	void OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UPROPERTY()
 	ATriggerBox* TrackingBox = nullptr;
+
+public:
+	TArray<AActor*> ActorsToTrack;
 
 };

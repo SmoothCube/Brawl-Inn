@@ -14,6 +14,7 @@
 #include "System/DamageTypes/Fall_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -91,7 +92,7 @@ void APlayerCharacter_B::BreakFreeButtonMash()
 {
 	CurrentHoldTime += 0.01;
 }
-
+ 
 void APlayerCharacter_B::BreakFree()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -104,10 +105,16 @@ void APlayerCharacter_B::BreakFree()
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
 		HoldingCharacter->AddStun(PunchesToStun);
 		HoldingCharacter = nullptr;
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+		{
+			GameMode->AddCameraFocusPoint(this);
+		}
+
 	}
 
 	StandUp();
-
+	
 	CurrentHoldTime = 0.f;
 }
 

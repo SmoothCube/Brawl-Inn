@@ -61,7 +61,6 @@ void ARespawnPawn_B::ThrowBarrel()
 {
 	if (!bBarrelIsThrown)
 	{
-		BWarn("Throwing Barrel!");
 		ABounceActorSpawner_B* BarrelSpawner = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
 		if (!BarrelSpawner) return;
 
@@ -74,7 +73,6 @@ void ARespawnPawn_B::ThrowBarrel()
 			AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 			if (GameMode)
 			{
-				BWarn("GameMode found");
 				GameMode->AddCameraFocusPoint(Barrel);
 				GameMode->RemoveCameraFocusPoint(this);
 			}
