@@ -9,30 +9,29 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Engine/TriggerBox.h"
-#include "BrawlInn.h"
+#include "Engine/LocalPlayer.h"
 
+#include "BrawlInn.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
 AGameCamera_B::AGameCamera_B()
 {
-
 	PrimaryActorTick.bCanEverTick = true;
 
-	Scene = CreateDefaultSubobject<USceneComponent>("Scene");
-	RootComponent = Scene;
+	SceneComp = CreateDefaultSubobject<USceneComponent>("Scene");
+	RootComponent = SceneComp;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	SpringArm->SetupAttachment(Scene);
-	SpringArm->TargetArmLength = 1000;
+	SpringArm->SetupAttachment(SceneComp);
+	SpringArm->TargetArmLength = 2800;
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 8.0;
 	SpringArm->bDoCollisionTest = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArm);
-	//VectorsToTrack.Add(new FVector(-1151.382568, 513.574097, 162.623901));
 }
 
 void AGameCamera_B::BeginPlay()
@@ -55,25 +54,17 @@ void AGameCamera_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateCamera();
+	UpdateCameraPosition();
+	SetSpringArmLength();
 
 }
 
-void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
-{
-	SetActorLocation(FMath::Lerp(GetActorLocation(), LerpLoc, LerpAlpha));
-}
-
-void AGameCamera_B::UpdateCamera()
+float AGameCamera_B::UpdateCameraPosition()
 {
 	if (!TrackingBox)
 	{
-		BWarn("CameraTrackingBox not found!");
-		return;
+		BError("CameraTrackingBox not found!"); return 0;
 	}
-
-	TArray<AActor*> TempArray;
-	TrackingBox->GetOverlappingActors(TempArray, APlayerCharacter_B::StaticClass());
 
 	FVector sum = FVector::ZeroVector;
 	float distanceToFurthestPoint = 0.f;
@@ -92,7 +83,6 @@ void AGameCamera_B::UpdateCamera()
 		}
 
 		FVector FocusLocation = Actor->GetActorLocation();
-		//BWarn("Focus Location: %s", *FocusLocation.ToString())
 		sum += FocusLocation;
 		ActiveFocusPoints++;
 
@@ -116,44 +106,59 @@ void AGameCamera_B::UpdateCamera()
 	LerpCameraLocation(sum);
 
 	//BWarn("Sum: %s, %i", *sum.ToString(), (SetActorLocation(sum, false, &OutHit, ETeleportType::None)))
-
-	SetSpringArmLength(distanceToFurthestPoint);
+	return distanceToFurthestPoint;
 }
 
-void AGameCamera_B::SetSpringArmLength(float distanceToFurthestPlayer)
+void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
 {
-	float longestVector = 0.f;
+	SetActorLocation(FMath::Lerp(GetActorLocation(), LerpLoc, LerpAlpha));
+}
 
-	for (int i = 0; i < ActorsToTrack.Num(); i++)
+void AGameCamera_B::SetSpringArmLength()
+{
+	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
+	FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
+		LocalPlayer->ViewportClient->Viewport,
+		GetWorld()->Scene,
+		LocalPlayer->ViewportClient->EngineShowFlags)
+		.SetRealtimeUpdate(true));
+
+	FVector ViewLoc;
+	FRotator ViewRot;
+	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ViewLoc, /*out*/ViewRot, LocalPlayer->ViewportClient->Viewport);
+
+	float FurthestDist = -1000000;
+
+	for (auto& a : ActorsToTrack)
 	{
-		for (int j = i + 1; j < ActorsToTrack.Num(); j++)
+		FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
+		BorderVector.Z = 0;
+		FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
+
+		for (auto& p : SceneView->ViewFrustum.Planes)
 		{
-			if (ActorsToTrack.IsValidIndex(i) && ActorsToTrack.IsValidIndex(j))
-			{
-				float Temp = FMath::Abs((ActorsToTrack[i]->GetActorLocation() - ActorsToTrack[j]->GetActorLocation()).X);
-				if (longestVector < Temp)
-					longestVector = Temp;
-			}
+			float Dist = p.PlaneDot(TrackingPointWithBorder);
+			if (Dist > 0 && Dist > FurthestDist)
+				FurthestDist = Dist;
+			else if (Dist < 0 && Dist > FurthestDist&& FurthestDist <= 0)
+				FurthestDist = Dist;
 		}
 	}
-	float OffsetX = longestVector;
-	float ActualBorderWidth = BorderWidth + OffsetX;
 
-	float newTargetLength = distanceToFurthestPlayer + ActualBorderWidth;
-	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, newTargetLength, LerpAlpha);
+	CameraZoom += FurthestDist * 0.1f;
+
+	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, CameraZoom, LerpAlpha);
 
 	if (SpringArm->TargetArmLength <= SmallestSpringArmLength)
 		SpringArm->TargetArmLength = SmallestSpringArmLength;
-	else if (SpringArm->TargetArmLength >= LargestSpringArmLength)
-		SpringArm->TargetArmLength = LargestSpringArmLength;
-
+	//else if (SpringArm->TargetArmLength >= LargestSpringArmLength)
+	//	SpringArm->TargetArmLength = LargestSpringArmLength;
 	
 }
 
 void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//The right component doesnt neccesarily run on overlap end
-	//GetComponents returns UActorComponent, which inherits from USceneComponent. Cast should always be safe. 
 	ActorsToTrack.Remove(OtherActor);
 
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
