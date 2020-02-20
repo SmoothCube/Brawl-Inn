@@ -21,11 +21,11 @@ void AMainGameMode_B::BeginPlay()
 
 	if (GameInstance && Birds)
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume, 1.0f, FMath::FRandRange(0, 100));
+		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
 	}
 	if (GameInstance && River)
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume, 1.0f, FMath::FRandRange(0, 100));
+		UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
 	}
 
 	/// Spawns and setups camera

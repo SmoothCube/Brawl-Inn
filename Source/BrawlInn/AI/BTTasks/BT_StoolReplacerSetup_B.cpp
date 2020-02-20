@@ -16,7 +16,7 @@ EBTNodeResult::Type UBT_StoolReplacerSetup_B::ExecuteTask(UBehaviorTreeComponent
 	if (IsValid(Bar_B))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(Bar.SelectedKeyName, Bar_B);
-		OwnerComp.GetBlackboardComponent()->SetValueAsObject(StoolSpawner.SelectedKeyName, Bar_B->ItemSpawnLocation);
+		OwnerComp.GetBlackboardComponent()->SetValueAsObject(StoolSpawner.SelectedKeyName, Bar_B->GetItemSpawnLocation());
 		OwnerComp.GetBlackboardComponent()->SetValueAsBool(IsDoorOpen.SelectedKeyName, false);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

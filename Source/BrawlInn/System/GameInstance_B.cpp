@@ -1,19 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "GameInstance_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Sound/SoundBase.h"
 
-UGameInstance_B::UGameInstance_B()
-{
-
-}
-
 void UGameInstance_B::Init()
 {
 	Super::Init();
+
 	FPlayerInfo Info;
 	Info.ID = 0;
 	Info.Type = EPlayerCharacterType::YUGGO;
@@ -37,8 +32,22 @@ void UGameInstance_B::Init()
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
 {
-	UGameplayStatics::PlayWorldCameraShake(GetWorld(),ImpactCameraShake, Epicenter,0.0f, 10000.f);
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ImpactCameraShake, Epicenter, 0.0f, 10000.f);
+}
 
+float UGameInstance_B::GetMasterVolume() const
+{
+	return MasterVolume;
+}
+
+float UGameInstance_B::GetMusicVolume() const
+{
+	return MusicVolume;
+}
+
+float UGameInstance_B::GetSfxVolume() const
+{
+	return SfxVolume;
 }
 
 void UGameInstance_B::AddPlayerInfo(FPlayerInfo PlayerInfo)

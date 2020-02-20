@@ -2,7 +2,7 @@
 
 #include "Bar_B.h"
 #include "Sound/SoundCue.h"
-#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
@@ -10,8 +10,6 @@
 #include "BrawlInn.h"
 #include "Components/BarMeshComponent_B.h"
 #include "Characters/AI/AIController_B.h"
-#include "Items/Useable_B.h"
-#include "Items/Item_B.h"
 #include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
@@ -26,7 +24,6 @@ ABar_B::ABar_B()
 
 	ItemSpawnLocation = CreateDefaultSubobject<USceneComponent>("Item spawnlocation");
 	ItemSpawnLocation->SetupAttachment(House);
-
 }
 
 void ABar_B::BeginPlay()
@@ -48,6 +45,16 @@ void ABar_B::BeginPlay()
 	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
 }
 
+USceneComponent* ABar_B::GetItemSpawnLocation() const
+{
+	return ItemSpawnLocation;
+}
+
+void ABar_B::StartTimerForNextTankard()
+{
+	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
+}
+
 void ABar_B::SpawnTankard()
 {
 	if (BP_Useables.Num() == 0)
@@ -63,7 +70,7 @@ void ABar_B::SpawnTankard()
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
 		{
-			volume = GameInstance->MasterVolume * GameInstance->SfxVolume;
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
@@ -74,14 +81,12 @@ void ABar_B::SpawnTankard()
 	}
 	if (TankardSpawnParticle)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TankardSpawnParticle, House->GetSocketLocation(ItemSocket), FRotator(90, 0, 0),FVector(5,5,5));
-
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TankardSpawnParticle, House->GetSocketLocation(ItemSocket), FRotator(90, 0, 0), FVector(5, 5, 5));
 	}
 }
-
-void ABar_B::StartTimerForNextTankard()
+void ABar_B::StartTimerForNextStool()
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
+	GetWorld()->GetTimerManager().SetTimer(TH_NextStoolTimer, this, &ABar_B::SpawnStool, FMath::FRandRange(MinStoolSpawnTimer, MaxStoolSpawnTimer), false);
 }
 
 void ABar_B::SpawnStool()
@@ -94,10 +99,8 @@ void ABar_B::SpawnStool()
 			AIController->OnStoolReceived_D.Broadcast(StoolToDeliver);
 		}
 	}
-
 }
-
-void ABar_B::StartTimerForNextStool()
+TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_NextStoolTimer, this, &ABar_B::SpawnStool, FMath::FRandRange(MinStoolSpawnTimer, MaxStoolSpawnTimer), false);
+	return StoolDropLocations;
 }

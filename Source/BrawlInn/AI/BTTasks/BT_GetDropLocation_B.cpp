@@ -22,13 +22,13 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Aborted;
 	}
 
-	if (Bar->StoolDropLocations.IsEmpty())
+	if (Bar->GetStoolDropLocations().IsEmpty())
 		return EBTNodeResult::Failed;
 
-	AAIDropPoint_B* DropPoint = *Bar->StoolDropLocations.Peek();
+	AAIDropPoint_B* DropPoint = *Bar->GetStoolDropLocations().Peek();
 	if (DropPoint)
 	{
-		Bar->StoolDropLocations.Pop();
+		Bar->GetStoolDropLocations().Pop();
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropActor.SelectedKeyName, DropPoint);
 		return EBTNodeResult::Succeeded;
 	}
