@@ -185,7 +185,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	}
 }
 
-//calculates the punch strength for the player. Has to be used by the puncher.
+
 FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }

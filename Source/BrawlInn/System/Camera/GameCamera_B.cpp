@@ -48,6 +48,9 @@ void AGameCamera_B::BeginPlay()
 		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AGameCamera_B::OnTrackingBoxEndOverlap);
 		TrackingBox->GetCollisionComponent()->OnComponentBeginOverlap.AddDynamic(this, &AGameCamera_B::OnTrackingBoxBeginOverlap);
 	}
+
+	//Caches the camera rotation angle
+	StartPitch = SpringArm->GetComponentRotation().Pitch;
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -55,6 +58,7 @@ void AGameCamera_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateCameraPosition();
+	SetSpringArmPitch();
 	SetSpringArmLength();
 
 }
@@ -103,9 +107,8 @@ float AGameCamera_B::UpdateCameraPosition()
 		sum.Z = MaxCameraHeight;
 
 	FHitResult OutHit; 
-	LerpCameraLocation(sum);
+	LerpCameraLocation(sum + CameraOffset);
 
-	//BWarn("Sum: %s, %i", *sum.ToString(), (SetActorLocation(sum, false, &OutHit, ETeleportType::None)))
 	return distanceToFurthestPoint;
 }
 
@@ -152,9 +155,23 @@ void AGameCamera_B::SetSpringArmLength()
 
 	if (SpringArm->TargetArmLength <= SmallestSpringArmLength)
 		SpringArm->TargetArmLength = SmallestSpringArmLength;
-	//else if (SpringArm->TargetArmLength >= LargestSpringArmLength)
-	//	SpringArm->TargetArmLength = LargestSpringArmLength;
+	else if (SpringArm->TargetArmLength >= LargestSpringArmLength)
+		SpringArm->TargetArmLength = LargestSpringArmLength;
 	
+}
+
+void AGameCamera_B::SetSpringArmPitch()
+{
+	//Normalize length
+	float Length = SpringArm->TargetArmLength;
+
+	float NormalizedLength = (Length - SmallestSpringArmLength) / (LargestSpringArmLength - SmallestSpringArmLength);
+	float PitchSetter = 1 - (NormalizedLength*NormalizedLength);
+	//map normalization to the value
+	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
+
+	//set value
+	SpringArm->SetWorldRotation(FRotator(StartPitch + VariablePitch, SpringArm->GetComponentRotation().Yaw, SpringArm->GetComponentRotation().Roll));
 }
 
 void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

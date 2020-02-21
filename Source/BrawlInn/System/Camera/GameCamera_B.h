@@ -36,7 +36,6 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-
 	// ********** Camera Movement **********
 private:
 	float UpdateCameraPosition();
@@ -53,23 +52,38 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float LerpAlpha = 0.5;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	FVector CameraOffset = FVector(1000,0,0);
 
-	// ********** Spring Arm **********
+	// ********** Zoom **********
 private:
 	void SetSpringArmLength();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float SmallestSpringArmLength = 1500.f;
+		float SmallestSpringArmLength = 750.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float LargestSpringArmLength = 2500.f;
+		float LargestSpringArmLength = 3000.f;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float BorderWidth = 250.f;
+		float BorderWidth = 500.f;
 
 private:
 	float CameraZoom = 0.f;
+
+	// ********** Zoom Rotation **********
+	void SetSpringArmPitch();
+
+	float StartPitch;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float LowestRotAdd = -0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float HighestRotAdd = 15.f;
+
 
 	// ********** Tracking **********
 private:
