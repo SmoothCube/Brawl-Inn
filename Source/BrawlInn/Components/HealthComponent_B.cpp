@@ -4,6 +4,7 @@
 #include "BrawlInn.h"
 #include "UI/Game/HealthWidget_B.h"
 
+#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "Characters/Player/PlayerController_B.h"
 
 
@@ -57,6 +58,12 @@ void UHealthComponent_B::SetHealthWidget(UHealthWidget_B* Widget)
 		HealthIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
 		RespawnIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
 	}
+	UScoreSubSystem_B* ScoreSubSystem =  Cast<APlayerController_B>(GetOwner())->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
+	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(Widget))
+	{
+		ScoreSubSystem->OnScoreValuesChanged.AddUObject(Widget, &UHealthWidget_B::UpdateScoreValues);
+	}
+	
 }
 
 void UHealthComponent_B::BeginPlay()

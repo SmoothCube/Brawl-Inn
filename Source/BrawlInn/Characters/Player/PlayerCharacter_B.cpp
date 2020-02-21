@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/LocalPlayer.h"
 
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
@@ -15,6 +16,7 @@
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -162,6 +164,12 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (Interface)
 	{
 		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
+	}
+
+	APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
+	if (OtherPlayerController)
+	{
+		OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 	}
 
 	return DamageAmount;

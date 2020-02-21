@@ -152,6 +152,7 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		OtherComp->AddImpulse(CalculatePunchStrength());
 	}
+	OnPunchHit_D.Broadcast();
 	bHasHit = true;
 }
 

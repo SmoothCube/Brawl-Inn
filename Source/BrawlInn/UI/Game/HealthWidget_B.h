@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "System/Structs/ScoreValues.h"
 #include "HealthWidget_B.generated.h"
 
 class UProgressBar;
 class UVerticalBox;
 class UImage;
+class UTextBlock;
 class APlayerCharacter_B;
 
 UCLASS()
@@ -26,8 +28,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UProgressBar* HealthProgressBar;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* ScoreValueText;
+
 	UPROPERTY()
 	TArray<UImage*> Barrels;
+
 
 public:
 
@@ -36,6 +42,8 @@ public:
 
 	UFUNCTION()
 	void UpdateHealthAmount(int Amount);
+	
+	void UpdateScoreValues(FScoreValues ScoreValues);
 
 	UFUNCTION()
 		void UpdateRespawnsAmount();

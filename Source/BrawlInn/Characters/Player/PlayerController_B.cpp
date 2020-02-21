@@ -3,9 +3,11 @@
 #include "PlayerController_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/LocalPlayer.h"
 #include "TimerManager.h"
 #include "BrawlInn.h"
 
+#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
@@ -197,7 +199,8 @@ void APlayerController_B::OnUnPossess()
 //Send in damage from 1-100
 void APlayerController_B::TakeDamage_Implementation(int DamageAmount)
 {
-	HealthComponent->TakeDamage(DamageAmount);
+//	HealthComponent->TakeDamage(DamageAmount);
+//	GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 }
 
 void APlayerController_B::DEBUG_TEST01()
