@@ -33,8 +33,8 @@ ACharacter_B::ACharacter_B()
 	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	GetCharacterMovement()->MaxWalkSpeed = 2000;
-	GetCharacterMovement()->MaxAcceleration = 800;
+	GetCharacterMovement()->MaxWalkSpeed = 1800.f;
+	GetCharacterMovement()->MaxAcceleration = 1500;
 	GetCharacterMovement()->BrakingFrictionFactor = 1;
 	GetCharacterMovement()->GroundFriction = 3;
 
