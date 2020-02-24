@@ -61,7 +61,8 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
 		HoldComponent->Drop();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
+	Die();
+	//UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
 	Super::FellOutOfWorld(dmgType);
 }
 
