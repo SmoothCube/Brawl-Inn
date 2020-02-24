@@ -8,7 +8,8 @@
 #include "Misc/FileHelper.h"
 
 #include "BrawlInn.h"
-#include "System/Score/ScoreDataTable_B.h"
+#include "System/DataTable_B.h"
+#include "System/Structs/ScoreLookupTable.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/PunchComponent_B.h"
@@ -47,18 +48,13 @@ void APlayerCharacter_B::BeginPlay()
 	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
 	DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
 
-	Table = NewObject<UScoreDataTable_B>();
-
-	Table->RowStruct = FScoreLookupTable::StaticStruct();
-
-	FString File;
-	FString FilePath = FString(FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir()) + FString("Data/DefaultScoreValues.csv"));
-	FFileHelper::LoadFileToString(File, *FilePath);
-	
-	TArray<FString> Strings = Table->CreateTableFromCSVString(File);
-	FString Context;
-	BScreen("%i", Table->FindRow<FScoreLookupTable>("Punch", Context)->Value);
-	
+	if (Cast<UGameInstance_B>(GetGameInstance())->ShouldUseSpreadSheets())
+	{
+		UDataTable_B* Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		FallDamageAmount = Table->GetRow<FScoreTable>("Fall")->Value;
+		ChairDamageAmount = Table->GetRow<FScoreTable>("Stool")->Value;
+		FellOutOfWorldDamageAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
+	}
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
@@ -185,7 +181,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
 	if (OtherPlayerController)
 	{
-		OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+		OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(ActualDamageAmount);
 	}
 
 	return DamageAmount;

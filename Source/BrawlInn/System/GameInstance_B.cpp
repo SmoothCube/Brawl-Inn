@@ -77,3 +77,8 @@ void UGameInstance_B::SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos)
 	ActivePlayerInfos = NewPlayerInfos;
 	OnPlayerInfoChanged.Broadcast();
 }
+
+bool UGameInstance_B::ShouldUseSpreadSheets() const
+{
+	return bShouldUseSpreadSheets;
+}

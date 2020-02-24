@@ -63,4 +63,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
 		TArray<FPlayerInfo> ActivePlayerInfos;
+
+	// ********** Settings **********
+
+public:
+
+	bool ShouldUseSpreadSheets() const;
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShouldUseSpreadSheets = false;
 };
