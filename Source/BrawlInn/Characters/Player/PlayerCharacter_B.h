@@ -8,6 +8,7 @@
 #include "PlayerCharacter_B.generated.h"
 
 class AController;
+class UDataTable_B;
 class APlayerController_B;
 
 UCLASS()
@@ -73,9 +74,6 @@ protected:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FPlayerInfo PlayerInfo;
-
-	UPROPERTY(EditAnywhere)
-		class UScoreDataTable_B* Table;
 
 protected:
 	UPROPERTY()
