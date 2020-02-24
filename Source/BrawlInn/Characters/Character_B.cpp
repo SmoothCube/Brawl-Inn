@@ -70,8 +70,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else if (GetState() != EState::EBeingHeld)
 	{
-		if (!PunchComponent->bIsPunching && !bIsInvulnerable)
-			CheckFall(DeltaTime);
+		CheckFall(DeltaTime);
 
 		if (!(GetState() == EState::EStunned))
 		{
@@ -93,6 +92,8 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 void ACharacter_B::CheckFall(float DeltaTime)
 {
+	if (PunchComponent->bIsPunching || bIsInvulnerable)
+		return;
 	float Speed = GetMovementComponent()->Velocity.Size();
 	if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
 	{
@@ -308,7 +309,7 @@ void ACharacter_B::TryPunch()
 
 	if (!PunchComponent) { BError("No Punch Component for player %s", *GetNameSafe(this)); return; }
 
-	PunchComponent->bIsPunching = true;
+	PunchComponent->SetIsCharging(true);
 }
 UNiagaraComponent* ACharacter_B::GetChargeParticle() const
 {

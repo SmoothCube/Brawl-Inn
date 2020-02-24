@@ -29,7 +29,8 @@ void UPunchComponent_B::BeginPlay()
 void UPunchComponent_B::PunchStart()
 {
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-
+	bIsCharging = false;
+	bIsPunching = true;
 	OwningCharacter->MakeVulnerable();
 
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -74,26 +75,38 @@ void UPunchComponent_B::PunchDash()
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
 	float f = OwningCharacter->GetCharacterMovement()->Velocity.Size() / OwningCharacter->GetCharacterMovement()->MaxWalkSpeed;
-	float dist = (MaxPunchDashDistance - MinPunchDashDistance) * f + MinPunchDashDistance;
-	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * DashForceModifier);
+	float dist = (MaxPunchDashDistance - MinPunchDashDistance) * ChargeTimer + MinPunchDashDistance;
+	BWarn("ChargeTimer: %f", ChargeTimer);
+	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * PunchDashForceModifier);
 }
 
 void UPunchComponent_B::Dash()
 {
+	if (!bCanDash) 
+		return;
+
 	OwningCharacter->MakeInvulnerable(0.3f, false);
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
 	FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
 	if (NormInput.IsNearlyZero())
 	{
-		OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * DashDistance);
+		//think setting velocity is more predictable and therefore better than adding force here.
+		OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->GetActorForwardVector() * DashDistance);
 	}
 	else
 	{
-		OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->InputVector * DashDistance);
+		OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->InputVector * DashDistance);
 		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
 
 	}
+
+	bCanDash = false;
+	GetWorld()->GetTimerManager().SetTimer(
+		TH_DashAgainHandle,
+		[&]() { bCanDash = true; },
+		DashCooldown,
+	false);
 
 }
 
@@ -196,6 +209,21 @@ FVector UPunchComponent_B::CalculatePunchStrength()
 	else
 		Strength = OwningCharacter->GetActorForwardVector() * BasePunchStrength;
 	return Strength;
+}
+
+void UPunchComponent_B::SetIsPunching(bool Value)
+{
+	bIsPunching = Value;
+}
+
+bool UPunchComponent_B::GetIsCharging()
+{
+	return bIsCharging;
+}
+
+void UPunchComponent_B::SetIsCharging(bool Value)
+{
+	bIsCharging = Value;
 }
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

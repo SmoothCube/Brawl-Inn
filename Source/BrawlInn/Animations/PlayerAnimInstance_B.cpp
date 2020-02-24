@@ -27,10 +27,11 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 	if (!IsReady())
 		return;
 	bIsPunching = Owner->PunchComponent->GetIsPunching();
+	bIsChargingPunch = Owner->PunchComponent->GetIsCharging();
 	bIsHolding = Owner->HoldComponent->IsHolding();
 	bIsThrowing = Owner->ThrowComponent->IsThrowing();
 	if(!bIsThrowing) //if you go to throw before charge, ie tap the button and not hold it
-		bIsCharging = Owner->ThrowComponent->IsCharging();
+		bIsChargingThrow = Owner->ThrowComponent->IsCharging();
 	bHasFallen = Owner->GetState() == EState::EFallen;
 	Speed = Owner->GetVelocity().Size();
 	Direction =  CalculateDirection(Owner->GetVelocity(), Owner->GetActorRotation());

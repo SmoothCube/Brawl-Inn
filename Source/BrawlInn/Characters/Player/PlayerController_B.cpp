@@ -139,9 +139,16 @@ void APlayerController_B::PunchButtonPressed()
 
 void APlayerController_B::PunchButtonReleased()
 {
+	if (!PlayerCharacter)
+		return;
 
-	if (PlayerCharacter &&
-		PlayerCharacter->HoldComponent &&
+	if (PlayerCharacter->PunchComponent && PlayerCharacter->PunchComponent->GetIsCharging())
+	{
+		PlayerCharacter->PunchComponent->bIsPunching = true; 
+		PlayerCharacter->PunchComponent->SetIsCharging(false);
+	}
+
+	if (PlayerCharacter->HoldComponent &&
 		PlayerCharacter->ThrowComponent &&
 		PlayerCharacter->HoldComponent->IsHolding())
 	{

@@ -55,8 +55,18 @@ public:
 	//calculates the punch strength for the player. Has to be used by the puncher.
 	FVector CalculatePunchStrength();
 
+	void SetIsPunching(bool Value);
 	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
+
+
+	// ********** ChargePunch **********
+	bool GetIsCharging();
+	void SetIsCharging(bool Value);
+
+	float ChargeTimer = 0.f;
+private:
+	bool bIsCharging = false;
 
 protected:
 	bool bHasHit = false;
@@ -81,7 +91,7 @@ protected:
 		float MaxPunchDashDistance = 300.f;
 
 	UPROPERTY(EditAnywhere, Category = "PunchDash")
-		float DashForceModifier = 75000.f;
+		float PunchDashForceModifier = 75000.f;
 
 	FTimerHandle TH_PunchAgainHandle;
 
@@ -103,6 +113,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashCooldown = 2.f;
+private:
+	float bCanDash = true;
+
+	FTimerHandle TH_DashAgainHandle;
+protected:
 	// ********** Various **********
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* PunchSound;

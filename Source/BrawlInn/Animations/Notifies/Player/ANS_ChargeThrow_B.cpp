@@ -13,11 +13,11 @@ void UANS_ChargeThrow_B::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequ
 {
 	AnimLength = TotalDuration/ Animation->RateScale;
 	CurrentTime = 0.f;
+	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 }
 
 void UANS_ChargeThrow_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
-	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 	if (IsValid(Player) && IsValid(Player->ThrowComponent))
 	{
 		CurrentTime += FrameDeltaTime;
