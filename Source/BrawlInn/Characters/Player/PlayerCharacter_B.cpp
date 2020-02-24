@@ -5,7 +5,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LocalPlayer.h"
+#include "Misc/FileHelper.h"
 
+#include "BrawlInn.h"
+#include "System/Score/ScoreDataTable_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/PunchComponent_B.h"
@@ -44,6 +47,18 @@ void APlayerCharacter_B::BeginPlay()
 	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
 	DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
 
+	Table = NewObject<UScoreDataTable_B>();
+
+	Table->RowStruct = FScoreLookupTable::StaticStruct();
+
+	FString File;
+	FString FilePath = FString(FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir()) + FString("Data/DefaultScoreValues.csv"));
+	FFileHelper::LoadFileToString(File, *FilePath);
+	
+	TArray<FString> Strings = Table->CreateTableFromCSVString(File);
+	FString Context;
+	BScreen("%i", Table->FindRow<FScoreLookupTable>("Punch", Context)->Value);
+	
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
@@ -95,7 +110,7 @@ void APlayerCharacter_B::BreakFreeButtonMash()
 {
 	CurrentHoldTime += 0.01;
 }
- 
+
 void APlayerCharacter_B::BreakFree()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -117,7 +132,7 @@ void APlayerCharacter_B::BreakFree()
 	}
 
 	StandUp();
-	
+
 	CurrentHoldTime = 0.f;
 }
 

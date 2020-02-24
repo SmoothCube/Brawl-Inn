@@ -74,6 +74,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FPlayerInfo PlayerInfo;
 
+	UPROPERTY(EditAnywhere)
+		class UScoreDataTable_B* Table;
+
 protected:
 	UPROPERTY()
 		APlayerController_B* PlayerController = nullptr;
