@@ -8,6 +8,7 @@
 
 class UHealthWidget_B;
 class UGameInstance_B;
+class UTextBlock;
 
 UCLASS()
 class BRAWLINN_API UGameOverlay_B : public UUserWidget
@@ -17,29 +18,35 @@ class BRAWLINN_API UGameOverlay_B : public UUserWidget
 protected:
 
 	virtual void NativeOnInitialized() override;
-	
-	UPROPERTY(meta = (BindWidget))
-	UHealthWidget_B* Player0;
 
 	UPROPERTY(meta = (BindWidget))
-	UHealthWidget_B* Player1;
+		UHealthWidget_B* Player0;
 
 	UPROPERTY(meta = (BindWidget))
-	UHealthWidget_B* Player2;
+		UHealthWidget_B* Player1;
 
 	UPROPERTY(meta = (BindWidget))
-	UHealthWidget_B* Player3;
+		UHealthWidget_B* Player2;
+
+	UPROPERTY(meta = (BindWidget))
+		UHealthWidget_B* Player3;
 
 	UPROPERTY()
-	TArray<UHealthWidget_B*> HealthWidgets;
+		TArray<UHealthWidget_B*> HealthWidgets;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UHealthWidget_B> BP_HealthWidget;
+		TSubclassOf<UHealthWidget_B> BP_HealthWidget;
 
 	UPROPERTY()
-	UGameInstance_B* GameInstance = nullptr;
+		UGameInstance_B* GameInstance = nullptr;
 
 	UFUNCTION()
-	void ChangeHealthWidgetVisibility();
+		void ChangeHealthWidgetVisibility();
 
+	// ********** Timer **********
+public:
+	void UpdateTimerText(int TimeRemaining);
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* TimeText;
 };

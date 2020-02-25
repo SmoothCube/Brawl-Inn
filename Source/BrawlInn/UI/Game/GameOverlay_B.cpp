@@ -2,6 +2,7 @@
 
 #include "GameOverlay_B.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/TextBlock.h"
 
 #include "BrawlInn.h"
 #include "System/GameModes/MainGameMode_B.h"
@@ -36,6 +37,9 @@ void UGameOverlay_B::NativeOnInitialized()
 		}
 	}
 
+	if (!GameInstance->GameIsScoreBased())
+		TimeText->RemoveFromParent();
+
 	ChangeHealthWidgetVisibility();
 }
 
@@ -49,8 +53,23 @@ void UGameOverlay_B::ChangeHealthWidgetVisibility()
 		TArray<FPlayerInfo> Players = GameInstance->GetPlayerInfos();
 		for (FPlayerInfo Info : Players)
 		{
-			if(HealthWidgets.IsValidIndex(Info.ID))
+			if (HealthWidgets.IsValidIndex(Info.ID))
 				HealthWidgets[Info.ID]->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
+}
+
+void UGameOverlay_B::UpdateTimerText(int TimeRemaining)
+{
+	if (TimeRemaining < 0 || !IsValid(TimeText))
+		return;
+
+	int Minutes = TimeRemaining / 60;
+	int Seconds = TimeRemaining - 60 * Minutes;
+
+	FNumberFormattingOptions Options;
+	Options.MinimumIntegralDigits = 2;
+
+	FText Display = FText::Join(FText::FromString(":"), FText::AsNumber(Minutes, &Options), FText::AsNumber(Seconds, &Options));
+	TimeText->SetText(Display);
 }

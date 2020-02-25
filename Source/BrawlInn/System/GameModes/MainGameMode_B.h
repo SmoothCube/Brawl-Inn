@@ -13,6 +13,7 @@ class UPauseMenu_B;
 class UGameOverlay_B;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
+DECLARE_EVENT(AMainGameMode_B, FGameOver);
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B
@@ -25,7 +26,11 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void RemovePlayer();
+	void StartGame();
+
+	void EndGame();
+
+	void CheckIfPlayerWin();
 
 	virtual void Tick(float DeltaTime) override;
 
@@ -37,6 +42,7 @@ public:
 	APlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	FPlayerWin OnPlayerWin;
+	FGameOver OnGameOver;
 
 	void AddCameraFocusPoint(AActor* FocusComponent);
 	void RemoveCameraFocusPoint(AActor* FocusComponent);
@@ -64,7 +70,16 @@ protected:
 		USoundCue* River;
 
 private:
+	UPROPERTY()
 	AGameCamera_B* GameCamera = nullptr;
 
+	UPROPERTY()
+	UGameOverlay_B* Overlay = nullptr;
 
+	// ********** Timer **********
+
+	UPROPERTY(EditDefaultsOnly)
+	int TimeRemaining = 300;
+
+	FTimerHandle TH_CountdownTimer;
 };

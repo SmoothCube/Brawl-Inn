@@ -69,7 +69,11 @@ protected:
 public:
 
 	bool ShouldUseSpreadSheets() const;
+	bool GameIsScoreBased() const;
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 	bool bShouldUseSpreadSheets = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+		bool bGameIsScoreBased = true;
 };
