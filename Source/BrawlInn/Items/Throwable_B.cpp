@@ -42,7 +42,7 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		else
 		{
 			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
-
+			HitPlayer->CheckFall(GetVelocity()*ThrowHitStrength);
 			UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningCharacter->GetController(), this, BP_DamageType);
 		}
 	}

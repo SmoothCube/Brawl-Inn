@@ -21,7 +21,20 @@ void UANS_ChargePunch_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 	if (IsValid(Player) && IsValid(Player->PunchComponent))
 	{
 		CurrentTime += FrameDeltaTime;
-		Player->PunchComponent->ChargeTimer = (CurrentTime / AnimLength);
+		float ChargeTimer = (CurrentTime / AnimLength);
+
+		if (ChargeTimer < Player->PunchComponent->ChargeTier2Percentage)		//Tier 1
+		{
+			Player->PunchComponent->ChargeLevel = 1;
+		}
+		else if (ChargeTimer < Player->PunchComponent->ChargeTier3Percentage)	//Tier 2
+		{
+			Player->PunchComponent->ChargeLevel = 2;
+		}
+		else																	//Tier 3
+		{
+			Player->PunchComponent->ChargeLevel = 3;
+		}
 	}
 }
 

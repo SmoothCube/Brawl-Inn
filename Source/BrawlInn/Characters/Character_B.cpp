@@ -70,8 +70,6 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else if (GetState() != EState::EBeingHeld)
 	{
-		CheckFall(DeltaTime);
-
 		if (!(GetState() == EState::EStunned))
 		{
 			HandleMovement(DeltaTime);
@@ -90,19 +88,19 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
 }
 
-void ACharacter_B::CheckFall(float DeltaTime)
+void ACharacter_B::CheckFall(FVector MeshForce)
 {
 	if (PunchComponent->bIsPunching || bIsInvulnerable)
 		return;
-	float Speed = GetMovementComponent()->Velocity.Size();
-	if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
+	//float Speed = GetMovementComponent()->Velocity.Size();
+	//if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
 	{
 		MakeInvulnerable(FallRecoveryTime, false);
-		Fall(FallRecoveryTime);
+		Fall(MeshForce,FallRecoveryTime);
 	}
 }
 
-void ACharacter_B::Fall(float RecoveryTime)
+void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
 	if (GetCharacterMovement()->IsFalling())
 		return;
@@ -117,8 +115,7 @@ void ACharacter_B::Fall(float RecoveryTime)
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	FVector Force = GetMovementComponent()->Velocity;
-	GetMesh()->AddImpulse(Force, ForceSocketName, true);	//TODO make the bone dynamic instead of a variable
+	GetMesh()->AddImpulse(MeshForce, ForceSocketName, false);	//TODO make the bone dynamic instead of a variable
 
 	if (RecoveryTime >= 0 && bIsAlive)
 		GetWorld()->GetTimerManager().SetTimer(TH_FallRecoverTimer, this, &ACharacter_B::StandUp, RecoveryTime, false);
@@ -175,7 +172,7 @@ void ACharacter_B::Dropped_Implementation()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-	Fall(FallRecoveryTime);
+	Fall(FVector::ZeroVector, FallRecoveryTime);
 	GetMesh()->SetSimulatePhysics(true);
 	HoldingCharacter = nullptr;
 	SetActorRotation(FRotator(0, 0, 0));
@@ -185,13 +182,10 @@ void ACharacter_B::Use_Implementation()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-	Fall(FallRecoveryTime);
-	GetMesh()->SetSimulatePhysics(true);
-
-	/// Throw with the help of AimAssist.
 	FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
 	HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
-	GetMesh()->AddImpulse(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed, ForceSocketName, true);
+	Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed,FallRecoveryTime);
+	GetMesh()->SetSimulatePhysics(true);
 
 	HoldingCharacter = nullptr;
 
@@ -320,7 +314,19 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UBarrel_DamageType_B::StaticClass()))
-		ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
+	{
+		//Does a lot of ApplyDamageMomentum manually, so we can do it to the mesh instead of movementcomponent
+		UDamageType const* const DmgTypeCDO = DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>();
+		float const ImpulseScale = DmgTypeCDO->DamageImpulse;
+		FHitResult Hit;
+		FVector ImpulseDir;
+		DamageEvent.GetBestHitInfo(this, nullptr,Hit, ImpulseDir);
+		bool const bMassIndependentImpulse = !DmgTypeCDO->bScaleMomentumByMass;
+
+		CheckFall(ImpulseDir * ImpulseScale);
+		//GetMesh()->AddImpulse(ImpulseDir * ImpulseScale, ForceSocketName, bMassIndependentImpulse);
+		//ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
+	}
 
 	if (HurtSound)
 	{

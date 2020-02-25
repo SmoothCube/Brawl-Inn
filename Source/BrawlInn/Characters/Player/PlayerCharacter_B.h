@@ -35,7 +35,7 @@ protected:
 	UFUNCTION()
 		void Die();
 
-	virtual void Fall(float RecoveryTime = -1) override;
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1) override;
 
 	// ********** Hold players **********
 

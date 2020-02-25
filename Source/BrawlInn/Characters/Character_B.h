@@ -58,10 +58,9 @@ public:
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********
+	void CheckFall(FVector MeshForce);
 protected:
-	void CheckFall(float DeltaTime);
-
-	virtual void Fall(float RecoveryTime = -1);
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
 
 	void StandUp();
 
