@@ -12,6 +12,7 @@ class UVerticalBox;
 class UImage;
 class UTextBlock;
 class APlayerCharacter_B;
+class UGameInstance_B;
 
 UCLASS()
 class BRAWLINN_API UHealthWidget_B : public UUserWidget
@@ -32,17 +33,18 @@ protected:
 		UTextBlock* ScoreValueText;
 
 	UPROPERTY()
-	TArray<UImage*> Barrels;
+		TArray<UImage*> Barrels;
 
-
+	UPROPERTY()
+		UGameInstance_B* GameInstance = nullptr;
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void PostInitialize(APlayerCharacter_B* Character);
+		void PostInitialize(APlayerCharacter_B* Character);
 
 	UFUNCTION()
-	void UpdateHealthAmount(int Amount);
-	
+		void UpdateHealthAmount(int Amount);
+
 	void UpdateScoreValues(FScoreValues ScoreValues);
 
 	UFUNCTION()

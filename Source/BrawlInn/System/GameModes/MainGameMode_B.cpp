@@ -5,8 +5,9 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-#include "BrawlInn.h"
+#include "TimerManager.h"
 
+#include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "System/GameInstance_B.h"
@@ -32,11 +33,12 @@ void AMainGameMode_B::BeginPlay()
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 
 	/// Create overlay
-	UGameOverlay_B* Overlay = CreateWidget<UGameOverlay_B>(GetWorld(), BP_GameOverlay);
+	Overlay = CreateWidget<UGameOverlay_B>(GetWorld(), BP_GameOverlay);
+	Overlay->UpdateTimerText(TimeRemaining);
 	Overlay->AddToViewport();
 
 	/// Spawns characters for the players
-	for (FPlayerInfo Info : Cast<UGameInstance_B>(GetGameInstance())->GetPlayerInfos())
+	for (FPlayerInfo Info : GameInstance->GetPlayerInfos())
 	{
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
@@ -44,17 +46,37 @@ void AMainGameMode_B::BeginPlay()
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
 
 	}
+	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
+	StartGame();
 
-	DespawnCharacter_NOPARAM_D.AddUObject(this, &AMainGameMode_B::RemovePlayer);
+	DespawnCharacter_NOPARAM_D.AddUObject(this, &AMainGameMode_B::CheckIfPlayerWin);
 }
 
-void AMainGameMode_B::RemovePlayer()
+void AMainGameMode_B::StartGame()
+{
+	if (GameInstance->GameIsScoreBased())
+	{
+		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, [&]() {
+			Overlay->UpdateTimerText(--TimeRemaining);
+			if (TimeRemaining < 0)
+				OnGameOver.Broadcast();
+			}, 1.f, true);
+	}
+}
+
+void AMainGameMode_B::EndGame()
+{
+	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
+	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID), BP_VictoryScreen);
+	VictoryScreen->AddToViewport();
+}
+
+void AMainGameMode_B::CheckIfPlayerWin()
 {
 	if (GameInstance->GetPlayerInfos().Num() == 1)
 	{
 		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID), BP_VictoryScreen);
 		VictoryScreen->AddToViewport();
-		
 	}
 }
 
@@ -88,7 +110,6 @@ void AMainGameMode_B::PauseGame(APlayerController_B* ControllerThatPaused)
 
 void AMainGameMode_B::ResumeGame()
 {
-
 	PauseMenuWidget->RemoveFromViewport();
 	if (PlayerControllerThatPaused)
 	{

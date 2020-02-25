@@ -7,6 +7,8 @@
 #include "Components/ProgressBar.h"
 #include "Blueprint/WidgetTree.h"
 
+#include "System/GameInstance_B.h"
+
 void UHealthWidget_B::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -16,34 +18,51 @@ bool UHealthWidget_B::Initialize()
 {
 	bool s = Super::Initialize();
 
-	TArray<UWidget*> Children = RespawnCharges->GetAllChildren();
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	for (auto& Child : Children)
+	if (GameInstance->GameIsScoreBased())
 	{
-		UImage* Image = Cast<UImage>(Child);
-		if (IsValid(Image))
-			Barrels.Push(Image);
+		UpdateScoreValues(FScoreValues());
+		RespawnCharges->RemoveFromParent();
 	}
+	else
+	{
+		ScoreValueText->RemoveFromParent();
+		TArray<UWidget*> Children = RespawnCharges->GetAllChildren();
 
-	UpdateScoreValues(FScoreValues());
-
+		for (auto& Child : Children)
+		{
+			UImage* Image = Cast<UImage>(Child);
+			if (IsValid(Image))
+				Barrels.Push(Image);
+		}
+	}
 	return s;
 }
 
 void UHealthWidget_B::UpdateScoreValues(FScoreValues ScoreValues)
 {
-	FString Text = "Score: " + FString::FormatAsNumber(ScoreValues.Score);
+	if (!GameInstance->GameIsScoreBased())
+		return;
+
+	FString Text = "Score: " + FString::FromInt(ScoreValues.Score);
 	ScoreValueText->SetText(FText::FromString(Text));
 }
 
 void UHealthWidget_B::UpdateHealthAmount(int Amount)
 {
+	if (GameInstance->GameIsScoreBased())
+		return;
+
 	if (IsValid(HealthProgressBar))
 		HealthProgressBar->SetPercent((float)Amount / 100.f);
 }
 
 void UHealthWidget_B::UpdateRespawnsAmount()
 {
+	if (GameInstance->GameIsScoreBased())
+		return;
+
 	if (Barrels.Num() != 0)
 	{
 		UImage* Image = Barrels.Pop();
