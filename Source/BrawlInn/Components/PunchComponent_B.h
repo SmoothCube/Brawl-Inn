@@ -59,12 +59,24 @@ public:
 	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
 
-
 	// ********** ChargePunch **********
 	bool GetIsCharging();
 	void SetIsCharging(bool Value);
 
-	float ChargeTimer = 0.f;
+	int ChargeLevel = 0;
+
+	float ChargeTier2Percentage = 0.5;
+	float ChargeTier3Percentage = 0.9;
+
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float Level3PunchStrength = 1000000;		// this is used in fall
+
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float Level2PunchStrength = 300000;		// this is used in movementComponent
+	
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float Level1PunchStrength = 150000.f;	// this is used in movement
+
 private:
 	bool bIsCharging = false;
 
@@ -108,7 +120,7 @@ protected:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DashDistance = 22500000.f;
+	float DashSpeed = 5000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;

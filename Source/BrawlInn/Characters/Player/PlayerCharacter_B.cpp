@@ -79,7 +79,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 
 void APlayerCharacter_B::Die()
 {
-	Fall(-1);
+	Fall();
 	bIsAlive = false;
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
@@ -88,9 +88,9 @@ void APlayerCharacter_B::Die()
 	PlayerController->UnPossess();
 }
 
-void APlayerCharacter_B::Fall(float RecoveryTime)
+void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
-	Super::Fall(RecoveryTime);
+	Super::Fall(MeshForce, RecoveryTime);
 
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
