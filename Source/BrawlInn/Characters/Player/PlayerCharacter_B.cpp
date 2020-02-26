@@ -204,7 +204,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 		PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
 	PlayerController->PlayerInfo = PlayerInfo;
 
-	PunchComponent->OnPunchHit_D.AddLambda([&]() //had a crash here but suddenly worked again -E
+	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
 		{
 			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
 		});
