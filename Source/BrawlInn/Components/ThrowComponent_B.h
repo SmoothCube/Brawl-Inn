@@ -37,10 +37,10 @@ protected:
 	bool bIsThrowing = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
-		float MinImpulseSpeed = 1000.f;
+		float MinImpulseSpeed = 200000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
-		float MaxImpulseSpeed = 4000.f;
+		float MaxImpulseSpeed = 1600000.f;
 
 public:
 	float ImpulseSpeed = 0.f;
