@@ -24,7 +24,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void Explode(AActor* DestroyedActor);
+	void Explode(/*AActor* DestroyedActor*/const FVector& HitPoint, const FVector& HitDirection);
 
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;

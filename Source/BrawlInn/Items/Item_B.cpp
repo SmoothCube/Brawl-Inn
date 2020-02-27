@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
+#include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "System/GameInstance_B.h"
 #include "Components/HoldComponent_B.h"
@@ -34,9 +35,33 @@ void AItem_B::Use_Implementation()
 {
 
 }
+
+void AItem_B::OnItemFracture()
+{
+	BLog("ITEEEEEM");
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));
+
+	if (DestroyedCue)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			DestroyedCue,
+			GetActorLocation(),
+			volume
+		);
+	}
+}
 void AItem_B::BeginPlay()
 {
 	Super::BeginPlay();
+
+	OnFracture.AddUObject(this, &AItem_B::OnItemFracture);
 	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
 }
 
@@ -44,24 +69,7 @@ void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90,0,0));
-
-
-		if (DestroyedCue)
-		{
-			float volume = 1.f;
-			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-			if (GameInstance)
-			{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-			}
-			UGameplayStatics::PlaySoundAtLocation(
-				GetWorld(),
-				DestroyedCue,
-				GetActorLocation(),
-				volume
-			);
-		}
+		
 	}
 }
 

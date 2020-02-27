@@ -7,6 +7,8 @@
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Item_B.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnFracture);
+
 class UCapsuleComponent;
 class UNiagaraSystem;
 class UDamageType;
@@ -27,15 +29,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UCapsuleComponent* PickupCapsule;
 
-
-
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		TSubclassOf<UDamageType> BP_DamageType;
+
+	FOnFracture OnFracture;
 
 protected:
 	// ** Overridden functions ** 
 	virtual void BeginPlay() override;
+
+	virtual void OnItemFracture();
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
