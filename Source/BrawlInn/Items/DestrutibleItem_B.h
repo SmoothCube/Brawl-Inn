@@ -28,4 +28,12 @@ public:
 	virtual void Dropped_Implementation() override;
 
 	virtual void Use_Implementation() override;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+		float ThrowHitStrength = 100;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables")
+		int DamageAmount = 1;
+
+	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 };
