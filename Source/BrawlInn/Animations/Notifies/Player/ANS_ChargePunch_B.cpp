@@ -23,22 +23,30 @@ void UANS_ChargePunch_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 		CurrentTime += FrameDeltaTime;
 		float ChargeTimer = (CurrentTime / AnimLength);
 
-		if (ChargeTimer < Player->PunchComponent->ChargeTier2Percentage)		//Tier 1
+		if (!bChargeLevel1Reached)		//Tier 1
 		{
-			Player->PunchComponent->ChargeLevel = 1;
+			Player->PunchComponent->SetChargeLevel(EChargeLevel::EChargeLevel1);
+			bChargeLevel1Reached = true;
+
 		}
-		else if (ChargeTimer < Player->PunchComponent->ChargeTier3Percentage)	//Tier 2
+		else if ((ChargeTimer >= Player->PunchComponent->ChargeTier2Percentage) && (!bChargeLevel2Reached))	//Tier 2
 		{
-			Player->PunchComponent->ChargeLevel = 2;
+			Player->PunchComponent->SetChargeLevel(EChargeLevel::EChargeLevel2);
+			bChargeLevel2Reached = true;
 		}
-		else																	//Tier 3
+		else if ((ChargeTimer >= Player->PunchComponent->ChargeTier3Percentage) && (!bChargeLevel3Reached))															//Tier 3
 		{
-			Player->PunchComponent->ChargeLevel = 3;
+			Player->PunchComponent->SetChargeLevel(EChargeLevel::EChargeLevel3);
+			bChargeLevel3Reached = true;
 		}
 	}
 }
 
 void UANS_ChargePunch_B::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
+	Player->PunchComponent->ChargeLevel = EChargeLevel::ENotCharging;
 
+	bChargeLevel1Reached = false;
+	bChargeLevel2Reached = false;
+	bChargeLevel3Reached = false;
 }
