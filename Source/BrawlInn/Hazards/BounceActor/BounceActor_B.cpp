@@ -24,15 +24,13 @@ ABounceActor_B::ABounceActor_B()
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetLifeSpan(ExplodeTime);
-	//OnDestroyed.AddDynamic(this, &ABounceActor_B::Explode);
-	DestructibleComponent->OnComponentFracture.AddDynamic(this, &ABounceActor_B::Explode);
-
 }
 
-void ABounceActor_B::Explode(/*AActor* DestroyedActor*/const FVector& HitPoint, const FVector& HitDirection)
+// Old Explode
+void ABounceActor_B::OnItemFracture()
 {
-	BLog("Explode");
+	Super::OnItemFracture();
+
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, nullptr);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface && Interface->Execute_IsHeld(this))
@@ -44,7 +42,6 @@ void ABounceActor_B::Explode(/*AActor* DestroyedActor*/const FVector& HitPoint, 
 		}
 	}
 
-
 	if (Target)
 	{
 		Target->SetActorHiddenInGame(true);
@@ -55,6 +52,11 @@ void ABounceActor_B::Explode(/*AActor* DestroyedActor*/const FVector& HitPoint, 
 		}
 	}
 
+	SpawnPlayerCharacter();
+}
+
+void ABounceActor_B::SpawnPlayerCharacter()
+{
 	//Respawns player. Kinda hates having this here.
 	if (PlayerController)
 	{

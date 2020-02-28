@@ -2,6 +2,7 @@
 
 #include "Throwable_B.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DestructibleComponent.h"
@@ -13,7 +14,6 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Characters/Character_B.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 AThrowable_B::AThrowable_B()
 {
@@ -25,13 +25,12 @@ AThrowable_B::AThrowable_B()
 	DestructibleComponent = CreateDefaultSubobject<UDestructibleComponent>("Destructible");
 	DestructibleComponent->SetupAttachment(GetRootComponent());
 	DestructibleComponent->SetSimulatePhysics(true);
-	DestructibleComponent->OnComponentFracture.RemoveAll(this);
 }
 
 void AThrowable_B::BeginPlay()
 {
 	Super::BeginPlay();
-
+	DestructibleComponent->OnComponentFracture.Clear();
 	DestructibleComponent->OnComponentFracture.AddDynamic(this, &AThrowable_B::OnComponentFracture);
 }
 
@@ -43,10 +42,12 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 		PickupCapsule->DestroyComponent();
 	SetRootComponent(DestructibleComponent);
 
-	FTimerHandle Handle;
+	DestructibleComponent->SetCollisionProfileName("AfterFracture");
+
 
 	OnFracture.Broadcast();
 
+	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, [&]() {
 		Destroy();
 		}, 5.f, false);
@@ -109,10 +110,10 @@ void AThrowable_B::Use_Implementation()
 	{
 		FVector TargetLocation = OwningCharacter->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
 		OwningCharacter->ThrowComponent->AimAssist(TargetLocation);
-		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningCharacter->ThrowComponent->ImpulseSpeed * 0.05f, NAME_None, true);
+		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningCharacter->ThrowComponent->ImpulseSpeed * 0.02f, NAME_None, true);
 		Mesh->SetVisibility(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		DestructibleComponent->SetCollisionProfileName("Destructible");
 		DestructibleComponent->SetSimulatePhysics(true);
 	}
 	else

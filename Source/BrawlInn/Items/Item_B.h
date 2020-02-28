@@ -40,13 +40,11 @@ protected:
 
 	virtual void OnItemFracture();
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	virtual bool IsHeld_Implementation() const override;
 
-	virtual void Use_Implementation() override;
+	virtual bool CanBeHeld_Implementation() const override;
 	
 	// ** Delegates ** 
 
@@ -57,6 +55,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Juice")
 		UNiagaraSystem* PS_OnDestroy;
 
+	bool bCanBeHeld = true;
+
+	UPROPERTY()
 	ACharacter_B* OwningCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")

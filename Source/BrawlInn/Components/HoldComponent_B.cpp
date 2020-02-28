@@ -150,7 +150,7 @@ void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 {
 	if (OtherActor == OwningCharacter) return;
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
-	if (!Interface)
+	if (!Interface || !Interface->Execute_CanBeHeld(OtherActor))
 		return;
 
 	AddItem(OtherActor);

@@ -85,9 +85,13 @@ public:
 
 	virtual bool IsHeld_Implementation() const override;
 
+	virtual bool CanBeHeld_Implementation() const override;
+
 protected:
 	UPROPERTY()
 		ACharacter_B* HoldingCharacter = nullptr;
+
+	bool bCanBeHeld = true;
 
 	// ********** Stun **********
 

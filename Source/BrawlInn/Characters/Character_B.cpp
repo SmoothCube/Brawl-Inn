@@ -199,6 +199,11 @@ bool ACharacter_B::IsHeld_Implementation() const
 	return false;
 }
 
+bool ACharacter_B::CanBeHeld_Implementation() const
+{
+	return bCanBeHeld;
+}
+
 void ACharacter_B::AddStun(int Strength)
 {
 	if (GetState() == EState::EStunned)

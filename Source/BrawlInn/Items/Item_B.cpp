@@ -9,9 +9,10 @@
 #include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Character_B.h"
 #include "System/GameInstance_B.h"
 #include "Components/HoldComponent_B.h"
+
 AItem_B::AItem_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -26,19 +27,26 @@ AItem_B::AItem_B()
 	PickupCapsule->SetupAttachment(Mesh);
 }
 
+void AItem_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnFracture.AddUObject(this, &AItem_B::OnItemFracture);
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
+}
+
 bool AItem_B::IsHeld_Implementation() const
 {
 	return (IsValid(OwningCharacter));
 }
 
-void AItem_B::Use_Implementation()
+bool AItem_B::CanBeHeld_Implementation() const
 {
-
+	return bCanBeHeld;
 }
 
 void AItem_B::OnItemFracture()
 {
-	BLog("ITEEEEEM");
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));
 
 	if (DestroyedCue)
@@ -56,21 +64,8 @@ void AItem_B::OnItemFracture()
 			volume
 		);
 	}
-}
-void AItem_B::BeginPlay()
-{
-	Super::BeginPlay();
 
-	OnFracture.AddUObject(this, &AItem_B::OnItemFracture);
-	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
-}
-
-void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (EndPlayReason == EEndPlayReason::Destroyed)
-	{
-		
-	}
+	bCanBeHeld = false;
 }
 
 void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
