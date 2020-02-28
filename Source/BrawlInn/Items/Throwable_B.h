@@ -40,7 +40,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float ThrowHitStrength = 100;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables")
-	int DamageAmount = 1;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	int ScoreAmount = 1;
 
 };

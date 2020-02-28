@@ -14,6 +14,7 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Characters/Character_B.h"
+#include "System/DataTable_B.h"
 
 AThrowable_B::AThrowable_B()
 {
@@ -32,6 +33,8 @@ void AThrowable_B::BeginPlay()
 	Super::BeginPlay();
 	DestructibleComponent->OnComponentFracture.Clear();
 	DestructibleComponent->OnComponentFracture.AddDynamic(this, &AThrowable_B::OnComponentFracture);
+
+	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Throwable")->Value;
 }
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
@@ -88,7 +91,7 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		{
 			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 			HitPlayer->CheckFall(GetVelocity() * ThrowHitStrength);
-			UGameplayStatics::ApplyDamage(HitPlayer, DamageAmount, OwningCharacter->GetController(), this, BP_DamageType);
+			UGameplayStatics::ApplyDamage(HitPlayer, ScoreAmount, OwningCharacter->GetController(), this, BP_DamageType);
 		}
 	}
 	if (Mesh)

@@ -31,7 +31,7 @@ void ABounceActor_B::OnItemFracture()
 {
 	Super::OnItemFracture();
 
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, nullptr);
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, nullptr);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface && Interface->Execute_IsHeld(this))
 	{
