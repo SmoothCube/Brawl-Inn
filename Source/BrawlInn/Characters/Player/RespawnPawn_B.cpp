@@ -82,7 +82,7 @@ void ARespawnPawn_B::ThrowBarrel()
 	}
 	else if(Barrel)
 	{
-		Barrel->Destroy();
+		Barrel->SpawnPlayerCharacter();
 	}
 }
 

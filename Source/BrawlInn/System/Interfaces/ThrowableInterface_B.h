@@ -36,5 +36,8 @@ public:
 	bool IsHeld() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+	bool CanBeHeld() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
 	void Use();
 };	

@@ -8,8 +8,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-#include "BrawlInn.h"
+#include "DestructibleComponent.h"
 
+#include "BrawlInn.h"
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 #include "System/GameInstance_B.h"
@@ -103,6 +104,7 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	FVector LaunchVel = FVector::ZeroVector;
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), TargetLocation, 0.0f, 0.5f);
 	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
+	NewBounceActor->DestructibleComponent->SetSimulatePhysics(true);
 
 	return NewBounceActor;
 }

@@ -5,7 +5,8 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "NiagaraComponent.h"
-
+#include "DestructibleComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "BrawlInn.h"
 #include "Hazards/BounceActor/BarrelTargetPoint_B.h"
@@ -17,17 +18,18 @@
 ABounceActor_B::ABounceActor_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	Mesh->SetSimulatePhysics(true);
 }
 
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	SetLifeSpan(ExplodeTime);
-	OnDestroyed.AddDynamic(this, &ABounceActor_B::Explode);
 }
 
-void ABounceActor_B::Explode(AActor* DestroyedActor)
+// Old Explode
+void ABounceActor_B::OnItemFracture()
 {
+	Super::OnItemFracture();
 
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, nullptr);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
@@ -40,7 +42,6 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 		}
 	}
 
-
 	if (Target)
 	{
 		Target->SetActorHiddenInGame(true);
@@ -51,6 +52,11 @@ void ABounceActor_B::Explode(AActor* DestroyedActor)
 		}
 	}
 
+	SpawnPlayerCharacter();
+}
+
+void ABounceActor_B::SpawnPlayerCharacter()
+{
 	//Respawns player. Kinda hates having this here.
 	if (PlayerController)
 	{
