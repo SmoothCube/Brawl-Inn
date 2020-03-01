@@ -6,6 +6,8 @@
 #include "Items/Item_B.h"
 #include "Throwable_B.generated.h"
 
+class UDestructibleComponent;
+
 UCLASS()
 class BRAWLINN_API AThrowable_B : public AItem_B
 {
@@ -13,7 +15,18 @@ class BRAWLINN_API AThrowable_B : public AItem_B
 	
 public:
 
+	AThrowable_B();
+
+	UPROPERTY(VisibleAnywhere)
+		UDestructibleComponent* DestructibleComponent;
+
+
+	UFUNCTION()
+	void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
+
 	// ** Overridden functions **
+		virtual void BeginPlay() override;
+
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
@@ -27,7 +40,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float ThrowHitStrength = 100;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables")
-	int DamageAmount = 1;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	int ScoreAmount = 1;
 
 };

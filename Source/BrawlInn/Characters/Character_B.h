@@ -85,9 +85,13 @@ public:
 
 	virtual bool IsHeld_Implementation() const override;
 
+	virtual bool CanBeHeld_Implementation() const override;
+
 protected:
 	UPROPERTY()
 		ACharacter_B* HoldingCharacter = nullptr;
+
+	bool bCanBeHeld = true;
 
 	// ********** Stun **********
 
@@ -183,13 +187,13 @@ protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int FellOutOfWorldDamageAmount = 100;
+		int FellOutOfWorldScoreAmount = 100;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int FallDamageAmount = 25;
+		int FallScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int ChairDamageAmount = 25;
+		int StoolScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HurtSound;

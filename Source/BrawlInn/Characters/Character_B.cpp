@@ -96,7 +96,7 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 	//if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
 	{
 		MakeInvulnerable(FallRecoveryTime, false);
-		Fall(MeshForce,FallRecoveryTime);
+		Fall(MeshForce, FallRecoveryTime);
 	}
 }
 
@@ -184,7 +184,7 @@ void ACharacter_B::Use_Implementation()
 
 	FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
 	HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
-	Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed,FallRecoveryTime);
+	Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed, FallRecoveryTime);
 	GetMesh()->SetSimulatePhysics(true);
 
 	HoldingCharacter = nullptr;
@@ -197,6 +197,11 @@ bool ACharacter_B::IsHeld_Implementation() const
 	if (HoldingCharacter)
 		return true;
 	return false;
+}
+
+bool ACharacter_B::CanBeHeld_Implementation() const
+{
+	return bCanBeHeld;
 }
 
 void ACharacter_B::AddStun(int Strength)
@@ -320,7 +325,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		float const ImpulseScale = DmgTypeCDO->DamageImpulse;
 		FHitResult Hit;
 		FVector ImpulseDir;
-		DamageEvent.GetBestHitInfo(this, nullptr,Hit, ImpulseDir);
+		DamageEvent.GetBestHitInfo(this, nullptr, Hit, ImpulseDir);
 		bool const bMassIndependentImpulse = !DmgTypeCDO->bScaleMomentumByMass;
 
 		CheckFall(ImpulseDir * ImpulseScale);

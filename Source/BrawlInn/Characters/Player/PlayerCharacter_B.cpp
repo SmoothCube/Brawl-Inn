@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LocalPlayer.h"
-#include "Misc/FileHelper.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "System/DataTable_B.h"
@@ -50,10 +50,9 @@ void APlayerCharacter_B::BeginPlay()
 
 	if (Cast<UGameInstance_B>(GetGameInstance())->ShouldUseSpreadSheets())
 	{
-		UDataTable_B* Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
-		FallDamageAmount = Table->GetRow<FScoreTable>("Fall")->Value;
-		ChairDamageAmount = Table->GetRow<FScoreTable>("Stool")->Value;
-		FellOutOfWorldDamageAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
+		Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
+		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
 	}
 }
 
@@ -66,6 +65,9 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		if (CurrentHoldTime >= MaxHoldTime)
 			BreakFree();
 	}
+
+//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
+
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
@@ -73,7 +75,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	if (HoldComponent)
 		HoldComponent->Drop();
 	Die();
-	//UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, PlayerController, this, UOutOfWorld_DamageType_B::StaticClass());
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -141,26 +143,25 @@ void APlayerCharacter_B::RemoveStun()
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 
-	if (!(DamageAmount == 100.f))
-		if (bIsInvulnerable || bHasShield) return 0;
-
-	float ActualDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFall_DamageType_B::StaticClass()))
+	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		ActualDamageAmount = FallDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = ChairDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = FellOutOfWorldDamageAmount;
+		if (LastHitBy)
+		{
+			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
+			if (OtherPlayerController)
+			{
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+			}
+		}
 	}
 	else
 	{
-		ActualDamageAmount = DamageAmount;
+		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
+		if (OtherPlayerController)
+		{
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+		}
 	}
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -171,20 +172,24 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
 	}
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-	if (Interface)
-	{
-		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
-	}
-
-	APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
-	if (OtherPlayerController)
-	{
-		OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(ActualDamageAmount);
-	}
-
+	SetLastHitBy(EventInstigator);
 	return DamageAmount;
+}
+
+void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
+{
+	if (LastHitBy == EventInstigator)
+	{
+		GetWorld()->GetTimerManager().SetTimer(LastHitByTimer_TH, [&]() {
+			LastHitBy = nullptr;
+			}, 7.f, false);
+	}
+	else
+	{
+		LastHitBy = EventInstigator;
+	}
 }
 
 void APlayerCharacter_B::PossessedBy(AController* NewController)
