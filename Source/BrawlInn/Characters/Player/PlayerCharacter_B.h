@@ -85,6 +85,9 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	UFUNCTION()
+	void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 
 	UPROPERTY()

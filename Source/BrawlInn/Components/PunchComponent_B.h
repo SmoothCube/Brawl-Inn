@@ -155,8 +155,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashTime = 0.2f;
+public:
+	bool GetIsDashing();
 private:
-	float bCanDash = true;
+	bool bIsDashing = false;
 
 	FTimerHandle TH_DashAgainHandle;
 	FTimerHandle TH_DashDoneHandle;
