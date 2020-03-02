@@ -81,8 +81,11 @@ void UPunchComponent_B::PunchDash()
 	
 void UPunchComponent_B::Dash()
 {
-	if (!bCanDash) 
+	if (bIsDashing)
 		return;
+	bIsDashing = true;
+
+	OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule-Dash");
 
 	OwningCharacter->MakeInvulnerable(0.3f, false);
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
@@ -103,19 +106,19 @@ void UPunchComponent_B::Dash()
 		TH_DashAgainHandle,
 		[&]()
 		{
-			bCanDash = true;
+			bIsDashing = false;
 		},
 		DashCooldown,
 		false);
 
-	bCanDash = false;
 	GetWorld()->GetTimerManager().SetTimer(
-		TH_DashAgainHandle,
+		TH_DashDoneHandle,
 		[&]() 
 		{
-			OwningCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+			OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
 		},	
-		DashCooldown,
+		DashTime,
 	false);
 
 }
@@ -285,6 +288,11 @@ bool UPunchComponent_B::GetIsCharging()
 void UPunchComponent_B::SetIsCharging(bool Value)
 {
 	bIsCharging = Value;
+}
+
+bool UPunchComponent_B::GetIsDashing()
+{
+	return bIsDashing;
 }
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

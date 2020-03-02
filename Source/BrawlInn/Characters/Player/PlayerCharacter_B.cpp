@@ -2,6 +2,7 @@
 
 #include "PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LocalPlayer.h"
@@ -43,6 +44,9 @@ void APlayerCharacter_B::BeginPlay()
 	//Create new material instance and assign it
 	if (!DirectionIndicatorPlane)
 		return;
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::OnCapsuleOverlapBegin);
+
 
 	auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
 	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
@@ -214,4 +218,19 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
 		});
 
+}
+
+void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//Dash push stuff
+	if (!PunchComponent->GetIsDashing())
+		return;
+
+	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
+	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
+	if (!OtherPlayer && Capsule)
+		return;
+
+	BWarn("Capsule Overlaps with %s", *GetNameSafe(OtherActor));
+	//Might be triggered twice
 }
