@@ -9,7 +9,6 @@
 
 #include "BrawlInn.h"
 #include "Components/BarMeshComponent_B.h"
-#include "Characters/AI/AIController_B.h"
 #include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
@@ -33,16 +32,8 @@ void ABar_B::BeginPlay()
 	StartTimerForNextTankard();
 	StartTimerForNextStool();
 
-	AIController = Cast<AAIController_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIController_B::StaticClass()));
-	if (AIController)
-	{
-		AIController->OnAIArrivedHome_D.AddUObject(this, &ABar_B::StartTimerForNextStool);
-	}
-	else
-	{
-		BError("AI Controller not found!");
-	}
 	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
+	
 }
 
 USceneComponent* ABar_B::GetItemSpawnLocation() const
@@ -55,6 +46,16 @@ void ABar_B::StartTimerForNextTankard()
 	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
 }
 
+void ABar_B::AddTankardDropLocation(AAIDropPoint_B* Point)
+{
+	TankardDropLocations.Enqueue(Point);
+}
+
+TQueue<AAIDropPoint_B*>& ABar_B::GetTankardDropLocations()
+{
+	return TankardDropLocations;
+}
+
 void ABar_B::SpawnTankard()
 {
 	if (BP_Useables.Num() == 0)
@@ -62,6 +63,7 @@ void ABar_B::SpawnTankard()
 
 	int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
+	Item->Tags.Add("AITankard");
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
 	if (TankardSpawnSound)
@@ -91,14 +93,19 @@ void ABar_B::StartTimerForNextStool()
 
 void ABar_B::SpawnStool()
 {
-	StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
-	if (IsValid(StoolToDeliver))
+	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
+	StoolToDeliver->Tags.Add("AIStool");
+}
+TQueue<AAIDropPoint_B*>& ABar_B::GetDropLocations(EBarDropLocations Type)
+{
+	switch (Type)
 	{
-		if (AIController)
-		{
-			AIController->OnStoolReceived_D.Broadcast(StoolToDeliver);
-		}
+	case EBarDropLocations::Stool:
+		return StoolDropLocations;
+	case EBarDropLocations::Tankard:
+		return TankardDropLocations;
 	}
+	return StoolDropLocations;
 }
 TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
 {

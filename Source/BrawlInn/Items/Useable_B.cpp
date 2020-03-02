@@ -33,7 +33,8 @@ AUseable_B::AUseable_B()
 
 void AUseable_B::BeginPlay()
 {
-	BWarn("Adding useable to camera!");
+	Super::BeginPlay();
+
 	//Want to focus on useables as they spawn
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
@@ -82,6 +83,8 @@ void AUseable_B::Use_Implementation()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 		GameMode->RemoveCameraFocusPoint(this);
+
+	OnFracture.Broadcast();
 
 	Execute_Dropped(this);
 }

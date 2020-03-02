@@ -3,11 +3,13 @@
 #include "AIDropPoint_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+
 #include "Items/Item_B.h"
-#include "Hazards/Bar_B.h"
 
 void AAIDropPoint_B::BeginPlay()
 {
+	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+
 	Super::BeginPlay();
 
 	Item = GetWorld()->SpawnActor<AItem_B>(ItemToSpawn, GetActorTransform());
@@ -19,10 +21,9 @@ void AAIDropPoint_B::BeginPlay()
 
 void AAIDropPoint_B::ItemDestroyed()
 {
-	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	if (Bar)
 	{
-		Bar->GetStoolDropLocations().Enqueue(this);
+		Bar->GetDropLocations(Type).Enqueue(this);
 	}
 }
 

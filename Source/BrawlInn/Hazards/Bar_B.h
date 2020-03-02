@@ -12,10 +12,16 @@ class UBarMeshComponent_B;
 class USoundCue;
 class AAIDropPoint_B;
 class AItem_B;
-class AAIController_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
+
+UENUM(BlueprintType)
+enum class EBarDropLocations : uint8
+{
+	Stool = 0,
+	Tankard
+};
 
 UCLASS()
 class BRAWLINN_API ABar_B : public AActor
@@ -45,7 +51,7 @@ public:
 		FOnDoorClosed OnDoorClosed_D;
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UBarMeshComponent_B* House;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -55,9 +61,18 @@ protected:
 		USceneComponent* ItemSpawnLocation;
 
 	// ********** Tankards **********
+public:
 	void StartTimerForNextTankard();
 
+	UFUNCTION(BlueprintCallable)
+	void AddTankardDropLocation(AAIDropPoint_B* Point);
+
+	TQueue<AAIDropPoint_B*>& GetTankardDropLocations();
+
+protected:
 	void SpawnTankard();
+
+	TQueue<AAIDropPoint_B*> TankardDropLocations;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		FName ItemSocket = FName("Item");
@@ -81,18 +96,15 @@ protected:
 
 	// ********** Stool Respawning **********
 
-	void StartTimerForNextStool();
-
-	void SpawnStool();
-
 public:
+	void StartTimerForNextStool();
+	
 	TQueue<AAIDropPoint_B*>& GetStoolDropLocations();
 
 protected:
-	TQueue<AAIDropPoint_B*> StoolDropLocations;
+	void SpawnStool();
 
-	UPROPERTY()
-		AItem_B* StoolToDeliver = nullptr;
+	TQueue<AAIDropPoint_B*> StoolDropLocations;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
 		TSubclassOf<AItem_B> BP_Stool;
@@ -105,7 +117,9 @@ protected:
 
 	FTimerHandle TH_NextStoolTimer;
 
-	// ********** Misc. **********
-	UPROPERTY()
-		AAIController_B* AIController = nullptr;
+public:
+
+	// ********** Misc **********
+	TQueue<AAIDropPoint_B*>& GetDropLocations(EBarDropLocations Type);
+
 };

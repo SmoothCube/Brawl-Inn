@@ -47,6 +47,7 @@ bool AItem_B::CanBeHeld_Implementation() const
 
 void AItem_B::OnItemFracture()
 {
+	BLog("Destroy");
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));
 
 	if (DestroyedCue)

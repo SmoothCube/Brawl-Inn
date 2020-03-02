@@ -7,7 +7,6 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "BrawlInn.h"
-#include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
 #include "AI/AIDropPoint_B.h"
 
@@ -22,15 +21,19 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Aborted;
 	}
 
-	if (Bar->GetStoolDropLocations().IsEmpty())
+	if (Bar->GetDropLocations(Type).IsEmpty())
 		return EBTNodeResult::Failed;
 
-	AAIDropPoint_B* DropPoint = *Bar->GetStoolDropLocations().Peek();
+	AAIDropPoint_B* DropPoint = *Bar->GetDropLocations(Type).Peek();
 	if (DropPoint)
 	{
-		Bar->GetStoolDropLocations().Pop();
+		Bar->GetDropLocations(Type).Pop();
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropActor.SelectedKeyName, DropPoint);
+		Bar->StartTimerForNextStool();
 		return EBTNodeResult::Succeeded;
+	}
+	else {
+		BWarn("Cant find droppoint");
 	}
 	return EBTNodeResult::Failed;
 }

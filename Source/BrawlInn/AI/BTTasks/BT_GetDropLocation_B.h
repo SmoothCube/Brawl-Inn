@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
+#include "Hazards/Bar_B.h"
 #include "BT_GetDropLocation_B.generated.h"
 
 class AItem_B;
-class ABar_B;
 
 UCLASS()
 class BRAWLINN_API UBT_GetDropLocation_B : public UBTTaskNode
@@ -19,6 +19,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector DropActor;
+
+	UPROPERTY(EditAnywhere)
+		EBarDropLocations Type = EBarDropLocations::Stool;
 
 	UPROPERTY()
 	AItem_B* Item = nullptr;

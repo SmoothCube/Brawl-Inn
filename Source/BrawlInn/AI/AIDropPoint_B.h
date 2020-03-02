@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TargetPoint.h"
+#include "Hazards/Bar_B.h"
 #include "AIDropPoint_B.generated.h"
 
 class AItem_B;
@@ -20,6 +21,12 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AItem_B> ItemToSpawn;
+
+	UPROPERTY(EditAnywhere)
+		EBarDropLocations Type = EBarDropLocations::Stool;
+
+	UPROPERTY(BlueprintReadOnly)
+	ABar_B* Bar = nullptr;
 
 	UPROPERTY()
 		AItem_B* Item = nullptr;
