@@ -6,7 +6,6 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BT_WaitForStool_B.generated.h"
 
-class AAIController_B;
 class UBehaviorTreeComponent;
 class AItem_B;
 
@@ -19,14 +18,11 @@ class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
 
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-	UFUNCTION()
-		void RecieveStool(AItem_B* Stool);
+	UPROPERTY(EditAnywhere)
+	FName Tag = "AIStool";
 
 	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector HoldingActor;
-
-	UPROPERTY()
-		AAIController_B* OwningAI = nullptr;
 
 	UPROPERTY()
 		UBehaviorTreeComponent* OwnerComponent = nullptr;

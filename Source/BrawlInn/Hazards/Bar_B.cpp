@@ -33,6 +33,7 @@ void ABar_B::BeginPlay()
 	StartTimerForNextStool();
 
 	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
+	
 }
 
 USceneComponent* ABar_B::GetItemSpawnLocation() const
@@ -45,6 +46,16 @@ void ABar_B::StartTimerForNextTankard()
 	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
 }
 
+void ABar_B::AddTankardDropLocation(AAIDropPoint_B* Point)
+{
+	TankardDropLocations.Enqueue(Point);
+}
+
+TQueue<AAIDropPoint_B*>& ABar_B::GetTankardDropLocations()
+{
+	return TankardDropLocations;
+}
+
 void ABar_B::SpawnTankard()
 {
 	if (BP_Useables.Num() == 0)
@@ -52,6 +63,7 @@ void ABar_B::SpawnTankard()
 
 	int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
+	Item->Tags.Add("AITankard");
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
 	if (TankardSpawnSound)
@@ -82,7 +94,18 @@ void ABar_B::StartTimerForNextStool()
 void ABar_B::SpawnStool()
 {
 	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
-	StoolToDeliver->Tags.Add("AI");
+	StoolToDeliver->Tags.Add("AIStool");
+}
+TQueue<AAIDropPoint_B*>& ABar_B::GetDropLocations(EBarDropLocations Type)
+{
+	switch (Type)
+	{
+	case EBarDropLocations::Stool:
+		return StoolDropLocations;
+	case EBarDropLocations::Tankard:
+		return TankardDropLocations;
+	}
+	return StoolDropLocations;
 }
 TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
 {
