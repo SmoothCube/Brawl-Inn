@@ -7,6 +7,8 @@
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Item_B.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnFracture);
+
 class UCapsuleComponent;
 class UNiagaraSystem;
 class UDamageType;
@@ -30,17 +32,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		TSubclassOf<UDamageType> BP_DamageType;
 
+	FOnFracture OnFracture;
+
 protected:
 	// ** Overridden functions ** 
 	virtual void BeginPlay() override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void OnItemFracture();
 
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	virtual bool IsHeld_Implementation() const override;
 
-	virtual void Use_Implementation() override;
+	virtual bool CanBeHeld_Implementation() const override;
 	
 	// ** Delegates ** 
 
@@ -51,6 +55,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Juice")
 		UNiagaraSystem* PS_OnDestroy;
 
+	bool bCanBeHeld = true;
+
+	UPROPERTY()
 	ACharacter_B* OwningCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")

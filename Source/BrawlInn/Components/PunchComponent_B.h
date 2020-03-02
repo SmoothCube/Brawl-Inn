@@ -14,6 +14,16 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*);
 
 DECLARE_MULTICAST_DELEGATE(FOnPunchHit);
 
+UENUM(BlueprintType)
+enum class EChargeLevel : uint8
+{
+	ENotCharging	UMETA(DisplayName = "Not Charging"),
+	EChargeLevel1 	UMETA(DisplayName = "Charge Level 1"),
+	EChargeLevel2	UMETA(DisplayName = "Charge Level 2"),
+	EChargeLevel3	UMETA(DisplayName = "Charge Level 3")
+};
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BRAWLINN_API UPunchComponent_B : public USphereComponent
 {
@@ -60,12 +70,17 @@ public:
 	bool bIsPunching = false;
 
 	// ********** ChargePunch **********
+	void SetChargeLevel(EChargeLevel chargeLevel);
+
 	bool GetIsCharging();
 	void SetIsCharging(bool Value);
 
-	int ChargeLevel = 0;
+	EChargeLevel ChargeLevel;
 
-	float ChargeTier2Percentage = 0.5;
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float ChargeTier2Percentage = 0.55;
+
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
 	float ChargeTier3Percentage = 0.9;
 
 	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
@@ -76,6 +91,16 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
 	float Level1PunchStrength = 150000.f;	// this is used in movement
+
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float Charge1MoveSpeed = 500.f;
+
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float Charge2MoveSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	float Charge3MoveSpeed = 100.f;
+
 
 private:
 	bool bIsCharging = false;
@@ -120,17 +145,23 @@ protected:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DashSpeed = 5000.f;
+	float DashSpeed = 7500.f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashCooldown = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashTime = 0.2f;
+public:
+	bool GetIsDashing();
 private:
-	float bCanDash = true;
+	bool bIsDashing = false;
 
 	FTimerHandle TH_DashAgainHandle;
+	FTimerHandle TH_DashDoneHandle;
 protected:
 	// ********** Various **********
 	UPROPERTY(EditAnywhere, Category = "Audio")

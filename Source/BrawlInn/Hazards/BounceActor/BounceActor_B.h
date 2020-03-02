@@ -23,8 +23,9 @@ public:
 
 	virtual void BeginPlay() override;
 	
-	UFUNCTION()
-	void Explode(AActor* DestroyedActor);
+	virtual void OnItemFracture() override;
+
+	void SpawnPlayerCharacter();
 
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;
@@ -38,8 +39,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Radius = 500.f;
 
-
 	FTimerHandle TH_ExplodeTimer;
+
 	ABarrelTargetPoint_B* Target = nullptr;
 
 	APlayerController_B* PlayerController = nullptr;

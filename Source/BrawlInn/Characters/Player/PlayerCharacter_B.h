@@ -60,6 +60,8 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	void SetLastHitBy(AController* EventInstigator);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
 		UTexture2D* ColoredHealthIcon = nullptr;
 
@@ -68,6 +70,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Info")
 		float RespawnDelay = 3.f;
+
+	FTimerHandle LastHitByTimer_TH;
 
 	// ********** Misc. **********
 
@@ -80,4 +84,12 @@ protected:
 		APlayerController_B* PlayerController = nullptr;
 
 	virtual void PossessedBy(AController* NewController) override;
+
+	UFUNCTION()
+	void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
+
+	UPROPERTY()
+	UDataTable_B* Table = nullptr;
 };

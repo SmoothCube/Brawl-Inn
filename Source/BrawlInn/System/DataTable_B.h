@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "System/Structs/ScoreLookupTable.h"
 #include "DataTable_B.generated.h"
-
-
 
 UCLASS()
 class BRAWLINN_API UDataTable_B : public UDataTable

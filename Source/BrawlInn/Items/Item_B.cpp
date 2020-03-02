@@ -8,9 +8,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "BrawlInn.h"
+#include "Characters/Character_B.h"
 #include "System/GameInstance_B.h"
 #include "Components/HoldComponent_B.h"
+
 AItem_B::AItem_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -25,44 +27,45 @@ AItem_B::AItem_B()
 	PickupCapsule->SetupAttachment(Mesh);
 }
 
+void AItem_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnFracture.AddUObject(this, &AItem_B::OnItemFracture);
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
+}
+
 bool AItem_B::IsHeld_Implementation() const
 {
 	return (IsValid(OwningCharacter));
 }
 
-void AItem_B::Use_Implementation()
+bool AItem_B::CanBeHeld_Implementation() const
 {
-
-}
-void AItem_B::BeginPlay()
-{
-	Super::BeginPlay();
-	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
+	return bCanBeHeld;
 }
 
-void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AItem_B::OnItemFracture()
 {
-	if (EndPlayReason == EEndPlayReason::Destroyed)
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));
+
+	if (DestroyedCue)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90,0,0));
-
-
-		if (DestroyedCue)
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
 		{
-			float volume = 1.f;
-			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-			if (GameInstance)
-			{
 			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-			}
-			UGameplayStatics::PlaySoundAtLocation(
-				GetWorld(),
-				DestroyedCue,
-				GetActorLocation(),
-				volume
-			);
 		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			DestroyedCue,
+			GetActorLocation(),
+			volume
+		);
 	}
+
+	bCanBeHeld = false;
 }
 
 void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -16,14 +16,13 @@ class BRAWLINN_API AAIDropPoint_B : public ATargetPoint
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-		void ItemDestroyed(AActor* DestroyedActor);
+	void ItemDestroyed();
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AItem_B> ItemToSpawn;
 
 	UPROPERTY()
-	AItem_B* Item = nullptr;
+		AItem_B* Item = nullptr;
 
 public:
 	UFUNCTION()

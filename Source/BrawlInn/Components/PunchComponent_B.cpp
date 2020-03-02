@@ -75,14 +75,17 @@ void UPunchComponent_B::PunchDash()
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
 	float f = OwningCharacter->GetCharacterMovement()->Velocity.Size() / OwningCharacter->GetCharacterMovement()->MaxWalkSpeed;
-	float dist = (MaxPunchDashDistance - MinPunchDashDistance) * ChargeLevel + MinPunchDashDistance;
+	float dist = (MaxPunchDashDistance - MinPunchDashDistance) * (int)ChargeLevel + MinPunchDashDistance;
 	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * PunchDashForceModifier);
 }
 	
 void UPunchComponent_B::Dash()
 {
-	if (!bCanDash) 
+	if (bIsDashing)
 		return;
+	bIsDashing = true;
+
+	OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule-Dash");
 
 	OwningCharacter->MakeInvulnerable(0.3f, false);
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
@@ -103,19 +106,19 @@ void UPunchComponent_B::Dash()
 		TH_DashAgainHandle,
 		[&]()
 		{
-			bCanDash = true;
+			bIsDashing = false;
 		},
 		DashCooldown,
 		false);
 
-	bCanDash = false;
 	GetWorld()->GetTimerManager().SetTimer(
-		TH_DashAgainHandle,
+		TH_DashDoneHandle,
 		[&]() 
 		{
-			OwningCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+			OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
 		},	
-		DashCooldown,
+		DashTime,
 	false);
 
 }
@@ -191,9 +194,9 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	{
 		OwningCharacter->GetCharacterMovement()->AddImpulse(InPunchStrength);
 		OwningCharacter->RemoveShield();
-		if(PlayerThatPunched->PunchComponent->ChargeLevel == 3)
+		if (PlayerThatPunched->PunchComponent->ChargeLevel == EChargeLevel::EChargeLevel3)
 			OwningCharacter->CheckFall(InPunchStrength);
-		else if (PlayerThatPunched->PunchComponent->ChargeLevel == 2)
+		else if (PlayerThatPunched->PunchComponent->ChargeLevel == EChargeLevel::EChargeLevel2)
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
 		else
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
@@ -201,16 +204,51 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	}
 }
 
+void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
+{
+
+	ChargeLevel = chargeLevel;
+
+	if (!IsValid(OwningCharacter))
+		return;
+	switch (ChargeLevel)
+	{
+	case EChargeLevel::ENotCharging:
+		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
+		break;
+	case EChargeLevel::EChargeLevel1:
+		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
+		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
+		break;
+	case EChargeLevel::EChargeLevel2:
+		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
+		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
+		break;
+	case EChargeLevel::EChargeLevel3:
+		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
+		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
+
+		break;
+	default:
+		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
+		break;
+	}
+	//switch (chargeLevel)
+	//{
+	//default:
+	//	break;
+	//}
+}
 FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }
 	FVector Strength;
-	if (ChargeLevel == 3)
+	if (ChargeLevel == EChargeLevel::EChargeLevel3)
 	{
 		BWarn("Level 3 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
 	}
-	else if (ChargeLevel == 2)
+	else if (ChargeLevel == EChargeLevel::EChargeLevel2)
 	{
 		BWarn("Level 2 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
@@ -250,6 +288,11 @@ bool UPunchComponent_B::GetIsCharging()
 void UPunchComponent_B::SetIsCharging(bool Value)
 {
 	bIsCharging = Value;
+}
+
+bool UPunchComponent_B::GetIsDashing()
+{
+	return bIsDashing;
 }
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

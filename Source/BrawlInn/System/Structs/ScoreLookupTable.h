@@ -11,5 +11,4 @@ struct FScoreTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
 	int Value;
-
 };
