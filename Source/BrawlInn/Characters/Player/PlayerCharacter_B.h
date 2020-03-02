@@ -8,6 +8,7 @@
 #include "PlayerCharacter_B.generated.h"
 
 class AController;
+class UGameInstance_B;
 class UDataTable_B;
 class APlayerController_B;
 
@@ -92,4 +93,7 @@ private:
 
 	UPROPERTY()
 	UDataTable_B* Table = nullptr;
+
+	UPROPERTY()
+		UGameInstance_B* GameInstance = nullptr;
 };

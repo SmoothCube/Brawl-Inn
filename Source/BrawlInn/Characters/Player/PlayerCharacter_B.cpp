@@ -48,12 +48,14 @@ void APlayerCharacter_B::BeginPlay()
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::OnCapsuleOverlapBegin);
 
-
 	auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
 	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
 	DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
 
-	if (Cast<UGameInstance_B>(GetGameInstance())->ShouldUseSpreadSheets())
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
+
+	if (GameInstance->ShouldUseSpreadSheets())
 	{
 		Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
@@ -71,7 +73,7 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 			BreakFree();
 	}
 
-//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
+	//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 
 }
 
@@ -151,13 +153,16 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		if (LastHitBy)
+		if (LastHitBy) // Hit by someone before falling out of the world!
 		{
 			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
 			if (OtherPlayerController)
 			{
 				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 			}
+		}
+		else {
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
 		}
 	}
 	else
@@ -169,7 +174,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 	}
 
-	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameInstance)
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
@@ -232,7 +236,7 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	//Might be triggered twice
 	if (IsValid(OtherPlayer) && IsValid(Capsule))
 	{
-		if(IsValid(PunchComponent))
-			OtherPlayer->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity*(-PunchComponent->DashPushPercentage);
+		if (IsValid(PunchComponent))
+			OtherPlayer->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
 	}
 }
