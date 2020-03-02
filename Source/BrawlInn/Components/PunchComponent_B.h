@@ -145,17 +145,21 @@ protected:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
-	float DashSpeed = 5000.f;
+	float DashSpeed = 7500.f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashCooldown = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashTime = 0.2f;
 private:
 	float bCanDash = true;
 
 	FTimerHandle TH_DashAgainHandle;
+	FTimerHandle TH_DashDoneHandle;
 protected:
 	// ********** Various **********
 	UPROPERTY(EditAnywhere, Category = "Audio")

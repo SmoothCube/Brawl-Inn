@@ -99,6 +99,7 @@ void UPunchComponent_B::Dash()
 		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
 	}
 
+	bCanDash = false;
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_DashAgainHandle,
 		[&]()
@@ -108,14 +109,13 @@ void UPunchComponent_B::Dash()
 		DashCooldown,
 		false);
 
-	bCanDash = false;
 	GetWorld()->GetTimerManager().SetTimer(
-		TH_DashAgainHandle,
+		TH_DashDoneHandle,
 		[&]() 
 		{
-			OwningCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
 		},	
-		DashCooldown,
+		DashTime,
 	false);
 
 }
