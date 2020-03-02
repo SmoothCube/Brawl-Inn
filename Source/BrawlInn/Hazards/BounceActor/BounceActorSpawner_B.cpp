@@ -39,56 +39,44 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 
 void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 {
-	//cycles through the different paths instead of random spawning
-	int NextPath = FMath::RandRange(0, BouncePoints.Num() - 1);
-	if (BouncePoints.IsValidIndex(NextPath) && BouncePoints[NextPath])
+
+	TArray<AActor*> Players;
+	TSubclassOf<APlayerCharacter_B> PlayerClass;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCharacter_B::StaticClass(), Players);
+
+	int PlayerIndex = FMath::RandRange(0, Players.Num() - 1);
+	ABounceActor_B* NewBounceActor = nullptr;
+	if (Players.IsValidIndex(PlayerIndex) && Players[PlayerIndex])
 	{
-
-		TArray<AActor*> Players;
-		TSubclassOf<APlayerCharacter_B> PlayerClass;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCharacter_B::StaticClass(), Players);
-
-		int PlayerIndex = FMath::RandRange(0, Players.Num() - 1);
-		ABounceActor_B* NewBounceActor = nullptr;
-		if (Players.IsValidIndex(PlayerIndex) && Players[PlayerIndex])
+		NewBounceActor = SpawnBounceActor(Players[PlayerIndex]->GetActorLocation());
+		if (IsValid(NewBounceActor))
 		{
-			NewBounceActor = SpawnBounceActor(Players[PlayerIndex]->GetActorLocation());
-			if (IsValid(NewBounceActor))
-			{
-				NewBounceActor->Target = GetWorld()->SpawnActor<ABarrelTargetPoint_B>(TargetPointClass, Players[PlayerIndex]->GetActorLocation(), FRotator(0, 0, 0));
-				NewBounceActor->Target->SetActorHiddenInGame(false);
-				NewBounceActor->bShouldDestroyTarget = true;
-			}
-
-		}
-		else
-		{
-			NewBounceActor = SpawnBounceActor(BouncePoints[NextPath]->GetActorLocation());
-			BouncePoints[NextPath]->SetActorHiddenInGame(false);
-			if (IsValid(NewBounceActor))
-				NewBounceActor->Target = BouncePoints[NextPath];
-		}
-
-		if (SpawnCue)
-		{
-			float volume = 1.f;
-			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-			if (GameInstance)
-			{
-				volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-			}
-			UGameplayStatics::PlaySoundAtLocation(
-				GetWorld(),
-				SpawnCue,
-				GetActorLocation(),
-				volume
-			);
+			NewBounceActor->Target = GetWorld()->SpawnActor<ABarrelTargetPoint_B>(TargetPointClass, Players[PlayerIndex]->GetActorLocation(), FRotator(0, 0, 0));
+			NewBounceActor->Target->SetActorHiddenInGame(false);
+			NewBounceActor->bShouldDestroyTarget = true;
 		}
 	}
 	else
 	{
 		ABounceActor_B* NewBounceActor = SpawnBounceActor(FVector::ZeroVector);
 	}
+
+	if (SpawnCue)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			SpawnCue,
+			GetActorLocation(),
+			volume
+		);
+	}
+
 	float RandomSpawnTime = FMath::FRandRange(MinSpawnTime, MaxSpawnTime);
 	GetWorld()->GetTimerManager().SetTimer(TH_SpawnTimer, this, &ABounceActorSpawner_B::SpawnBarrelOnTimer, RandomSpawnTime, false);
 
