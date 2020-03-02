@@ -17,7 +17,7 @@
 // Sets default values
 ARespawnPawn_B::ARespawnPawn_B()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Decal = CreateDefaultSubobject<UDecalComponent>("Decal");
 	Decal->AddLocalRotation(FRotator(90, 0, 0));
@@ -53,7 +53,7 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 void ARespawnPawn_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(!bBarrelIsThrown)
+	if (!bBarrelIsThrown)
 		AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed);
 }
 
@@ -76,13 +76,22 @@ void ARespawnPawn_B::ThrowBarrel()
 				GameMode->AddCameraFocusPoint(Barrel);
 				GameMode->RemoveCameraFocusPoint(this);
 			}
-			
 		}
 		bBarrelIsThrown = true;
 	}
-	else if(Barrel)
+	else if (Barrel)
 	{
 		Barrel->SpawnPlayerCharacter();
 	}
+}
+
+void ARespawnPawn_B::SetInputVectorX(float X)
+{
+	InputVector.X = X;
+}
+
+void ARespawnPawn_B::SetInputVectorY(float Y)
+{
+	InputVector.Y = Y;
 }
 

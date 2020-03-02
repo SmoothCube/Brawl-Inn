@@ -150,7 +150,6 @@ void APlayerCharacter_B::RemoveStun()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-
 	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
