@@ -3,6 +3,7 @@
 #include "PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LocalPlayer.h"
@@ -228,9 +229,10 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
-	if (!OtherPlayer && Capsule)
-		return;
-
-	BWarn("Capsule Overlaps with %s", *GetNameSafe(OtherActor));
 	//Might be triggered twice
+	if (IsValid(OtherPlayer) && IsValid(Capsule))
+	{
+		if(IsValid(PunchComponent))
+			OtherPlayer->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity*(-PunchComponent->DashPushPercentage);
+	}
 }

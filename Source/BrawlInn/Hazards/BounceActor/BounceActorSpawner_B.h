@@ -46,9 +46,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	TArray<ABarrelTargetPoint_B*> BouncePoints;
-
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* SpawnCue;
 

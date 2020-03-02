@@ -100,14 +100,23 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	if (IsValid(Pawn))
 		Pawn->Destroy();
 
-	ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
-	PlayerController->Possess(RespawnPawn);
-	PlayerController->PlayerCharacter = nullptr;
-	PlayerController->RespawnPawn = RespawnPawn;
-	AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
-	if (MainMode)
- 	    MainMode->AddCameraFocusPoint(RespawnPawn);
+	TArray<AActor*> SpawnActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "RespawnStart", SpawnActors);
+	ARespawnPawn_B* RespawnPawn;
+	if(SpawnActors.IsValidIndex(0) && IsValid(SpawnActors[0]))
+		RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, SpawnActors[0]->GetActorTransform());
+	else
+		RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
+	if (RespawnPawn)
+	{
+		PlayerController->Possess(RespawnPawn);
+		PlayerController->RespawnPawn = RespawnPawn;
+		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+		if (MainMode)
+ 			MainMode->AddCameraFocusPoint(RespawnPawn);
+	}
 	
+	PlayerController->PlayerCharacter = nullptr;
 	UpdateViewTarget(PlayerController);
 	OnRespawnCharacter_D.Broadcast();
 }

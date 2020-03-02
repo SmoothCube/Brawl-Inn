@@ -66,6 +66,7 @@ public:
 	FVector CalculatePunchStrength();
 
 	void SetIsPunching(bool Value);
+
 	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
 
@@ -77,28 +78,28 @@ public:
 
 	EChargeLevel ChargeLevel;
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float ChargeTier2Percentage = 0.55;
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float ChargeTier3Percentage = 0.9;
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Level3PunchStrength = 1000000;		// this is used in fall
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Level2PunchStrength = 300000;		// this is used in movementComponent
 	
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Level1PunchStrength = 150000.f;	// this is used in movement
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Charge1MoveSpeed = 500.f;
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Charge2MoveSpeed = 250.f;
 
-	UPROPERTY(EditAnywhere, Category = "Punch | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Charge3MoveSpeed = 100.f;
 
 
@@ -108,27 +109,26 @@ private:
 protected:
 	bool bHasHit = false;
 
+	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
 	float PunchHitVelocityDamper = 0.3f;
 
-	float MinPunchStrengthToFall = 1000.f;
+	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	float BasePunchStrength = 150000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Punch")
-		float BasePunchStrength = 150000.f;
+	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	float PunchStrengthMultiplier = 135.f;
 
-	UPROPERTY(EditAnywhere, Category = "Punch")
-		float PunchStrengthMultiplier = 135.f;
+	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	float PunchWaitingTime = 0.1f;
 
-	UPROPERTY(EditAnywhere, Category = "Punch")
-		float PunchWaitingTime = 0.1f;
+	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
+	float MinPunchDashDistance = 150.f;
 
-	UPROPERTY(EditAnywhere, Category = "PunchDash")
-		float MinPunchDashDistance = 150.f;
+	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
+	float MaxPunchDashDistance = 300.f;
 
-	UPROPERTY(EditAnywhere, Category = "PunchDash")
-		float MaxPunchDashDistance = 300.f;
-
-	UPROPERTY(EditAnywhere, Category = "PunchDash")
-		float PunchDashForceModifier = 75000.f;
+	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
+	float PunchDashForceModifier = 75000.f;
 
 	FTimerHandle TH_PunchAgainHandle;
 
@@ -144,18 +144,22 @@ protected:
 	FVector VelocityBeforeDash = FVector::ZeroVector;
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
 	float DashSpeed = 7500.f;
 
-	UPROPERTY(EditAnywhere, Category = "Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
-	UPROPERTY(EditAnywhere, Category = "Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
 	float DashCooldown = 2.f;
 
-	UPROPERTY(EditAnywhere, Category = "Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
 	float DashTime = 0.2f;
+
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables | Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))
+	float DashPushPercentage = 0.5f;
+	
 	bool GetIsDashing();
 private:
 	bool bIsDashing = false;
@@ -164,10 +168,10 @@ private:
 	FTimerHandle TH_DashDoneHandle;
 protected:
 	// ********** Various **********
-	UPROPERTY(EditAnywhere, Category = "Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
 	USoundCue* PunchSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables | Damage")
 	TSubclassOf<UDamageType> BP_DamageType;
 
 	UFUNCTION()
