@@ -58,7 +58,7 @@ void ABounceActorSpawner_B::SpawnBarrelOnTimer()
 	}
 	else
 	{
-		ABounceActor_B* NewBounceActor = SpawnBounceActor(FVector::ZeroVector);
+		NewBounceActor = SpawnBounceActor(FVector::ZeroVector);
 	}
 
 	if (SpawnCue)
