@@ -93,7 +93,7 @@ void APlayerController_B::MoveUp(float Value)
 	}
 	else if (RespawnPawn)
 	{
-		RespawnPawn->InputVector.X = Value;
+		RespawnPawn->SetInputVectorX(Value);
 	}
 }
 void APlayerController_B::MoveRight(float Value)
@@ -104,7 +104,7 @@ void APlayerController_B::MoveRight(float Value)
 	}
 	else if (RespawnPawn)
 	{
-		RespawnPawn->InputVector.Y = Value;
+		RespawnPawn->SetInputVectorY(Value);
 	}
 }
 
