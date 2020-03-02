@@ -9,7 +9,6 @@
 
 #include "BrawlInn.h"
 #include "Components/BarMeshComponent_B.h"
-#include "Characters/AI/AIController_B.h"
 #include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
@@ -33,15 +32,6 @@ void ABar_B::BeginPlay()
 	StartTimerForNextTankard();
 	StartTimerForNextStool();
 
-	AIController = Cast<AAIController_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIController_B::StaticClass()));
-	if (AIController)
-	{
-		AIController->OnAIArrivedHome_D.AddUObject(this, &ABar_B::StartTimerForNextStool);
-	}
-	else
-	{
-		BError("AI Controller not found!");
-	}
 	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
 }
 
@@ -91,14 +81,8 @@ void ABar_B::StartTimerForNextStool()
 
 void ABar_B::SpawnStool()
 {
-	StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
-	if (IsValid(StoolToDeliver))
-	{
-		if (AIController)
-		{
-			AIController->OnStoolReceived_D.Broadcast(StoolToDeliver);
-		}
-	}
+	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
+	StoolToDeliver->Tags.Add("AI");
 }
 TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
 {

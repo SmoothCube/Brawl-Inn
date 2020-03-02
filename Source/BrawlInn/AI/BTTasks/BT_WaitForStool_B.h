@@ -17,6 +17,8 @@ class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
 
 		virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
 	UFUNCTION()
 		void RecieveStool(AItem_B* Stool);
 
@@ -27,5 +29,9 @@ class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
 		AAIController_B* OwningAI = nullptr;
 
 	UPROPERTY()
-		UBehaviorTreeComponent* OwnerComponent = nullptr;;
+		UBehaviorTreeComponent* OwnerComponent = nullptr;
+
+	UPROPERTY()
+	TArray<AActor*> ActorsWithTag;
+
 };

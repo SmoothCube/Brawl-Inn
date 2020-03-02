@@ -12,7 +12,6 @@ class UBarMeshComponent_B;
 class USoundCue;
 class AAIDropPoint_B;
 class AItem_B;
-class AAIController_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
@@ -81,18 +80,15 @@ protected:
 
 	// ********** Stool Respawning **********
 
-	void StartTimerForNextStool();
-
-	void SpawnStool();
-
 public:
+	void StartTimerForNextStool();
+	
 	TQueue<AAIDropPoint_B*>& GetStoolDropLocations();
 
 protected:
-	TQueue<AAIDropPoint_B*> StoolDropLocations;
+	void SpawnStool();
 
-	UPROPERTY()
-		AItem_B* StoolToDeliver = nullptr;
+	TQueue<AAIDropPoint_B*> StoolDropLocations;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
 		TSubclassOf<AItem_B> BP_Stool;
@@ -104,8 +100,4 @@ protected:
 		float MaxStoolSpawnTimer = 10.f;
 
 	FTimerHandle TH_NextStoolTimer;
-
-	// ********** Misc. **********
-	UPROPERTY()
-		AAIController_B* AIController = nullptr;
 };

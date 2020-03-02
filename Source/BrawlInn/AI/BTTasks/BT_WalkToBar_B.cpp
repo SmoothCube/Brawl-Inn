@@ -41,7 +41,6 @@ void UBT_WalkToBar_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 		}
 		else {
 			OwningAI->StopMovement();
-			OwningAI->OnAIArrivedHome_D.Broadcast();
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}
 	}

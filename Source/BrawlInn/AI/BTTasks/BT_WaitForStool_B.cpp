@@ -5,6 +5,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "BrawlInn.h"
 #include "Items/Item_B.h"
@@ -13,6 +14,8 @@
 EBTNodeResult::Type UBT_WaitForStool_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
+
+	bNotifyTick = true;
 
 	OwnerComponent = &OwnerComp;
 
@@ -23,9 +26,17 @@ EBTNodeResult::Type UBT_WaitForStool_B::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Aborted;
 	}
 
-	OwningAI->OnStoolReceived_D.AddUObject(this, &UBT_WaitForStool_B::RecieveStool);
-
 	return EBTNodeResult::InProgress;
+}
+void UBT_WaitForStool_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "AI", ActorsWithTag);
+	if (ActorsWithTag.Num() > 0 && OwnerComponent)
+	{
+		OwnerComponent->GetBlackboardComponent()->SetValueAsObject(HoldingActor.SelectedKeyName, ActorsWithTag[0]);
+		FinishLatentTask(*OwnerComponent, EBTNodeResult::Succeeded);
+	}
 }
 
 void UBT_WaitForStool_B::RecieveStool(AItem_B* Stool)

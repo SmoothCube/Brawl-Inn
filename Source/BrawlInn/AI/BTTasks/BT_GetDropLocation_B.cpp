@@ -22,6 +22,7 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Aborted;
 	}
 
+
 	if (Bar->GetStoolDropLocations().IsEmpty())
 		return EBTNodeResult::Failed;
 
@@ -30,6 +31,7 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 	{
 		Bar->GetStoolDropLocations().Pop();
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropActor.SelectedKeyName, DropPoint);
+		Bar->StartTimerForNextStool();
 		return EBTNodeResult::Succeeded;
 	}
 	return EBTNodeResult::Failed;

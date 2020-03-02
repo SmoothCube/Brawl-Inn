@@ -46,7 +46,7 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 	SetRootComponent(DestructibleComponent);
 
 	DestructibleComponent->SetCollisionProfileName("AfterFracture");
-
+	DestructibleComponent->SetGenerateOverlapEvents(false);
 
 	OnFracture.Broadcast();
 
