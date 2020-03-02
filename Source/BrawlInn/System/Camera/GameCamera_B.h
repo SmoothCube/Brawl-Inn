@@ -53,7 +53,7 @@ protected:
 		float LerpAlpha = 0.5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	FVector CameraOffset = FVector(1000,0,0);
+	FVector CameraOffset = FVector(0,0,0);
 
 	// ********** Zoom **********
 private:
