@@ -52,8 +52,23 @@ protected:
 	// ********** Movement **********
 
 	void HandleMovement(float DeltaTime);
-
+private:
 	float NormalMaxWalkSpeed = 0;
+
+	float RotationInterpSpeed = 10.f;
+protected:
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	float NormalRotationInterpSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	float Charge1RotSpeed = 3.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	float Charge2RotSpeed = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	float Charge3RotSpeed = 1.f;
+
 public:
 	FVector InputVector = FVector::ZeroVector;
 
@@ -127,9 +142,6 @@ public:
 	bool IsInvulnerable();
 protected:
 	void MakeVulnerable();
-
-
-
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;

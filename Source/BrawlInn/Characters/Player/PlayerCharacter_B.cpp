@@ -70,7 +70,6 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		if (CurrentHoldTime >= MaxHoldTime)
 			BreakFree();
 	}
-
 //	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 
 }
