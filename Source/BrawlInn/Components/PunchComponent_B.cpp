@@ -214,22 +214,28 @@ void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
 	switch (ChargeLevel)
 	{
 	case EChargeLevel::ENotCharging:
+		OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
 		break;
 	case EChargeLevel::EChargeLevel1:
+		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge1RotSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
 		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
 		break;
 	case EChargeLevel::EChargeLevel2:
+		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge2RotSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
+
 		break;
 	case EChargeLevel::EChargeLevel3:
+		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge3RotSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
 
 		break;
 	default:
+		OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
 		break;
 	}

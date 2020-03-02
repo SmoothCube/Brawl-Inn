@@ -38,9 +38,8 @@ protected:
 
 	UPROPERTY()
 	ACharacter_B* OwningCharacter = nullptr;
-
+public:
 	// ********** Punch **********
-public:	
 	UFUNCTION(BlueprintCallable)
 	void PunchStart();
 
@@ -52,6 +51,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsPunching();
 
+protected:	
 	void PunchHit(ACharacter_B* OtherPlayer);
 	void PunchHit(UPrimitiveComponent* OtherComp);
 
@@ -67,6 +67,7 @@ public:
 
 	void SetIsPunching(bool Value);
 
+public:
 	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
 
@@ -76,14 +77,13 @@ public:
 	bool GetIsCharging();
 	void SetIsCharging(bool Value);
 
-	EChargeLevel ChargeLevel;
-
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float ChargeTier2Percentage = 0.55;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float ChargeTier3Percentage = 0.9;
 
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Level3PunchStrength = 1000000;		// this is used in fall
 
@@ -102,8 +102,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Charge3MoveSpeed = 100.f;
 
-
 private:
+	EChargeLevel ChargeLevel;
 	bool bIsCharging = false;
 
 protected:

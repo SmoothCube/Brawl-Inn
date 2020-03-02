@@ -85,19 +85,17 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	GetMovementComponent()->AddInputVector(InputVector);
 
 	if (InputVector.SizeSquared() > 0)
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, 10.f));
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
 }
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
 	if (PunchComponent->bIsPunching || bIsInvulnerable)
 		return;
-	//float Speed = GetMovementComponent()->Velocity.Size();
-	//if (Speed >= NormalMaxWalkSpeed * FallLimitMultiplier)
-	{
-		MakeInvulnerable(FallRecoveryTime, false);
-		Fall(MeshForce, FallRecoveryTime);
-	}
+
+	MakeInvulnerable(FallRecoveryTime, false);
+	Fall(MeshForce, FallRecoveryTime);
+
 }
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
