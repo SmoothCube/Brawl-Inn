@@ -68,7 +68,6 @@ protected:
 	void SetIsPunching(bool Value);
 
 public:
-	UPROPERTY(BlueprintReadWrite, Editanywhere)
 	bool bIsPunching = false;
 
 	// ********** ChargePunch **********
@@ -78,7 +77,7 @@ public:
 	void SetIsCharging(bool Value);
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float ChargeTier2Percentage = 0.55;
+	float ChargeTier2Percentage = 0.45;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float ChargeTier3Percentage = 0.9;
@@ -129,6 +128,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
 	float PunchDashForceModifier = 75000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
+	USoundCue* ChargePunchSound = nullptr;
 
 	FTimerHandle TH_PunchAgainHandle;
 

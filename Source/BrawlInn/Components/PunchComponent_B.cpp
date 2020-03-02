@@ -208,7 +208,8 @@ void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
 
 	ChargeLevel = chargeLevel;
-
+	bool ShouldPlaySound = true;
+	float SoundPitch = 1.0f; 
 	if (!IsValid(OwningCharacter))
 		return;
 	switch (ChargeLevel)
@@ -216,34 +217,50 @@ void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
 	case EChargeLevel::ENotCharging:
 		OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
+		ShouldPlaySound = false;
 		break;
 	case EChargeLevel::EChargeLevel1:
 		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge1RotSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
 		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
+		ShouldPlaySound = false;
+		SoundPitch = 0.8f;
 		break;
 	case EChargeLevel::EChargeLevel2:
 		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge2RotSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
-
+		SoundPitch = 1.0f;
 		break;
 	case EChargeLevel::EChargeLevel3:
 		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge3RotSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
-
+		SoundPitch = 1.2f;
 		break;
 	default:
 		OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
 		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
+		ShouldPlaySound = false;
 		break;
 	}
-	//switch (chargeLevel)
-	//{
-	//default:
-	//	break;
-	//}
+
+	if (ShouldPlaySound && ChargePunchSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			ChargePunchSound,
+			GetComponentLocation(),
+			volume,
+			SoundPitch
+		);
+	}
 }
 FVector UPunchComponent_B::CalculatePunchStrength()
 {

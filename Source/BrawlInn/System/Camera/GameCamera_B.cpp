@@ -154,8 +154,6 @@ void AGameCamera_B::SetSpringArmLength()
 		CameraZoom = 0.f;
 	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, CameraZoom, LerpAlpha);
 
-	BWarn("FurthestDist: %f, CameraZoom: %f, TargetArmLength: %f", FurthestDist, CameraZoom, SpringArm->TargetArmLength);
-
 	if (SpringArm->TargetArmLength < SmallestSpringArmLength)
 		SpringArm->TargetArmLength = SmallestSpringArmLength;
 	//else if (SpringArm->TargetArmLength >= LargestSpringArmLength)PitchSetter
