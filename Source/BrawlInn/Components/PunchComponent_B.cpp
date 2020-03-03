@@ -28,6 +28,7 @@ void UPunchComponent_B::BeginPlay()
 
 void UPunchComponent_B::PunchStart()
 {
+	BWarn("Punch Start!", *GetNameSafe(this));
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	bIsCharging = false;
 	bIsPunching = true;
@@ -125,8 +126,10 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
+
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
+	BWarn("Punch End for %s", *GetNameSafe(OwningCharacter));
 
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -147,6 +150,8 @@ void UPunchComponent_B::PunchEnd()
 
 void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
+	BWarn("Punch Hit Player! %s", *GetNameSafe(OtherPlayer));
+
 	if (!OtherPlayer) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { BError("No PunchComponent found for OtherPlayer %s!", *GetNameSafe(OtherPlayer)); return; }
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
@@ -171,6 +176,8 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 
 void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 {
+	BWarn("Punch Hit %s! ", *GetNameSafe(OtherComp));
+
 	if (!OtherComp) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
 	if (OtherComp->IsSimulatingPhysics())
@@ -325,14 +332,22 @@ bool UPunchComponent_B::GetIsDashing()
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	BWarn("Overlap Start! with %s, %s", *GetNameSafe(OtherComp), *GetNameSafe(OtherActor));
+
+
 	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 
 	if (!bHasHit && OtherActor != OwningCharacter)
 	{
-		if (OtherPlayer != nullptr && Capsule != nullptr)
-			PunchHit(OtherPlayer);
+		if (IsValid(OtherPlayer))
+		{
+			if(IsValid(Capsule))
+				PunchHit(OtherPlayer);
+		}
 		else
+		{
 			PunchHit(OtherComp);
+		}
 	}
 }

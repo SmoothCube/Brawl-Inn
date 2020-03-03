@@ -24,8 +24,8 @@ void UHoldComponent_B::BeginPlay()
 	Super::BeginPlay();
 	SphereRadius = PickupRange;
 
-	//OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
-	//OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
+	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
+	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
 
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
