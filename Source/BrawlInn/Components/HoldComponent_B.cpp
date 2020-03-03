@@ -16,7 +16,7 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	SphereRadius = PickupRange;
 	PrimaryComponentTick.bCanEverTick = false;
-//	SetCollisionProfileName("Pickup-Trigger");
+	SetCollisionProfileName("Pickup-Trigger");
 }
 
 void UHoldComponent_B::BeginPlay()
@@ -24,8 +24,8 @@ void UHoldComponent_B::BeginPlay()
 	Super::BeginPlay();
 	SphereRadius = PickupRange;
 
-	//OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
-	//OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
+	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
+	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
 
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
@@ -38,9 +38,6 @@ bool UHoldComponent_B::TryPickup()
 	
 	TArray<AActor*> OverlappingThrowables;
 	GetOverlappingActors(OverlappingThrowables, UThrowableInterface_B::StaticClass());
-
-	for (auto& a : OverlappingThrowables)
-		BWarn("New Name: %s", *GetNameSafe(a));
 
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;

@@ -125,8 +125,10 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
+
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
+	BWarn("Punch End for %s", *GetNameSafe(OwningCharacter));
 
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -147,6 +149,8 @@ void UPunchComponent_B::PunchEnd()
 
 void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
+	BWarn("Punch Hit Player! %s", *GetNameSafe(OtherPlayer));
+
 	if (!OtherPlayer) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { BError("No PunchComponent found for OtherPlayer %s!", *GetNameSafe(OtherPlayer)); return; }
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
@@ -273,17 +277,14 @@ FVector UPunchComponent_B::CalculatePunchStrength()
 	FVector Strength;
 	if (ChargeLevel == EChargeLevel::EChargeLevel3)
 	{
-		BWarn("Level 3 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
 	}
 	else if (ChargeLevel == EChargeLevel::EChargeLevel2)
 	{
-		BWarn("Level 2 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
 	}
 	else
 	{
-		BWarn("Level 1 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
 	}
 	
@@ -330,9 +331,14 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 
 	if (!bHasHit && OtherActor != OwningCharacter)
 	{
-		if (OtherPlayer != nullptr && Capsule != nullptr)
-			PunchHit(OtherPlayer);
+		if (IsValid(OtherPlayer))
+		{
+			if(IsValid(Capsule))
+				PunchHit(OtherPlayer);
+		}
 		else
+		{
 			PunchHit(OtherComp);
+		}
 	}
 }

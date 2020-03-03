@@ -59,7 +59,7 @@ protected:
 		float AimAssistAngle = 20.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
-		float AimAssistRange = 2000.f;
+		float AimAssistRange = 1000.f;
 
 	// ********** Misc. **********
 

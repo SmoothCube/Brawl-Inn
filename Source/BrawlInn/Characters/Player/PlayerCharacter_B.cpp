@@ -125,7 +125,7 @@ void APlayerCharacter_B::StandUp()
 	Super::StandUp();
 	bCanBeHeld = false;
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
-
+	CurrentHoldTime = 0.f;
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
@@ -143,13 +143,14 @@ void APlayerCharacter_B::BreakFree()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorRotation(FRotator(0, 0, 0));
-
+	MakeInvulnerable(1.f);
 	//Moves forward a bit before turning on collisions, so we dont fly to hell because we overlap with the other player
 	if (HoldingCharacter)
 	{
 		AddActorLocalOffset(HoldingCharacter->GetActorForwardVector() * 100);
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
-		HoldingCharacter->AddStun(PunchesToStun);
+		HoldingCharacter->SetState(EState::EWalking);
+		HoldingCharacter->AddStun(PunchesToStun-1);
 		HoldingCharacter = nullptr;
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
