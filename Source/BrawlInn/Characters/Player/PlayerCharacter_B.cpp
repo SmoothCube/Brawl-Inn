@@ -8,6 +8,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LocalPlayer.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
 #include "System/DataTable_B.h"
@@ -102,6 +103,21 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
+	
+	if (HighShatterSound)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			HighShatterSound,
+			GetActorLocation(),
+			volume
+		);
+	}
 }
 
 void APlayerCharacter_B::StandUp()
@@ -203,6 +219,28 @@ void APlayerCharacter_B::AddStun(int Strength)
 {
 	Super::AddStun(Strength);
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
+
+	float volume = 1.f;
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance)
+		volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+
+	switch (StunAmount)	//slem gonza	
+	{
+	case 0:
+		break;
+	case 1:
+		if (LowShatterSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), volume);
+		break;
+	case 2:
+	case 3:
+		if (MidShatterSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), volume);
+		break;
+	case 4:
+		break;
+	}
 
 }
 

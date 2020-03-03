@@ -31,9 +31,16 @@ void UHoldComponent_B::BeginPlay()
 
 bool UHoldComponent_B::TryPickup()
 {
+	TArray<AActor*> A;
+
+	GetOverlappingActors(A, UThrowableInterface_B::StaticClass());
+	for (auto& a : A)
+		BWarn("New Name: %s", *GetNameSafe(a));
+
 	if (!OwningCharacter || OwningCharacter->GetState() != EState::EWalking) return false;
 	if (HoldingItem || ThrowableItemsInRange.Num() == 0) return false;
 	if (OwningCharacter->PunchComponent->bIsPunching) return false;
+
 
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
@@ -136,7 +143,6 @@ void UHoldComponent_B::RemoveItem(AActor* ActorToRemove)
 void UHoldComponent_B::Pickup(AActor* Item)
 {
 	OwningCharacter->SetState(EState::EHolding);
-
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
 		Interface->Execute_PickedUp(Item, OwningCharacter);

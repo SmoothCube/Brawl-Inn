@@ -10,6 +10,7 @@
 class AController;
 class UGameInstance_B;
 class UDataTable_B;
+class USoundCue;
 class APlayerController_B;
 
 UCLASS()
@@ -71,10 +72,23 @@ protected:
 
 	FTimerHandle LastHitByTimer_TH;
 
+	// ********** Shatter **********
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+		USoundCue* LowShatterSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+		USoundCue* MidShatterSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+		USoundCue* HighShatterSound = nullptr;
+	
+	
 	// ********** Misc. **********
 
 public:
 	virtual void AddStun(int Strength = 1) override;
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FPlayerInfo PlayerInfo;
