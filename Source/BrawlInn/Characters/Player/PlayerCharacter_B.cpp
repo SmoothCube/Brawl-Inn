@@ -107,15 +107,15 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 	
 	if (HighShatterSound)
 	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		float Volume = 1.f;
+		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HighShatterSound,
 			GetActorLocation(),
-			volume
+			Volume
 		);
 	}
 }
@@ -215,15 +215,15 @@ void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
 	}
 }
 
-void APlayerCharacter_B::AddStun(int Strength)
+void APlayerCharacter_B::AddStun(const int Strength)
 {
 	Super::AddStun(Strength);
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
 
-	float volume = 1.f;
-	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+	float Volume = 1.f;
+	GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameInstance)
-		volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 
 	switch (StunAmount)	//slem gonza	
 	{
@@ -231,12 +231,12 @@ void APlayerCharacter_B::AddStun(int Strength)
 		break;
 	case 1:
 		if (LowShatterSound)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), volume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), Volume);
 		break;
 	case 2:
 	case 3:
 		if (MidShatterSound)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), volume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), Volume);
 		break;
 	case 4:
 		break;

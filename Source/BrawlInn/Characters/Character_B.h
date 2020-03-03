@@ -110,7 +110,7 @@ protected:
 	// ********** Stun **********
 
 public:
-	virtual void AddStun(int Strength = 1);
+	virtual void AddStun(const int Strength = 1);
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;

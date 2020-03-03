@@ -86,7 +86,7 @@ protected:
 	// ********** Misc. **********
 
 public:
-	virtual void AddStun(int Strength = 1) override;
+	virtual void AddStun(const int Strength = 1) override;
 
 
 

@@ -201,7 +201,7 @@ bool ACharacter_B::CanBeHeld_Implementation() const
 	return bCanBeHeld;
 }
 
-void ACharacter_B::AddStun(int Strength)
+void ACharacter_B::AddStun(const int Strength)
 {
 	if (StunAmount == PunchesToStun - 1)
 	{
