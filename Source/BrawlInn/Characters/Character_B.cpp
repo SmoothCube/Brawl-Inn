@@ -38,8 +38,17 @@ ACharacter_B::ACharacter_B()
 	GetCharacterMovement()->BrakingFrictionFactor = 1;
 	GetCharacterMovement()->GroundFriction = 3;
 
+	GetCapsuleComponent()->SetCapsuleHalfHeight(91.f);
+	GetCapsuleComponent()->SetCapsuleRadius(60.f);
+//	GetCapsuleComponent()->SetMassOverrideInKg(NAME_None, 161.f);
+//	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+
+	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
+	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+
 	PS_Stun = CreateDefaultSubobject<UNiagaraComponent>("Stun Particle System");
 	PS_Stun->SetupAttachment(GetMesh());
+	PS_Stun->SetRelativeLocation( FVector(0.000000, -20.000000, 180.000000));
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
 	PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");

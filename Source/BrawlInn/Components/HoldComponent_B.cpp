@@ -16,6 +16,7 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	SphereRadius = PickupRange;
 	PrimaryComponentTick.bCanEverTick = false;
+//	SetCollisionProfileName("Pickup-Trigger");
 }
 
 void UHoldComponent_B::BeginPlay()
@@ -23,24 +24,23 @@ void UHoldComponent_B::BeginPlay()
 	Super::BeginPlay();
 	SphereRadius = PickupRange;
 
-	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
-	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
+	//OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
+	//OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
 
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
 
 bool UHoldComponent_B::TryPickup()
 {
-	TArray<AActor*> A;
-
-	GetOverlappingActors(A, UThrowableInterface_B::StaticClass());
-	for (auto& a : A)
-		BWarn("New Name: %s", *GetNameSafe(a));
 
 	if (!OwningCharacter || OwningCharacter->GetState() != EState::EWalking) return false;
-	if (HoldingItem || ThrowableItemsInRange.Num() == 0) return false;
 	if (OwningCharacter->PunchComponent->bIsPunching) return false;
+	
+	TArray<AActor*> OverlappingThrowables;
+	GetOverlappingActors(OverlappingThrowables, UThrowableInterface_B::StaticClass());
 
+	for (auto& a : OverlappingThrowables)
+		BWarn("New Name: %s", *GetNameSafe(a));
 
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
@@ -50,15 +50,11 @@ bool UHoldComponent_B::TryPickup()
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
 
 	TArray<AActor*> ThrowableItemsInCone;
-
-	TArray<AActor*> BrokenItems;
-	for (const auto& Item : ThrowableItemsInRange)
+	for (const auto& Item : OverlappingThrowables)
 	{
-		if (!IsValid(Item))
-		{
-			BrokenItems.Add(Item);
+		if (!IsValid(Item) || Item == OwningCharacter)
 			continue;
-		}
+		
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 		if (!Interface) continue;
 
@@ -74,17 +70,11 @@ bool UHoldComponent_B::TryPickup()
 			ThrowableItemsInCone.Add(Item);
 	}
 	AActor* NearestItem = nullptr;
-	for (auto& brokenItem : BrokenItems)
-	{
-		ThrowableItemsInRange.Remove(brokenItem);
-	}
-	BrokenItems.Empty();
-	if (ThrowableItemsInRange.Num() == 0) return false;
 
 	switch (ThrowableItemsInCone.Num())
 	{
 	case 0:
-		ThrowableItemsInRange.Sort([&](const AActor& LeftSide, const AActor& RightSide)
+		OverlappingThrowables.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -94,10 +84,10 @@ bool UHoldComponent_B::TryPickup()
 				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
-		NearestItem = ThrowableItemsInRange[0];
+		NearestItem = OverlappingThrowables[0];	
 		break;
 	case 1:
-		NearestItem = ThrowableItemsInCone[0];
+		NearestItem = ThrowableItemsInCone[0];	//crashed?
 		break;
 	default:
 		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)
@@ -113,7 +103,7 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
-	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);						//TODO gjør om
+	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);		
 	if (Character)
 	{
 		if (Character->CanBeHeld_Implementation() && !Character->IsInvulnerable())
@@ -126,18 +116,6 @@ bool UHoldComponent_B::TryPickup()
 
 	Pickup(NearestItem);
 	return true;
-}
-
-void UHoldComponent_B::AddItem(AActor* ActorToAdd)
-{
-	auto Index = ThrowableItemsInRange.Find(ActorToAdd); //Only add if it doesnt exist.
-	if (Index == INDEX_NONE)
-		ThrowableItemsInRange.Add(ActorToAdd);
-}
-
-void UHoldComponent_B::RemoveItem(AActor* ActorToRemove)
-{
-	ThrowableItemsInRange.Remove(ActorToRemove);
 }
 
 void UHoldComponent_B::Pickup(AActor* Item)
@@ -158,7 +136,6 @@ void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
 	if (!Interface || !Interface->Execute_CanBeHeld(OtherActor))
 		return;
-	AddItem(OtherActor);
 }
 
 void UHoldComponent_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
@@ -168,7 +145,6 @@ void UHoldComponent_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 	if (!Interface)
 		return;
 
-	RemoveItem(OtherActor);
 }
 
 bool UHoldComponent_B::IsHolding()

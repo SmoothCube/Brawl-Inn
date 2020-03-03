@@ -68,7 +68,7 @@ protected:
 		UTexture2D* GreyHealthIcon = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Info")
-		float RespawnDelay = 3.f;
+		float RespawnDelay = 1.f;
 
 	FTimerHandle LastHitByTimer_TH;
 

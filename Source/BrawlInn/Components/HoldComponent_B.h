@@ -25,10 +25,6 @@ protected:
 public:
 	bool TryPickup();
 
-	void AddItem(AActor* ActorToAdd);
-
-	void RemoveItem(AActor* ActorToRemove);
-
 protected:
 	void Pickup(AActor* Item);
 
@@ -41,13 +37,10 @@ protected:
 		float PickupAngle = 60.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float PickupRange = 125.f;
+		float PickupRange = 200.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float InnerPickupRange = 25.f;
-
-	UPROPERTY()
-		TArray<AActor*> ThrowableItemsInRange;
 
 	// ********** Holding **********
 public:

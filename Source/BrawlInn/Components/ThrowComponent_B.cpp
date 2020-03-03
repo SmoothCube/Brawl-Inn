@@ -97,7 +97,6 @@ void UThrowComponent_B::Throw()
 	{
 		if (IsValid(OwningCharacter->HoldComponent))
 		{
-			OwningCharacter->HoldComponent->RemoveItem(OwningCharacter->HoldComponent->GetHoldingItem());
 			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
 		}
 		else
