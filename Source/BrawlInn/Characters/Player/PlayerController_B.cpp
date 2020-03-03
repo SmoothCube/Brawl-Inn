@@ -204,11 +204,11 @@ void APlayerController_B::OnUnPossess()
 }
 
 //Send in damage from 1-100
-void APlayerController_B::TakeDamage_Implementation(int DamageAmount)
-{
-//	HealthComponent->TakeDamage(DamageAmount);
-//	GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
-}
+//void APlayerController_B::TakeDamage_Implementation(int DamageAmount)
+//{
+////	HealthComponent->TakeDamage(DamageAmount);
+////	GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+//}
 
 void APlayerController_B::DEBUG_TEST01()
 {

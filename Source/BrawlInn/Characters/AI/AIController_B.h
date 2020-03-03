@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "System/Interfaces/ControllerInterface_B.h"
 #include "AIController_B.generated.h"
 
 
 UCLASS()
-class BRAWLINN_API AAIController_B : public AAIController, public IControllerInterface_B
+class BRAWLINN_API AAIController_B : public AAIController
 {
 	GENERATED_BODY()
 
@@ -17,6 +16,6 @@ class BRAWLINN_API AAIController_B : public AAIController, public IControllerInt
 protected:
 
 	// ********** Controller Interface **********
-	virtual void TakeDamage_Implementation(int DamageAmount) override;
+	//virtual void TakeDamage_Implementation(int DamageAmount) override;
 
 };
