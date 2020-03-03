@@ -34,9 +34,10 @@ protected:
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
 	UFUNCTION()
-		void Die();
+	void Die();
 
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1) override;
+	virtual void StandUp() override;
 
 	// ********** Hold players **********
 
@@ -52,10 +53,6 @@ protected:
 		float MaxHoldTime = 4.f;
 
 	float CurrentHoldTime = 0.f;
-
-	// ********** Stun **********
-
-	virtual void RemoveStun() override;
 
 	// ********** Damage **********
 
@@ -77,6 +74,8 @@ protected:
 	// ********** Misc. **********
 
 public:
+	virtual void AddStun(int Strength = 1) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FPlayerInfo PlayerInfo;
 

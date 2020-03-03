@@ -20,7 +20,6 @@ enum class EState : uint8
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
 	EFallen		UMETA(DisplayName = "Fallen"),
-	EStunned	UMETA(DisplayName = "Stunned"),
 	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
 };
 
@@ -77,7 +76,7 @@ public:
 protected:
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
 
-	void StandUp();
+	virtual void StandUp();
 
 	FVector FindMeshLocation();
 
@@ -104,20 +103,15 @@ public:
 
 protected:
 	UPROPERTY()
-		ACharacter_B* HoldingCharacter = nullptr;
+	ACharacter_B* HoldingCharacter = nullptr;
 
 	bool bCanBeHeld = true;
 
 	// ********** Stun **********
 
 public:
-	void AddStun(int Strength = 1);
+	virtual void AddStun(int Strength = 1);
 
-protected:
-	virtual void RemoveStun();
-
-
-public:
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;
 

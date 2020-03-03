@@ -76,7 +76,7 @@ protected:
 		UHoldComponent_B* HoldComponent = nullptr;
 
 	UPROPERTY()
-		ACharacter_B* OwningCharacter = nullptr;
+	ACharacter_B* OwningCharacter = nullptr;
 
 	bool IsReady() const;
 };

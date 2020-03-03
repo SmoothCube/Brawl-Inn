@@ -95,7 +95,7 @@ void UThrowComponent_B::Throw()
 	}
 	if (IsValid(OwningCharacter))
 	{
-		if (OwningCharacter->HoldComponent)
+		if (IsValid(OwningCharacter->HoldComponent))
 		{
 			OwningCharacter->HoldComponent->RemoveItem(OwningCharacter->HoldComponent->GetHoldingItem());
 			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
@@ -142,7 +142,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
-		if (OtherPlayer->GetState() == EState::EFallen)
+		if (!IsValid(OtherPlayer) || (OtherPlayer->GetState() == EState::EFallen))
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
 		OtherPlayerLocation.Z = 0;

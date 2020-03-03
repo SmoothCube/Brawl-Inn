@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "System/Interfaces/ControllerInterface_B.h"
 #include "Characters/Player/PlayerInfo.h"
 #include "PlayerController_B.generated.h"
 
@@ -14,7 +13,7 @@ class ARespawnPawn_B;
 class UCharacterSelectionComponent_B;
 
 UCLASS()
-class BRAWLINN_API APlayerController_B : public APlayerController, public IControllerInterface_B
+class BRAWLINN_API APlayerController_B : public APlayerController
 {
 	GENERATED_BODY()
 
@@ -50,7 +49,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Variables")
 	bool bVibrateControllers = false;
 
-	virtual void TakeDamage_Implementation(int DamageAmount) override;
+	//virtual void TakeDamage_Implementation(int DamageAmount) override;
 
 
 

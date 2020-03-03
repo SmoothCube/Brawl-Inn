@@ -150,13 +150,14 @@ void AGameCamera_B::SetSpringArmLength()
 	}
 
 	CameraZoom += FurthestDist * 0.1f;
-
+	if (CameraZoom < 0.f)
+		CameraZoom = 0.f;
 	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, CameraZoom, LerpAlpha);
 
-	if (SpringArm->TargetArmLength <= SmallestSpringArmLength)
+	if (SpringArm->TargetArmLength < SmallestSpringArmLength)
 		SpringArm->TargetArmLength = SmallestSpringArmLength;
-	else if (SpringArm->TargetArmLength >= LargestSpringArmLength)
-		SpringArm->TargetArmLength = LargestSpringArmLength;
+	//else if (SpringArm->TargetArmLength >= LargestSpringArmLength)PitchSetter
+	//	SpringArm->TargetArmLength = LargestSpringArmLength;
 	
 }
 
@@ -167,6 +168,8 @@ void AGameCamera_B::SetSpringArmPitch()
 
 	float NormalizedLength = (Length - SmallestSpringArmLength) / (LargestSpringArmLength - SmallestSpringArmLength);
 	float PitchSetter = 1 - (NormalizedLength*NormalizedLength);
+	if (PitchSetter > 1)
+		PitchSetter = 1;
 	//map normalization to the value
 	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
 
