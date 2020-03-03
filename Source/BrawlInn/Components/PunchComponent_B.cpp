@@ -201,6 +201,11 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 		else
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
 
+		if (OwningCharacter->StunAmount >= OwningCharacter->PunchesToStun)
+		{
+			OwningCharacter->CheckFall(InPunchStrength);
+		}
+
 	}
 }
 

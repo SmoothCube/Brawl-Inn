@@ -106,10 +106,10 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
-	ACharacter_B* Player = Cast<ACharacter_B>(NearestItem);						//TODO gjør om
-	if (Player)
+	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);						//TODO gjør om
+	if (Character)
 	{
-		if ((Player->GetState() == EState::EFallen) && !Player->IsInvulnerable())
+		if (Character->CanBeHeld_Implementation() && !Character->IsInvulnerable())
 		{
 			Pickup(NearestItem);
 			return true;
@@ -152,7 +152,6 @@ void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
 	if (!Interface || !Interface->Execute_CanBeHeld(OtherActor))
 		return;
-
 	AddItem(OtherActor);
 }
 

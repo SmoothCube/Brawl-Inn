@@ -90,7 +90,6 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 	if (PunchComponent->bIsPunching || bIsInvulnerable)
 		return;
 
-	MakeInvulnerable(FallRecoveryTime, false);
 	Fall(MeshForce, FallRecoveryTime);
 
 }
@@ -177,10 +176,12 @@ void ACharacter_B::Dropped_Implementation()
 void ACharacter_B::Use_Implementation()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-	FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
-	HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
-	Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed, FallRecoveryTime);
+	if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->ThrowComponent))
+	{
+		FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
+		HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
+		Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed, FallRecoveryTime);
+	}
 	GetMesh()->SetSimulatePhysics(true);
 
 	HoldingCharacter = nullptr;
@@ -205,9 +206,10 @@ void ACharacter_B::AddStun(int Strength)
 	BWarn("StunAmount: %d", StunAmount);	
 	if (StunAmount == PunchesToStun - 1)
 	{
-		Fall(FVector::ZeroVector, StunTime);
+		StunAmount += Strength;
+		return;
 	}
-	StunAmount += Strength;
+		StunAmount += Strength;
 	if (StunAmount >= PunchesToStun -1)
 	{
 		StunAmount = PunchesToStun - 1;

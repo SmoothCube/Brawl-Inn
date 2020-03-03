@@ -36,6 +36,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	ForceSocketName = "spine2_export_C_jnt";
+	PunchesToStun = 4;
+	bCanBeHeld = false;
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -101,9 +103,15 @@ void APlayerCharacter_B::Die()
 void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
 	Super::Fall(MeshForce, RecoveryTime);
-
+	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
+}
+
+void APlayerCharacter_B::StandUp()
+{
+	Super::StandUp();
+	bCanBeHeld = false;
 }
 
 void APlayerCharacter_B::Dropped_Implementation()

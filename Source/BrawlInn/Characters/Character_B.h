@@ -76,7 +76,7 @@ public:
 protected:
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
 
-	void StandUp();
+	virtual void StandUp();
 
 	FVector FindMeshLocation();
 
@@ -103,7 +103,7 @@ public:
 
 protected:
 	UPROPERTY()
-		ACharacter_B* HoldingCharacter = nullptr;
+	ACharacter_B* HoldingCharacter = nullptr;
 
 	bool bCanBeHeld = true;
 
@@ -120,7 +120,7 @@ protected:
 		float StunTime = 3.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		int PunchesToStun = 4;
+		int PunchesToStun = 2;
 
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_Stun = nullptr;
