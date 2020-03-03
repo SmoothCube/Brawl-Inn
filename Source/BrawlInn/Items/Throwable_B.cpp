@@ -48,7 +48,7 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 	DestructibleComponent->SetCollisionProfileName("AfterFracture");
 	DestructibleComponent->SetGenerateOverlapEvents(false);
 
-	OnFracture.Broadcast();
+	OnFracture_Delegate.Broadcast();
 
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, [&]() {

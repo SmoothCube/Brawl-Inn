@@ -41,7 +41,7 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	NewBounceActor->SetActorRotation(FRotator(0, 50, 0));
 	FVector LaunchVel = FVector::ZeroVector;
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), TargetLocation, 0.0f, 0.5f);
-	NewBounceActor->Mesh->AddImpulse(LaunchVel, NAME_None, true);
+	NewBounceActor->GetMesh()->AddImpulse(LaunchVel, NAME_None, true);
 	NewBounceActor->DestructibleComponent->SetSimulatePhysics(true);
 
 	return NewBounceActor;

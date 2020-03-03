@@ -19,49 +19,60 @@ UCLASS(DontCollapseCategories)
 class BRAWLINN_API AItem_B : public AActor, public IThrowableInterface_B
 {
 	GENERATED_BODY()
-	
-public:	
+protected:
+
 	AItem_B();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		UStaticMeshComponent* Mesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		UCapsuleComponent* PickupCapsule;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		TSubclassOf<UDamageType> BP_DamageType;
-
-	FOnFracture OnFracture;
-
-protected:
-	// ** Overridden functions ** 
+	// ********** AActor **********
 	virtual void BeginPlay() override;
 
-protected:
-	virtual void OnItemFracture();
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
-	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	// ********** IThrowableInterface **********
 
 	virtual bool IsHeld_Implementation() const override;
 
 	virtual bool CanBeHeld_Implementation() const override;
-	
-	// ** Delegates ** 
+
+	// ********** Components **********
+public:
+	UStaticMeshComponent* GetMesh() const;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UStaticMeshComponent* Mesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UCapsuleComponent* PickupCapsule;
+
+	// ********** Destroy/Fracture **********
+public:
+	FOnFracture& OnFracture();
+
+protected:
+	FOnFracture OnFracture_Delegate;
+
+	//Called when OnFracture is broadcasted
+	virtual void OnItemFracture();
+
+	bool bIsFractured = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Juice|Destroy")
+		UNiagaraSystem* PS_OnDestroy;
+
+	UPROPERTY(EditAnywhere, Category = "Juice|Destroy")
+		USoundCue* DestroyedCue;
+
+	// ********** Misc. **********
 
 	UFUNCTION()
 		void OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// ** Variables **
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Juice")
-		UNiagaraSystem* PS_OnDestroy;
+	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	bool bCanBeHeld = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		TSubclassOf<UDamageType> BP_DamageType;
 
 	UPROPERTY()
-	ACharacter_B* OwningCharacter = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "Audio")
-	USoundCue* DestroyedCue;
-
+		ACharacter_B* OwningCharacter = nullptr;
 };

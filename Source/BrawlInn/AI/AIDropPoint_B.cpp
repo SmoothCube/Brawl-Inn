@@ -15,7 +15,7 @@ void AAIDropPoint_B::BeginPlay()
 	Item = GetWorld()->SpawnActor<AItem_B>(ItemToSpawn, GetActorTransform());
 	if (Item)
 	{
-		Item->OnFracture.AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
+		Item->OnFracture().AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
 	}
 }
 
@@ -32,6 +32,6 @@ void AAIDropPoint_B::SetNewItem(AItem_B* NewItem)
 	Item = NewItem;
 	if (Item)
 	{
-		Item->OnFracture.AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
+		Item->OnFracture().AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
 	}
 }

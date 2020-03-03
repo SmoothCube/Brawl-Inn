@@ -26,7 +26,7 @@ void UPathFollowingComponent_B::FollowPathSegment(float DeltaTime)
 	AAIController_B* Controller = Cast<AAIController_B>(GetOwner());
 	AAICharacter_B* Character = Cast<AAICharacter_B>(Controller->GetPawn());
 	Character->SetActorRotation(MoveSegmentDirection.ToOrientationRotator());
-	  DrawDebugLine(GetWorld(), Character->GetActorLocation(), Character->GetActorLocation() + (MoveSegmentDirection.GetSafeNormal() * 200.f), FColor::Red, false, DeltaTime);
+	//DrawDebugLine(GetWorld(), Character->GetActorLocation(), Character->GetActorLocation() + (MoveSegmentDirection.GetSafeNormal() * 200.f), FColor::Red, false, DeltaTime);
 
 }
 

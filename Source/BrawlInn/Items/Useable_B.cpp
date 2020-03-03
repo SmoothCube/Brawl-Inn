@@ -84,7 +84,7 @@ void AUseable_B::Use_Implementation()
 	if (GameMode)
 		GameMode->RemoveCameraFocusPoint(this);
 
-	OnFracture.Broadcast();
+	OnFracture_Delegate.Broadcast();
 
 	Execute_Dropped(this);
 }

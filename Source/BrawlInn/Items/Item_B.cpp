@@ -31,10 +31,9 @@ void AItem_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnFracture.AddUObject(this, &AItem_B::OnItemFracture);
+	OnFracture_Delegate.AddUObject(this, &AItem_B::OnItemFracture);
 	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
 }
-
 
 bool AItem_B::IsHeld_Implementation() const
 {
@@ -43,12 +42,27 @@ bool AItem_B::IsHeld_Implementation() const
 
 bool AItem_B::CanBeHeld_Implementation() const
 {
-	return bCanBeHeld;
+	return !bIsFractured;
+}
+
+UStaticMeshComponent* AItem_B::GetMesh() const
+{
+	return Mesh;
+}
+
+FOnFracture& AItem_B::OnFracture()
+{
+	return OnFracture_Delegate;
+}
+
+void AItem_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+	OnFracture_Delegate.Broadcast();
+	Super::FellOutOfWorld(dmgType);
 }
 
 void AItem_B::OnItemFracture()
 {
-	BLog("Destroy");
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));
 
 	if (DestroyedCue)
@@ -67,7 +81,7 @@ void AItem_B::OnItemFracture()
 		);
 	}
 
-	bCanBeHeld = false;
+	bIsFractured = true;
 }
 
 void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
