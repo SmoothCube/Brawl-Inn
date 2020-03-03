@@ -8,7 +8,6 @@
 
 class AAIController_B;
 class AAICharacter_B;
-class AItem_B;
 
 UCLASS()
 class BRAWLINN_API UBT_DropItem_B : public UBTTaskNode
@@ -23,9 +22,6 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector HoldingActor;
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<AItem_B> BP_Item;
 
 	UPROPERTY()
 	AAIController_B* OwningAI = nullptr;

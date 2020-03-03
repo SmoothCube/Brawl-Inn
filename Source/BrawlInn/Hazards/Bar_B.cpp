@@ -64,25 +64,6 @@ void ABar_B::SpawnTankard()
 	Item->Tags.Add("AITankard");
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
 
-	if (TankardSpawnSound)
-	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
-		UGameplayStatics::PlaySoundAtLocation(
-			GetWorld(),
-			TankardSpawnSound,
-			House->GetSocketLocation(ItemSocket),
-			volume
-		);
-	}
-	if (TankardSpawnParticle)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TankardSpawnParticle, House->GetSocketLocation(ItemSocket), FRotator(90, 0, 0), FVector(5, 5, 5));
-	}
 }
 void ABar_B::StartTimerForNextStool()
 {

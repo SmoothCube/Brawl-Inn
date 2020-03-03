@@ -32,7 +32,6 @@ void UBT_GetDropLocation_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropLocationActor.SelectedKeyName, *Bar->GetDropLocations(Type)->Peek());
 		Bar->GetDropLocations(Type)->Pop();
-		//Bar->StartTimerForNextStool();
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 
