@@ -142,12 +142,6 @@ void APlayerCharacter_B::BreakFree()
 	CurrentHoldTime = 0.f;
 }
 
-void APlayerCharacter_B::RemoveStun()
-{
-	Super::RemoveStun();
-	CurrentHoldTime = 0.f;
-}
-
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));

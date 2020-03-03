@@ -20,7 +20,6 @@ enum class EState : uint8
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
 	EFallen		UMETA(DisplayName = "Fallen"),
-	EStunned	UMETA(DisplayName = "Stunned"),
 	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
 };
 
@@ -113,11 +112,6 @@ protected:
 public:
 	void AddStun(int Strength = 1);
 
-protected:
-	virtual void RemoveStun();
-
-
-public:
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;
 
@@ -126,7 +120,7 @@ protected:
 		float StunTime = 3.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		int PunchesToStun = 2;
+		int PunchesToStun = 4;
 
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_Stun = nullptr;

@@ -70,10 +70,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	}
 	else if (GetState() != EState::EBeingHeld)
 	{
-		if (!(GetState() == EState::EStunned))
-		{
-			HandleMovement(DeltaTime);
-		}
+		HandleMovement(DeltaTime);
 	}
 }
 
@@ -135,6 +132,7 @@ void ACharacter_B::StandUp()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	MakeInvulnerable(InvulnerabilityTime);
 	SetState(EState::EWalking);
+	StunAmount = 0;
 }
 
 FVector ACharacter_B::FindMeshLocation()
@@ -204,22 +202,18 @@ bool ACharacter_B::CanBeHeld_Implementation() const
 
 void ACharacter_B::AddStun(int Strength)
 {
-	if (GetState() == EState::EStunned)
-		return;
-
+	BWarn("StunAmount: %d", StunAmount);	
+	if (StunAmount == PunchesToStun - 1)
+	{
+		Fall(FVector::ZeroVector, StunTime);
+	}
 	StunAmount += Strength;
-	if (StunAmount >= PunchesToStun)
-		SetState(EState::EStunned);
-
-	GetWorld()->GetTimerManager().SetTimer(TH_StunTimer, this, &ACharacter_B::RemoveStun, StunTime, false);
-}
-
-void ACharacter_B::RemoveStun()
-{
-	if (GetState() == EState::EStunned)
-		SetState(EState::EWalking);
-
-	StunAmount = 0;
+	if (StunAmount >= PunchesToStun -1)
+	{
+		StunAmount = PunchesToStun - 1;
+		if (IsValid(PS_Stun))
+			PS_Stun->Activate();
+	}
 }
 
 void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
@@ -268,15 +262,6 @@ bool ACharacter_B::HasShield() const
 
 void ACharacter_B::SetState(EState s)
 {
-	//on leaving state
-	switch (State)
-	{
-	case EState::EStunned:
-		if (IsValid(PS_Stun))
-			PS_Stun->DeactivateImmediate();
-		break;
-	}
-
 	State = s;
 	//Entering state
 	switch (State)
@@ -286,10 +271,6 @@ void ACharacter_B::SetState(EState s)
 		break;
 	case EState::EHolding:
 		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;
-		break;
-	case EState::EStunned:
-		if (IsValid(PS_Stun))
-			PS_Stun->Activate();
 		break;
 	}
 }

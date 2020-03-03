@@ -53,10 +53,6 @@ protected:
 
 	float CurrentHoldTime = 0.f;
 
-	// ********** Stun **********
-
-	virtual void RemoveStun() override;
-
 	// ********** Damage **********
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;

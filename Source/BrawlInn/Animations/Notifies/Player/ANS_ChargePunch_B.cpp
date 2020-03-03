@@ -44,7 +44,10 @@ void UANS_ChargePunch_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 void UANS_ChargePunch_B::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	Player->PunchComponent->SetChargeLevel(EChargeLevel::ENotCharging);
+	if (IsValid(Player) && IsValid(Player->PunchComponent))
+	{
+		Player->PunchComponent->SetChargeLevel(EChargeLevel::ENotCharging);
+	}
 
 	bChargeLevel1Reached = false;
 	bChargeLevel2Reached = false;
