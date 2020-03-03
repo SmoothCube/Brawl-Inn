@@ -16,7 +16,7 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
 	SphereRadius = PickupRange;
 	PrimaryComponentTick.bCanEverTick = false;
-//	SetCollisionProfileName("Pickup-Trigger");
+	SetCollisionProfileName("Pickup-Trigger");
 }
 
 void UHoldComponent_B::BeginPlay()

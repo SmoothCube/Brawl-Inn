@@ -40,8 +40,8 @@ ACharacter_B::ACharacter_B()
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(91.f);
 	GetCapsuleComponent()->SetCapsuleRadius(60.f);
-//	GetCapsuleComponent()->SetMassOverrideInKg(NAME_None, 161.f);
-//	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+	GetCapsuleComponent()->SetMassOverrideInKg(NAME_None, 161.f);
+	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
