@@ -60,13 +60,13 @@ protected:
 	float NormalRotationInterpSpeed = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float Charge1RotSpeed = 3.f;
+	float Charge1RotSpeed = 1.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float Charge2RotSpeed = 2.f;
+	float Charge2RotSpeed = 0.7f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float Charge3RotSpeed = 1.f;
+	float Charge3RotSpeed = 0.1f;
 
 public:
 	FVector InputVector = FVector::ZeroVector;
