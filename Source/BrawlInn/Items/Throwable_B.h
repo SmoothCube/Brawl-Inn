@@ -12,35 +12,45 @@ UCLASS()
 class BRAWLINN_API AThrowable_B : public AItem_B
 {
 	GENERATED_BODY()
-	
-public:
+
+protected:
 
 	AThrowable_B();
 
-	UPROPERTY(VisibleAnywhere)
-		UDestructibleComponent* DestructibleComponent;
+	// ********** AActor **********
 
+	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
-
-	// ** Overridden functions **
-		virtual void BeginPlay() override;
+	// ********** Throwing **********
 
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
 
 	virtual void Use_Implementation() override;
+
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
-protected:
-	// ** Variables **
-
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float ThrowHitStrength = 100;
+		float ThrowHitStrength = 100;
+	
+	// ********** Components **********
 
+public:
+
+	UDestructibleComponent* GetDestructibleComponent() const;
+protected:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UDestructibleComponent* DestructibleComponent;
+
+	// ********** Destroy/Fracture **********
+
+	UFUNCTION()
+		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
+	
+	// ********** Score **********
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
-	int ScoreAmount = 1;
+		int ScoreAmount = 1;
 
 };

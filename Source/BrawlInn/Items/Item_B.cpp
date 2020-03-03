@@ -1,17 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Item_B.h"
-#include "NiagaraSystem.h"
-#include "NiagaraFunctionLibrary.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "Sound/SoundCue.h"
 
-#include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "System/GameInstance_B.h"
-#include "Components/HoldComponent_B.h"
 
 AItem_B::AItem_B()
 {
@@ -35,6 +33,17 @@ void AItem_B::BeginPlay()
 	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
 }
 
+void AItem_B::FellOutOfWorld(const UDamageType& DmgType)
+{
+	OnFracture_Delegate.Broadcast();
+	Super::FellOutOfWorld(DmgType);
+}
+
+UStaticMeshComponent* AItem_B::GetMesh() const
+{
+	return Mesh;
+}
+
 bool AItem_B::IsHeld_Implementation() const
 {
 	return (IsValid(OwningCharacter));
@@ -44,23 +53,10 @@ bool AItem_B::CanBeHeld_Implementation() const
 {
 	return !bIsFractured;
 }
-
-UStaticMeshComponent* AItem_B::GetMesh() const
-{
-	return Mesh;
-}
-
 FOnFracture& AItem_B::OnFracture()
 {
 	return OnFracture_Delegate;
 }
-
-void AItem_B::FellOutOfWorld(const UDamageType& dmgType)
-{
-	OnFracture_Delegate.Broadcast();
-	Super::FellOutOfWorld(dmgType);
-}
-
 void AItem_B::OnItemFracture()
 {
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));

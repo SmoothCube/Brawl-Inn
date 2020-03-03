@@ -9,8 +9,6 @@
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "Characters/Character_B.h"
@@ -37,6 +35,53 @@ void AThrowable_B::BeginPlay()
 	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Throwable")->Value;
 }
 
+void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
+{
+	Mesh->SetVisibility(true);
+
+	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DestructibleComponent->SetSimulatePhysics(false);
+
+	Mesh->SetSimulatePhysics(false);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PickupCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	OwningCharacter = Player;
+}
+
+void AThrowable_B::Dropped_Implementation()
+{
+	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(Rules);
+	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
+	Mesh->SetSimulatePhysics(true);
+	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+}
+
+void AThrowable_B::Use_Implementation()
+{
+	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, false);
+	DetachFromActor(Rules);
+	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
+	Mesh->SetSimulatePhysics(true);
+	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+
+	/// Throw with the help of AimAssist.
+	if (IsValid(OwningCharacter))
+	{
+		FVector TargetLocation = OwningCharacter->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
+		OwningCharacter->ThrowComponent->AimAssist(TargetLocation);
+		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningCharacter->ThrowComponent->ImpulseSpeed * 0.02f, NAME_None, true);
+		Mesh->SetVisibility(false);
+		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		DestructibleComponent->SetCollisionProfileName("Destructible");
+		DestructibleComponent->SetSimulatePhysics(true);
+	}
+	else
+	{
+		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
+	}
+}
+
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
 	if (Mesh)
@@ -54,28 +99,6 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 	GetWorld()->GetTimerManager().SetTimer(Handle, [&]() {
 		Destroy();
 		}, 5.f, false);
-}
-
-void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
-{
-	Mesh->SetVisibility(true);
-
-	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DestructibleComponent->SetSimulatePhysics(false);
-
-	Mesh->SetSimulatePhysics(false);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PickupCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	OwningCharacter = Player;
-}
-
-void AThrowable_B::Dropped_Implementation()
-{
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	DetachFromActor(rules);
-	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
-	Mesh->SetSimulatePhysics(true);
-	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 }
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -100,27 +123,7 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		PickupCapsule->DestroyComponent();
 }
 
-void AThrowable_B::Use_Implementation()
+UDestructibleComponent* AThrowable_B::GetDestructibleComponent() const
 {
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, false);
-	DetachFromActor(rules);
-	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
-	Mesh->SetSimulatePhysics(true);
-	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
-
-	/// Throw with the help of AimAssist.
-	if (IsValid(OwningCharacter))
-	{
-		FVector TargetLocation = OwningCharacter->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
-		OwningCharacter->ThrowComponent->AimAssist(TargetLocation);
-		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningCharacter->ThrowComponent->ImpulseSpeed * 0.02f, NAME_None, true);
-		Mesh->SetVisibility(false);
-		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		DestructibleComponent->SetCollisionProfileName("Destructible");
-		DestructibleComponent->SetSimulatePhysics(true);
-	}
-	else
-	{
-		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
-	}
+	return DestructibleComponent;
 }

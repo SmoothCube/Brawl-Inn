@@ -26,13 +26,7 @@ protected:
 	// ********** AActor **********
 	virtual void BeginPlay() override;
 
-	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
-
-	// ********** IThrowableInterface **********
-
-	virtual bool IsHeld_Implementation() const override;
-
-	virtual bool CanBeHeld_Implementation() const override;
+	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
 
 	// ********** Components **********
 public:
@@ -44,6 +38,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UCapsuleComponent* PickupCapsule;
+
+	// ********** Throwing **********
+
+	virtual bool IsHeld_Implementation() const override;
+
+	virtual bool CanBeHeld_Implementation() const override;
 
 	// ********** Destroy/Fracture **********
 public:
