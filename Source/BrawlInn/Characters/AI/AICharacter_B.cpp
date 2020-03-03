@@ -10,4 +10,10 @@ void AAICharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	StartTransform = GetActorTransform();
+}
+
+void AAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+	SetActorTransform(StartTransform);
 }

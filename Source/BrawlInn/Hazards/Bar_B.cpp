@@ -31,8 +31,6 @@ void ABar_B::BeginPlay()
 
 	StartTimerForNextTankard();
 	StartTimerForNextStool();
-
-	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
 	
 }
 
@@ -96,16 +94,16 @@ void ABar_B::SpawnStool()
 	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
 	StoolToDeliver->Tags.Add("AIStool");
 }
-TQueue<AAIDropPoint_B*>& ABar_B::GetDropLocations(EBarDropLocations Type)
+TQueue<AAIDropPoint_B*>* ABar_B::GetDropLocations(EBarDropLocations Type)
 {
 	switch (Type)
 	{
 	case EBarDropLocations::Stool:
-		return StoolDropLocations;
+		return &StoolDropLocations;
 	case EBarDropLocations::Tankard:
-		return TankardDropLocations;
+		return &TankardDropLocations;
 	}
-	return StoolDropLocations;
+	return &StoolDropLocations;
 }
 TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
 {

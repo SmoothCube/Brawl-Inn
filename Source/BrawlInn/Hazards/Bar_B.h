@@ -120,6 +120,6 @@ protected:
 public:
 
 	// ********** Misc **********
-	TQueue<AAIDropPoint_B*>& GetDropLocations(EBarDropLocations Type);
+	TQueue<AAIDropPoint_B*>* GetDropLocations(EBarDropLocations Type);
 
 };

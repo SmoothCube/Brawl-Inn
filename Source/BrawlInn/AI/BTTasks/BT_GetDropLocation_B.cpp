@@ -13,6 +13,7 @@
 EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
+	bNotifyTick = true;
 
 	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	if (!Bar)
@@ -20,20 +21,19 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 		BError("Can't find the Bar");
 		return EBTNodeResult::Aborted;
 	}
+	return EBTNodeResult::InProgress;
+}
 
-	if (Bar->GetDropLocations(Type).IsEmpty())
-		return EBTNodeResult::Failed;
+void UBT_GetDropLocation_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	AAIDropPoint_B* DropPoint = *Bar->GetDropLocations(Type).Peek();
-	if (DropPoint)
+	if (Bar && Bar->GetDropLocations(Type)->Peek())
 	{
-		Bar->GetDropLocations(Type).Pop();
-		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropActor.SelectedKeyName, DropPoint);
-		Bar->StartTimerForNextStool();
-		return EBTNodeResult::Succeeded;
+		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropLocationActor.SelectedKeyName, *Bar->GetDropLocations(Type)->Peek());
+		Bar->GetDropLocations(Type)->Pop();
+		//Bar->StartTimerForNextStool();
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
-	else {
-		BWarn("Cant find droppoint");
-	}
-	return EBTNodeResult::Failed;
+
 }

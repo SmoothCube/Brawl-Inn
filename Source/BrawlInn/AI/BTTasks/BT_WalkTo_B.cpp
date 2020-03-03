@@ -7,6 +7,7 @@
 #include "AI/NavigationSystemBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 
 #include "Items/Item_B.h"
 #include "Items/Throwable_B.h"
@@ -25,7 +26,6 @@ EBTNodeResult::Type UBT_WalkTo_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-//	Cast<UPathFollowingComponent_B>(OwningAI->GetPathFollowingComponent())->OnPathFinishedSuccess.BindUObject(this, &UBT_WalkTo_B::EndTask);
 	Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TargetActor.SelectedKeyName));
 
 	return EBTNodeResult::InProgress;
@@ -37,6 +37,10 @@ void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 
 	if (Target)
 	{
+		if (OwnerComp.GetBlackboardComponent()->GetValueAsBool(bHasFallen.SelectedKeyName))
+		{
+			FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		}
 		FVector TargetLocation = Target->GetActorLocation();
 		FVector CharacterLocation = AICharacter->GetActorLocation();
 
@@ -46,7 +50,6 @@ void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 		if (Distance > AcceptanceRadius)
 		{
 			OwningAI->MoveToActor(Target);
-
 		}
 		else {
 			OwningAI->StopMovement();
@@ -55,5 +58,7 @@ void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	}
 	else {
 		BError("Can't find target");
+		FinishLatentTask(OwnerComp, EBTNodeResult::Aborted);
+
 	}
 }

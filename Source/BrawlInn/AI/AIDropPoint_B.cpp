@@ -23,7 +23,7 @@ void AAIDropPoint_B::ItemDestroyed()
 {
 	if (Bar)
 	{
-		Bar->GetDropLocations(Type).Enqueue(this);
+		Bar->GetDropLocations(Type)->Enqueue(this);
 	}
 }
 

@@ -14,7 +14,7 @@ EBTNodeResult::Type UBT_WaitForStool_B::ExecuteTask(UBehaviorTreeComponent& Owne
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	bNotifyTick = true;
-
+	
 	OwnerComponent = &OwnerComp;
 
 	return EBTNodeResult::InProgress;
@@ -26,7 +26,7 @@ void UBT_WaitForStool_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	if (ActorsWithTag.Num() > 0 && OwnerComponent)
 	{
 		ActorsWithTag[0]->Tags.Remove(Tag);
-		OwnerComponent->GetBlackboardComponent()->SetValueAsObject(HoldingActor.SelectedKeyName, ActorsWithTag[0]);
+		OwnerComponent->GetBlackboardComponent()->SetValueAsObject(ItemToPickup.SelectedKeyName, ActorsWithTag[0]);
 		FinishLatentTask(*OwnerComponent, EBTNodeResult::Succeeded);
 	}
 }

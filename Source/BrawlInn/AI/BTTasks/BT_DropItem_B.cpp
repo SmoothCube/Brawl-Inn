@@ -11,7 +11,10 @@
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/AIController_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
+#include "Items/Throwable_B.h"
+#include "Items/Useable_B.h"
 #include "AI/AIDropPoint_B.h"
 
 EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -50,6 +53,15 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	OwnerComp.GetBlackboardComponent()->ClearValue(DropTargetPoint.SelectedKeyName);
 
+	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	if (Bar && Cast<AThrowable_B>(Item))
+	{
+		Bar->StartTimerForNextStool();
+	}
+	else if (Bar && Cast<AUseable_B>(Item))
+	{
+		Bar->StartTimerForNextTankard();
+	}
 
 	return EBTNodeResult::Succeeded;
 }

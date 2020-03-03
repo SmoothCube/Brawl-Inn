@@ -17,8 +17,11 @@ class BRAWLINN_API UBT_GetDropLocation_B : public UBTTaskNode
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector DropActor;
+		FBlackboardKeySelector DropLocationActor;
 
 	UPROPERTY(EditAnywhere)
 		EBarDropLocations Type = EBarDropLocations::Stool;

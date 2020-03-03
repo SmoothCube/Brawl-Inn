@@ -22,7 +22,7 @@ class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
 	FName Tag = "AIStool";
 
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector HoldingActor;
+		FBlackboardKeySelector ItemToPickup;
 
 	UPROPERTY()
 		UBehaviorTreeComponent* OwnerComponent = nullptr;

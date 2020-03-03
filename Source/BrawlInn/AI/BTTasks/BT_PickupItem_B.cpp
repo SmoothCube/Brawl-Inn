@@ -14,6 +14,7 @@
 
 UBT_PickupItem_B::UBT_PickupItem_B()
 {
+	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -35,14 +36,20 @@ EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 	Item = Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(ItemToPickup.SelectedKeyName));
 
+
+	return EBTNodeResult::InProgress;
+}
+
+void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 	if (Item)
 	{
 		if (AICharacter->HoldComponent->TryPickup())
 		{
 			OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 			OwnerComp.GetBlackboardComponent()->SetValueAsObject(HoldingItem.SelectedKeyName, Item);
-			return EBTNodeResult::Succeeded;
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}
 	}
-	return EBTNodeResult::Failed;
 }

@@ -13,4 +13,8 @@ class BRAWLINN_API AAICharacter_B : public ACharacter_B
 
 		virtual void BeginPlay() override;
 
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+
+
+	FTransform StartTransform;
 };

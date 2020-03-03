@@ -176,6 +176,7 @@ protected:
 public:
 	void SetState(EState s);
 
+	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
 
 protected:
