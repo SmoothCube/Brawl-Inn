@@ -8,6 +8,7 @@
 #include "NiagaraFunctionLibrary.h"
 
 #include "BrawlInn.h"
+#include "Characters/AI/AICharacter_B.h"
 #include "Components/BarMeshComponent_B.h"
 #include "System/GameInstance_B.h"
 
@@ -29,9 +30,27 @@ void ABar_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	TArray<AActor*> Waiters;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, Waiters);
+	for (auto& Waiter : Waiters)
+	{
+		DropLocationMap.Add(Cast<AAICharacter_B>(Waiter), FDropLocations());
+		AvailableWaiters.Add(Cast<AAICharacter_B>(Waiter));
+
+	}
+
+
+	TArray<AActor*> StoolReplacers;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), StoolReplacerTag, StoolReplacers);
+	for (auto& StoolReplacer : StoolReplacers)
+	{
+		DropLocationMap.Add(Cast<AAICharacter_B>(StoolReplacer), FDropLocations());
+		AvailableStoolReplacer.Add(Cast<AAICharacter_B>(StoolReplacer));
+	}
 	StartTimerForNextTankard();
 	StartTimerForNextStool();
-	
+
 }
 
 USceneComponent* ABar_B::GetItemSpawnLocation() const
@@ -44,22 +63,12 @@ void ABar_B::StartTimerForNextTankard()
 	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
 }
 
-void ABar_B::AddTankardDropLocation(AAIDropPoint_B* Point)
-{
-	TankardDropLocations.Enqueue(Point);
-}
-
-TQueue<AAIDropPoint_B*>& ABar_B::GetTankardDropLocations()
-{
-	return TankardDropLocations;
-}
-
 void ABar_B::SpawnTankard()
 {
 	if (BP_Useables.Num() == 0)
 		return;
 
-	int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
+	const int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
 	Item->Tags.Add("AITankard");
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
@@ -70,23 +79,35 @@ void ABar_B::StartTimerForNextStool()
 	GetWorld()->GetTimerManager().SetTimer(TH_NextStoolTimer, this, &ABar_B::SpawnStool, FMath::FRandRange(MinStoolSpawnTimer, MaxStoolSpawnTimer), false);
 }
 
+void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
+{
+	switch (Type)
+	{
+	case EBarDropLocationType::Stool:
+		CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % AvailableStoolReplacer.Num();
+		if (AvailableStoolReplacer.IsValidIndex(CurrentStoolReplacerIndex))
+			DropLocationMap.Find(AvailableStoolReplacer[CurrentStoolReplacerIndex])->AddBack(DropPoint);
+		break;
+	case EBarDropLocationType::Tankard:
+		CurrentWaiterIndex = (CurrentWaiterIndex + 1) % AvailableWaiters.Num();
+		if (AvailableWaiters.IsValidIndex(CurrentWaiterIndex))
+			DropLocationMap.Find(AvailableWaiters[CurrentWaiterIndex])->AddBack(DropPoint);
+		break;
+	default:;
+	}
+}
+
 void ABar_B::SpawnStool()
 {
 	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
 	StoolToDeliver->Tags.Add("AIStool");
+
+	CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % AvailableStoolReplacer.Num();
+	if (AvailableStoolReplacer.IsValidIndex(CurrentStoolReplacerIndex))
+		OnDeliverStart.Broadcast(StoolToDeliver, AvailableStoolReplacer[CurrentStoolReplacerIndex]);
 }
-TQueue<AAIDropPoint_B*>* ABar_B::GetDropLocations(EBarDropLocations Type)
+
+FDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
 {
-	switch (Type)
-	{
-	case EBarDropLocations::Stool:
-		return &StoolDropLocations;
-	case EBarDropLocations::Tankard:
-		return &TankardDropLocations;
-	}
-	return &StoolDropLocations;
-}
-TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
-{
-	return StoolDropLocations;
+	return DropLocationMap.Find(Character);
 }

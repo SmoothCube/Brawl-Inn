@@ -9,6 +9,7 @@
 #include "Bar_B.generated.h"
 
 class UBarMeshComponent_B;
+class AAICharacter_B;
 class USoundCue;
 class AAIDropPoint_B;
 class AItem_B;
@@ -16,12 +17,48 @@ class AItem_B;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDeliverStart, AItem_B*, AAICharacter_B*);
+
 UENUM(BlueprintType)
-enum class EBarDropLocations : uint8
+enum class EBarDropLocationType : uint8
 {
 	Stool = 0,
 	Tankard
 };
+
+USTRUCT()
+struct FDropLocations
+{
+	GENERATED_BODY()
+	
+	EBarDropLocationType Type;
+
+	void AddBack(AAIDropPoint_B* DropPoint)
+	{
+		List.Add(DropPoint);
+	}
+
+	AAIDropPoint_B* RemoveFront()
+	{
+		if (List.Num() == 0)
+			return nullptr;
+		
+		AAIDropPoint_B* DropPoint = List[0];
+		List.RemoveAt(0);
+		return DropPoint;
+	}
+	
+	AAIDropPoint_B* PeekFront()
+	{
+		if (List.Num() == 0)
+			return nullptr;
+		return List[0];
+	}
+	
+private:
+	TArray<AAIDropPoint_B*> List;
+};
+
 
 UCLASS()
 class BRAWLINN_API ABar_B : public AActor
@@ -64,15 +101,11 @@ protected:
 public:
 	void StartTimerForNextTankard();
 
-	UFUNCTION(BlueprintCallable)
-	void AddTankardDropLocation(AAIDropPoint_B* Point);
-
-	TQueue<AAIDropPoint_B*>& GetTankardDropLocations();
-
 protected:
 	void SpawnTankard();
 
-	TQueue<AAIDropPoint_B*> TankardDropLocations;
+	UPROPERTY(EditDefaultsOnly, Category="Variables|Tankard")
+	FName WaiterTag = "Waiter";
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		FName ItemSocket = FName("Item");
@@ -98,13 +131,15 @@ protected:
 
 public:
 	void StartTimerForNextStool();
-	
-	TQueue<AAIDropPoint_B*>& GetStoolDropLocations();
+	void AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint);
+
+	FOnDeliverStart OnDeliverStart;
 
 protected:
 	void SpawnStool();
 
-	TQueue<AAIDropPoint_B*> StoolDropLocations;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
+		FName StoolReplacerTag = "StoolReplacerTag";
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
 		TSubclassOf<AItem_B> BP_Stool;
@@ -120,6 +155,14 @@ protected:
 public:
 
 	// ********** Misc **********
-	TQueue<AAIDropPoint_B*>* GetDropLocations(EBarDropLocations Type);
+	FDropLocations* GetDropLocations(AAICharacter_B* Character);
+
+	TMap<AAICharacter_B*, FDropLocations> DropLocationMap;
+
+	int CurrentWaiterIndex = 0;
+	TArray<AAICharacter_B*> AvailableWaiters;
+
+	int CurrentStoolReplacerIndex = 0;
+	TArray<AAICharacter_B*> AvailableStoolReplacer;
 
 };

@@ -24,14 +24,14 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	OwningAI = Cast<AAIController_B>(OwnerComp.GetAIOwner());
 	if (!OwningAI)
 	{
-		BError("Can't find AI controller");
+		BError("Can't find AIController");
 		return EBTNodeResult::Aborted;
 	}
 
 	AICharacter = Cast<AAICharacter_B>(OwningAI->GetCharacter());
 	if (!AICharacter)
 	{
-		BError("Can't find the AI Character");
+		BError("Can't find the AICharacter");
 		return EBTNodeResult::Aborted;
 	}
 
@@ -39,12 +39,16 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	
 	OwnerComp.GetBlackboardComponent()->ClearValue(HoldingActor.SelectedKeyName);
 
-	AICharacter->HoldComponent->Drop();
 	
 	AAIDropPoint_B* DropPoint =  Cast<AAIDropPoint_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(DropTargetPoint.SelectedKeyName));
 
 	if (!DropPoint)
 		return EBTNodeResult::Failed;
+
+	AICharacter->HoldComponent->Drop();
+	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+
+	Bar->GetDropLocations(AICharacter)->RemoveFront();
 
 	AItem_B* NewItem = GetWorld()->SpawnActor<AItem_B>(Item->GetClass(), DropPoint->GetActorTransform());
 	Item->Destroy();
@@ -53,7 +57,6 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	OwnerComp.GetBlackboardComponent()->ClearValue(DropTargetPoint.SelectedKeyName);
 
-	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	if (Bar && Cast<AThrowable_B>(NewItem))
 	{
 		Bar->StartTimerForNextStool();

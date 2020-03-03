@@ -7,7 +7,6 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "BrawlInn.h"
-#include "Items/Item_B.h"
 #include "AI/AIDropPoint_B.h"
 
 EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -21,6 +20,7 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 		BError("Can't find the Bar");
 		return EBTNodeResult::Aborted;
 	}
+
 	return EBTNodeResult::InProgress;
 }
 
@@ -28,11 +28,9 @@ void UBT_GetDropLocation_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	if (Bar && Bar->GetDropLocations(Type)->Peek())
+	if (Bar && Bar->GetDropLocations(AICharacter)->PeekFront())
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropLocationActor.SelectedKeyName, *Bar->GetDropLocations(Type)->Peek());
-		Bar->GetDropLocations(Type)->Pop();
+		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropLocationActor.SelectedKeyName, Bar->GetDropLocations(AICharacter)->PeekFront());
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
-
 }

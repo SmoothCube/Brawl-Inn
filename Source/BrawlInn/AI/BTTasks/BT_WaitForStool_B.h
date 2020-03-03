@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "AI/BTTasks/BT_BaseTask_B.h"
 #include "BT_WaitForStool_B.generated.h"
 
 class UBehaviorTreeComponent;
+class ABar_B;
 class AItem_B;
 
 UCLASS()
-class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
+class BRAWLINN_API UBT_WaitForStool_B : public UBT_BaseTask_B
 {
 	GENERATED_BODY()
 
@@ -25,9 +26,7 @@ class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
 		FBlackboardKeySelector ItemToPickup;
 
 	UPROPERTY()
-		UBehaviorTreeComponent* OwnerComponent = nullptr;
-
-	UPROPERTY()
-	TArray<AActor*> ActorsWithTag;
-
+	ABar_B* Bar = nullptr;
+	
+	void Deliver(AItem_B* ItemToDeliver, AAICharacter_B* Character);
 };

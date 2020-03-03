@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "AI/BTTasks/BT_BaseTask_B.h"
 #include "Hazards/Bar_B.h"
 #include "BT_GetDropLocation_B.generated.h"
 
 class AItem_B;
 
 UCLASS()
-class BRAWLINN_API UBT_GetDropLocation_B : public UBTTaskNode
+class BRAWLINN_API UBT_GetDropLocation_B : public UBT_BaseTask_B
 {
 	GENERATED_BODY()
 
@@ -24,11 +24,11 @@ protected:
 		FBlackboardKeySelector DropLocationActor;
 
 	UPROPERTY(EditAnywhere)
-		EBarDropLocations Type = EBarDropLocations::Stool;
+		EBarDropLocationType Type = EBarDropLocationType::Stool;
 
 	UPROPERTY()
-	AItem_B* Item = nullptr;
+		AItem_B* Item = nullptr;
 
 	UPROPERTY()
-	ABar_B* Bar = nullptr;
+		ABar_B* Bar = nullptr;
 };

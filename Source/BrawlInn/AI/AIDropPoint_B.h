@@ -23,7 +23,7 @@ protected:
 		TSubclassOf<AItem_B> ItemToSpawn;
 
 	UPROPERTY(EditAnywhere)
-		EBarDropLocations Type = EBarDropLocations::Stool;
+		EBarDropLocationType Type = EBarDropLocationType::Stool;
 
 	UPROPERTY(BlueprintReadOnly)
 	ABar_B* Bar = nullptr;

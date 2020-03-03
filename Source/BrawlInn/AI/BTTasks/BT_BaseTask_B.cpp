@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BT_BaseTask_B.h"
 
 #include "BrawlInn.h"
@@ -9,7 +8,7 @@
 
 EBTNodeResult::Type UBT_BaseTask_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
+	const EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	OwnerComponent = &OwnerComp;
 	OwningAI = Cast<AAIController_B>(OwnerComp.GetAIOwner());
