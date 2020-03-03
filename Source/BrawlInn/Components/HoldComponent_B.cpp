@@ -39,9 +39,6 @@ bool UHoldComponent_B::TryPickup()
 	TArray<AActor*> OverlappingThrowables;
 	GetOverlappingActors(OverlappingThrowables, UThrowableInterface_B::StaticClass());
 
-	for (auto& a : OverlappingThrowables)
-		BWarn("New Name: %s", *GetNameSafe(a));
-
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
 	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * PickupRange;

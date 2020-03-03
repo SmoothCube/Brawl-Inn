@@ -28,7 +28,6 @@ void UPunchComponent_B::BeginPlay()
 
 void UPunchComponent_B::PunchStart()
 {
-	BWarn("Punch Start!", *GetNameSafe(this));
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	bIsCharging = false;
 	bIsPunching = true;
@@ -176,8 +175,6 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 
 void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 {
-	BWarn("Punch Hit %s! ", *GetNameSafe(OtherComp));
-
 	if (!OtherComp) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
 	if (OtherComp->IsSimulatingPhysics())
@@ -280,17 +277,14 @@ FVector UPunchComponent_B::CalculatePunchStrength()
 	FVector Strength;
 	if (ChargeLevel == EChargeLevel::EChargeLevel3)
 	{
-		BWarn("Level 3 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
 	}
 	else if (ChargeLevel == EChargeLevel::EChargeLevel2)
 	{
-		BWarn("Level 2 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
 	}
 	else
 	{
-		BWarn("Level 1 charge!");
 		Strength = OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
 	}
 	
@@ -332,9 +326,6 @@ bool UPunchComponent_B::GetIsDashing()
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	BWarn("Overlap Start! with %s, %s", *GetNameSafe(OtherComp), *GetNameSafe(OtherActor));
-
-
 	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 
