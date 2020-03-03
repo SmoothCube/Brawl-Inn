@@ -203,7 +203,6 @@ bool ACharacter_B::CanBeHeld_Implementation() const
 
 void ACharacter_B::AddStun(int Strength)
 {
-	BWarn("StunAmount: %d", StunAmount);	
 	if (StunAmount == PunchesToStun - 1)
 	{
 		StunAmount += Strength;
@@ -212,9 +211,9 @@ void ACharacter_B::AddStun(int Strength)
 		StunAmount += Strength;
 	if (StunAmount >= PunchesToStun -1)
 	{
-		StunAmount = PunchesToStun - 1;
-		if (IsValid(PS_Stun))
-			PS_Stun->Activate();
+		//StunAmount = PunchesToStun - 1;
+		//if (IsValid(PS_Stun))
+		//	PS_Stun->Activate();
 	}
 }
 

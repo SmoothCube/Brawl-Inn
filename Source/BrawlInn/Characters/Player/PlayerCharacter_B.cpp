@@ -23,6 +23,7 @@
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -47,12 +48,7 @@ void APlayerCharacter_B::BeginPlay()
 	//Create new material instance and assign it
 	if (!DirectionIndicatorPlane)
 		return;
-
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::OnCapsuleOverlapBegin);
-
-	auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
-	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
-	DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
@@ -112,6 +108,8 @@ void APlayerCharacter_B::StandUp()
 {
 	Super::StandUp();
 	bCanBeHeld = false;
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
+
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
@@ -142,7 +140,6 @@ void APlayerCharacter_B::BreakFree()
 		{
 			GameMode->AddCameraFocusPoint(this);
 		}
-
 	}
 
 	StandUp();
@@ -152,7 +149,6 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		if (LastHitBy) // Hit by someone before falling out of the world!
@@ -201,6 +197,13 @@ void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
 	{
 		LastHitBy = EventInstigator;
 	}
+}
+
+void APlayerCharacter_B::AddStun(int Strength)
+{
+	Super::AddStun(Strength);
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
+
 }
 
 void APlayerCharacter_B::PossessedBy(AController* NewController)

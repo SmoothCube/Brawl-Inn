@@ -74,6 +74,8 @@ protected:
 	// ********** Misc. **********
 
 public:
+	virtual void AddStun(int Strength = 1) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FPlayerInfo PlayerInfo;
 
