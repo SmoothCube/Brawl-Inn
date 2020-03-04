@@ -31,7 +31,6 @@ struct FDropLocations
 {
 	GENERATED_BODY()
 	
-	EBarDropLocationType Type;
 	FDropLocations()
 	{
 		
@@ -63,6 +62,7 @@ struct FDropLocations
 		return List[0];
 	}
 	
+	EBarDropLocationType Type = EBarDropLocationType::Stool;
 private:
 	TArray<AAIDropPoint_B*> List;
 };
@@ -97,69 +97,35 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UBarMeshComponent_B* House;
+		UStaticMeshComponent* House;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* Door;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		USceneComponent* ItemSpawnLocation;
-
 	// ********** Tankards **********
-public:
-	void StartTimerForNextTankard();
-
-protected:
-	void SpawnTankard();
-
-	UPROPERTY(EditDefaultsOnly, Category="Variables|Tankard")
-	FName WaiterTag = "Waiter";
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		FName ItemSocket = FName("Item");
+	
+	void GiveRandomTankard(AAICharacter_B* Waiter);
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		float MinTankardSpawnTimer = 2.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		float MaxTankardSpawnTimer = 10.f;
-
-	FTimerHandle TH_NextTankardTimer;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard|Sound")
-		USoundCue* TankardSpawnSound;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard|Vfx")
-		UNiagaraSystem* TankardSpawnParticle;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Tankard")
+		FName WaiterTag = "Waiter";
 
 	// ********** Stool Respawning **********
 
 public:
-	void StartTimerForNextStool();
 	void AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint);
 
 	FOnDeliverStart OnDeliverStart;
 
 protected:
-	void SpawnStool();
-
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
-		FName StoolReplacerTag = "StoolReplacerTag";
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
 		TSubclassOf<AItem_B> BP_Stool;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
-		float MinStoolSpawnTimer = 2.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
-		float MaxStoolSpawnTimer = 10.f;
-
-	FTimerHandle TH_NextStoolTimer;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
+		FName StoolReplacerTag = "StoolReplacer";
 public:
 
 	// ********** Misc **********

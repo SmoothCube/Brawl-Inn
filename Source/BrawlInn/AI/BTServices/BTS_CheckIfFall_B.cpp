@@ -43,7 +43,7 @@ void UBTS_CheckIfFall_B::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 		OwnerComp.GetBlackboardComponent()->ClearValue(HoldingItem.SelectedKeyName);
 		OwnerComp.GetBlackboardComponent()->SetValueAsBool(HasFallen.SelectedKeyName, true);
-		OwningAI->OnCharacterFall.Broadcast();
+		OwningAI->OnCharacterFall().Broadcast();
 	}
 	
 }

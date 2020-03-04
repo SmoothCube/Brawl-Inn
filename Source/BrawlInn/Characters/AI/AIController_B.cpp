@@ -10,6 +10,7 @@ AAIController_B::AAIController_B(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-//void AAIController_B::TakeDamage_Implementation(int DamageAmount)
-//{
-//}
+FOnCharacterFall& AAIController_B::OnCharacterFall()
+{
+	return OnCharacterFall_Delegate;
+}

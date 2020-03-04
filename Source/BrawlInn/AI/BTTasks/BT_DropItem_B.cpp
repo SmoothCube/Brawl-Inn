@@ -62,14 +62,5 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	OwnerComp.GetBlackboardComponent()->ClearValue(DropTargetPoint.SelectedKeyName);
 
-	if (Bar && Cast<AThrowable_B>(NewItem))
-	{
-		Bar->StartTimerForNextStool();
-	}
-	else if (Bar && Cast<AUseable_B>(NewItem))
-	{
-		Bar->StartTimerForNextTankard();
-	}
-
 	return EBTNodeResult::Succeeded;
 }
