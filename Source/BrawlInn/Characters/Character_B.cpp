@@ -58,6 +58,8 @@ void ACharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACharacter_B::OnCapsuleOverlapBegin);
+
 	NormalMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 	//caches mesh transform to reset it every time player gets up.
@@ -126,9 +128,15 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 void ACharacter_B::StandUp()
 {
-	if (GetCharacterMovement()->IsFalling())
-		return;
 
+	if (GetCharacterMovement()->IsFalling()  && !(GetCapsuleComponent()->GetCollisionProfileName() == "Throwable-AfterThrow"))
+	{
+		BWarn("Character is falling! Cant stand up!");
+		return;
+	}
+
+	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+	
 	//Saves snapshot for blending to animation
 	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
@@ -191,8 +199,9 @@ void ACharacter_B::Use_Implementation()
 		HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
 		Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed, FallRecoveryTime);
 	}
-	GetMesh()->SetSimulatePhysics(true);
-
+	//GetMesh()->SetSimulatePhysics(true);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionProfileName(FName("Throwable-AfterThrow"));
 	HoldingCharacter = nullptr;
 
 	SetActorRotation(FRotator(0, 0, 0));
@@ -337,4 +346,27 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		);
 	}
 	return DamageAmount;
+}
+
+void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	
+	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
+	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
+	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Throwable-AfterThrow"))
+	{
+		BWarn("Capsule Collides!");
+		if (HitCharacter->HasShield())
+		{
+			HitCharacter->RemoveShield();
+		}
+		else
+		{
+			HitCharacter->GetCharacterMovement()->AddImpulse(GetVelocity());
+			HitCharacter->CheckFall(GetVelocity());
+			if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->GetController()))
+				UGameplayStatics::ApplyDamage(HitCharacter, 1, HoldingCharacter->GetController(), this, UDamageType::StaticClass());
+		}
+	}
+
 }

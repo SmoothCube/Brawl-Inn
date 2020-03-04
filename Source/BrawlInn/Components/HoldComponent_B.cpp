@@ -167,5 +167,6 @@ void UHoldComponent_B::Drop()
 		Interface->Execute_Dropped(GetHoldingItem());
 	}
 	SetHoldingItem(nullptr);
-	OwningCharacter->SetState(EState::EWalking);
+	if(IsValid(OwningCharacter))
+		OwningCharacter->SetState(EState::EWalking);
 }

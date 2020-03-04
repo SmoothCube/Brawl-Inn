@@ -128,7 +128,6 @@ void UPunchComponent_B::PunchEnd()
 
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-	BWarn("Punch End for %s", *GetNameSafe(OwningCharacter));
 
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -149,7 +148,6 @@ void UPunchComponent_B::PunchEnd()
 
 void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
-	BWarn("Punch Hit Player! %s", *GetNameSafe(OtherPlayer));
 
 	if (!OtherPlayer) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { BError("No PunchComponent found for OtherPlayer %s!", *GetNameSafe(OtherPlayer)); return; }
