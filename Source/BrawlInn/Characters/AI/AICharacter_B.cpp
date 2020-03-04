@@ -14,7 +14,8 @@ void AAICharacter_B::BeginPlay()
 
 	StartTransform = GetActorTransform();
 	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
-	Bar->OnDeliverStart().AddUObject(this, &AAICharacter_B::Deliver);
+	if (Bar)
+		Bar->OnDeliverStart().AddUObject(this, &AAICharacter_B::Deliver);
 }
 
 void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)
