@@ -67,6 +67,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
 		FName StoolReplacerTag = "StoolReplacer";
+
+	// ********** Box **********
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Box")
+		TSubclassOf<AItem_B> BP_Box;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Box")
+		FName BoxReplacerTag = "BoxReplacer";
+
 public:
 
 	// ********** Delivery **********
@@ -87,6 +96,9 @@ protected:
 
 	int CurrentStoolReplacerIndex = 0;
 	TArray<AAICharacter_B*> StoolReplacers;
+
+	int CurrentBoxReplacerIndex = 0;
+	TArray<AAICharacter_B*> BoxReplacers;
 
 };
 

@@ -9,7 +9,8 @@ UENUM()
 enum class EBarDropLocationType : uint8
 {
 	Stool = 0,
-	Tankard
+	Tankard,
+	Box
 };
 
 USTRUCT()

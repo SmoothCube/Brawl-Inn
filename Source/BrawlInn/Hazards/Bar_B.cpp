@@ -41,6 +41,15 @@ void ABar_B::BeginPlay()
 		StoolReplacers.Add(StoolReplacer);
 		StoolReplacer->SetItemDelivered(BP_Stool.GetDefaultObject());
 	}
+
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), BoxReplacerTag, Actors);
+	for (auto BoxReplacerActor : Actors)
+	{
+		AAICharacter_B* BoxReplacer = Cast<AAICharacter_B>(BoxReplacerActor);
+		DropLocationMap.Add(BoxReplacer, FBarDropLocations(EBarDropLocationType::Stool));
+		BoxReplacers.Add(BoxReplacer);
+		BoxReplacer->SetItemDelivered(BP_Box.GetDefaultObject());
+	}
 }
 
 void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
@@ -69,6 +78,11 @@ void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoin
 			DropLocationMap.Find(Waiters[CurrentWaiterIndex])->AddBack(DropPoint);
 			GiveRandomTankard(Waiters[CurrentWaiterIndex]);
 		}
+		break;
+	case EBarDropLocationType::Box:
+		CurrentBoxReplacerIndex = (CurrentBoxReplacerIndex + 1) % BoxReplacers.Num();
+		if (BoxReplacers.IsValidIndex(CurrentBoxReplacerIndex))
+			DropLocationMap.Find(BoxReplacers[CurrentBoxReplacerIndex])->AddBack(DropPoint);
 		break;
 	default:;
 	}
