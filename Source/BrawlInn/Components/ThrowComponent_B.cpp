@@ -143,6 +143,8 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	{
 		if (!IsValid(OtherPlayer) || (OtherPlayer->GetState() == EState::EFallen))
 			continue;
+		if (HoldComponent && (OtherPlayer == HoldComponent->GetHoldingItem()))
+			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
 		OtherPlayerLocation.Z = 0;
 

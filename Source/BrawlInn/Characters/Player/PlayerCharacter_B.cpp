@@ -49,7 +49,6 @@ void APlayerCharacter_B::BeginPlay()
 	//Create new material instance and assign it
 	if (!DirectionIndicatorPlane)
 		return;
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter_B::OnCapsuleOverlapBegin);
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
@@ -74,6 +73,7 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 
 	//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 //	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
+	//BWarn("Capsule collision profile: %s for player: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString(), *GetNameSafe(this));
 
 }
 
@@ -269,18 +269,22 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 }
 
+//For dashing through characters
 void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Dash push stuff
-	if (!PunchComponent->GetIsDashing())
+	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,SweepResult);
+	
+	if (!PunchComponent->GetIsDashing())	
 		return;
 
-	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
+
+	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 	//Might be triggered twice
-	if (IsValid(OtherPlayer) && IsValid(Capsule))
+	if (IsValid(OtherCharacter) && IsValid(Capsule))
 	{
 		if (IsValid(PunchComponent))
-			OtherPlayer->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
 	}
 }
