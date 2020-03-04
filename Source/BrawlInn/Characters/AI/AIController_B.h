@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "AIController_B.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterFall);
 
 UCLASS()
 class BRAWLINN_API AAIController_B : public AAIController
@@ -13,9 +14,14 @@ class BRAWLINN_API AAIController_B : public AAIController
 	GENERATED_BODY()
 
 	AAIController_B(const FObjectInitializer& ObjectInitializer);
-protected:
 
-	// ********** Controller Interface **********
-	//virtual void TakeDamage_Implementation(int DamageAmount) override;
+	// ********** BehaviorTree**********
+	
+public:
+	FOnCharacterFall& OnCharacterFall();
+protected:
+	//Used to check if the character has fallen. Called from the BehaviorTree
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterFall OnCharacterFall_Delegate;
 
 };

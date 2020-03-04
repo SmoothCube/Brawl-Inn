@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 
 #include "Items/Item_B.h"
+#include "Hazards/Bar_B.h"
 
 void AAIDropPoint_B::BeginPlay()
 {

@@ -13,6 +13,8 @@ UCLASS()
 class BRAWLINN_API UBT_DropItem_B : public UBTTaskNode
 {
 	GENERATED_BODY()
+
+		UBT_DropItem_B();
 	
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;

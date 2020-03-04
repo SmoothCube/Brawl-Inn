@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TargetPoint.h"
-#include "Hazards/Bar_B.h"
+#include "System/Structs/BarDropLocations.h"
 #include "AIDropPoint_B.generated.h"
 
 class AItem_B;
+class ABar_B;
 
 UCLASS()
 class BRAWLINN_API AAIDropPoint_B : public ATargetPoint

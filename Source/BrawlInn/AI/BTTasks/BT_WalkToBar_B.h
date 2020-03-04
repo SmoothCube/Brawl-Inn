@@ -20,12 +20,11 @@ protected:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector Bar;
+		FBlackboardKeySelector IsAtSpawn;
 
 	UPROPERTY(EditAnywhere)
 		float AcceptanceRadius = 150.f;
 
-	UPROPERTY()
-		USceneComponent* BarSceneComponent = nullptr;
+	bool bIsAtSpawn = false;
 
 };

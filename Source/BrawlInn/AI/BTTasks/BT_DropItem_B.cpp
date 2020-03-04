@@ -17,6 +17,11 @@
 #include "Items/Useable_B.h"
 #include "AI/AIDropPoint_B.h"
 
+UBT_DropItem_B::UBT_DropItem_B()
+{
+	bCreateNodeInstance = true;
+}
+
 EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
@@ -56,15 +61,6 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	NewItem->SetActorLocationAndRotation(DropPoint->GetActorLocation(), DropPoint->GetActorRotation());
 
 	OwnerComp.GetBlackboardComponent()->ClearValue(DropTargetPoint.SelectedKeyName);
-
-	if (Bar && Cast<AThrowable_B>(NewItem))
-	{
-		Bar->StartTimerForNextStool();
-	}
-	else if (Bar && Cast<AUseable_B>(NewItem))
-	{
-		Bar->StartTimerForNextTankard();
-	}
 
 	return EBTNodeResult::Succeeded;
 }

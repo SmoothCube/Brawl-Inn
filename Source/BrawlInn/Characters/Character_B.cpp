@@ -152,12 +152,12 @@ void ACharacter_B::StandUp()
 	StunAmount = 0;
 }
 
-FVector ACharacter_B::FindMeshLocation()
+FVector ACharacter_B::FindMeshLocation() const
 {
-	FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
+	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
 
 	FHitResult Hit;
-	bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
 
 	if (bDidHit)
 		return (Hit.Location - RelativeMeshTransform.GetLocation());

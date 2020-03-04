@@ -15,6 +15,9 @@ class BRAWLINN_API UBT_GetDropLocation_B : public UBT_BaseTask_B
 	GENERATED_BODY()
 
 protected:
+
+	UBT_GetDropLocation_B();
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;

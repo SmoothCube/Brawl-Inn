@@ -4,14 +4,11 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
-#include "Components/DecalComponent.h"
 #include "Sound/SoundCue.h"
 #include "BrawlInn.h"
 
 #include "System/GameInstance_B.h"
-#include "System/Camera/GameCamera_B.h"
 #include "System/GameModes/MainGameMode_B.h"
-#include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
@@ -78,7 +75,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	int Index = (int)PlayerInfo.Type;
 	if (!BP_PlayerCharacters.IsValidIndex(Index)) { BError("GameMode has no PlayerCharacter on Index %i", Index); return; }
 
-	APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetRandomSpawnTransform(), params);
+	APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), params);
 	PlayerController->Possess(Character);
 	PlayerController->RespawnPawn = nullptr;
 	PlayerController->PlayerCharacter = Character;
@@ -91,7 +88,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	SpawnCharacter_NOPARAM_D.Broadcast();
 }
 
-// N�r man respawner gjennom en barrel
+// Når man respawner gjennom en barrel
 void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 {
 	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
@@ -128,7 +125,7 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 	if (IsValid(Pawn))
 		Pawn->Destroy();
 
-	AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), GetRandomSpawnTransform());
+	AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), FTransform());
 	PlayerController->Possess(Character);
 	PlayerController->PlayerCharacter = nullptr;
 	if (GameInstance)
@@ -144,11 +141,17 @@ FTransform AGameMode_B::GetRandomSpawnTransform()
 	return Spawnpoints[FMath::RandRange(0, Spawnpoints.Num() - 1)]->GetActorTransform();
 }
 
+FTransform AGameMode_B::GetSpawnTransform(const int PlayerControllerID)
+{
+	if (Spawnpoints.Num() == 0) { BError("No spawnpoints found!"); return FTransform(); }
+	return Spawnpoints[PlayerControllerID]->GetActorTransform();
+}
+
 void AGameMode_B::GetAllSpawnpointsInWorld()
 {
 	Spawnpoints.Empty();
-	TArray<AActor*> tempSpawnpoints;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), tempSpawnpoints);
-	for (const auto& point : tempSpawnpoints)
-		Spawnpoints.Add(Cast<APlayerStart>(point));
+	TArray<AActor*> TempSpawnpoints;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), TempSpawnpoints);
+	for (auto& Point : TempSpawnpoints)
+		Spawnpoints.Add(Cast<APlayerStart>(Point));
 }
