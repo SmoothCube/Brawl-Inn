@@ -78,7 +78,7 @@ protected:
 
 	virtual void StandUp();
 
-	FVector FindMeshLocation();
+	FVector FindMeshLocation() const;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 2.f;

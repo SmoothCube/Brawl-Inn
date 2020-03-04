@@ -86,6 +86,7 @@ void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoin
 		break;
 	default:;
 	}
+	
 }
 
 FBarDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
