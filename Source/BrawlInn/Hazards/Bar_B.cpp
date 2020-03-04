@@ -1,14 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Bar_B.h"
-#include "Sound/SoundCue.h"
-#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "NiagaraFunctionLibrary.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 
-#include "BrawlInn.h"
 #include "Characters/AI/AICharacter_B.h"
-#include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
 {
@@ -25,22 +22,24 @@ void ABar_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<AActor*> Waiters;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, Waiters);
-	for (auto& Waiter : Waiters)
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, OutActors);
+	for (auto WaiterActor : OutActors)
 	{
-		DropLocationMap.Add(Cast<AAICharacter_B>(Waiter), FDropLocations(EBarDropLocationType::Tankard));
-		AvailableWaiters.Add(Cast<AAICharacter_B>(Waiter));
-		GiveRandomTankard(Cast<AAICharacter_B>(Waiter));
+		AAICharacter_B* Waiter = Cast<AAICharacter_B>(WaiterActor);
+		DropLocationMap.Add(Waiter, FBarDropLocations(EBarDropLocationType::Tankard));
+		Waiters.Add(Waiter);
+		GiveRandomTankard(Waiter);
 	}
 
-	TArray<AActor*> StoolReplacers;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), StoolReplacerTag, StoolReplacers);
-	for (auto& StoolReplacer : StoolReplacers)
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), StoolReplacerTag, Actors);
+	for (auto StoolReplacerActor : Actors)
 	{
-		DropLocationMap.Add(Cast<AAICharacter_B>(StoolReplacer), FDropLocations(EBarDropLocationType::Stool));
-		AvailableStoolReplacer.Add(Cast<AAICharacter_B>(StoolReplacer));
-		Cast<AAICharacter_B>(StoolReplacer)->ItemDelivered = BP_Stool.GetDefaultObject();
+		AAICharacter_B* StoolReplacer = Cast<AAICharacter_B>(StoolReplacerActor);
+		DropLocationMap.Add(StoolReplacer, FBarDropLocations(EBarDropLocationType::Stool));
+		StoolReplacers.Add(StoolReplacer);
+		StoolReplacer->SetItemDelivered(BP_Stool.GetDefaultObject());
 	}
 }
 
@@ -51,7 +50,7 @@ void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 
 	const int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
 	if (BP_Useables.IsValidIndex(RandomIndex))
-		Waiter->ItemDelivered = BP_Useables[RandomIndex].GetDefaultObject();
+		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
 void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
@@ -59,23 +58,28 @@ void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoin
 	switch (Type)
 	{
 	case EBarDropLocationType::Stool:
-		CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % AvailableStoolReplacer.Num();
-		if (AvailableStoolReplacer.IsValidIndex(CurrentStoolReplacerIndex))
-			DropLocationMap.Find(AvailableStoolReplacer[CurrentStoolReplacerIndex])->AddBack(DropPoint);
+		CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % StoolReplacers.Num();
+		if (StoolReplacers.IsValidIndex(CurrentStoolReplacerIndex))
+			DropLocationMap.Find(StoolReplacers[CurrentStoolReplacerIndex])->AddBack(DropPoint);
 		break;
 	case EBarDropLocationType::Tankard:
-		CurrentWaiterIndex = (CurrentWaiterIndex + 1) % AvailableWaiters.Num();
-		if (AvailableWaiters.IsValidIndex(CurrentWaiterIndex))
+		CurrentWaiterIndex = (CurrentWaiterIndex + 1) % Waiters.Num();
+		if (Waiters.IsValidIndex(CurrentWaiterIndex))
 		{
-			DropLocationMap.Find(AvailableWaiters[CurrentWaiterIndex])->AddBack(DropPoint);
-			GiveRandomTankard(AvailableWaiters[CurrentWaiterIndex]);
+			DropLocationMap.Find(Waiters[CurrentWaiterIndex])->AddBack(DropPoint);
+			GiveRandomTankard(Waiters[CurrentWaiterIndex]);
 		}
 		break;
 	default:;
 	}
 }
 
-FDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
+FBarDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
 {
 	return DropLocationMap.Find(Character);
+}
+
+FOnDeliverStart& ABar_B::OnDeliverStart()
+{
+	return OnDeliverStart_Delegate;
 }

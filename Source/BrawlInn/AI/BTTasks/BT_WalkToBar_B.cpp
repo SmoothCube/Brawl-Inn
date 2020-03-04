@@ -28,7 +28,7 @@ void UBT_WalkToBar_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 
 	if (!bIsAtSpawn)
 	{
-		const FVector TargetLocation = AICharacter->StartTransform.GetLocation();
+		const FVector TargetLocation = AICharacter->GetStartTransform().GetLocation();
 		const FVector CharacterLocation = AICharacter->GetActorLocation();
 
 		FVector Input = TargetLocation - CharacterLocation;
