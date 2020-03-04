@@ -37,7 +37,6 @@ void UBT_GetDropLocation_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 
 	if (Bar && Bar->GetDropLocations(AICharacter)->PeekFront())
 	{
-		BLog("Owner %s", *GetNameSafe(AICharacter));
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropLocationActor.SelectedKeyName, Bar->GetDropLocations(AICharacter)->PeekFront());
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

@@ -15,7 +15,7 @@ class BRAWLINN_API AAICharacter_B : public ACharacter_B
 
 		virtual void BeginPlay() override;
 
-	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
 	
 	void Deliver(AItem_B* ItemToDeliver, AAICharacter_B* CharacterToDeliver);
 
@@ -27,4 +27,7 @@ public:
 	
 	FTransform StartTransform;
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables")
+	bool bShouldRespawn = false;
 };

@@ -19,14 +19,17 @@ void AAICharacter_B::BeginPlay()
 	Bar->OnDeliverStart.AddUObject(this, &AAICharacter_B::Deliver);
 }
 
-void AAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)
 {
-	SetActorTransform(StartTransform);
+	if (bShouldRespawn)
+		SetActorTransform(StartTransform);
+	else
+		Super::FellOutOfWorld(DmgType);
 }
 
 void AAICharacter_B::Deliver(AItem_B* ItemToDeliver, AAICharacter_B* CharacterToDeliver)
 {
-	if(CharacterToDeliver == this)
+	if (CharacterToDeliver == this)
 	{
 		ItemDelivered = ItemToDeliver;
 	}
