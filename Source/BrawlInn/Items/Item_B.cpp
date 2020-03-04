@@ -53,10 +53,29 @@ bool AItem_B::CanBeHeld_Implementation() const
 {
 	return !bIsFractured;
 }
+
+float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
+{
+	switch (level)
+	{
+	case EChargeLevel::EChargeLevel1:
+		return Charge1ThrowStrength;
+
+	case EChargeLevel::EChargeLevel2:
+		return Charge2ThrowStrength;
+
+	case EChargeLevel::EChargeLevel3:
+		return Charge3ThrowStrength;
+	default:
+		return 0;
+	}
+}
+
 FOnFracture& AItem_B::OnFracture()
 {
 	return OnFracture_Delegate;
 }
+
 void AItem_B::OnItemFracture()
 {
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));

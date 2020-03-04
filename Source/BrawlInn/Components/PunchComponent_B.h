@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/SphereComponent.h"
+#include "System/Enums/Charge.h"
 #include "PunchComponent_B.generated.h"
+
 
 class ACharacter_B;
 class USoundCue;
@@ -13,15 +15,6 @@ class UDamageType;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*);
 
 DECLARE_MULTICAST_DELEGATE(FOnPunchHit);
-
-UENUM(BlueprintType)
-enum class EChargeLevel : uint8
-{
-	ENotCharging	UMETA(DisplayName = "Not Charging"),
-	EChargeLevel1 	UMETA(DisplayName = "Charge Level 1"),
-	EChargeLevel2	UMETA(DisplayName = "Charge Level 2"),
-	EChargeLevel3	UMETA(DisplayName = "Charge Level 3")
-};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

@@ -130,9 +130,9 @@ void AGameCamera_B::SetSpringArmLength()
 	FVector ViewLoc;
 	FRotator ViewRot;
 	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ViewLoc, /*out*/ViewRot, LocalPlayer->ViewportClient->Viewport);
+	if (!SceneView) { BWarn("Could not find scene view! "); return; }
 
 	float FurthestDist = -1000000;
-
 	for (auto& a : ActorsToTrack)
 	{
 		FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;

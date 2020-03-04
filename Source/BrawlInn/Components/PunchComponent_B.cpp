@@ -269,6 +269,7 @@ void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
 		);
 	}
 }
+
 FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }

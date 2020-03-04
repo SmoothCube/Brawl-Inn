@@ -90,7 +90,6 @@ protected:
 
 	// ********** Hold players **********
 public:
-
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
@@ -101,10 +100,21 @@ public:
 
 	virtual bool CanBeHeld_Implementation() const override;
 
+	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
+
 	UFUNCTION()
 	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-protected:
+protected:	
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	float Charge1ThrowStrength = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	float Charge2ThrowStrength = 10000.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	float Charge3ThrowStrength = 100000.f;
+	
 	UPROPERTY()
 	ACharacter_B* HoldingCharacter = nullptr;
 
@@ -216,6 +226,7 @@ protected:
 	FTransform RelativeMeshTransform;
 
 	friend class UPunchComponent_B;
+	friend class UThrowComponent_B;
 
 	bool bIsAlive = true;
 };

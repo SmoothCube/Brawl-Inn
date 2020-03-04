@@ -11,7 +11,7 @@
 
 void UANS_ChargePunch_B::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
-	AnimLength = TotalDuration / (Animation->RateScale* (-1)); //Multiplies w -1 just cause the animation is reversed atm
+	AnimLength =FMath::Abs( TotalDuration / (Animation->RateScale)); //does abs just cause the animation is reversed atm
 	CurrentTime = 0.f;
 	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 }

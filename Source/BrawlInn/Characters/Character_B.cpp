@@ -114,11 +114,12 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 		HoldComponent->Drop();
 
 	SetState(EState::EFallen);
-
-	GetMesh()->SetGenerateOverlapEvents(true);
+	HoldComponent->
+	//GetMesh()->SetGenerateOverlapEvents(true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCapsuleComponent()->SetCollisionProfileName("Throwable-Trigger");
 
 	GetMesh()->AddImpulse(MeshForce, ForceSocketName, false);	//TODO make the bone dynamic instead of a variable
 
@@ -167,37 +168,69 @@ FVector ACharacter_B::FindMeshLocation()
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	HoldingCharacter = Player;
-	GetMovementComponent()->StopMovementImmediately();
-	SetState(EState::EBeingHeld);
-	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
+
+	GetCapsuleComponent()->SetEnableGravity(false);
+	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
+
+	GetCharacterMovement()->StopMovementImmediately();
+
 	GetMesh()->SetSimulatePhysics(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetGenerateOverlapEvents(false);
 
+	SetState(EState::EBeingHeld);
+	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
+
 	GetCharacterMovement()->StopActiveMovement();
-	GetCharacterMovement()->StopMovementImmediately();
 	SetActorRotation(FRotator(-90, 0, 90));
+///StandUp:
+
+	//if (GetCharacterMovement()->IsFalling() && !(GetCapsuleComponent()->GetCollisionProfileName() == "Throwable-AfterThrow"))
+	//{
+	//	BWarn("Character is falling! Cant stand up!");
+	//	return;
+	//}
+
+	//GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+
+	//GetMovementComponent()->StopMovementImmediately();
+
+	//GetMesh()->SetSimulatePhysics(false);
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//GetMesh()->SetGenerateOverlapEvents(false);
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//MakeInvulnerable(InvulnerabilityTime);
+	//SetState(EState::EWalking);
+	//StunAmount = 0;
 }
 
 void ACharacter_B::Dropped_Implementation()
 {
+	GetCapsuleComponent()->SetEnableGravity(true);
+
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	Fall(FVector::ZeroVector, FallRecoveryTime);
-	GetMesh()->SetSimulatePhysics(true);
 	HoldingCharacter = nullptr;
 	SetActorRotation(FRotator(0, 0, 0));
 }
 
 void ACharacter_B::Use_Implementation()
 {
+	GetCapsuleComponent()->SetEnableGravity(true);
+
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->ThrowComponent))
 	{
 		FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
 		HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
-		Fall(TargetLocation * HoldingCharacter->ThrowComponent->ImpulseSpeed, FallRecoveryTime);
+		float ImpulseStrength = 0.f;
+		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
+		if (Interface)
+		{
+			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->ThrowComponent->GetChargeLevel());
+		}
+		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
 	}
 	//GetMesh()->SetSimulatePhysics(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -219,6 +252,22 @@ bool ACharacter_B::CanBeHeld_Implementation() const
 	return bCanBeHeld;
 }
 
+float ACharacter_B::GetThrowStrength_Implementation(EChargeLevel level) const
+{
+	switch (level)
+	{
+	case EChargeLevel::EChargeLevel1:
+		return Charge1ThrowStrength;
+
+	case EChargeLevel::EChargeLevel2:
+		return Charge2ThrowStrength;
+
+	case EChargeLevel::EChargeLevel3:
+		return Charge3ThrowStrength;
+	default:
+		return 0;
+	}
+}
 void ACharacter_B::AddStun(const int Strength)
 {
 	if (StunAmount == PunchesToStun - 1)

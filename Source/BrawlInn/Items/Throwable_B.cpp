@@ -70,7 +70,14 @@ void AThrowable_B::Use_Implementation()
 	{
 		FVector TargetLocation = OwningCharacter->GetActorForwardVector();   //Had a crash here, called from notify PlayerThrow_B. Added pointer check at top of function
 		OwningCharacter->ThrowComponent->AimAssist(TargetLocation);
-		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * OwningCharacter->ThrowComponent->ImpulseSpeed * 0.02f, NAME_None, true);
+		float ImpulseStrength = 0.f;
+		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
+		if (Interface)
+		{
+			ImpulseStrength = Interface->Execute_GetThrowStrength(this, OwningCharacter->ThrowComponent->GetChargeLevel());
+		}
+		BWarn("Impulse Strength: %f", ImpulseStrength);
+		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * ImpulseStrength, NAME_None, true);
 		Mesh->SetVisibility(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		DestructibleComponent->SetCollisionProfileName("Destructible");

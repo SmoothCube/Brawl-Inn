@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "System/Enums/Charge.h"
 #include "ThrowableInterface_B.generated.h"
 
 // This class does not need to be modified.
@@ -40,4 +41,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
 	void Use();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+	float GetThrowStrength(EChargeLevel level) const;
 };	

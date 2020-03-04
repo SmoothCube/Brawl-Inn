@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "System/Enums/Charge.h"
 #include "ThrowComponent_B.generated.h"
 
 class ACharacter_B;
 class AGameMode_B;
 class UHoldComponent_B;
+class USoundCue;
 
 UCLASS()
 class BRAWLINN_API UThrowComponent_B : public UActorComponent
@@ -33,24 +35,31 @@ public:
 	void Throw();
 
 	bool IsThrowing() const;
+
+	EChargeLevel GetChargeLevel();
 protected:
+	EChargeLevel ChargeLevel;
+
 	bool bIsThrowing = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
-		float MinImpulseSpeed = 200000.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
-		float MaxImpulseSpeed = 1600000.f;
-
 public:
-	float ImpulseSpeed = 0.f;
 	// ********** Charging **********
 
+	void SetChargeLevel(EChargeLevel chargeLevel);
+
 	bool IsCharging() const;
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float ChargeTier2Percentage = 0.45;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float ChargeTier3Percentage = 0.9;
 protected:
+
 	bool bIsCharging = false;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
+	USoundCue* ChargeLevelSound = nullptr;
 public:
-	float ImpulseTimer = 0.f;
 
 	// ********** AimAssist **********
 	bool AimAssist(FVector& TargetPlayerLocation);
