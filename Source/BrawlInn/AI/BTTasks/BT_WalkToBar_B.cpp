@@ -12,6 +12,7 @@
 UBT_WalkToBar_B::UBT_WalkToBar_B()
 {
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UBT_WalkToBar_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -29,7 +30,7 @@ void UBT_WalkToBar_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 
 	if (BarSceneComponent)
 	{
-		FVector TargetLocation = BarSceneComponent->GetComponentLocation();
+		FVector TargetLocation = AICharacter->StartTransform.GetLocation();
 		FVector CharacterLocation = AICharacter->GetActorLocation();
 
 		FVector Input = TargetLocation - CharacterLocation;

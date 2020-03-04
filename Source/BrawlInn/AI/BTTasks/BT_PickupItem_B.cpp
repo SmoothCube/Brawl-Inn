@@ -15,6 +15,7 @@
 UBT_PickupItem_B::UBT_PickupItem_B()
 {
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UBT_PickupItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -45,7 +46,7 @@ void UBT_PickupItem_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 	if (Item)
 	{
-		if (AICharacter->HoldComponent->TryPickup())
+		if (AICharacter->HoldComponent->TryPickup() || AICharacter->HoldComponent->IsHolding())
 		{
 			OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 			OwnerComp.GetBlackboardComponent()->SetValueAsObject(HoldingItem.SelectedKeyName, Item);

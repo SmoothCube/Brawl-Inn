@@ -35,7 +35,7 @@ void ABar_B::BeginPlay()
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, Waiters);
 	for (auto& Waiter : Waiters)
 	{
-		DropLocationMap.Add(Cast<AAICharacter_B>(Waiter), FDropLocations());
+		DropLocationMap.Add(Cast<AAICharacter_B>(Waiter), FDropLocations(EBarDropLocationType::Tankard));
 		AvailableWaiters.Add(Cast<AAICharacter_B>(Waiter));
 
 	}
@@ -45,11 +45,12 @@ void ABar_B::BeginPlay()
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), StoolReplacerTag, StoolReplacers);
 	for (auto& StoolReplacer : StoolReplacers)
 	{
-		DropLocationMap.Add(Cast<AAICharacter_B>(StoolReplacer), FDropLocations());
+		DropLocationMap.Add(Cast<AAICharacter_B>(StoolReplacer), FDropLocations(EBarDropLocationType::Stool));
 		AvailableStoolReplacer.Add(Cast<AAICharacter_B>(StoolReplacer));
+		Cast<AAICharacter_B>(StoolReplacer)->ItemDelivered = BP_Stool.GetDefaultObject();
 	}
 	StartTimerForNextTankard();
-	StartTimerForNextStool();
+	//StartTimerForNextStool();
 
 }
 
@@ -72,6 +73,12 @@ void ABar_B::SpawnTankard()
 	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
 	Item->Tags.Add("AITankard");
 	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
+	for(auto& Waiter: AvailableWaiters)
+	{
+		Waiter->ItemDelivered = BP_Useables[RandomIndex].GetDefaultObject();
+		
+	}
+
 
 }
 void ABar_B::StartTimerForNextStool()
@@ -99,12 +106,13 @@ void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoin
 
 void ABar_B::SpawnStool()
 {
-	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
-	StoolToDeliver->Tags.Add("AIStool");
+	////AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
+	////StoolToDeliver->Tags.Add("AIStool");
 
-	CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % AvailableStoolReplacer.Num();
-	if (AvailableStoolReplacer.IsValidIndex(CurrentStoolReplacerIndex))
-		OnDeliverStart.Broadcast(StoolToDeliver, AvailableStoolReplacer[CurrentStoolReplacerIndex]);
+	//CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % AvailableStoolReplacer.Num();
+	//BLog("Next index: %i", CurrentStoolReplacerIndex);
+	///if (AvailableStoolReplacer.IsValidIndex(CurrentStoolReplacerIndex))
+	//	OnDeliverStart.Broadcast(BP_Stool.GetDefaultObject(), AvailableStoolReplacer[CurrentStoolReplacerIndex]);
 }
 
 FDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)

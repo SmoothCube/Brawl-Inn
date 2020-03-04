@@ -6,6 +6,8 @@
 #include "Characters/Character_B.h"
 #include "AICharacter_B.generated.h"
 
+class AItem_B;
+
 UCLASS()
 class BRAWLINN_API AAICharacter_B : public ACharacter_B
 {
@@ -14,7 +16,15 @@ class BRAWLINN_API AAICharacter_B : public ACharacter_B
 		virtual void BeginPlay() override;
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+	
+	void Deliver(AItem_B* ItemToDeliver, AAICharacter_B* CharacterToDeliver);
 
-
+public:
+	AItem_B* GetItemDelivered() const;
+	
+	UPROPERTY()
+	AItem_B* ItemDelivered = nullptr;
+	
 	FTransform StartTransform;
+protected:
 };

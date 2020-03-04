@@ -5,18 +5,24 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
 #include "Hazards/Bar_B.h"
 #include "BrawlInn.h"
 #include "Items/Item_B.h"
+#include "Characters/AI/AICharacter_B.h"
+
+UBT_WaitForStool_B::UBT_WaitForStool_B()
+{
+	bNotifyTick = true;
+	bCreateNodeInstance = true;
+}
 
 EBTNodeResult::Type UBT_WaitForStool_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	bNotifyTick = true;
 	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
-	Bar->OnDeliverStart.AddUObject(this, &UBT_WaitForStool_B::Deliver);
 	OwnerComponent = &OwnerComp;
 
 	return EBTNodeResult::InProgress;
@@ -25,23 +31,25 @@ void UBT_WaitForStool_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-
-	//UGameplayStatics::GetAllActorsWithTag(GetWorld(), Tag, ActorsWithTag);
-	//if (ActorsWithTag.Num() > 0 && OwnerComponent)
-	//{
-	//	ActorsWithTag[0]->Tags.Remove(Tag);
-	//	OwnerComponent->GetBlackboardComponent()->SetValueAsObject(ItemToPickup.SelectedKeyName, ActorsWithTag[0]);
-	//	FinishLatentTask(*OwnerComponent, EBTNodeResult::Succeeded);
-	//}
+	AItem_B* ItemToDeliver = AICharacter->GetItemDelivered();
+	if (ItemToDeliver)
+	{
+		AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(ItemToDeliver->GetClass(), AICharacter->GetActorLocation() + (FVector(150, 0, 0) * AICharacter->GetActorForwardVector()), FRotator());
+		OwnerComponent->GetBlackboardComponent()->SetValueAsObject(ItemToPickup.SelectedKeyName, StoolToDeliver);
+		FinishLatentTask(*OwnerComponent, EBTNodeResult::Succeeded);
+	}
 }
 
 void UBT_WaitForStool_B::Deliver(AItem_B* ItemToDeliver, AAICharacter_B* Character)
 {
-	if (AICharacter == Character)
-	{
-		ItemToDeliver->Tags.Remove(Tag);
-		OwnerComponent->GetBlackboardComponent()->SetValueAsObject(ItemToPickup.SelectedKeyName, ItemToDeliver);
-		Bar->OnDeliverStart.RemoveAll(this);
-		FinishLatentTask(*OwnerComponent, EBTNodeResult::Succeeded);
-	}
+	//if (AICharacter == Character)
+	//{
+	//	AItem_B* StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(ItemToDeliver->GetClass(), AICharacter->GetActorLocation() + FVector(50,0,0),FRotator());
+	//	StoolToDeliver->Tags.Add("AIStool");
+	//	
+	//	BLog("DELIVER ITEM");
+	//	OwnerComponent->GetBlackboardComponent()->SetValueAsObject(ItemToPickup.SelectedKeyName, StoolToDeliver);
+	//	Bar->OnDeliverStart.RemoveAll(this);
+	//	FinishLatentTask(*OwnerComponent, EBTNodeResult::Succeeded);
+	//}
 }

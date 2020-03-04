@@ -7,12 +7,19 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 #include "BrawlInn.h"
+#include "Characters/AI/AICharacter_B.h"
 #include "AI/AIDropPoint_B.h"
+
+UBT_GetDropLocation_B::UBT_GetDropLocation_B()
+{
+	bNotifyTick = true;
+	bCreateNodeInstance = true;
+}
 
 EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
-	bNotifyTick = true;
+
 
 	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	if (!Bar)
@@ -30,6 +37,7 @@ void UBT_GetDropLocation_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 
 	if (Bar && Bar->GetDropLocations(AICharacter)->PeekFront())
 	{
+		BLog("Owner %s", *GetNameSafe(AICharacter));
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(DropLocationActor.SelectedKeyName, Bar->GetDropLocations(AICharacter)->PeekFront());
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

@@ -20,6 +20,7 @@
 UBT_WalkTo_B::UBT_WalkTo_B()
 {
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UBT_WalkTo_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

@@ -32,6 +32,14 @@ struct FDropLocations
 	GENERATED_BODY()
 	
 	EBarDropLocationType Type;
+	FDropLocations()
+	{
+		
+	}
+	FDropLocations(EBarDropLocationType InType)
+	{
+		Type = InType;
+	}
 
 	void AddBack(AAIDropPoint_B* DropPoint)
 	{
