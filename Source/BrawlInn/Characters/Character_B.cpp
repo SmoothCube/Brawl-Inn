@@ -114,12 +114,14 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 		HoldComponent->Drop();
 
 	SetState(EState::EFallen);
-	HoldComponent->
-	//GetMesh()->SetGenerateOverlapEvents(true);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+//	GetMesh()->SetGenerateOverlapEvents(true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	GetCapsuleComponent()->SetCollisionProfileName("Throwable-Trigger");
+	//GetCapsuleComponent()->SetCollisionProfileName("Throwable-Trigger");
 
 	GetMesh()->AddImpulse(MeshForce, ForceSocketName, false);	//TODO make the bone dynamic instead of a variable
 
@@ -169,17 +171,16 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	HoldingCharacter = Player;
 
-	GetCapsuleComponent()->SetEnableGravity(false);
-	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
-
-	GetCharacterMovement()->StopMovementImmediately();
-
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh()->SetGenerateOverlapEvents(false);
-
+	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
+	//GetCapsuleComponent()->SetEnableGravity(false);
+	//GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
+
+	GetMesh()->SetSimulatePhysics(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetGenerateOverlapEvents(false);
 
 	GetCharacterMovement()->StopActiveMovement();
 	SetActorRotation(FRotator(-90, 0, 90));
@@ -206,18 +207,19 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 
 void ACharacter_B::Dropped_Implementation()
 {
-	GetCapsuleComponent()->SetEnableGravity(true);
+	//GetCapsuleComponent()->SetEnableGravity(true);
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	Fall(FVector::ZeroVector, FallRecoveryTime);
+//	GetMesh()->SetSimulatePhysics(true); //should be unneccesary
 	HoldingCharacter = nullptr;
 	SetActorRotation(FRotator(0, 0, 0));
 }
 
 void ACharacter_B::Use_Implementation()
 {
-	GetCapsuleComponent()->SetEnableGravity(true);
+	//GetCapsuleComponent()->SetEnableGravity(true);
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->ThrowComponent))
