@@ -211,7 +211,7 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	PlayersActive--;
 	UpdateNumberOfActivePlayers();
 	UpdateNumberOfReadyPlayers();
-	APlayerCharacter_B* Character = PlayerControllerThatSelected->PlayerCharacter;
+	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
 
 	const int Index = Characters.Find(Character);
@@ -262,7 +262,7 @@ void AMenuGameMode_B::UpdateOtherSelections()
 	for (int j = 0; j < MenuPlayerControllers.Num(); j++)
 	{
 		const auto Controller = MenuPlayerControllers[j];
-		if (Controller->PlayerCharacter)
+		if (Controller->GetPlayerCharacter())
 			continue;
 
 		for (int i = 0; i < CharacterBooleans.Num(); i++)
@@ -278,7 +278,7 @@ void AMenuGameMode_B::UpdateOtherSelections()
 	}
 }
 
-void AMenuGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
+void AMenuGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
 {
 	if (IsValid(SelectionCamera))
 		PlayerController->SetViewTargetWithBlend(SelectionCamera);

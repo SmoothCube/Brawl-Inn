@@ -11,8 +11,9 @@ class UVictoryScreenWidget_B;
 class USceneComponent; 
 class UPauseMenu_B;
 class UGameOverlay_B;
+class AGamePlayerController_B;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
 
 UCLASS()
@@ -34,12 +35,12 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
+	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
 
 public:
-	void PauseGame(APlayerController_B* ControllerThatPaused);
+	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
 	void ResumeGame();
-	APlayerController_B* PlayerControllerThatPaused = nullptr;
+	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;

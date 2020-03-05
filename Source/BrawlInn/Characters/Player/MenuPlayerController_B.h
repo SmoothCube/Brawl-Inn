@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "MenuPlayerController_B.generated.h"
 
 class ASelectionPawn_B;
 
 UCLASS()
-class BRAWLINN_API AMenuPlayerController_B : public APlayerController_B
+class BRAWLINN_API AMenuPlayerController_B : public AGamePlayerController_B
 {
 	GENERATED_BODY()
 

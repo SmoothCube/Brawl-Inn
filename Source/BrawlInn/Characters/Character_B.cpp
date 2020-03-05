@@ -40,7 +40,6 @@ ACharacter_B::ACharacter_B()
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(91.f);
 	GetCapsuleComponent()->SetCapsuleRadius(60.f);
-	GetCapsuleComponent()->SetMassOverrideInKg(NAME_None, 161.f);
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
@@ -83,6 +82,16 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		HandleMovement(DeltaTime);
 	}
+}
+
+void ACharacter_B::SetInputVectorX(const float X)
+{
+	InputVector.X = X;
+}
+
+void ACharacter_B::SetInputVectorY(const float Y)
+{
+	InputVector.Y = Y;
 }
 
 void ACharacter_B::HandleMovement(float DeltaTime)
@@ -289,7 +298,6 @@ void ACharacter_B::AddStun(const int Strength)
 
 void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
 {
-	BScreen("Running MakeInvurnerable time:%f, show effect: %i", ITime, bShowInvulnerabilityEffect);
 	bIsInvulnerable = true;
 
 	if (bShowInvulnerabilityEffect && InvulnerableMat)

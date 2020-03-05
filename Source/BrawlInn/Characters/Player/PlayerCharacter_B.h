@@ -11,7 +11,7 @@ class AController;
 class UGameInstance_B;
 class UDataTable_B;
 class USoundCue;
-class APlayerController_B;
+class AGamePlayerController_B;
 
 UCLASS()
 class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
@@ -93,7 +93,7 @@ public:
 
 protected:
 	UPROPERTY()
-		APlayerController_B* PlayerController = nullptr;
+		AGamePlayerController_B* PlayerController = nullptr;
 
 	virtual void PossessedBy(AController* NewController) override;
 
