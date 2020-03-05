@@ -132,7 +132,7 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 void ACharacter_B::StandUp()
 {
 
-	if (GetCharacterMovement()->IsFalling()  && !(GetCapsuleComponent()->GetCollisionProfileName() == "Throwable-AfterThrow"))
+	if (GetCharacterMovement()->IsFalling()  && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
 		BWarn("Character is falling! Cant stand up!");
 		return;
@@ -178,6 +178,7 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	//GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
 
 	GetMesh()->SetSimulatePhysics(false);
+	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetGenerateOverlapEvents(false);
@@ -235,8 +236,8 @@ void ACharacter_B::Use_Implementation()
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
 	}
 	//GetMesh()->SetSimulatePhysics(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCapsuleComponent()->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));	//THIS MAKES THEM FALL THROUGH THE FLOOR? 
 	HoldingCharacter = nullptr;
 
 	SetActorRotation(FRotator(0, 0, 0));
@@ -404,7 +405,7 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 	
 	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
-	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Throwable-AfterThrow"))
+	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
 		BWarn("Capsule Collides!");
 		if (HitCharacter->HasShield())
