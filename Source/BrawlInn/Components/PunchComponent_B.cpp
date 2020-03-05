@@ -90,7 +90,7 @@ void UPunchComponent_B::Dash()
 	OwningCharacter->MakeInvulnerable(0.3f, false);
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
-	FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
+	const FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
 	if (NormInput.IsNearlyZero())
 	{
 		//think setting velocity is more predictable and therefore better than adding force here.

@@ -15,6 +15,13 @@ class BRAWLINN_API AMenuPlayerController_B : public APlayerController_B
 
 	// ********** AActor **********
 protected:
+
+	void BeginPlay() override;
+
+	void OnPossess(APawn* InPawn) override;
+
+	void OnUnPossess() override;
+	
 	virtual void SetupInputComponent() override;
 
 	// ********** Character Selection **********

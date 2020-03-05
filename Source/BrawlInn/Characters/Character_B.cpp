@@ -68,7 +68,7 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-	MakeInvulnerable(1.0f);
+	//MakeInvulnerable(1.0f);
 }
 
 void ACharacter_B::Tick(float DeltaTime)
@@ -289,6 +289,7 @@ void ACharacter_B::AddStun(const int Strength)
 
 void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
 {
+	BScreen("Running MakeInvurnerable time:%f, show effect: %i", ITime, bShowInvulnerabilityEffect);
 	bIsInvulnerable = true;
 
 	if (bShowInvulnerabilityEffect && InvulnerableMat)
@@ -360,6 +361,7 @@ void ACharacter_B::TryPunch()
 
 	PunchComponent->SetIsCharging(true);
 }
+
 UNiagaraComponent* ACharacter_B::GetChargeParticle() const
 {
 	return PS_Charge;

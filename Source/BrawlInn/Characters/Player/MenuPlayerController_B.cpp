@@ -1,12 +1,46 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MenuPlayerController_B.h"
+
+#include "BrawlInn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "System/GameModes/MenuGameMode_B.h"
 #include "Characters/Player/SelectionPawn_B.h"
-//#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
+
+
+void AMenuPlayerController_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+
+}
+
+void AMenuPlayerController_B::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	PlayerCharacter = Cast<APlayerCharacter_B>(InPawn);
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->MakeVulnerable();
+	}
+}
+
+void AMenuPlayerController_B::OnUnPossess()
+{
+	APlayerCharacter_B* PC = PlayerCharacter;
+	Super::OnUnPossess();
+	
+	if (PC)
+	{
+		BScreen("Unposses PlayerCharacter");
+		PC->GetMovementComponent()->StopMovementImmediately();
+		PC->MakeInvulnerable(-1, false);
+	}
+}
 
 void AMenuPlayerController_B::SetupInputComponent()
 {

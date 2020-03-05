@@ -142,14 +142,17 @@ protected:
 	FTimerHandle TH_StunTimer;
 
 
+public:
 	// ********** Invulnerability **********
+
 	/// A number less than 0 will make the character invulnerable until toggled off again
 	void MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect = true);
-public:
+
 	bool IsInvulnerable();
-protected:
+
 	void MakeVulnerable();
 
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;
 

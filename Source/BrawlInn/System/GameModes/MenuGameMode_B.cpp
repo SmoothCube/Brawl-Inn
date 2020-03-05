@@ -39,7 +39,12 @@ void AMenuGameMode_B::BeginPlay()
 		BError("Can't find any characters to select!");
 
 	for (const auto& Character : TCharacters)
-		Characters.Add(Cast<APlayerCharacter_B>(Character));
+	{
+		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
+		Characters.Add(PlayerCharacter);
+		PlayerCharacter->MakeInvulnerable(-1, false);
+		
+	}
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
 		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
@@ -197,7 +202,6 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 		CharacterBooleans[Index] = true;
 		PlayerControllerThatSelected->GetSelectionPawn()->Destroy();
 		PlayerControllerThatSelected->Possess(Characters[Index]);
-		PlayerControllerThatSelected->PlayerCharacter = Characters[Index]; //TODO Legge dette i possess ?
 	}
 	UpdateOtherSelections();
 }
@@ -209,9 +213,8 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	UpdateNumberOfReadyPlayers();
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->PlayerCharacter;
 	PlayerControllerThatSelected->UnPossess();
-	PlayerControllerThatSelected->PlayerCharacter = nullptr;
 
-	int Index = Characters.Find(Character);
+	const int Index = Characters.Find(Character);
 	CharacterBooleans[Index] = false;
 	Character->SetActorTransform(CharacterStartTransforms[Index]);
 
@@ -230,7 +233,7 @@ void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 	while (CharacterBooleans[PlayerController->GetSelectedCharacterIndex()])
 		PlayerController->SetSelectedCharacterIndex((PlayerController->GetSelectedCharacterIndex() ? PlayerController->GetSelectedCharacterIndex() : MenuPlayerControllers.Num()) - 1);
 
-	FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
+	const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
 	SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
 }
 
@@ -239,7 +242,7 @@ void AMenuGameMode_B::Hover(AMenuPlayerController_B* PlayerController, int Index
 	auto SelectionPawn = PlayerController->GetSelectionPawn();
 	PlayerController->SetSelectedCharacterIndex(Index); // Set the next index as current index.
 
-	FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
+	const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
 	SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
 }
 
@@ -250,7 +253,7 @@ void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 	while (CharacterBooleans[PlayerController->GetSelectedCharacterIndex()]) // Loop until you find a valid index and set that index to the current.
 		PlayerController->SetSelectedCharacterIndex((PlayerController->GetSelectedCharacterIndex() + 1) % MenuPlayerControllers.Num());
 
-	FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
+	const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
 	SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
 }
 
@@ -258,7 +261,7 @@ void AMenuGameMode_B::UpdateOtherSelections()
 {
 	for (int j = 0; j < MenuPlayerControllers.Num(); j++)
 	{
-		auto Controller = MenuPlayerControllers[j];
+		const auto Controller = MenuPlayerControllers[j];
 		if (Controller->PlayerCharacter)
 			continue;
 
