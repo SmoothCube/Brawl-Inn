@@ -74,9 +74,21 @@ void UPunchComponent_B::PunchDash()
 {
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
-	float f = OwningCharacter->GetCharacterMovement()->Velocity.Size() / OwningCharacter->GetCharacterMovement()->MaxWalkSpeed;
-	float dist = (MaxPunchDashDistance - MinPunchDashDistance) * (int)ChargeLevel + MinPunchDashDistance;
-	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * PunchDashForceModifier);
+	float PunchDashSpeed = 0.f;
+	switch (ChargeLevel)
+	{
+	case EChargeLevel::EChargeLevel1: PunchDashSpeed = Charge1PunchDashSpeed;
+		break;
+	case EChargeLevel::EChargeLevel2: PunchDashSpeed = Charge2PunchDashSpeed;
+		break;
+	case EChargeLevel::EChargeLevel3: PunchDashSpeed = Charge3PunchDashSpeed;
+		break;
+	default:
+		break;
+	}
+
+	OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->GetActorForwardVector() * PunchDashSpeed);
+
 }
 	
 void UPunchComponent_B::Dash()

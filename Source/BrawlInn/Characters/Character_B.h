@@ -107,13 +107,13 @@ public:
 
 protected:	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge1ThrowStrength = 1000.f;
+	float Charge1ThrowStrength = 100000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge2ThrowStrength = 10000.f;
+	float Charge2ThrowStrength = 250000.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge3ThrowStrength = 100000.f;
+	float Charge3ThrowStrength = 500000.f;
 	
 	UPROPERTY()
 	ACharacter_B* HoldingCharacter = nullptr;

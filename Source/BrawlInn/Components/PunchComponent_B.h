@@ -114,13 +114,13 @@ protected:
 	float PunchWaitingTime = 0.1f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
-	float MinPunchDashDistance = 150.f;
+	float Charge1PunchDashSpeed = 1000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
-	float MaxPunchDashDistance = 300.f;
+	float Charge2PunchDashSpeed = 2000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
-	float PunchDashForceModifier = 75000.f;
+	float Charge3PunchDashSpeed = 3500.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
 	USoundCue* ChargePunchSound = nullptr;
@@ -140,7 +140,7 @@ protected:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
-	float DashSpeed = 7500.f;
+	float DashSpeed = 5000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;
@@ -149,7 +149,7 @@ protected:
 	float DashCooldown = 2.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
-	float DashTime = 0.2f;
+	float DashTime = 0.1f;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables | Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))

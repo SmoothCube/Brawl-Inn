@@ -48,13 +48,13 @@ protected:
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge1ThrowStrength = 0.f;
+	float Charge1ThrowStrength = 1000.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge2ThrowStrength = 0.f;
+	float Charge2ThrowStrength = 2000.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge3ThrowStrength = 0.f;
+	float Charge3ThrowStrength = 3000.f;
 
 	// ********** Destroy/Fracture **********
 public:

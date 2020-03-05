@@ -154,7 +154,6 @@ void ACharacter_B::StandUp()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetGenerateOverlapEvents(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	MakeInvulnerable(InvulnerabilityTime);
 	SetState(EState::EWalking);
 	StunAmount = 0;
 }
