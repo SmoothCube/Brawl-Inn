@@ -87,6 +87,9 @@ void ACharacter_B::Tick(float DeltaTime)
 
 void ACharacter_B::HandleMovement(float DeltaTime)
 {
+	if (PunchComponent->GetIsPunching())
+		return;
+
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -107,7 +110,6 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
-	BWarn("Fall! %s", *GetNameSafe(this));
 
 	if (GetCharacterMovement()->IsFalling())
 		return;
@@ -134,7 +136,6 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 void ACharacter_B::StandUp()
 {
-	BWarn("StandUp! %s", *GetNameSafe(this));
 
 	if (GetCharacterMovement()->IsFalling() )// && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
@@ -174,7 +175,6 @@ FVector ACharacter_B::FindMeshLocation() const
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	HoldingCharacter = Player;
-	BWarn("PickedUp! %s", *GetNameSafe(this));
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
@@ -196,7 +196,6 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 void ACharacter_B::Dropped_Implementation()
 {
 	//GetCapsuleComponent()->SetEnableGravity(true);
-	BWarn("Dropped_Implementation! %s", *GetNameSafe(this));
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
@@ -208,7 +207,6 @@ void ACharacter_B::Dropped_Implementation()
 
 void ACharacter_B::Use_Implementation()
 {
-	BWarn("Use_Implementation! %s", *GetNameSafe(this));
 
 	//GetCapsuleComponent()->SetEnableGravity(true);
 
@@ -403,8 +401,8 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 		{
 			HitCharacter->GetCharacterMovement()->AddImpulse(GetVelocity());
 			HitCharacter->CheckFall(GetVelocity());
-			if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->GetController()))
-				UGameplayStatics::ApplyDamage(HitCharacter, 1, HoldingCharacter->GetController(), this, UDamageType::StaticClass());
+			if (IsValid(HitCharacter) && IsValid(HitCharacter->GetController()))
+				UGameplayStatics::ApplyDamage(HitCharacter, 1, HitCharacter->GetController(), this, UDamageType::StaticClass());
 		}
 	}
 

@@ -207,19 +207,28 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	if (!OwningCharacter->IsInvulnerable())
 	{
 		OwningCharacter->GetCharacterMovement()->AddImpulse(InPunchStrength);
+
 		OwningCharacter->RemoveShield();
-		if (PlayerThatPunched->PunchComponent->ChargeLevel == EChargeLevel::EChargeLevel3)
-			OwningCharacter->CheckFall(InPunchStrength);
-		else if (PlayerThatPunched->PunchComponent->ChargeLevel == EChargeLevel::EChargeLevel2)
-			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
-		else
+
+		switch (PlayerThatPunched->PunchComponent->ChargeLevel)
+		{
+		case EChargeLevel::EChargeLevel1:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
+			break;
+		case EChargeLevel::EChargeLevel2:
+			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
+			break;
+		case EChargeLevel::EChargeLevel3:
+			OwningCharacter->CheckFall(InPunchStrength);
+			return;
+		default:
+			break;
+		}
 
 		if (OwningCharacter->StunAmount >= OwningCharacter->PunchesToStun)
 		{
 			OwningCharacter->CheckFall(InPunchStrength);
 		}
-
 	}
 }
 
@@ -285,21 +294,18 @@ void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
 FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }
-	FVector Strength;
-	if (ChargeLevel == EChargeLevel::EChargeLevel3)
+
+	switch (ChargeLevel)
 	{
-		Strength = OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
+	case EChargeLevel::EChargeLevel1:
+		return OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
+	case EChargeLevel::EChargeLevel2: 
+		return OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
+	case EChargeLevel::EChargeLevel3: 
+		return OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
+	default:
+		return FVector::ZeroVector;
 	}
-	else if (ChargeLevel == EChargeLevel::EChargeLevel2)
-	{
-		Strength = OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
-	}
-	else
-	{
-		Strength = OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
-	}
-	
-	return Strength;
 }
 
 float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)

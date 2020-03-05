@@ -132,7 +132,7 @@ protected:
 		float StunTime = 3.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		int PunchesToStun = 2;
+		int PunchesToStun = 1;
 
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_Stun = nullptr;

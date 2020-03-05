@@ -76,14 +76,17 @@ public:
 	float ChargeTier3Percentage = 0.9;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Level3PunchStrength = 1000000;		// this is used in fall
+
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Level2PunchStrength = 300000;		// this is used in movementComponent
+	float Level1PunchStrength = 100000.f;	// this is used in movement
 	
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Level1PunchStrength = 150000.f;	// this is used in movement
+	float Level2PunchStrength = 175000.f;		// this is used in movementComponent
+	
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+	float Level3PunchStrength = 300000.f;		// this is used in fall
+
 
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Charge1MoveSpeed = 500.f;
