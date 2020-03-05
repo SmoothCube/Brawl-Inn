@@ -116,6 +116,8 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
+	BWarn("Fall! %s", *GetNameSafe(this));
+
 	if (GetCharacterMovement()->IsFalling())
 		return;
 
@@ -127,8 +129,9 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 //	GetMesh()->SetGenerateOverlapEvents(true);
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionProfileName("Ragdoll");
 
 	//GetCapsuleComponent()->SetCollisionProfileName("Throwable-Trigger");
 
@@ -140,25 +143,26 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 void ACharacter_B::StandUp()
 {
+	BWarn("StandUp! %s", *GetNameSafe(this));
 
-	if (GetCharacterMovement()->IsFalling()  && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
+	if (GetCharacterMovement()->IsFalling() )// && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
 		BWarn("Character is falling! Cant stand up!");
 		return;
 	}
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->SetCollisionProfileName("StandingMesh");
 	
 	//Saves snapshot for blending to animation
 	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
 	GetMovementComponent()->StopMovementImmediately();
 
-	GetMesh()->SetSimulatePhysics(false);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetGenerateOverlapEvents(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	MakeInvulnerable(InvulnerabilityTime);
 	SetState(EState::EWalking);
 	StunAmount = 0;
 }
@@ -179,7 +183,7 @@ FVector ACharacter_B::FindMeshLocation() const
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	HoldingCharacter = Player;
-
+	BWarn("PickedUp! %s", *GetNameSafe(this));
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
@@ -188,36 +192,20 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 
 	GetMesh()->SetSimulatePhysics(false);
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+	GetMesh()->SetCollisionProfileName("StandingMesh");
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetGenerateOverlapEvents(false);
 
 	GetCharacterMovement()->StopActiveMovement();
 	SetActorRotation(FRotator(-90, 0, 90));
-///StandUp:
 
-	//if (GetCharacterMovement()->IsFalling() && !(GetCapsuleComponent()->GetCollisionProfileName() == "Throwable-AfterThrow"))
-	//{
-	//	BWarn("Character is falling! Cant stand up!");
-	//	return;
-	//}
-
-	//GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-
-	//GetMovementComponent()->StopMovementImmediately();
-
-	//GetMesh()->SetSimulatePhysics(false);
-	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	//GetMesh()->SetGenerateOverlapEvents(false);
-	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//MakeInvulnerable(InvulnerabilityTime);
-	//SetState(EState::EWalking);
-	//StunAmount = 0;
 }
 
 void ACharacter_B::Dropped_Implementation()
 {
 	//GetCapsuleComponent()->SetEnableGravity(true);
+	BWarn("Dropped_Implementation! %s", *GetNameSafe(this));
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
@@ -229,8 +217,11 @@ void ACharacter_B::Dropped_Implementation()
 
 void ACharacter_B::Use_Implementation()
 {
+	BWarn("Use_Implementation! %s", *GetNameSafe(this));
+
 	//GetCapsuleComponent()->SetEnableGravity(true);
 
+	GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->ThrowComponent))
 	{
@@ -244,9 +235,6 @@ void ACharacter_B::Use_Implementation()
 		}
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
 	}
-	//GetMesh()->SetSimulatePhysics(true);
-	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));	//THIS MAKES THEM FALL THROUGH THE FLOOR? 
 	HoldingCharacter = nullptr;
 
 	SetActorRotation(FRotator(0, 0, 0));
@@ -417,7 +405,6 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
 	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
-		BWarn("Capsule Collides!");
 		if (HitCharacter->HasShield())
 		{
 			HitCharacter->RemoveShield();

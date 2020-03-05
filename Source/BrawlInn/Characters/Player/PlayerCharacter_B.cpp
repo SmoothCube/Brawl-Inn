@@ -40,6 +40,10 @@ APlayerCharacter_B::APlayerCharacter_B()
 	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
+	
+	Charge1ThrowStrength = 200000.f;
+	Charge2ThrowStrength = 500000.f;
+	Charge3ThrowStrength = 1000000.f;
 }
 
 void APlayerCharacter_B::BeginPlay()
@@ -125,6 +129,7 @@ void APlayerCharacter_B::StandUp()
 	Super::StandUp();
 	bCanBeHeld = false;
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
+	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
 }
 
