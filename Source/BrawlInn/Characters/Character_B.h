@@ -65,14 +65,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float NormalRotationInterpSpeed = 10.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float Charge1RotSpeed = 1.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float Charge2RotSpeed = 0.7f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float Charge3RotSpeed = 0.1f;
 
 	FVector InputVector = FVector::ZeroVector;
 
@@ -85,6 +78,8 @@ protected:
 	virtual void StandUp();
 
 	FVector FindMeshLocation() const;
+
+	FVector FindMeshGroundLocation() const;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 2.f;
@@ -110,6 +105,22 @@ public:
 
 	UFUNCTION()
 	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+protected:
+	EState State = EState::EWalking;
+
+	UPROPERTY()
+		ACharacter_B* HoldingCharacter = nullptr;
+
+	bool bCanBeHeld = true;
+	
+	// ********** Charge **********
+public:
+	EChargeLevel GetChargeLevel();
+	bool IsCharging() const;
+	virtual void SetChargeLevel(EChargeLevel chargeLevel);
+
+	void SetIsCharging(bool Value);
 
 protected:	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
@@ -120,11 +131,42 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
 	float Charge3ThrowStrength = 500000.f;
-	
-	UPROPERTY()
-	ACharacter_B* HoldingCharacter = nullptr;
 
-	bool bCanBeHeld = true;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float Charge1MoveSpeed = 500.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float Charge2MoveSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float Charge3MoveSpeed = 100.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		float Charge1RotSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		float Charge2RotSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		float Charge3RotSpeed = 10.f;		//TODO clean
+	
+	bool bIsCharging = false;
+
+	EChargeLevel ChargeLevel = EChargeLevel::ENotCharging;
+public:
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float ChargeTier2Percentage = 0.45;
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+		float ChargeTier3Percentage = 0.9;
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
+		USoundCue* ChargeLevelSound = nullptr;
+public:
+
 
 	// ********** Stun **********
 public:
@@ -194,9 +236,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
-
-protected:
-	EState State = EState::EWalking;
 
 	// ********** Punch **********
 public:

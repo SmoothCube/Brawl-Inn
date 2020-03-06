@@ -121,6 +121,7 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AActor* Item)
 {
+
 	OwningCharacter->SetState(EState::EHolding);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)

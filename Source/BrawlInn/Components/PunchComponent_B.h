@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/SphereComponent.h"
-#include "System/Enums/Charge.h"
 #include "PunchComponent_B.generated.h"
 
 
@@ -64,17 +63,6 @@ public:
 	bool bIsPunching = false;
 
 	// ********** ChargePunch **********
-	void SetChargeLevel(EChargeLevel chargeLevel);
-
-	bool GetIsCharging();
-	void SetIsCharging(bool Value);
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float ChargeTier2Percentage = 0.45;
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float ChargeTier3Percentage = 0.9;
-
 protected:
 
 
@@ -87,19 +75,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
 	float Level3PunchStrength = 300000.f;		// this is used in fall
 
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Charge1MoveSpeed = 500.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Charge2MoveSpeed = 250.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Charge3MoveSpeed = 100.f;
-
 private:
-	EChargeLevel ChargeLevel;
-	bool bIsCharging = false;
 
 protected:
 	bool bHasHit = false;

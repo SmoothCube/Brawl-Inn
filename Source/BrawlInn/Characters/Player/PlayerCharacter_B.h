@@ -86,6 +86,7 @@ protected:
 	// ********** Misc. **********
 
 public:
+	virtual void SetChargeLevel(EChargeLevel chargeLevel) override;
 	virtual void AddStun(const int Strength = 1) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")

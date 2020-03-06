@@ -128,7 +128,7 @@ void APlayerCharacter_B::StandUp()
 {
 	Super::StandUp();
 	bCanBeHeld = false;
-	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
 	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
 }
@@ -222,6 +222,25 @@ void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
 	{
 		LastHitBy = EventInstigator;
 	}
+}
+
+void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
+{
+	Super::SetChargeLevel(chargeLevel);
+	float VibrationStrength = 0.f;
+	switch (chargeLevel)
+	{
+	case EChargeLevel::EChargeLevel1:
+		VibrationStrength = 0.5f;
+		break;
+	case EChargeLevel::EChargeLevel2:
+		VibrationStrength = 0.7f;
+		break;
+	case EChargeLevel::EChargeLevel3:
+		VibrationStrength = 1.f;
+		break;
+	}
+	PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true);
 }
 
 void APlayerCharacter_B::AddStun(const int Strength)
