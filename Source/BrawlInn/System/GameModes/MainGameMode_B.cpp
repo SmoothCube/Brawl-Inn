@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,7 +8,7 @@
 
 #include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "System/GameInstance_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
@@ -40,7 +39,7 @@ void AMainGameMode_B::BeginPlay()
 	/// Spawns characters for the players
 	for (FPlayerInfo Info : GameInstance->GetPlayerInfos())
 	{
-		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
+		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
 
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
@@ -89,7 +88,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	PauseMenuWidget->MenuTick();
 }
 
-void AMainGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
+void AMainGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
 {
 	if (IsValid(GameCamera))
 		PlayerController->SetViewTargetWithBlend(GameCamera);
@@ -97,7 +96,7 @@ void AMainGameMode_B::UpdateViewTarget(APlayerController_B* PlayerController)
 		BWarn("Cannot Set view Target!");
 }
 
-void AMainGameMode_B::PauseGame(APlayerController_B* ControllerThatPaused)
+void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 {
 	PlayerControllerThatPaused = ControllerThatPaused;
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);

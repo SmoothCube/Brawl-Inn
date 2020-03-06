@@ -10,7 +10,7 @@
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Characters/Player/InitPawn_B.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
 
@@ -53,13 +53,13 @@ void AGameMode_B::CreatePlayerControllers()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), OutActors);
 	for (const auto& Actor : OutActors)
-		PlayerControllers.Add(Cast<APlayerController_B>(Actor));
+		PlayerControllers.Add(Cast<AGamePlayerController_B>(Actor));
 }
 
 // ---------------- Spawn PlayerCharacter functions --------------------------
 void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform)
 {
-	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
+	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
 	APawn* Pawn = PlayerController->GetPawn();
 	if (!IsValid(Pawn)) { BError("Can't find Pawn!"); return; }
@@ -72,13 +72,13 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	Pawn->Destroy();
 	if (BP_PlayerCharacters.Num() == 0) { BError("GameMode has no BP_PlayerCharacter!");  return; }
-	int Index = (int)PlayerInfo.Type;
+	const int Index = (int)PlayerInfo.Type;
 	if (!BP_PlayerCharacters.IsValidIndex(Index)) { BError("GameMode has no PlayerCharacter on Index %i", Index); return; }
 
 	APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), params);
 	PlayerController->Possess(Character);
 	PlayerController->RespawnPawn = nullptr;
-	PlayerController->PlayerCharacter = Character;
+	PlayerController->SetPlayerCharacter(Character);
 	AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
 	if (MainMode && Character)
 	{
@@ -91,7 +91,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 // Når man respawner gjennom en barrel
 void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 {
-	APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
+	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
@@ -113,12 +113,12 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
  			MainMode->AddCameraFocusPoint(RespawnPawn);
 	}
 	
-	PlayerController->PlayerCharacter = nullptr;
+	PlayerController->SetPlayerCharacter(nullptr);
 	UpdateViewTarget(PlayerController);
 	OnRespawnCharacter_D.Broadcast();
 }
 
-void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
+void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 {
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
 	APawn* Pawn = PlayerController->GetPawn();
@@ -127,7 +127,7 @@ void AGameMode_B::DespawnCharacter(APlayerController_B* PlayerController)
 
 	AInitPawn_B* Character = GetWorld()->SpawnActor<AInitPawn_B>(AInitPawn_B::StaticClass(), FTransform());
 	PlayerController->Possess(Character);
-	PlayerController->PlayerCharacter = nullptr;
+	PlayerController->SetPlayerCharacter(nullptr);
 	if (GameInstance)
 		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 

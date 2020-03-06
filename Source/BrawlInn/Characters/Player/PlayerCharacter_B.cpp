@@ -13,7 +13,7 @@
 #include "BrawlInn.h"
 #include "System/DataTable_B.h"
 #include "System/Structs/ScoreLookupTable.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
@@ -76,7 +76,7 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	}
 
 	//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
-//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
+	//BLog("Player %s, is  %i", *GetNameSafe(this), IsInvulnerable());
 	//BWarn("Capsule collision profile: %s for player: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString(), *GetNameSafe(this));
 
 }
@@ -171,6 +171,9 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (IsInvulnerable())
+		return 0;
+	
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		if (LastHitBy) // Hit by someone before falling out of the world!
@@ -254,18 +257,14 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	PlayerController = Cast<APlayerController_B>(NewController);
+	PlayerController = Cast<AGamePlayerController_B>(NewController);
 
-	if (!(PlayerController && PlayerController->HealthComponent))
+	if (!PlayerController)
 		return;
 
 	PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
 
-	PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-	PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-	if (PlayerController->HealthComponent->HealthWidget)
-		PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
-	PlayerController->PlayerInfo = PlayerInfo;
+	PlayerController->SetPlayerInfo(PlayerInfo);
 
 	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
 		{

@@ -47,24 +47,6 @@ void UHealthComponent_B::TakeDamage(int Value)
 	SetHealth(Health - Value);
 }
 
-void UHealthComponent_B::SetHealthWidget(UHealthWidget_B* Widget)
-{
-	HealthWidget = Widget;
-	if (!HealthUpdated_D.IsBoundToObject(Widget))
-		HealthUpdated_D.AddUObject(Widget, &UHealthWidget_B::UpdateHealthAmount);
-
-	if (!HealthIsZero_D.IsBoundToObject(Widget))
-	{
-		HealthIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
-		RespawnIsZero_D.AddUObject(Widget, &UHealthWidget_B::UpdateRespawnsAmount);
-	}
-	UScoreSubSystem_B* ScoreSubSystem =  Cast<APlayerController_B>(GetOwner())->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
-	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(Widget))
-	{
-		ScoreSubSystem->OnScoreValuesChanged.AddUObject(Widget, &UHealthWidget_B::UpdateScoreValues);
-	}
-	
-}
 
 void UHealthComponent_B::BeginPlay()
 {

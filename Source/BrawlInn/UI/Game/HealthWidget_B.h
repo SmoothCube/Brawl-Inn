@@ -7,12 +7,9 @@
 #include "System/Structs/ScoreValues.h"
 #include "HealthWidget_B.generated.h"
 
-class UProgressBar;
-class UVerticalBox;
 class UImage;
 class UTextBlock;
 class APlayerCharacter_B;
-class UGameInstance_B;
 
 UCLASS()
 class BRAWLINN_API UHealthWidget_B : public UUserWidget
@@ -24,30 +21,16 @@ protected:
 	virtual bool Initialize() override;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UVerticalBox* RespawnCharges;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UProgressBar* HealthProgressBar;
+		UImage* PlayerIcon;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* ScoreValueText;
 
-	UPROPERTY()
-		TArray<UImage*> Barrels;
-
-	UPROPERTY()
-		UGameInstance_B* GameInstance = nullptr;
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PostInitialize(APlayerCharacter_B* Character);
 
-	UFUNCTION()
-		void UpdateHealthAmount(int Amount);
-
-	void UpdateScoreValues(FScoreValues ScoreValues);
-
-	UFUNCTION()
-		void UpdateRespawnsAmount();
+	void UpdateScoreValues(FScoreValues ScoreValues) const;
 
 };

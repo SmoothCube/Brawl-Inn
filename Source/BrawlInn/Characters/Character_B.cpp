@@ -40,7 +40,6 @@ ACharacter_B::ACharacter_B()
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(91.f);
 	GetCapsuleComponent()->SetCapsuleRadius(60.f);
-	GetCapsuleComponent()->SetMassOverrideInKg(NAME_None, 161.f);
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
@@ -68,7 +67,7 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-	MakeInvulnerable(1.0f);
+	//MakeInvulnerable(1.0f);
 }
 
 void ACharacter_B::Tick(float DeltaTime)
@@ -83,6 +82,16 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		HandleMovement(DeltaTime);
 	}
+}
+
+void ACharacter_B::SetInputVectorX(const float X)
+{
+	InputVector.X = X;
+}
+
+void ACharacter_B::SetInputVectorY(const float Y)
+{
+	InputVector.Y = Y;
 }
 
 void ACharacter_B::HandleMovement(float DeltaTime)
@@ -346,6 +355,7 @@ void ACharacter_B::TryPunch()
 
 	PunchComponent->SetIsCharging(true);
 }
+
 UNiagaraComponent* ACharacter_B::GetChargeParticle() const
 {
 	return PS_Charge;

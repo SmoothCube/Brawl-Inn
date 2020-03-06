@@ -49,9 +49,15 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	// ********** Movement **********
+public:
+	void SetInputVectorX(const float X);
 
+	void SetInputVectorY(const float Y);
+	
+protected:
+	
 	void HandleMovement(float DeltaTime);
-private:
+	
 	float NormalMaxWalkSpeed = 0;
 
 	float RotationInterpSpeed = 10.f;
@@ -68,10 +74,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float Charge3RotSpeed = 0.1f;
 
-public:
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********
+public:
 	void CheckFall(FVector MeshForce);
 protected:
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
@@ -142,14 +148,17 @@ protected:
 	FTimerHandle TH_StunTimer;
 
 
+public:
 	// ********** Invulnerability **********
+
 	/// A number less than 0 will make the character invulnerable until toggled off again
 	void MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect = true);
-public:
+
 	bool IsInvulnerable();
-protected:
+
 	void MakeVulnerable();
 
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;
 

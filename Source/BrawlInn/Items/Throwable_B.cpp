@@ -35,6 +35,12 @@ void AThrowable_B::BeginPlay()
 	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Throwable")->Value;
 }
 
+void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	DestructibleComponent->OnComponentFracture.Clear();
+}
+
+
 void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetVisibility(true);

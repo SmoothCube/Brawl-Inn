@@ -8,7 +8,7 @@
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/GameInstance_B.h"
 #include "UI/Game/HealthWidget_B.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HealthComponent_B.h"
 
 void UGameOverlay_B::NativeOnInitialized()
@@ -29,11 +29,11 @@ void UGameOverlay_B::NativeOnInitialized()
 	for (ULocalPlayer* PlayerID : Players)
 	{
 		HealthWidgets[PlayerID->GetControllerId()]->SetVisibility(ESlateVisibility::Visible);
-		APlayerController_B* PlayerController = Cast<APlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID->GetControllerId()));
+		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID->GetControllerId()));
 		if (PlayerController)
 		{
 			HealthWidgets[PlayerID->GetControllerId()]->SetOwningPlayer(PlayerController);
-			PlayerController->HealthComponent->SetHealthWidget(HealthWidgets[PlayerID->GetControllerId()]);
+			PlayerController->SetHealthWidget(HealthWidgets[PlayerID->GetControllerId()]);
 		}
 	}
 

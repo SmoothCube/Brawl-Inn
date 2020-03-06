@@ -21,6 +21,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	// ********** Throwing **********
 
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;

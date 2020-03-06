@@ -38,11 +38,9 @@ public:
 
 	FHealthIsZero HealthIsZero_D;
 
-	UFUNCTION()
-	void SetHealthWidget(UHealthWidget_B* Widget);
 
-	UPROPERTY()
-	UHealthWidget_B* HealthWidget = nullptr;
+
+
 protected:
 	virtual void BeginPlay() override;
 

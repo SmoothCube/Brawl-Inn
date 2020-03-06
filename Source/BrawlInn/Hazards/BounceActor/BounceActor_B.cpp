@@ -63,7 +63,7 @@ void ABounceActor_B::SpawnPlayerCharacter()
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController->PlayerInfo, true, FTransform(GetActorLocation()));
+			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
 		}
 	}
 }

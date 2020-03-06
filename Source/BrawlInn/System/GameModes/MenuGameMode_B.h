@@ -144,7 +144,7 @@ protected:
 
 	// ********** Misc. **********
 
-	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
+	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
 
 	UFUNCTION(BlueprintCallable)
 		void UpdateViewTargets();
