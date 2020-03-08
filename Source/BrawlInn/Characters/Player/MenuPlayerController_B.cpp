@@ -42,18 +42,18 @@ void AMenuPlayerController_B::OnUnPossess()
 	}
 }
 
-void AMenuPlayerController_B::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	if (InputComponent != nullptr)
-	{
-		InputComponent->BindAction("Select", IE_Pressed, this, &AMenuPlayerController_B::TrySelect);
-		InputComponent->BindAction("SelectLeft", IE_Pressed, this, &AMenuPlayerController_B::SelectLeft);
-		InputComponent->BindAction("SelectRight", IE_Pressed, this, &AMenuPlayerController_B::SelectRight);
-		InputComponent->BindAction("Unselect", IE_Pressed, this, &AMenuPlayerController_B::Unselect);
-	}
-}
+//void AMenuPlayerController_B::SetupInputComponent()
+//{
+//	Super::SetupInputComponent();
+//
+//	if (InputComponent != nullptr)
+//	{
+//		InputComponent->BindAction("Select", IE_Pressed, this, &AMenuPlayerController_B::TrySelect);
+//		InputComponent->BindAction("SelectLeft", IE_Pressed, this, &AMenuPlayerController_B::SelectLeft);
+//		InputComponent->BindAction("SelectRight", IE_Pressed, this, &AMenuPlayerController_B::SelectRight);
+//		InputComponent->BindAction("Unselect", IE_Pressed, this, &AMenuPlayerController_B::Unselect);
+//	}
+//}
 
 ASelectionPawn_B* AMenuPlayerController_B::GetSelectionPawn()
 {
@@ -70,6 +70,26 @@ int AMenuPlayerController_B::GetSelectedCharacterIndex() const
 void AMenuPlayerController_B::SetSelectedCharacterIndex(int Value)
 {
 	SelectedCharacterIndex = Value;
+}
+
+void AMenuPlayerController_B::LeftStickRightPressed()
+{
+	SelectRight();
+}
+
+void AMenuPlayerController_B::LeftStickLeftPressed()
+{
+	SelectLeft();
+}
+
+void AMenuPlayerController_B::FaceButtonBottomPressed()
+{
+	TrySelect();
+}
+
+void AMenuPlayerController_B::FaceButtonRightPressed()
+{
+	Unselect();
 }
 
 void AMenuPlayerController_B::TrySelect()

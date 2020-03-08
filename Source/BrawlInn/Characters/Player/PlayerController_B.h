@@ -22,8 +22,6 @@ protected:
 	virtual void FellOutOfWorld(const class UDamageType& DmgType) override;
 	virtual void OnUnPossess() override;
 
-
-
 	// ********** KeyBindings **********
 
 	virtual void DPadUpPressed() {}
@@ -84,6 +82,15 @@ protected:
 
 	virtual void LeftStickXAxis(float Value) {}
 	virtual void LeftStickYAxis(float Value) {}
+	
+	virtual void LeftStickRightPressed() {}
+	virtual void LeftStickRightReleased() {}
+	virtual void LeftStickRightRepeat() {}
+	
+	virtual void LeftStickLeftPressed() {}
+	virtual void LeftStickLeftReleased() {}
+	virtual void LeftStickLeftRepeat() {}
+	
 	virtual void RightStickXAxis(float Value) {}
 	virtual void RightStickYAxis(float Value) {}
 

@@ -21,7 +21,7 @@
 void AGamePlayerController_B::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (Cast<APlayerCharacter_B>(InPawn))
+	if (Cast<APlayerCharacter_B>(InPawn) && HealthWidget)
 		HealthWidget->PostInitialize(Cast<APlayerCharacter_B>(InPawn));
 
 }
