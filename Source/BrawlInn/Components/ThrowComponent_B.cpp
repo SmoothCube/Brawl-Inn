@@ -52,7 +52,8 @@ bool UThrowComponent_B::TryThrow()
 	}
 
 	//BWarn("Trying Charge!");
-	bIsCharging = true;
+	if (IsValid(OwningCharacter))
+		OwningCharacter->bIsCharging = true;
 	if (OwningCharacter && OwningCharacter->GetChargeParticle())
 		OwningCharacter->GetChargeParticle()->Activate();
 	return true;
@@ -60,9 +61,9 @@ bool UThrowComponent_B::TryThrow()
 
 void UThrowComponent_B::StartThrow()
 {
-	if (bIsCharging)
+	if (OwningCharacter->bIsCharging)
 	{
-		bIsCharging = false;
+		OwningCharacter->bIsCharging = false;
 		if (OwningCharacter && OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
@@ -111,23 +112,13 @@ void UThrowComponent_B::Throw()
 	}
 	else
 		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
-	bIsCharging = false;
+	OwningCharacter->bIsCharging = false;
 	bIsThrowing = false;
 }
 
 bool UThrowComponent_B::IsThrowing() const
 {
 	return bIsThrowing;
-}
-
-EChargeLevel UThrowComponent_B::GetChargeLevel()
-{
-	return ChargeLevel;
-}
-
-bool UThrowComponent_B::IsCharging() const
-{
-	return bIsCharging;
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
@@ -230,61 +221,4 @@ bool UThrowComponent_B::IsReady() const
 		return false;
 	}
 	return true;
-}
-
-void UThrowComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
-{
-
-	ChargeLevel = chargeLevel;
-	bool ShouldPlaySound = true;
-	float SoundPitch = 1.0f;
-	if (!IsValid(OwningCharacter))
-		return;
-	switch (ChargeLevel)
-	{
-	case EChargeLevel::EChargeLevel1:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge1RotSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
-		//OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
-		ShouldPlaySound = false;
-		break;
-	case EChargeLevel::EChargeLevel2:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge2RotSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
-		//OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
-		SoundPitch = 1.0f;
-		BWarn("Charge 2!");
-
-		break;
-	case EChargeLevel::EChargeLevel3:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge3RotSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
-		//OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
-		SoundPitch = 1.2f;
-		BWarn("Charge 3!");
-		break;
-
-	default:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
-		ShouldPlaySound = false;
-		break;
-	}
-
-	if (ShouldPlaySound && ChargeLevelSound)
-	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
-		UGameplayStatics::PlaySoundAtLocation(
-			GetWorld(),
-			ChargeLevelSound,
-			OwningCharacter->GetActorLocation(),
-			volume,
-			SoundPitch
-		);
-	}
 }

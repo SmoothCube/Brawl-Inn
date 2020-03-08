@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "System/Enums/Charge.h"
 #include "ThrowComponent_B.generated.h"
 
 class ACharacter_B;
@@ -36,29 +35,10 @@ public:
 
 	bool IsThrowing() const;
 
-	EChargeLevel GetChargeLevel();
 protected:
-	EChargeLevel ChargeLevel;
 
 	bool bIsThrowing = false;
 
-public:
-	// ********** Charging **********
-
-	void SetChargeLevel(EChargeLevel chargeLevel);
-
-	bool IsCharging() const;
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-		float ChargeTier2Percentage = 0.45;
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-		float ChargeTier3Percentage = 0.9;
-protected:
-
-	bool bIsCharging = false;
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
-	USoundCue* ChargeLevelSound = nullptr;
 public:
 
 	// ********** AimAssist **********

@@ -7,7 +7,6 @@
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
-#include "Components/PunchComponent_B.h"
 
 void UANS_ChargePunch_B::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
@@ -18,25 +17,25 @@ void UANS_ChargePunch_B::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 void UANS_ChargePunch_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
-	if (IsValid(Player) && IsValid(Player->PunchComponent))
+	if (IsValid(Player))
 	{
 		CurrentTime += FrameDeltaTime;
 		float ChargeTimer = (CurrentTime / AnimLength);
 
 		if (!bChargeLevel1Reached)		//Tier 1
 		{
-			Player->PunchComponent->SetChargeLevel(EChargeLevel::EChargeLevel1);
+			Player->SetChargeLevel(EChargeLevel::EChargeLevel1);
 			bChargeLevel1Reached = true;
 
 		}
-		else if ((ChargeTimer >= Player->PunchComponent->ChargeTier2Percentage) && (!bChargeLevel2Reached))	//Tier 2
+		else if ((ChargeTimer >= Player->ChargeTier2Percentage) && (!bChargeLevel2Reached))	//Tier 2
 		{
-			Player->PunchComponent->SetChargeLevel(EChargeLevel::EChargeLevel2);
+			Player->SetChargeLevel(EChargeLevel::EChargeLevel2);
 			bChargeLevel2Reached = true;
 		}
-		else if ((ChargeTimer >= Player->PunchComponent->ChargeTier3Percentage) && (!bChargeLevel3Reached))															//Tier 3
+		else if ((ChargeTimer >= Player->ChargeTier3Percentage) && (!bChargeLevel3Reached))															//Tier 3
 		{
-			Player->PunchComponent->SetChargeLevel(EChargeLevel::EChargeLevel3);
+			Player->SetChargeLevel(EChargeLevel::EChargeLevel3);
 			bChargeLevel3Reached = true;
 		}
 	}
@@ -44,9 +43,9 @@ void UANS_ChargePunch_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 void UANS_ChargePunch_B::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	if (IsValid(Player) && IsValid(Player->PunchComponent))
+	if (IsValid(Player))
 	{
-		Player->PunchComponent->SetChargeLevel(EChargeLevel::ENotCharging);
+		Player->SetChargeLevel(EChargeLevel::ENotCharging);
 	}
 
 	bChargeLevel1Reached = false;

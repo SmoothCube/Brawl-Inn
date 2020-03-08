@@ -87,18 +87,18 @@ void AGamePlayerController_B::RightTriggerReleased()
 	if (!PlayerCharacter)
 		return;
 
-	if (PlayerCharacter->PunchComponent && PlayerCharacter->PunchComponent->GetIsCharging())
-	{
-		PlayerCharacter->PunchComponent->bIsPunching = true;
-		PlayerCharacter->PunchComponent->SetIsCharging(false);
-	}
-
 	if (PlayerCharacter->HoldComponent &&
 		PlayerCharacter->ThrowComponent &&
 		PlayerCharacter->HoldComponent->IsHolding())
 	{
 		PlayerCharacter->ThrowComponent->StartThrow();
 	}
+	else if (PlayerCharacter->PunchComponent && PlayerCharacter->IsCharging())
+	{
+		PlayerCharacter->PunchComponent->bIsPunching = true;
+		PlayerCharacter->SetIsCharging(false);
+	}
+
 }
 
 void AGamePlayerController_B::LeftTriggerPressed()

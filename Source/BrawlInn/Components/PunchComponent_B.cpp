@@ -29,7 +29,7 @@ void UPunchComponent_B::BeginPlay()
 void UPunchComponent_B::PunchStart()
 {
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-	bIsCharging = false;
+	OwningCharacter->bIsCharging = false;
 	bIsPunching = true;
 	OwningCharacter->MakeVulnerable();
 
@@ -75,7 +75,7 @@ void UPunchComponent_B::PunchDash()
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
 	float PunchDashSpeed = 0.f;
-	switch (ChargeLevel)
+	switch (OwningCharacter->ChargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1: PunchDashSpeed = Charge1PunchDashSpeed;
 		break;
@@ -137,7 +137,6 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
-
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 
@@ -207,99 +206,46 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	if (!OwningCharacter->IsInvulnerable())
 	{
 		OwningCharacter->GetCharacterMovement()->AddImpulse(InPunchStrength);
+
 		OwningCharacter->RemoveShield();
-		if (PlayerThatPunched->PunchComponent->ChargeLevel == EChargeLevel::EChargeLevel3)
-			OwningCharacter->CheckFall(InPunchStrength);
-		else if (PlayerThatPunched->PunchComponent->ChargeLevel == EChargeLevel::EChargeLevel2)
-			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
-		else
+
+		switch (PlayerThatPunched->ChargeLevel)
+		{
+		case EChargeLevel::EChargeLevel1:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
+			break;
+		case EChargeLevel::EChargeLevel2:
+			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
+			break;
+		case EChargeLevel::EChargeLevel3:
+			OwningCharacter->CheckFall(InPunchStrength);
+			return;
+		default:
+			break;
+		}
 
 		if (OwningCharacter->StunAmount >= OwningCharacter->PunchesToStun)
 		{
 			OwningCharacter->CheckFall(InPunchStrength);
 		}
-
-	}
-}
-
-void UPunchComponent_B::SetChargeLevel(EChargeLevel chargeLevel)
-{
-
-	ChargeLevel = chargeLevel;
-	bool ShouldPlaySound = true;
-	float SoundPitch = 1.0f; 
-	if (!IsValid(OwningCharacter))
-		return;
-	switch (ChargeLevel)
-	{
-	case EChargeLevel::ENotCharging:
-		OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
-		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
-		ShouldPlaySound = false;
-		break;
-	case EChargeLevel::EChargeLevel1:
-		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge1RotSpeed;
-		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
-		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
-		ShouldPlaySound = false;
-		SoundPitch = 0.8f;
-		break;
-	case EChargeLevel::EChargeLevel2:
-		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge2RotSpeed;
-		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
-		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
-		SoundPitch = 1.0f;
-		break;
-	case EChargeLevel::EChargeLevel3:
-		OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge3RotSpeed;
-		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
-		OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
-		SoundPitch = 1.2f;
-		break;
-	default:
-		OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
-		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
-		ShouldPlaySound = false;
-		break;
-	}
-
-	if (ShouldPlaySound && ChargePunchSound)
-	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
-		UGameplayStatics::PlaySoundAtLocation(
-			GetWorld(),
-			ChargePunchSound,
-			GetComponentLocation(),
-			volume,
-			SoundPitch
-		);
 	}
 }
 
 FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }
-	FVector Strength;
-	if (ChargeLevel == EChargeLevel::EChargeLevel3)
+
+	switch (OwningCharacter->ChargeLevel)
 	{
-		Strength = OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
+	case EChargeLevel::EChargeLevel1:
+		return OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
+	case EChargeLevel::EChargeLevel2: 
+		return OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
+	case EChargeLevel::EChargeLevel3: 
+		return OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
+	default:
+		return FVector::ZeroVector;
 	}
-	else if (ChargeLevel == EChargeLevel::EChargeLevel2)
-	{
-		Strength = OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
-	}
-	else
-	{
-		Strength = OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
-	}
-	
-	return Strength;
 }
 
 float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
@@ -320,15 +266,6 @@ void UPunchComponent_B::SetIsPunching(bool Value)
 	bIsPunching = Value;
 }
 
-bool UPunchComponent_B::GetIsCharging()
-{
-	return bIsCharging;
-}
-
-void UPunchComponent_B::SetIsCharging(bool Value)
-{
-	bIsCharging = Value;
-}
 
 bool UPunchComponent_B::GetIsDashing()
 {
