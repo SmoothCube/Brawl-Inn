@@ -132,9 +132,9 @@ APlayerCharacter_B* APlayerController_B::GetPlayerCharacter() const
 	return PlayerCharacter;
 }
 
-void APlayerController_B::SetPlayerCharacter(APlayerCharacter_B* Character)
+void APlayerController_B::SetPlayerCharacter(APlayerCharacter_B* CharacterIn)
 {
-	PlayerCharacter = Character;
+	PlayerCharacter = CharacterIn;
 }
 
 void APlayerController_B::FellOutOfWorld(const UDamageType& DmgType)

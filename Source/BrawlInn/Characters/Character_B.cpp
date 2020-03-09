@@ -47,7 +47,7 @@ ACharacter_B::ACharacter_B()
 
 	PS_Stun = CreateDefaultSubobject<UNiagaraComponent>("Stun Particle System");
 	PS_Stun->SetupAttachment(GetMesh());
-	PS_Stun->SetRelativeLocation( FVector(0.000000, -20.000000, 180.000000));
+	PS_Stun->SetRelativeLocation(FVector(0.000000, -20.000000, 180.000000));
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
 	PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
@@ -81,8 +81,14 @@ void ACharacter_B::Tick(float DeltaTime)
 	else if (GetState() != EState::EBeingHeld)
 	{
 		HandleMovement(DeltaTime);
+
 	}
+
+//	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
+
 }
+
+
 
 void ACharacter_B::SetInputVectorX(const float X)
 {
@@ -130,10 +136,10 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-	//  GetMesh()->SetGenerateOverlapEvents(true);
-	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionProfileName("Ragdoll");
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	//	GetMesh()->SetCollisionProfileName("Ragdoll");
 
 	GetMesh()->AddImpulse(MeshForce, ForceSocketName, false);	//TODO make the bone dynamic instead of a variable
 
@@ -153,16 +159,15 @@ void ACharacter_B::StandUp()
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionProfileName("StandingMesh");
-	
+	GetMesh()->SetCollisionProfileName("CharacterMesh");
+	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
+
 	//Saves snapshot for blending to animation
 	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
 	GetMovementComponent()->StopMovementImmediately();
 
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh()->SetGenerateOverlapEvents(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	SetState(EState::EWalking);
 	StunAmount = 0;
 }
@@ -170,16 +175,15 @@ void ACharacter_B::StandUp()
 FVector ACharacter_B::FindMeshLocation() const
 {
 	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
-	//FHitResult Hit;
-	//const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
-	//
-	//if (bDidHit)
-	//{
-	//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()))
-	//		return (Hit.Location - RelativeMeshTransform.GetLocation());
-	//}
-	//else
-	//	BWarn("Did not hit");
+	FHitResult Hit;
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
+
+	if (bDidHit)
+	{
+	//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()));
+		return (Hit.Location - RelativeMeshTransform.GetLocation());
+	}
+//		BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -189,32 +193,31 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 
 	FHitResult Hit;
 	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
-	
+
 	if (bDidHit)
 	{
-		BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()))
+		//BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()))
 			return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-	else
-		BWarn("Did not hit");
+//	else
+	//	BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	
+
 	HoldingCharacter = Player;
-	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
 	SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 500));
 	SetActorLocation(FindMeshGroundLocation());
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
-	GetCapsuleComponent()->SetEnableGravity(false);
-	//GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
 
-	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepWorldTransform);
+	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -222,6 +225,8 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetMesh()->SetCollisionProfileName("CharacterMesh");
 
 	GetCharacterMovement()->StopActiveMovement();
+	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
 	SetActorRotation(FRotator(-90, 0, 90));
 
 }
@@ -231,7 +236,7 @@ void ACharacter_B::Dropped_Implementation()
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	Fall(FVector::ZeroVector, FallRecoveryTime);
-//	GetMesh()->SetSimulatePhysics(true); //should be unnecceCharacterMeshsary
+	//	GetMesh()->SetSimulatePhysics(true); //should be unnecceCharacterMeshsary
 	HoldingCharacter = nullptr;
 	SetActorRotation(FRotator(0, 0, 0));
 }
@@ -293,8 +298,8 @@ void ACharacter_B::AddStun(const int Strength)
 		StunAmount += Strength;
 		return;
 	}
-		StunAmount += Strength;
-	if (StunAmount >= PunchesToStun -1)
+	StunAmount += Strength;
+	if (StunAmount >= PunchesToStun - 1)
 	{
 		//StunAmount = PunchesToStun - 1;
 		//if (IsValid(PS_Stun))
@@ -418,7 +423,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
 void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+
 	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
 	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))

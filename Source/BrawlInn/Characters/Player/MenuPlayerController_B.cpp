@@ -36,7 +36,6 @@ void AMenuPlayerController_B::OnUnPossess()
 	
 	if (PC)
 	{
-		BScreen("Unposses PlayerCharacter");
 		PC->GetMovementComponent()->StopMovementImmediately();
 		PC->MakeInvulnerable(-1, false);
 	}
