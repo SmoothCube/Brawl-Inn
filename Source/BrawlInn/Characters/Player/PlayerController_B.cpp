@@ -3,14 +3,7 @@
 #include "PlayerController_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/LocalPlayer.h"
-#include "TimerManager.h"
-#include "BrawlInn.h"
 
-#include "System/SubSystems/ScoreSubSystem_B.h"
-
-#include "Components/HealthComponent_B.h"
-#include "System/GameModes/MainGameMode_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 
 APlayerController_B::APlayerController_B()
@@ -93,6 +86,16 @@ void APlayerController_B::SetupInputComponent()
 		// Sticks
 		InputComponent->BindAxis("LeftStickX", this, &APlayerController_B::LeftStickXAxis);
 		InputComponent->BindAxis("LeftStickY", this, &APlayerController_B::LeftStickYAxis);
+
+		InputComponent->BindAction("LeftStickRight", IE_Pressed, this, &APlayerController_B::LeftStickRightPressed);
+		InputComponent->BindAction("LeftStickRight", IE_Released, this, &APlayerController_B::LeftStickRightReleased);
+		InputComponent->BindAction("LeftStickRight", IE_Repeat, this, &APlayerController_B::LeftStickRightRepeat);
+
+		InputComponent->BindAction("LeftStickLeft", IE_Pressed, this, &APlayerController_B::LeftStickLeftPressed);
+		InputComponent->BindAction("LeftStickLeft", IE_Released, this, &APlayerController_B::LeftStickLeftReleased);
+		InputComponent->BindAction("LeftStickLeft", IE_Repeat, this, &APlayerController_B::LeftStickLeftRepeat);
+
+		
 		InputComponent->BindAxis("RightStickX", this, &APlayerController_B::RightStickXAxis);
 		InputComponent->BindAxis("RightStickY", this, &APlayerController_B::RightStickYAxis);
 	}

@@ -21,8 +21,7 @@ protected:
 	void OnPossess(APawn* InPawn) override;
 
 	void OnUnPossess() override;
-	
-	virtual void SetupInputComponent() override;
+
 
 	// ********** Character Selection **********
 public:
@@ -33,6 +32,15 @@ public:
 	void SetSelectedCharacterIndex(int Value);
 
 protected:
+
+	void LeftStickRightPressed() override;
+
+	void LeftStickLeftPressed() override;
+
+	void FaceButtonBottomPressed() override;
+
+	void FaceButtonRightPressed() override;
+	
 	void TrySelect();
 	
 	void Unselect();
