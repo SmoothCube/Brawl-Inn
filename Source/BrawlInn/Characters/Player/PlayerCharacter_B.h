@@ -51,9 +51,12 @@ protected:
 	void BreakFree();
 
 	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The longest amount of time this character can be held"))
-		float MaxHoldTime = 4.f;
+		float MaxHoldTime = 3.f;
 
 	float CurrentHoldTime = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
+	float HoldTimeDecreasePerButtonMash = 0.05f;
 
 	// ********** Damage **********
 
