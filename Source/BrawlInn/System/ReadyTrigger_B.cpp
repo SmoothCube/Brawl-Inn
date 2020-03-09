@@ -7,6 +7,7 @@
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/MenuPlayerController_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 
@@ -31,8 +32,7 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 	if (PlayerCharacter && GameMode)
 	{
 		GameMode->SetPlayersReady(GameMode->GetPlayersReady() + 1);
-		PlayerCharacter->PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
-		PlayerInfos.Add(PlayerCharacter->PlayerInfo);
+		PlayerInfos.Add(Cast<AMenuPlayerController_B>(PlayerCharacter->GetController())->GetPlayerInfo());
 
 		OnReadyOverlapChange.Broadcast();
 

@@ -5,8 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Sound/SoundCue.h"
-#include "BrawlInn.h"
+#include "Components/SkeletalMeshComponent.h"
 
+#include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Characters/Player/InitPawn_B.h"
@@ -68,14 +69,26 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		GameInstance->AddPlayerInfo(PlayerInfo);
 	}
-	FActorSpawnParameters params;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	Pawn->Destroy();
 	if (BP_PlayerCharacters.Num() == 0) { BError("GameMode has no BP_PlayerCharacter!");  return; }
 	const int Index = (int)PlayerInfo.Type;
 	if (!BP_PlayerCharacters.IsValidIndex(Index)) { BError("GameMode has no PlayerCharacter on Index %i", Index); return; }
 
-	APlayerCharacter_B* Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), params);
+	APlayerCharacter_B* Character = nullptr;
+	if (PlayerInfo.CharacterVariants.bTaken)
+	{
+		BScreen("bTaken!!");
+		Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), Params);
+		Character->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, PlayerInfo.CharacterVariants.MeshMaterial);
+		Character->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, PlayerInfo.CharacterVariants.IndicatorMaterial);
+	}
+	else
+	{
+		Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), Params);
+	}
+
 	PlayerController->Possess(Character);
 	PlayerController->RespawnPawn = nullptr;
 	PlayerController->SetPlayerCharacter(Character);
@@ -100,7 +113,7 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	TArray<AActor*> SpawnActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "RespawnStart", SpawnActors);
 	ARespawnPawn_B* RespawnPawn;
-	if(SpawnActors.IsValidIndex(0) && IsValid(SpawnActors[0]))
+	if (SpawnActors.IsValidIndex(0) && IsValid(SpawnActors[0]))
 		RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, SpawnActors[0]->GetActorTransform());
 	else
 		RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetRandomSpawnTransform());
@@ -110,9 +123,9 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 		PlayerController->RespawnPawn = RespawnPawn;
 		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
 		if (MainMode)
- 			MainMode->AddCameraFocusPoint(RespawnPawn);
+			MainMode->AddCameraFocusPoint(RespawnPawn);
 	}
-	
+
 	PlayerController->SetPlayerCharacter(nullptr);
 	UpdateViewTarget(PlayerController);
 	OnRespawnCharacter_D.Broadcast();

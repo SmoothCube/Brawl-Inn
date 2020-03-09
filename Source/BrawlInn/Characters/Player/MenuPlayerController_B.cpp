@@ -96,7 +96,6 @@ void AMenuPlayerController_B::Unselect()
 	if (GameMode)
 	{
 		GameMode->UnSelect(this);
-		GameMode->Hover(this, CharacterVariantIndex);
 	}
 }
 

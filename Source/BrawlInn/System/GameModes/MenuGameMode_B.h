@@ -101,7 +101,7 @@ protected:
 	int PlayersReady = 0;
 
 	UPROPERTY(EditDefaultsonly, Category = "Variables|ReadyUp")
-		FName PlayMap = "Graybox_v4";
+		FName PlayMap = "Graybox_v6";
 
 	// ********** CharacterSelection **********
 public:
@@ -109,10 +109,9 @@ public:
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 
 	void UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected);
+	void UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* SelectionPawn, int ID);
 
 	void HoverLeft(AMenuPlayerController_B* PlayerController);
-
-	void Hover(AMenuPlayerController_B* PlayerController, int Index);
 
 	void HoverRight(AMenuPlayerController_B* PlayerController);
 
@@ -128,11 +127,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
 		TSubclassOf<ASelectionPawn_B> BP_SelectionPawn;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The spacing between the selection arrows"))
-		FVector SelectionArrowSpacing = FVector(0, 0, 150);
-
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
-		FVector FirstSelectionArrowLocation = FVector(0, 0, 250);
+		FVector SelectionIndicatorOffsetLocation = FVector(0, 0, 250);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
 		TArray<FCharacterVariants> CharacterVariants;
@@ -143,10 +139,10 @@ protected:
 	UPROPERTY()
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
 
+	
+
 	UPROPERTY()
 		TArray<APlayerCharacter_B*> Characters;
-
-	TArray<bool> CharacterIsInLine;
 
 	TArray<FTransform> CharacterStartTransforms;
 
