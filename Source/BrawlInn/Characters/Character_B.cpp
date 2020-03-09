@@ -176,7 +176,7 @@ FVector ACharacter_B::FindMeshLocation() const
 {
 	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
 	FHitResult Hit;
-	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -250), ECollisionChannel::ECC_Visibility);
 
 	if (bDidHit)
 	{
@@ -206,7 +206,6 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
-	
 
 	HoldingCharacter = Player;
 	SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 500));

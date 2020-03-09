@@ -186,8 +186,17 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 			}
 		}
-		else {
+		else 
+		{
 			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
+		}
+	}
+	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
+	{
+		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
+		if (OtherPlayerController)
+		{
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 		}
 	}
 	else

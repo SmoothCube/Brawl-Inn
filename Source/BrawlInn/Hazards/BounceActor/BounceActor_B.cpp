@@ -14,6 +14,8 @@
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HoldComponent_B.h"
+#include "System/DataTable_B.h"
+
 
 ABounceActor_B::ABounceActor_B()
 {
@@ -24,20 +26,26 @@ ABounceActor_B::ABounceActor_B()
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
+	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Barrel")->Value;
+
 }
 
 // Old Explode
 void ABounceActor_B::OnItemFracture()
 {
 	Super::OnItemFracture();
-
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, nullptr);
+	if (PlayerController)
+		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController);
+	else
+		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController);
+	
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface && Interface->Execute_IsHeld(this))
 	{
 		if (OwningCharacter->HoldComponent->GetHoldingItem() == this)
 		{
 			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
+
 			OwningCharacter->SetState(EState::EWalking);
 		}
 	}
