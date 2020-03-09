@@ -90,30 +90,21 @@ void UThrowComponent_B::Throw()
 		return;
 	}
 
+	OwningCharacter->SetState(EState::EWalking);
 	/// Prepare item to be thrown
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
 	if (Interface)
 	{
 		Interface->Execute_Use(HoldComponent->GetHoldingItem());
 	}
-	if (IsValid(OwningCharacter))
-	{
-		if (IsValid(OwningCharacter->HoldComponent))
-		{
-			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
-		}
-		else
-		{
-			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
-		}
-		if (OwningCharacter->GetChargeParticle())
-			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
-		else
-			BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
-		OwningCharacter->SetState(EState::EWalking);
-	}
+
+	HoldComponent->SetHoldingItem(nullptr);
+
+	if (OwningCharacter->GetChargeParticle())
+		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 	else
-		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
+		BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
+
 	OwningCharacter->bIsCharging = false;
 	bIsThrowing = false;
 }

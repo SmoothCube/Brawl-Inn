@@ -81,7 +81,6 @@ void ACharacter_B::Tick(float DeltaTime)
 	else if (GetState() != EState::EBeingHeld)
 	{
 		HandleMovement(DeltaTime);
-
 	}
 
 //	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
@@ -120,7 +119,6 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 		return;
 
 	Fall(MeshForce, FallRecoveryTime);
-
 }
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
@@ -357,6 +355,7 @@ void ACharacter_B::SetState(EState s)
 	switch (State)
 	{
 	case EState::EWalking:
+		BWarn("Setting state to walking");
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		break;
 	case EState::EHolding:

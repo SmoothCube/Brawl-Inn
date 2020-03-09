@@ -65,48 +65,47 @@ public:
 	// ********** ChargePunch **********
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a character is pushed with from a level 1 punch"))
-		float Level1PunchPushStrength = 200000.f;	// this is used in fall
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a character is pushed with from a level 1 punch"))
+		float Level1PunchPushStrength = 200000.f;												 
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a character is pushed with from a level 2 punch"))
+		float Level2PunchPushStrength = 500000.f;	
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a character is pushed with from a level 2 punch"))
-		float Level2PunchPushStrength = 500000.f;		// this is used in fall
-
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 1 punch"))
-	float Level1PunchStrength = 500000.f;	// this is used in fall
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 1 punch"))
+	float Level1PunchStrength = 500000.f;
 	
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 2 punch"))
-	float Level2PunchStrength = 1000000.f;		// this is used in fall
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 2 punch"))
+	float Level2PunchStrength = 1000000.f;		
 	
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 3 punch"))
-	float Level3PunchStrength = 2000000.f;		// this is used in fall
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 3 punch"))
+	float Level3PunchStrength = 2000000.f;		
 
 private:
 
 protected:
 	bool bHasHit = false;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float PunchHitVelocityDamper = 0.3f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float BasePunchStrength = 150000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float PunchStrengthMultiplier = 135.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Punch")
+	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float PunchWaitingTime = 0.1f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
+	UPROPERTY(EditAnywhere, Category = "Variables|PunchDash")
 	float Charge1PunchDashSpeed = 1000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
+	UPROPERTY(EditAnywhere, Category = "Variables|PunchDash")
 	float Charge2PunchDashSpeed = 2000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | PunchDash")
+	UPROPERTY(EditAnywhere, Category = "Variables|PunchDash")
 	float Charge3PunchDashSpeed = 3500.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 	USoundCue* ChargePunchSound = nullptr;
 
 	FTimerHandle TH_PunchAgainHandle;
@@ -123,20 +122,20 @@ protected:
 	FVector VelocityBeforeDash = FVector::ZeroVector;
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
 	float DashSpeed = 5000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
 	float DashCooldown = 2.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Dash")
+	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
 	float DashTime = 0.1f;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables | Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))
 	float DashPushPercentage = 0.5f;
 	
 	bool GetIsDashing();
@@ -147,10 +146,10 @@ private:
 	FTimerHandle TH_DashDoneHandle;
 protected:
 	// ********** Various **********
-	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 	USoundCue* PunchSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables | Damage")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Damage")
 	TSubclassOf<UDamageType> BP_DamageType;
 
 	UFUNCTION()

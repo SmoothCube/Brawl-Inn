@@ -57,11 +57,12 @@ public:
 protected:
 	
 	void HandleMovement(float DeltaTime);
-	
+public:
 	float NormalMaxWalkSpeed = 0;
 
-	float RotationInterpSpeed = 10.f;
 protected:
+	float RotationInterpSpeed = 10.f;
+	
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float NormalRotationInterpSpeed = 10.f;
 
@@ -133,13 +134,13 @@ protected:
 	float Charge3ThrowStrength = 500000.f;
 
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float Charge1MoveSpeed = 500.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float Charge2MoveSpeed = 250.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float Charge3MoveSpeed = 100.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
@@ -156,14 +157,14 @@ protected:
 	EChargeLevel ChargeLevel = EChargeLevel::ENotCharging;
 public:
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float ChargeTier2Percentage = 0.45;
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float ChargeTier3Percentage = 0.9;
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* ChargeLevelSound = nullptr;
 public:
 
@@ -194,7 +195,7 @@ public:
 	// ********** Invulnerability **********
 
 	/// A number less than 0 will make the character invulnerable until toggled off again
-	void MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect = true);
+	void MakeInvulnerable(float ITime = -1, bool bShowInvulnerabilityEffect = true);
 
 	bool IsInvulnerable();
 
@@ -263,7 +264,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int StoolScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HurtSound;
 
 	// ********** Misc. **********

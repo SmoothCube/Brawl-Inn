@@ -154,8 +154,6 @@ void AGameCamera_B::SetSpringArmLength()
 	if (CameraZoom < SmallestSpringArmLength)
 		CameraZoom = SmallestSpringArmLength;
 	
-	BWarn("CameraZoom: %f", CameraZoom);
-	
 	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, CameraZoom, LerpAlpha);
 }
 
