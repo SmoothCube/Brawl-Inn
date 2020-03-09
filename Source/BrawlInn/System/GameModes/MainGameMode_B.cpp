@@ -10,6 +10,7 @@
 #include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "System/GameInstance_B.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
 #include "UI/Game/GameOverlay_B.h"
@@ -37,7 +38,7 @@ void AMainGameMode_B::BeginPlay()
 	Overlay->AddToViewport();
 
 	/// Spawns characters for the players
-	for (FPlayerInfo Info : GameInstance->GetPlayerInfos())
+	for (const FPlayerInfo Info : GameInstance->GetPlayerInfos())
 	{
 		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
@@ -66,11 +67,16 @@ void AMainGameMode_B::StartGame()
 void AMainGameMode_B::EndGame()
 {
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID), BP_VictoryScreen);
+	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
+	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
+		{
+			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+		});
+	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(TempPlayerControllers[0])), BP_VictoryScreen);
 	VictoryScreen->AddToViewport();
 }
 
-void AMainGameMode_B::CheckIfPlayerWin()
+void AMainGameMode_B::CheckIfPlayerWin() //TODO REMOVE
 {
 	if (GameInstance->GetPlayerInfos().Num() == 1)
 	{

@@ -16,7 +16,6 @@ void AMenuPlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 }
 
 void AMenuPlayerController_B::OnPossess(APawn* InPawn)
@@ -41,19 +40,6 @@ void AMenuPlayerController_B::OnUnPossess()
 	}
 }
 
-//void AMenuPlayerController_B::SetupInputComponent()
-//{
-//	Super::SetupInputComponent();
-//
-//	if (InputComponent != nullptr)
-//	{
-//		InputComponent->BindAction("Select", IE_Pressed, this, &AMenuPlayerController_B::TrySelect);
-//		InputComponent->BindAction("SelectLeft", IE_Pressed, this, &AMenuPlayerController_B::SelectLeft);
-//		InputComponent->BindAction("SelectRight", IE_Pressed, this, &AMenuPlayerController_B::SelectRight);
-//		InputComponent->BindAction("Unselect", IE_Pressed, this, &AMenuPlayerController_B::Unselect);
-//	}
-//}
-
 ASelectionPawn_B* AMenuPlayerController_B::GetSelectionPawn()
 {
 	if (!IsValid(SelectionPawn))
@@ -61,14 +47,14 @@ ASelectionPawn_B* AMenuPlayerController_B::GetSelectionPawn()
 	return SelectionPawn;
 }
 
-int AMenuPlayerController_B::GetSelectedCharacterIndex() const
+int AMenuPlayerController_B::GetCharacterVariantIndex() const
 {
-	return SelectedCharacterIndex;
+	return CharacterVariantIndex;
 }
 
-void AMenuPlayerController_B::SetSelectedCharacterIndex(int Value)
+void AMenuPlayerController_B::SetCharacterVariantIndex(const int Value)
 {
-	SelectedCharacterIndex = Value;
+	CharacterVariantIndex = Value;
 }
 
 void AMenuPlayerController_B::LeftStickRightPressed()
@@ -98,7 +84,7 @@ void AMenuPlayerController_B::TrySelect()
 
 	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
-		GameMode->Select(this, SelectedCharacterIndex);
+		GameMode->Select(this, CharacterVariantIndex);
 }
 
 void AMenuPlayerController_B::Unselect()
@@ -110,7 +96,7 @@ void AMenuPlayerController_B::Unselect()
 	if (GameMode)
 	{
 		GameMode->UnSelect(this);
-		GameMode->Hover(this, SelectedCharacterIndex);
+		GameMode->Hover(this, CharacterVariantIndex);
 	}
 }
 

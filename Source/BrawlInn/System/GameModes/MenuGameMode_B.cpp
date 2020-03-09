@@ -7,6 +7,10 @@
 #include "Camera/CameraActor.h"
 #include "LevelSequenceActor.h"
 #include "PaperSpriteComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 #include "BrawlInn.h"
@@ -23,7 +27,7 @@ void AMenuGameMode_B::BeginPlay()
 	SetActorTickEnabled(true);
 
 	/// Level sequence stuff
-	FMovieSceneSequencePlaybackSettings Settings;
+	const FMovieSceneSequencePlaybackSettings Settings;
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Intro, Settings, LSA_Intro);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_MainMenu, Settings, LSA_MainMenu);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
@@ -52,29 +56,32 @@ void AMenuGameMode_B::BeginPlay()
 		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
-	CharacterBooleans.AddZeroed(Characters.Num());
+	CharacterIsInLine.AddZeroed(Characters.Num());
 	CharacterStartTransforms.AddZeroed(Characters.Num());
 
 	for (int i = 0; i < Characters.Num(); i++)
 	{
-		CharacterBooleans[i] = false;
+		CharacterIsInLine[i] = false;
 		CharacterStartTransforms[i] = Characters[i]->GetActorTransform();
 	}
+	// Find Character selection camera
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_SelectionCamera, Cameras);
+	SelectionCamera = Cast<ACameraActor>(Cameras[0]);
 
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
 		auto SelectionPawn = MenuPlayerControllers[i]->GetSelectionPawn();
 		FVector Offset = SelectionArrowSpacing * (i);
-		if (SelectionSprites.IsValidIndex(i))
-			SelectionPawn->GetSpriteIcon()->SetSprite(SelectionSprites[i]);
-		SelectionPawn->SetActorLocation(Characters[0]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
-		MenuPlayerControllers[i]->SetSelectedCharacterIndex(0);
+		if (SelectionIndicators.IsValidIndex(i))
+			SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[i]);
+		if (CharacterVariants.IsValidIndex(i))
+			SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[i].TextColor);
+		SelectionPawn->SetActorLocation(Characters[i]->GetActorLocation() + FirstSelectionArrowLocation);
+
+		MenuPlayerControllers[i]->SetCharacterVariantIndex(i);
 	}
 
-	// Find Character selection camera
-	TArray<AActor*> Cameras;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_SelectionCamera, Cameras);
-	SelectionCamera = Cast<ACameraActor>(Cameras[0]);
 
 
 	LS_ToSelectionFinished(); // For å sette på mainmenu og sequencer kommenter denne linjen og uncomment de to linjene under.
@@ -201,11 +208,11 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 	PlayersActive++;
 	UpdateNumberOfActivePlayers();
 	UpdateNumberOfReadyPlayers();
-	if (CharacterBooleans[Index] == false && Characters.IsValidIndex(Index))
+	if (CharacterIsInLine[Index] == false && Characters.IsValidIndex(Index))
 	{
-		CharacterBooleans[Index] = true;
+		CharacterIsInLine[Index] = true;
 		PlayerControllerThatSelected->GetSelectionPawn()->Destroy();
-		PlayerControllerThatSelected->Possess(Characters[Index]);
+		PlayerControllerThatSelected->Possess(Characters[UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected)]);
 	}
 	UpdateOtherSelections();
 }
@@ -218,50 +225,59 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
 
-	const int Index = Characters.Find(Character);
-	CharacterBooleans[Index] = false;
-	Character->SetActorTransform(CharacterStartTransforms[Index]);
+	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+	CharacterIsInLine[ID] = false;
+	Character->GetMovementComponent()->StopMovementImmediately();
+	Character->SetActorTransform(CharacterStartTransforms[ID]);
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
 		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
-	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[Index]);
-	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
-	if (SelectionSprites.IsValidIndex(ID))
-		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionSprites[ID]);
+	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ID]);
+	if (SelectionIndicators.IsValidIndex(ID))
+		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[ID]);
+	if (CharacterVariants.IsValidIndex(ID))
+		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[ID].TextColor);
 	PlayerControllerThatSelected->Possess(SelectionPawn);
 }
 
 void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 {
-	auto SelectionPawn = PlayerController->GetSelectionPawn();
-	PlayerController->SetSelectedCharacterIndex((PlayerController->GetSelectedCharacterIndex() ? PlayerController->GetSelectedCharacterIndex() : MenuPlayerControllers.Num()) - 1);
-	while (CharacterBooleans[PlayerController->GetSelectedCharacterIndex()])
-		PlayerController->SetSelectedCharacterIndex((PlayerController->GetSelectedCharacterIndex() ? PlayerController->GetSelectedCharacterIndex() : MenuPlayerControllers.Num()) - 1);
+	const auto SelectionPawn = PlayerController->GetSelectionPawn();
+	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
+	while (CharacterIsInLine[PlayerController->GetCharacterVariantIndex()])
+		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
 
-	const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
-	SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
+	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].MeshMaterial);
+	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].IndicatorMaterial);
+	SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].TextColor);
+
+	
+	//const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
+	//SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
 }
 
-void AMenuGameMode_B::Hover(AMenuPlayerController_B* PlayerController, int Index)
+void AMenuGameMode_B::Hover(AMenuPlayerController_B* PlayerController, const int Index)
 {
 	auto SelectionPawn = PlayerController->GetSelectionPawn();
-	PlayerController->SetSelectedCharacterIndex(Index); // Set the next index as current index.
+	PlayerController->SetCharacterVariantIndex(Index); // Set the next index as current index.
 
-	const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
-	SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
+	SelectionPawn->SetActorLocation(Characters[UGameplayStatics::GetPlayerControllerID(PlayerController)]->GetActorLocation() + FirstSelectionArrowLocation);
 }
 
 void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 {
-	auto SelectionPawn = PlayerController->GetSelectionPawn();
-	PlayerController->SetSelectedCharacterIndex((PlayerController->GetSelectedCharacterIndex() + 1) % MenuPlayerControllers.Num()); // Set the next index as current index.
-	while (CharacterBooleans[PlayerController->GetSelectedCharacterIndex()]) // Loop until you find a valid index and set that index to the current.
-		PlayerController->SetSelectedCharacterIndex((PlayerController->GetSelectedCharacterIndex() + 1) % MenuPlayerControllers.Num());
+	const auto SelectionPawn = PlayerController->GetSelectionPawn();
+	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num()); // Set the next index as current index.
+	while (CharacterIsInLine[PlayerController->GetCharacterVariantIndex()]) // Loop until you find a valid index and set that index to the current.
+		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num());
 
-	const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
-	SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
+	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].MeshMaterial);
+	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].IndicatorMaterial);
+	SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].TextColor);
 }
 
 void AMenuGameMode_B::UpdateOtherSelections()
@@ -272,11 +288,11 @@ void AMenuGameMode_B::UpdateOtherSelections()
 		if (Controller->GetPlayerCharacter())
 			continue;
 
-		for (int i = 0; i < CharacterBooleans.Num(); i++)
+		for (int i = 0; i < CharacterIsInLine.Num(); i++)
 		{
-			if (CharacterBooleans[i] == true)
+			if (CharacterIsInLine[i] == true)
 			{
-				if (Controller->GetSelectedCharacterIndex() == i)
+				if (Controller->GetCharacterVariantIndex() == i)
 				{
 					HoverRight(Controller);
 				}

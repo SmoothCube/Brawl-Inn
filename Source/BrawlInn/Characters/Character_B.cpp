@@ -318,7 +318,7 @@ void ACharacter_B::MakeVulnerable()
 {
 	bIsInvulnerable = false;
 
-	if (InvulnerableMat && !bHasShield)
+	if (InvisibleMat && !bHasShield)
 		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
 }
 

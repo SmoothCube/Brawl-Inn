@@ -24,7 +24,6 @@
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
-#include "Materials/MaterialInstanceDynamic.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -49,10 +48,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//Create new material instance and assign it
-	if (!DirectionIndicatorPlane)
-		return;
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
@@ -79,6 +74,11 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	//BLog("Player %s, is  %i", *GetNameSafe(this), IsInvulnerable());
 	//BWarn("Capsule collision profile: %s for player: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString(), *GetNameSafe(this));
 
+}
+
+UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
+{
+	return DirectionIndicatorPlane;
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)

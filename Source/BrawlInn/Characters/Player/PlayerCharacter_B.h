@@ -21,14 +21,20 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
 public:
 	APlayerCharacter_B();
 
-	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
-
+	
 	// ********** AActor **********
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	// ********** Components **********
+
+public:
+	UStaticMeshComponent* GetDirectionIndicatorPlane() const;
+protected:
+	UPROPERTY(VisibleAnywhere)
+		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 
 	// ********** Falling **********
 
