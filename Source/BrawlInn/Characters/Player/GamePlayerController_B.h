@@ -36,6 +36,7 @@ protected:
 
 	void LeftShoulderPressed() override;
 	void TryDash();
+
 	bool TryStartPunchCharge();
 	bool TryStartThrowCharge();
 	bool TryPunch();
