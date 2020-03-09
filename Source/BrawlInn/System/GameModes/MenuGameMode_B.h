@@ -14,6 +14,8 @@ class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
 class ASelectionPawn_B;
+class UPaperSprite;
+
 
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
@@ -127,11 +129,14 @@ protected:
 		TSubclassOf<ASelectionPawn_B> BP_SelectionPawn;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The spacing between the selection arrows"))
-		FVector SelectionArrowSpacing = FVector(0, 0, 40);
+		FVector SelectionArrowSpacing = FVector(0, 0, 60);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
 		FVector FirstSelectionArrowLocation = FVector(0, 0, 200);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+		TArray<UPaperSprite*> SelectionSprites;
+	
 	UPROPERTY()
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
 
