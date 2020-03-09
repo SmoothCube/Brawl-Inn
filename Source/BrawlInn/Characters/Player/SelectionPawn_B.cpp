@@ -20,3 +20,8 @@ void ASelectionPawn_B::BeginPlay()
 	Super::BeginPlay();
 	SpriteIcon->SetRelativeRotation(FRotator(0, 90, 0));
 }
+
+UPaperSpriteComponent* ASelectionPawn_B::GetSpriteIcon() const
+{
+	return SpriteIcon;
+}

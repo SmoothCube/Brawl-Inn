@@ -26,6 +26,8 @@ void UThrowComponent_B::BeginPlay()
 	GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+
+	HoldComponent = OwningCharacter->HoldComponent;
 }
 
 void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

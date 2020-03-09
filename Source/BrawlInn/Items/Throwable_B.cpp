@@ -61,6 +61,11 @@ void AThrowable_B::Dropped_Implementation()
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
 	Mesh->SetSimulatePhysics(true);
 	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+
+	Mesh->SetVisibility(false);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	DestructibleComponent->SetCollisionProfileName("Destructible");
+	DestructibleComponent->SetSimulatePhysics(true);
 }
 
 void AThrowable_B::Use_Implementation()
