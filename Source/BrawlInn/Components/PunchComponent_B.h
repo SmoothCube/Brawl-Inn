@@ -65,15 +65,20 @@ public:
 	// ********** ChargePunch **********
 protected:
 
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a character is pushed with from a level 1 punch"))
+		float Level1PunchPushStrength = 200000.f;	// this is used in fall
 
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Level1PunchStrength = 100000.f;	// this is used in movement
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a character is pushed with from a level 2 punch"))
+		float Level2PunchPushStrength = 500000.f;		// this is used in fall
+
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 1 punch"))
+	float Level1PunchStrength = 500000.f;	// this is used in fall
 	
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Level2PunchStrength = 175000.f;		// this is used in movementComponent
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 2 punch"))
+	float Level2PunchStrength = 1000000.f;		// this is used in fall
 	
-	UPROPERTY(EditAnywhere, Category = "Variables | Charge")
-	float Level3PunchStrength = 300000.f;		// this is used in fall
+	UPROPERTY(EditAnywhere, Category = "Variables | Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 3 punch"))
+	float Level3PunchStrength = 2000000.f;		// this is used in fall
 
 private:
 

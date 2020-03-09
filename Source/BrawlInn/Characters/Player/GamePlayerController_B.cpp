@@ -23,7 +23,6 @@ void AGamePlayerController_B::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 	if (Cast<APlayerCharacter_B>(InPawn) && HealthWidget)
 		HealthWidget->PostInitialize(Cast<APlayerCharacter_B>(InPawn));
-
 }
 
 void AGamePlayerController_B::DPadUpPressed()
@@ -36,6 +35,48 @@ void AGamePlayerController_B::DPadDownPressed()
 	Debug_DeSpawn();
 }
 
+void AGamePlayerController_B::FaceButtonTopPressed()
+{
+	if (!TryBreakFree())
+		TryPickup();
+}
+
+void AGamePlayerController_B::FaceButtonTopRepeat()
+{
+	TryPickup();
+}
+
+void AGamePlayerController_B::FaceButtonRightPressed()
+{
+	if (!TryBreakFree())
+		TryDash();
+}
+
+void AGamePlayerController_B::FaceButtonBottomPressed()
+{
+	if (!TryBreakFree())
+		TryDash();
+}
+
+void AGamePlayerController_B::FaceButtonLeftPressed()
+{
+	if (!TryBreakFree())
+		;
+	else if (!TryStartThrowCharge())
+		;
+	else if (TryStartPunchCharge())
+		;
+	else if (RespawnPawn)
+		RespawnPawn->ThrowBarrel();
+}
+
+void AGamePlayerController_B::FaceButtonLeftReleased()
+{
+	if (!TryThrow())
+		TryPunch();
+
+}
+
 void AGamePlayerController_B::SpecialRightPressed()
 {
 	TryPauseGame();
@@ -43,76 +84,37 @@ void AGamePlayerController_B::SpecialRightPressed()
 
 void AGamePlayerController_B::LeftShoulderPressed()
 {
-	if (PlayerCharacter)
-	{
-		if (PlayerCharacter->GetState() == EState::EBeingHeld)
-			PlayerCharacter->BreakFreeButtonMash();
-		else
-		{
-			if (PlayerCharacter->PunchComponent)
-				PlayerCharacter->PunchComponent->Dash();
-		}
-	}
+	if (!TryBreakFree())
+		TryDash();
 }
 
 void AGamePlayerController_B::RightShoulderPressed()
 {
-	if (PlayerCharacter)
-	{
-		if (PlayerCharacter->GetState() == EState::EBeingHeld)
-			PlayerCharacter->BreakFreeButtonMash();
-	}
+	TryBreakFree();
 }
 
 void AGamePlayerController_B::RightTriggerPressed()
 {
-	if (PlayerCharacter)
-	{
-		if (PlayerCharacter->GetState() == EState::EBeingHeld)
-			PlayerCharacter->BreakFreeButtonMash();
-		else
-		{
-			if (!PlayerCharacter->HoldComponent->IsHolding())
-				PlayerCharacter->TryPunch();
-			else
-				PlayerCharacter->ThrowComponent->TryThrow();
-		}
-	}
-	if (RespawnPawn)
+	if (!TryBreakFree())
+		;
+	else if (!TryStartThrowCharge())
+		;
+	else if (TryStartPunchCharge())
+		;
+	else if (RespawnPawn)
 		RespawnPawn->ThrowBarrel();
 }
 
 void AGamePlayerController_B::RightTriggerReleased()
 {
-	if (!PlayerCharacter)
-		return;
-
-	if (PlayerCharacter->HoldComponent &&
-		PlayerCharacter->ThrowComponent &&
-		PlayerCharacter->HoldComponent->IsHolding())
-	{
-		PlayerCharacter->ThrowComponent->StartThrow();
-	}
-	else if (PlayerCharacter->PunchComponent && PlayerCharacter->IsCharging())
-	{
-		PlayerCharacter->PunchComponent->bIsPunching = true;
-		PlayerCharacter->SetIsCharging(false);
-	}
-
+	if (!TryThrow())
+		TryPunch();
 }
 
 void AGamePlayerController_B::LeftTriggerPressed()
 {
-	if (PlayerCharacter)
-	{
-		if (PlayerCharacter->GetState() == EState::EBeingHeld)
-			PlayerCharacter->BreakFreeButtonMash();
-		else
-		{
-			if (PlayerCharacter->HoldComponent)
-				PlayerCharacter->HoldComponent->TryPickup();
-		}
-	}
+	if (!TryBreakFree())
+		TryPickup();
 }
 
 void AGamePlayerController_B::LeftTriggerRepeat()
@@ -142,6 +144,74 @@ void AGamePlayerController_B::TryPauseGame()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 		GameMode->PauseGame(this);
+}
+
+bool AGamePlayerController_B::TryBreakFree()
+{
+	if (PlayerCharacter && (PlayerCharacter->GetState() == EState::EBeingHeld))
+	{
+		PlayerCharacter->BreakFreeButtonMash();
+		return true;
+	}
+	return false;
+}
+
+void AGamePlayerController_B::TryDash()
+{
+	if (PlayerCharacter && PlayerCharacter->PunchComponent)
+		PlayerCharacter->PunchComponent->Dash();
+}
+
+bool AGamePlayerController_B::TryStartPunchCharge()
+{
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->TryPunch();
+		return true;
+	}
+	return false;
+}
+
+bool AGamePlayerController_B::TryStartThrowCharge()
+{
+	if (PlayerCharacter && PlayerCharacter->HoldComponent->IsHolding())
+	{
+		PlayerCharacter->ThrowComponent->TryThrow();
+		return true;
+	}
+	return false;
+}
+
+bool AGamePlayerController_B::TryPunch()
+{
+	if (PlayerCharacter &&
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->IsCharging())
+	{
+		PlayerCharacter->PunchComponent->bIsPunching = true;
+		PlayerCharacter->SetIsCharging(false);
+		return true;
+	}
+	return false;
+}
+
+bool AGamePlayerController_B::TryThrow()
+{
+	if (PlayerCharacter &&
+		PlayerCharacter->HoldComponent &&
+		PlayerCharacter->ThrowComponent &&
+		PlayerCharacter->HoldComponent->IsHolding())
+	{
+		PlayerCharacter->ThrowComponent->StartThrow();
+		return true;
+	}
+	return false;
+}
+
+void AGamePlayerController_B::TryPickup()
+{
+	if (PlayerCharacter && PlayerCharacter->HoldComponent)
+		PlayerCharacter->HoldComponent->TryPickup();
 }
 
 void AGamePlayerController_B::Respawn() const

@@ -18,26 +18,48 @@ protected:
 
 	void OnPossess(APawn* InPawn) override;
 
-		void DPadUpPressed() override;
+	void DPadUpPressed() override;
 
 	void DPadDownPressed() override;
+
+	void FaceButtonTopPressed() override;
+	void FaceButtonTopRepeat() override;
+
+	void FaceButtonRightPressed() override;
+
+	void FaceButtonBottomPressed() override;
+
+	void FaceButtonLeftPressed() override;
+	void FaceButtonLeftReleased() override;
 
 	void SpecialRightPressed() override;
 
 	void LeftShoulderPressed() override;
+	void TryDash();
+	bool TryStartPunchCharge();
+	bool TryStartThrowCharge();
+	bool TryPunch();
 	void RightShoulderPressed() override;
 
 	void LeftTriggerPressed() override;
+	void TryPickup();
 	void LeftTriggerRepeat() override;
 
 	void RightTriggerPressed() override;
+	void PunchOrThrowCharge();
 	void RightTriggerReleased() override;
+
+	bool TryThrow();
+
+	void PunchOrThrow();
 
 	void LeftStickXAxis(float Value) override;
 
 	void LeftStickYAxis(float Value) override;
 
 	void TryPauseGame();
+	///Returns true if the player character is being held
+	bool TryBreakFree();
 
 	// ********** Respawn **********
 public:
@@ -51,7 +73,6 @@ protected:
 
 public:
 	void TryRespawn(const float ReSpawnDelay);
-
 
 	void SetHealthWidget(UHealthWidget_B* Widget);
 protected:

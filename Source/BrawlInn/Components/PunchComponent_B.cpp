@@ -205,17 +205,18 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	PunchEnd(); //In case the player got hit while punching, mostly to make sure punch collisions get turned off
 	if (!OwningCharacter->IsInvulnerable())
 	{
-		OwningCharacter->GetCharacterMovement()->AddImpulse(InPunchStrength);
 
 		OwningCharacter->RemoveShield();
-
+		FVector PunchDirection = InPunchStrength.GetSafeNormal();
 		switch (PlayerThatPunched->ChargeLevel)
 		{
 		case EChargeLevel::EChargeLevel1:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
+			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection* PlayerThatPunched->PunchComponent->Level1PunchPushStrength);
 			break;
 		case EChargeLevel::EChargeLevel2:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
+			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection* PlayerThatPunched->PunchComponent->Level2PunchPushStrength);
 			break;
 		case EChargeLevel::EChargeLevel3:
 			OwningCharacter->CheckFall(InPunchStrength);
