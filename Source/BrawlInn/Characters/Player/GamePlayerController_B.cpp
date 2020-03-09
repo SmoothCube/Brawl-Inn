@@ -95,18 +95,14 @@ void AGamePlayerController_B::RightShoulderPressed()
 
 void AGamePlayerController_B::RightTriggerPressed()
 {
-	BWarn("Right Trigger Pressed!");
 	if (TryBreakFree())
 	{
-		BWarn("Breaking Free!");
 	}
 	else if (TryStartThrowCharge())
 	{
-		BWarn("Starting Throw!");
 	}
 	else if (TryStartPunchCharge())
 	{
-		BWarn("Starting Punch!");
 	}
 	else if (RespawnPawn)
 		RespawnPawn->ThrowBarrel();
@@ -157,7 +153,6 @@ bool AGamePlayerController_B::TryBreakFree()
 {
 	if (PlayerCharacter && (PlayerCharacter->GetState() == EState::EBeingHeld))
 	{
-		BWarn("Player being held!");
 		PlayerCharacter->BreakFreeButtonMash();
 		return true;
 	}

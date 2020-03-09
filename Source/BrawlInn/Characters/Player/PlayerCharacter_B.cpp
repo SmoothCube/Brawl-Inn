@@ -151,12 +151,13 @@ void APlayerCharacter_B::BreakFree()
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorRotation(FRotator(0, 0, 0));
 	MakeInvulnerable(1.f);
-	//Moves forward a bit before turning on collisions, so we dont fly to hell because we overlap with the other player
 	if (HoldingCharacter)
 	{
+		//Moves forward a bit before turning on collisions, so we dont fly to hell because we overlap with the other player
 		AddActorLocalOffset(HoldingCharacter->GetActorForwardVector() * 100);
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
 		HoldingCharacter->SetState(EState::EWalking);
+		HoldingCharacter->SetIsCharging(false); //TODO set charge level? 
 		HoldingCharacter->AddStun(PunchesToStun-1);
 		HoldingCharacter = nullptr;
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
