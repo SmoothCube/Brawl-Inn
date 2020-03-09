@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "System/GameModes/GameMode_B.h"
+#include "System/Structs/CharacterVariants.h"
 #include "MenuGameMode_B.generated.h"
 
 class ACameraActor;
@@ -14,7 +15,6 @@ class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
 class ASelectionPawn_B;
-class UPaperSprite;
 
 
 UCLASS()
@@ -129,13 +129,16 @@ protected:
 		TSubclassOf<ASelectionPawn_B> BP_SelectionPawn;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The spacing between the selection arrows"))
-		FVector SelectionArrowSpacing = FVector(0, 0, 60);
+		FVector SelectionArrowSpacing = FVector(0, 0, 150);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
-		FVector FirstSelectionArrowLocation = FVector(0, 0, 200);
+		FVector FirstSelectionArrowLocation = FVector(0, 0, 250);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
-		TArray<UPaperSprite*> SelectionSprites;
+		TArray<FCharacterVariants> CharacterVariants;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+		TArray<UPaperSprite*> SelectionIndicators;
 	
 	UPROPERTY()
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
@@ -143,7 +146,7 @@ protected:
 	UPROPERTY()
 		TArray<APlayerCharacter_B*> Characters;
 
-	TArray<bool> CharacterBooleans;
+	TArray<bool> CharacterIsInLine;
 
 	TArray<FTransform> CharacterStartTransforms;
 

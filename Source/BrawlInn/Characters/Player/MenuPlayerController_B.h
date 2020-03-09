@@ -27,9 +27,9 @@ protected:
 public:
 	ASelectionPawn_B* GetSelectionPawn();
 
-	int GetSelectedCharacterIndex() const;
+	int GetCharacterVariantIndex() const;
 
-	void SetSelectedCharacterIndex(int Value);
+	void SetCharacterVariantIndex(int Value);
 
 protected:
 
@@ -49,7 +49,7 @@ protected:
 	
 	void SelectRight();
 
-	int SelectedCharacterIndex = 0;
+	int CharacterVariantIndex = 0;
 
 	UPROPERTY()
 		ASelectionPawn_B* SelectionPawn;

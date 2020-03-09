@@ -76,7 +76,7 @@ void AMainGameMode_B::EndGame()
 	VictoryScreen->AddToViewport();
 }
 
-void AMainGameMode_B::CheckIfPlayerWin()
+void AMainGameMode_B::CheckIfPlayerWin() //TODO REMOVE
 {
 	if (GameInstance->GetPlayerInfos().Num() == 1)
 	{
