@@ -23,7 +23,7 @@ void AMenuGameMode_B::BeginPlay()
 	SetActorTickEnabled(true);
 
 	/// Level sequence stuff
-	FMovieSceneSequencePlaybackSettings Settings;
+	const FMovieSceneSequencePlaybackSettings Settings;
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Intro, Settings, LSA_Intro);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_MainMenu, Settings, LSA_MainMenu);
 	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
