@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
 #include "LevelSequenceActor.h"
+#include "PaperSpriteComponent.h"
+
 
 #include "BrawlInn.h"
 #include "UI/Menus/CharacterSelection_B.h"
@@ -43,7 +45,7 @@ void AMenuGameMode_B::BeginPlay()
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		Characters.Add(PlayerCharacter);
 		PlayerCharacter->MakeInvulnerable(-1, false);
-		
+
 	}
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
@@ -63,6 +65,8 @@ void AMenuGameMode_B::BeginPlay()
 	{
 		auto SelectionPawn = MenuPlayerControllers[i]->GetSelectionPawn();
 		FVector Offset = SelectionArrowSpacing * (i);
+		if (SelectionSprites.IsValidIndex(i))
+			SelectionPawn->GetSpriteIcon()->SetSprite(SelectionSprites[i]);
 		SelectionPawn->SetActorLocation(Characters[0]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
 		MenuPlayerControllers[i]->SetSelectedCharacterIndex(0);
 	}
@@ -223,6 +227,9 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 		});
 
 	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[Index]);
+	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+	if (SelectionSprites.IsValidIndex(ID))
+		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionSprites[ID]);
 	PlayerControllerThatSelected->Possess(SelectionPawn);
 }
 

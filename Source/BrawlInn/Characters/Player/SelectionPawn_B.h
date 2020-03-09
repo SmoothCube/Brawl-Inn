@@ -20,6 +20,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	// ********** Misc. **********
+public:
+
+	UPaperSpriteComponent* GetSpriteIcon() const;
 	
 	UPROPERTY(VisibleAnywhere)
 		UPaperSpriteComponent* SpriteIcon;
