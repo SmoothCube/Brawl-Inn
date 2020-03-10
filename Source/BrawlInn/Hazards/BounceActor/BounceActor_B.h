@@ -6,6 +6,7 @@
 #include "Items/Throwable_B.h"
 #include "BounceActor_B.generated.h"
 
+class UDataTable_B;
 class APlayerController_B;
 
 UCLASS()
@@ -43,4 +44,9 @@ public:
 	APlayerController_B* PlayerController = nullptr;
 
 	bool bShouldDestroyTarget = false;
+
+private:
+
+	UPROPERTY()
+		UDataTable_B* Table = nullptr;
 };
