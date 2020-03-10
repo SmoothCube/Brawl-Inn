@@ -25,17 +25,18 @@ ABounceActor_B::ABounceActor_B()
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Barrel")->Value;
+	Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+	ScoreAmount = Table->GetRow<FScoreTable>("Barrel")->Value;
+
 }
 
 // Old Explode
 void ABounceActor_B::OnItemFracture()
 {
 	Super::OnItemFracture();
-	
-	if (PlayerController)
-		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController);
-	
+
+
+
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface && Interface->Execute_IsHeld(this))
 	{
@@ -48,12 +49,16 @@ void ABounceActor_B::OnItemFracture()
 	}
 
 	SpawnPlayerCharacter();
+
+	if (PlayerController)
+	{
+		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController, true);
+	}
 }
 
 void ABounceActor_B::SpawnPlayerCharacter()
 {
-	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0,0,-1),1000);
-	
+
 	//Respawns player. Kinda hates having this here.
 	if (PlayerController)
 	{
@@ -63,19 +68,23 @@ void ABounceActor_B::SpawnPlayerCharacter()
 			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
 		}
 	}
+	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0, 0, -1), 1000);
+	if (PlayerController->GetPlayerCharacter())
+		PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);
 }
 
 void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
 {
 	PlayerController = Controller;
 
-	UMaterialInstanceDynamic* MeshMaterial = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
+	SetActorRotation(FRotator(0, 0, 90));
 
+	UMaterialInstanceDynamic* MeshMaterial = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
 	MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
 
 	DestructibleComponent->SetMaterial(0, MeshMaterial);
 	DestructibleComponent->SetMaterial(1, MeshMaterial);
 
 	Mesh->SetMaterial(0, MeshMaterial);
-	
+
 }

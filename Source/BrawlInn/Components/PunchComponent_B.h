@@ -7,6 +7,7 @@
 #include "PunchComponent_B.generated.h"
 
 
+class UDataTable_B;
 class ACharacter_B;
 class USoundCue;
 class UDamageType;
@@ -50,7 +51,7 @@ protected:
 	void GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched);
 
 	//For health
-	float CalculatePunchDamage(ACharacter_B* OtherPlayer);
+	int CalculatePunchDamage() const;
 	
 	//For knockback
 	//UFUNCTION(Meta)
@@ -144,6 +145,15 @@ private:
 
 	FTimerHandle TH_DashAgainHandle;
 	FTimerHandle TH_DashDoneHandle;
+
+	// ********** Score **********
+
+	UPROPERTY()
+		UDataTable_B* ScoreTable = nullptr;
+
+	int Level1ScoreValue = 10;
+	int Level2ScoreValue = 20;
+	int Level3ScoreValue = 30;
 protected:
 	// ********** Various **********
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")

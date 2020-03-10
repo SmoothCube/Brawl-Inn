@@ -70,6 +70,7 @@ void AMenuPlayerController_B::LeftStickLeftPressed()
 void AMenuPlayerController_B::LeftShoulderPressed()
 {
 	SelectLeft();
+	Super::LeftShoulderPressed();
 }
 
 void AMenuPlayerController_B::DPadLeftPressed()
@@ -80,11 +81,13 @@ void AMenuPlayerController_B::DPadLeftPressed()
 void AMenuPlayerController_B::DPadRightPressed()
 {
 	SelectRight();
+	
 }
 
 void AMenuPlayerController_B::RightShoulderPressed()
 {
 	SelectRight();
+	Super::RightShoulderPressed();
 }
 
 void AMenuPlayerController_B::FaceButtonBottomPressed()
