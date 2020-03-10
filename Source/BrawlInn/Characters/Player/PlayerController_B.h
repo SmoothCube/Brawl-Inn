@@ -4,74 +4,116 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "System/Interfaces/ControllerInterface_B.h"
 #include "Characters/Player/PlayerInfo.h"
 #include "PlayerController_B.generated.h"
 
-class UHealthComponent_B;
 class APlayerCharacter_B;
-class ARespawnPawn_B;
-class UCharacterSelectionComponent_B;
 
 UCLASS()
-class BRAWLINN_API APlayerController_B : public APlayerController, public IControllerInterface_B
+class BRAWLINN_API APlayerController_B : public APlayerController
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	APlayerController_B();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UHealthComponent_B* HealthComponent;
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-
-	void TryPauseGame();
-
-	bool HasValidCharacter();
-
-	void PlayControllerVibration(float Strength,float Duration,bool bAffectsLeftLarge,bool bAffectsLeftSmall,bool bAffectsRightLarge,bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action= EDynamicForceFeedbackAction::Start);
-
-	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
-
-	APlayerCharacter_B* PlayerCharacter = nullptr;
-	ARespawnPawn_B* RespawnPawn = nullptr;
-
-	bool bCanRespawn = true;
-	
-	void Respawn();
-	void TryRespawn(float RespawnDelay);
-
+	virtual void FellOutOfWorld(const class UDamageType& DmgType) override;
 	virtual void OnUnPossess() override;
+
+	// ********** KeyBindings **********
+
+	virtual void DPadUpPressed() {}
+	virtual void DPadUpReleased() {}
+	virtual void DPadUpRepeat() {}
+
+	virtual void DPadRightPressed() {}
+	virtual void DPadRightReleased() {}
+	virtual void DPadRightRepeat() {}
+
+	virtual void DPadDownPressed() {}
+	virtual void DPadDownReleased() {}
+	virtual void DPadDownRepeat() {}
+
+	virtual void DPadLeftPressed() {}
+	virtual void DPadLeftReleased() {}
+	virtual void DPadLeftRepeat() {}
+
+	virtual void FaceButtonTopPressed() {}
+	virtual void FaceButtonTopReleased() {}
+	virtual void FaceButtonTopRepeat() {}
+
+	virtual void FaceButtonRightPressed() {}
+	virtual void FaceButtonRightReleased() {}
+	virtual void FaceButtonRightRepeat() {}
+
+	virtual void FaceButtonBottomPressed() {}
+	virtual void FaceButtonBottomReleased() {}
+	virtual void FaceButtonBottomRepeat() {}
+
+	virtual void FaceButtonLeftPressed() {}
+	virtual void FaceButtonLeftReleased() {}
+	virtual void FaceButtonLeftRepeat() {}
+
+	virtual void LeftShoulderPressed() {}
+	virtual void LeftShoulderReleased() {}
+	virtual void LeftShoulderRepeat() {}
+
+	virtual void LeftTriggerPressed() {}
+	virtual void LeftTriggerReleased() {}
+	virtual void LeftTriggerRepeat() {}
+
+	virtual void RightShoulderPressed() {}
+	virtual void RightShoulderReleased() {}
+	virtual void RightShoulderRepeat() {}
+
+	virtual void RightTriggerPressed() {}
+	virtual void RightTriggerReleased() {}
+	virtual void RightTriggerRepeat() {}
+
+	virtual void SpecialLeftPressed() {}
+	virtual void SpecialLeftReleased() {}
+	virtual void SpecialLeftRepeat() {}
+
+	virtual void SpecialRightPressed() {}
+	virtual void SpecialRightReleased() {}
+	virtual void SpecialRightRepeat() {}
+
+	virtual void LeftStickXAxis(float Value) {}
+	virtual void LeftStickYAxis(float Value) {}
 	
-	UPROPERTY(EditAnywhere, Category="Variables")
-	bool bVibrateControllers = false;
+	virtual void LeftStickRightPressed() {}
+	virtual void LeftStickRightReleased() {}
+	virtual void LeftStickRightRepeat() {}
+	
+	virtual void LeftStickLeftPressed() {}
+	virtual void LeftStickLeftReleased() {}
+	virtual void LeftStickLeftRepeat() {}
+	
+	virtual void RightStickXAxis(float Value) {}
+	virtual void RightStickYAxis(float Value) {}
 
-	virtual void TakeDamage_Implementation(int DamageAmount) override;
-
-	// DEBUG
-	void DEBUG_TEST01();
-	void DEBUG_Spawn();
-	void DEBUG_Despawn();
-
-private:
-
-	void MoveUp(float Value);
-	void MoveRight(float Value);
-	void Select();
-	void SelectRight();
-	void SelectLeft();
-	void Unselect();
-
-	void PickupButtonPressed();
-	void PickupButtonRepeat();
-	void PunchButtonPressed();
-	void PunchButtonReleased();
-	void BreakFreeButtonPressed();
-
-	FTimerHandle TH_RespawnTimer;
-
+	// ********** Various **********
 public:
+
+	void PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action = EDynamicForceFeedbackAction::Start);
+
+	APlayerCharacter_B* GetPlayerCharacter() const;
+
+	void SetPlayerCharacter(APlayerCharacter_B* Character);
+	
+	bool HasValidCharacter() const;
+
+	const FPlayerInfo& GetPlayerInfo() const;
+
+	void SetPlayerInfo(const FPlayerInfo& Info);
+	
+protected:
+	APlayerCharacter_B* PlayerCharacter = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Variables")
+		bool bVibrateControllers = false;
+
 	FPlayerInfo PlayerInfo;
 };

@@ -7,42 +7,53 @@
 #include "RespawnPawn_B.generated.h"
 
 class ABounceActor_B;
+class USphereComponent;
+
 UCLASS()
 class BRAWLINN_API ARespawnPawn_B : public APawn
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this pawn's properties
-	ARespawnPawn_B();
+		ARespawnPawn_B();
 
+	// ********** AActor **********
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	void PossessedBy(AController* NewController) override;
 
-public:	
-	// Called every frame
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void PossessedBy(AController* NewController) override;
+
+	// ********** Spawning **********
+public:
 
 	void ThrowBarrel();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	void SetInputVectorX(float X);
+
+	void SetInputVectorY(float Y);
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UDecalComponent* Decal;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MovementSpeed = 1000;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USphereComponent* Sphere;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float TimeUntilThrow = 10.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
+		float MovementSpeed = 2250.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
+		float TimeUntilThrow = 4.f;
+
+	UPROPERTY()
+		ABounceActor_B* Barrel = nullptr;
+	
 	FVector InputVector = FVector::ZeroVector;
 
 	FTimerHandle TH_ThrowTimer;
 
 	bool bBarrelIsThrown = false;
-
-	bool bHasRespawned = false;
-
-	ABounceActor_B* Barrel = nullptr;
 };

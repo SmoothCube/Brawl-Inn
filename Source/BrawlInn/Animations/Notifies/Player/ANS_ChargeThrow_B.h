@@ -24,4 +24,8 @@ private:
 	float CurrentTime = 0.f;
 	float AnimLength = 0.f;
 
+	//TODO: Use regular AnimNotifies instead?
+	bool bChargeLevel1Reached = false;
+	bool bChargeLevel2Reached = false;
+	bool bChargeLevel3Reached = false;
 };

@@ -21,6 +21,7 @@ protected:
 	UFUNCTION(BlueprintPure)
 	bool IsReady() const;
 
+	UPROPERTY()
 	ACharacter_B* Owner = nullptr;
 
 	/// Movement variables
@@ -37,15 +38,21 @@ protected:
 	bool bIsPunching = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsChargingPunch = false;
+							 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsHolding = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bIsCharging = false;
+	bool bIsChargingThrow = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsThrowing = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bHasFallen = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsBeingHeld = false;
 	
 };

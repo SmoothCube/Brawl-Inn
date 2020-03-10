@@ -11,7 +11,6 @@ APunchUseable_B::APunchUseable_B()
 
 void APunchUseable_B::Use_Implementation()
 {
-	BScreen("STRONK PUNCH");
 
 	APlayerCharacter_B* Character = Cast<APlayerCharacter_B>(GetAttachParentActor());
 	if (!Character) { BWarn("Could not find player while using, something is wrong! ABORT!"); return; }

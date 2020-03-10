@@ -2,18 +2,15 @@
 
 #include "PunchComponent_B.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
+#include "System/DataTable_B.h"
 #include "Characters/Character_B.h"
-#include "Characters/Player/PlayerController_B.h"
-#include "System/DamageTypes/Punch_DamageType_B.h"
 #include "System/GameInstance_B.h"
 
 UPunchComponent_B::UPunchComponent_B()
@@ -28,12 +25,29 @@ void UPunchComponent_B::BeginPlay()
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 
 	OnComponentBeginOverlap.AddDynamic(this, &UPunchComponent_B::OnOverlapBegin);
+
+	ScoreTable = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+	if (ScoreTable)
+	{
+		Level1ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel1ScoreValue")->Value;
+		Level2ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel2ScoreValue")->Value;
+		Level3ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel3ScoreValue")->Value;
+	}
+}
+
+void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void UPunchComponent_B::PunchStart()
 {
+	BWarn("PunchStart");
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-
+	OwningCharacter->bIsCharging = false;
+	bIsPunching = true;
 	OwningCharacter->MakeVulnerable();
 
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -60,7 +74,7 @@ void UPunchComponent_B::PunchStart()
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
 		{
-			volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
@@ -70,33 +84,89 @@ void UPunchComponent_B::PunchStart()
 		);
 	}
 
-	Dash();
+	PunchDash();
+}
+
+void UPunchComponent_B::PunchDash()
+{
+	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
+
+	float PunchDashSpeed = 0.f;
+	switch (OwningCharacter->GetChargeLevel())
+	{
+	case EChargeLevel::EChargeLevel1: PunchDashSpeed = Charge1PunchDashSpeed;
+		break;
+	case EChargeLevel::EChargeLevel2: PunchDashSpeed = Charge2PunchDashSpeed;
+		break;
+	case EChargeLevel::EChargeLevel3: PunchDashSpeed = Charge3PunchDashSpeed;
+		break;
+	default:
+		break;
+	}
+
+	OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->GetActorForwardVector() * PunchDashSpeed);
+
 }
 
 void UPunchComponent_B::Dash()
 {
+	if (bIsDashing)
+		return;
+	bIsDashing = true;
+
+	OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule-Dash");
+
+	OwningCharacter->MakeInvulnerable(0.3f, false);
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
-	float f = OwningCharacter->GetCharacterMovement()->Velocity.Size() / OwningCharacter->GetCharacterMovement()->MaxWalkSpeed;
-	float dist = (MaxDashDistance - MinDashDistance) * f + MinDashDistance;
-	OwningCharacter->GetCharacterMovement()->AddForce(OwningCharacter->GetActorForwardVector() * dist * DashForceModifier);
+	const FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
+	if (NormInput.IsNearlyZero())
+	{
+		//think setting velocity is more predictable and therefore better than adding force here.
+		OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->GetActorForwardVector() * DashSpeed);
+	}
+	else
+	{
+		OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->InputVector * DashSpeed);
+		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+		TH_DashAgainHandle,
+		[&]()
+		{
+			bIsDashing = false;
+		},
+		DashCooldown,
+			false);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		TH_DashDoneHandle,
+		[&]()
+		{
+			OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
+		},
+		DashTime,
+			false);
+
 }
 
 void UPunchComponent_B::PunchEnd()
 {
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-
+	BWarn("PunchEnd!");
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
 	OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity.GetClampedToMaxSize(OwningCharacter->NormalMaxWalkSpeed * PostDashRemainingVelocityPercentage);
+	bIsPunching = false;
 
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
 		[&]()
 		{
-			bIsPunching = false;
 			bHasHit = false;
 		},
 		PunchWaitingTime,
@@ -106,6 +176,7 @@ void UPunchComponent_B::PunchEnd()
 
 void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
+
 	if (!OtherPlayer) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { BError("No PunchComponent found for OtherPlayer %s!", *GetNameSafe(OtherPlayer)); return; }
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
@@ -113,7 +184,7 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 	if (!OtherPlayer->bIsInvulnerable || !OtherPlayer->bHasShield)
 	{
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrength(), OwningCharacter);
-		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(OtherPlayer), OwningCharacter->GetController(), OwningCharacter, BP_DamageType);
+		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(), OwningCharacter->GetController(), OwningCharacter, BP_DamageType);
 
 		OwningCharacter->StunStrength = 1; // This ends the punch powerup after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
 		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
@@ -137,20 +208,8 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		OtherComp->AddImpulse(CalculatePunchStrength());
 	}
+	OnPunchHit_D.Broadcast();
 	bHasHit = true;
-}
-
-float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
-{
-	float f = VelocityBeforeDash.Size() / (OwningCharacter->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
-	f = FMath::Clamp(f, 0.f, 1.f);
-	float TotalDamage = 5 + (30 * (f));
-	return TotalDamage;
-}
-
-bool UPunchComponent_B::GetIsPunching()
-{
-	return bIsPunching;
 }
 
 void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched)
@@ -160,26 +219,86 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 	float Strength = InPunchStrength.Size();
 	OnGetPunched_D.Broadcast(PlayerThatPunched);
 
-	PunchEnd();
-
+	PunchEnd(); //In case the player got hit while punching, mostly to make sure punch collisions get turned off
 	if (!OwningCharacter->IsInvulnerable())
 	{
-		OwningCharacter->GetCharacterMovement()->AddImpulse(InPunchStrength);
-		OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
+
 		OwningCharacter->RemoveShield();
+		FVector PunchDirection = InPunchStrength.GetSafeNormal();
+
+		switch (PlayerThatPunched->GetChargeLevel())
+		{
+		case EChargeLevel::EChargeLevel1:
+			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
+			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection * PlayerThatPunched->PunchComponent->Level1PunchPushStrength);
+			break;
+		case EChargeLevel::EChargeLevel2:
+			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
+			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection * PlayerThatPunched->PunchComponent->Level2PunchPushStrength);
+			break;
+		case EChargeLevel::EChargeLevel3:
+			OwningCharacter->CheckFall(InPunchStrength);
+			return;
+		default:
+			BError("Character %s got hit with an invalid charge level from character %s", *GetNameSafe(OwningCharacter), *GetNameSafe(PlayerThatPunched));
+			break;
+		}
+
+		if (OwningCharacter->StunAmount >= OwningCharacter->PunchesToStun)
+		{
+			OwningCharacter->CheckFall(InPunchStrength);
+		}
 	}
 }
 
-//calculates the punch strength for the player. Has to be used by the puncher.
 FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }
-	FVector Strength;
-	if (!VelocityBeforeDash.IsNearlyZero())
-		Strength = BasePunchStrength * VelocityBeforeDash.GetSafeNormal() + VelocityBeforeDash * PunchStrengthMultiplier;
-	else
-		Strength = OwningCharacter->GetActorForwardVector() * BasePunchStrength;
-	return Strength;
+
+	switch (OwningCharacter->GetChargeLevel())
+	{
+	case EChargeLevel::EChargeLevel1:
+		return OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
+	case EChargeLevel::EChargeLevel2:
+		return OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
+	case EChargeLevel::EChargeLevel3:
+		return OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
+	default:
+		return FVector::ZeroVector;
+	}
+}
+
+int UPunchComponent_B::CalculatePunchDamage() const
+{
+	if (!OwningCharacter) { BError("No OwningCharactersss found for PunchComponent %s!", *GetNameSafe(this)); return 0; }
+
+	switch (OwningCharacter->ChargeLevel)
+	{
+	case EChargeLevel::EChargeLevel1:
+		return Level1ScoreValue;
+	case EChargeLevel::EChargeLevel2:
+		return Level2ScoreValue;
+	case EChargeLevel::EChargeLevel3:
+		return Level3ScoreValue;
+	default:
+		return Level1ScoreValue;
+	}
+}
+
+bool UPunchComponent_B::GetIsPunching()
+{
+	return bIsPunching;
+}
+
+void UPunchComponent_B::SetIsPunching(bool Value)
+{
+	bIsPunching = Value;
+}
+
+
+bool UPunchComponent_B::GetIsDashing()
+{
+	return bIsDashing;
 }
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -189,9 +308,14 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 
 	if (!bHasHit && OtherActor != OwningCharacter)
 	{
-		if (OtherPlayer != nullptr && Capsule != nullptr)
-			PunchHit(OtherPlayer);
+		if (IsValid(OtherPlayer))
+		{
+			if (IsValid(Capsule))
+				PunchHit(OtherPlayer);
+		}
 		else
+		{
 			PunchHit(OtherComp);
+		}
 	}
 }

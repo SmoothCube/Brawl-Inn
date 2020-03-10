@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TargetPoint.h"
+#include "System/Structs/BarDropLocations.h"
 #include "AIDropPoint_B.generated.h"
 
 class AItem_B;
+class ABar_B;
 
 UCLASS()
 class BRAWLINN_API AAIDropPoint_B : public ATargetPoint
@@ -16,14 +18,19 @@ class BRAWLINN_API AAIDropPoint_B : public ATargetPoint
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-		void ItemDestroyed(AActor* DestroyedActor);
+	void ItemDestroyed();
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AItem_B> ItemToSpawn;
 
+	UPROPERTY(EditAnywhere)
+		EBarDropLocationType Type = EBarDropLocationType::Stool;
+
+	UPROPERTY(BlueprintReadOnly)
+	ABar_B* Bar = nullptr;
+
 	UPROPERTY()
-	AItem_B* Item = nullptr;
+		AItem_B* Item = nullptr;
 
 public:
 	UFUNCTION()

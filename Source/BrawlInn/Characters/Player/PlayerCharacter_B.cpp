@@ -2,18 +2,26 @@
 
 #include "PlayerCharacter_B.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/LocalPlayer.h"
+#include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
-#include "Characters/Player/PlayerController_B.h"
-#include "Components/HealthComponent_B.h"
+#include "BrawlInn.h"
+#include "System/DataTable_B.h"
+#include "System/Structs/ScoreLookupTable.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
-#include "UI/Game/HealthWidget_B.h"
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "System/DamageTypes/Fall_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -27,20 +35,37 @@ APlayerCharacter_B::APlayerCharacter_B()
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	ForceSocketName = "spine2_export_C_jnt";
+	PunchesToStun = 4;
+	bCanBeHeld = false;
+	GetCapsuleComponent()->SetCapsuleRadius(75.f);
+	
+	Charge1ThrowStrength = 400000.f;
+	Charge2ThrowStrength = 1000000.f;
+	Charge3ThrowStrength = 2000000.f;
+
+	HoldOffset = FVector(0, 0, 500);
 }
 
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Create new material instance and assign it
-	if (!DirectionIndicatorPlane)
-		return;
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
 
-	auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(DirectionIndicatorPlane->GetMaterial(0), this);
-	MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerInfo.PlayerColor);
-	DirectionIndicatorPlane->SetMaterial(0, MI_ColoredDecal);
+	if (GameInstance->ShouldUseSpreadSheets())
+	{
+		Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
+		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
+	}
+}
 
+void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
@@ -52,19 +77,34 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		if (CurrentHoldTime >= MaxHoldTime)
 			BreakFree();
 	}
+
+	BreakFreeAnimationBlend -= 0.5 * DeltaTime;
+	if (BreakFreeAnimationBlend < 0.f)
+		BreakFreeAnimationBlend = 0.f;
+
+	//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
+	//BLog("Player %s, is  %i", *GetNameSafe(this), IsInvulnerable());
+	//BWarn("Capsule collision profile: %s for player: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString(), *GetNameSafe(this));
+
+}
+
+UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
+{
+	return DirectionIndicatorPlane;
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
 		HoldComponent->Drop();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldDamageAmount, PlayerController, this, dmgType.StaticClass());
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
+	Die();
 	Super::FellOutOfWorld(dmgType);
 }
 
 void APlayerCharacter_B::Die()
 {
-	Fall(-1);
+	Fall();
 	bIsAlive = false;
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
@@ -73,12 +113,37 @@ void APlayerCharacter_B::Die()
 	PlayerController->UnPossess();
 }
 
-void APlayerCharacter_B::Fall(float RecoveryTime)
+void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
-	Super::Fall(RecoveryTime);
-
+	Super::Fall(MeshForce, RecoveryTime);
+	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
+	
+	if (HighShatterSound)
+	{
+		float Volume = 1.f;
+		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			HighShatterSound,
+			GetActorLocation(),
+			Volume
+		);
+	}
+
+}
+
+void APlayerCharacter_B::StandUp()
+{
+	Super::StandUp();
+	bCanBeHeld = false;
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
+	MakeInvulnerable(InvulnerabilityTime);
+	CurrentHoldTime = 0.f;
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
@@ -89,21 +154,30 @@ void APlayerCharacter_B::Dropped_Implementation()
 
 void APlayerCharacter_B::BreakFreeButtonMash()
 {
-	CurrentHoldTime += 0.01;
+	BreakFreeAnimationBlend += 0.1f;
+	CurrentHoldTime += HoldTimeDecreasePerButtonMash;
+	PlayerController->PlayControllerVibration(0.8f, 0.1f, true, true, true, true);
 }
 
 void APlayerCharacter_B::BreakFree()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorRotation(FRotator(0, 0, 0));
-
-	//Moves forward a bit before turning on collisions, so we dont fly to hell because we overlap with the other player
+	MakeInvulnerable(1.f);
 	if (HoldingCharacter)
 	{
+		//Moves forward a bit before turning on collisions, so we dont fly to hell because we overlap with the other player
 		AddActorLocalOffset(HoldingCharacter->GetActorForwardVector() * 100);
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
-		HoldingCharacter->AddStun(PunchesToStun);
+		HoldingCharacter->SetState(EState::EWalking);
+		HoldingCharacter->SetIsCharging(false); //TODO set charge level? 
+		HoldingCharacter->AddStun(PunchesToStun-1);
 		HoldingCharacter = nullptr;
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+		{
+			GameMode->AddCameraFocusPoint(this);
+		}
 	}
 
 	StandUp();
@@ -111,75 +185,150 @@ void APlayerCharacter_B::BreakFree()
 	CurrentHoldTime = 0.f;
 }
 
-void APlayerCharacter_B::RemoveStun()
-{
-	Super::RemoveStun();
-	CurrentHoldTime = 0.f;
-}
-
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-
-	if (!(DamageAmount == 100.f))
-		if (bIsInvulnerable || bHasShield) return 0;
-
-	float ActualDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UFall_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = FallDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UStool_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = ChairDamageAmount;
-	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
-	{
-		ActualDamageAmount = FellOutOfWorldDamageAmount;
-	}
-	else
-	{
-		ActualDamageAmount = DamageAmount;
-	}
-
-	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
+		return 0;
+	
+	BLog("%s Taking Damage. Causer: %s", *GetNameSafe(PlayerController), *GetNameSafe(EventInstigator));
 	if (GameInstance)
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
-		float trauma = DamageAmount / 100;
+		const float Trauma = DamageAmount / 100;
 		if (PlayerController)
-			PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
+			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
+	}
+	
+	if (EventInstigator == PlayerController)
+		return Super::TakeDamage(DamageAmount,DamageEvent,EventInstigator, DamageCauser);
+	
+
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
+	{
+		if (LastHitBy) // Hit by someone before falling out of the world!
+		{
+			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
+			if (OtherPlayerController)
+			{
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+			}
+		}
+		else 
+		{
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
+		}
+	}
+	else
+	{
+		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
+		if (OtherPlayerController)
+		{
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+		}
 	}
 
-	IControllerInterface_B* Interface = Cast<IControllerInterface_B>(GetController());
-	if (Interface)
-	{
-		Interface->Execute_TakeDamage(GetController(), ActualDamageAmount);
-	}
+	
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	SetLastHitBy(EventInstigator);
 
 	return DamageAmount;
+}
+
+void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
+{
+	if (LastHitBy == EventInstigator)
+	{
+		GetWorld()->GetTimerManager().SetTimer(LastHitByTimer_TH, [&]() {
+			LastHitBy = nullptr;
+			}, 7.f, false);
+	}
+	else
+	{
+		LastHitBy = EventInstigator;
+	}
+}
+
+void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
+{
+	Super::SetChargeLevel(chargeLevel);
+	float VibrationStrength = 0.f;
+	switch (chargeLevel)
+	{
+	case EChargeLevel::EChargeLevel1:
+		VibrationStrength = 0.5f;
+		break;
+	case EChargeLevel::EChargeLevel2:
+		VibrationStrength = 0.7f;
+		break;
+	case EChargeLevel::EChargeLevel3:
+		VibrationStrength = 1.f;
+		break;
+	}
+	PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true);
+}
+
+void APlayerCharacter_B::AddStun(const int Strength)
+{
+	Super::AddStun(Strength);
+	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
+
+	float Volume = 1.f;
+	GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance)
+		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+
+	switch (StunAmount)	//slem gonza	
+	{
+	case 0:
+		break;
+	case 1:
+		if (LowShatterSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), Volume);
+		break;
+	case 2:
+	case 3:
+		if (MidShatterSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), Volume);
+		break;
+	case 4:
+		break;
+	}
+
 }
 
 void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	PlayerController = Cast<APlayerController_B>(NewController);
+	PlayerController = Cast<AGamePlayerController_B>(NewController);
 
-	if (!(PlayerController && PlayerController->HealthComponent))
+	if (!PlayerController)
 		return;
 
-	PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
 
-	PlayerController->HealthComponent->HealthIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-	PlayerController->HealthComponent->RespawnIsZero_D.AddUObject(this, &APlayerCharacter_B::Die);
-	if (PlayerController->HealthComponent->HealthWidget)
-		PlayerController->HealthComponent->HealthWidget->PostInitialize(this);
-	PlayerController->PlayerInfo = PlayerInfo;
-
-	PunchComponent->OnPunchHit_D.AddLambda([&]()
+	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
 		{
 			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
 		});
 
+}
+
+//For dashing through characters
+void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//Dash push stuff
+	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,SweepResult);
+	
+	if (!PunchComponent->GetIsDashing())	
+		return;
+
+
+	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
+	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
+	//Might be triggered twice
+	if (IsValid(OtherCharacter) && IsValid(Capsule))
+	{
+		if (IsValid(PunchComponent))
+			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+	}
 }

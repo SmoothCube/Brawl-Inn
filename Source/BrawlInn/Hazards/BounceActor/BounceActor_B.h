@@ -3,15 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "Items/Throwable_B.h"
 #include "BounceActor_B.generated.h"
 
-class UStaticMeshComponent;
-class UProjectileMovementComponent;
-class ABarrelTargetPoint_B;
+class UDataTable_B;
 class APlayerController_B;
-class UNiagaraComponent;
+
 UCLASS()
 class BRAWLINN_API ABounceActor_B : public AThrowable_B
 {
@@ -23,8 +20,11 @@ public:
 
 	virtual void BeginPlay() override;
 	
-	UFUNCTION()
-	void Explode(AActor* DestroyedActor);
+	virtual void OnItemFracture() override;
+
+	void SpawnPlayerCharacter();
+
+	void SetupBarrel(APlayerController_B* Controller);
 
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;
@@ -38,11 +38,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Radius = 500.f;
 
-
 	FTimerHandle TH_ExplodeTimer;
-	ABarrelTargetPoint_B* Target = nullptr;
 
+	UPROPERTY()
 	APlayerController_B* PlayerController = nullptr;
 
 	bool bShouldDestroyTarget = false;
+
+private:
+
+	UPROPERTY()
+		UDataTable_B* Table = nullptr;
 };

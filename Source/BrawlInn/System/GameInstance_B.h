@@ -7,23 +7,36 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameInstance_B.generated.h"
 
-class USoundBase;
 class UCameraShake;
 
-DECLARE_MULTICAST_DELEGATE(FNumberOfPlayerControllersChanged);
+DECLARE_MULTICAST_DELEGATE(FPlayerInfoChanged);
 
 UCLASS()
 class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
 
-public:
-
-	UGameInstance_B();
-
+	// ********** UGameInstance **********
+protected:
 	virtual void Init() override;
 
+	// ********** Camera **********
+public:
 	void PlayImpactCameraShake(FVector Epicenter);
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+		TSubclassOf<UCameraShake> ImpactCameraShake;
+
+	// ********** Sound **********
+public:
+	float GetMasterVolume() const;
+
+	float GetMusicVolume() const;
+	
+	float GetSfxVolume() const;
+
+protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		float MasterVolume = 1.f;
@@ -34,24 +47,35 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		float SfxVolume = 1.f;
 
-	UFUNCTION()
-		void AddPlayerInfo(FPlayerInfo PlayerInfo);
+	// ********** PlayerInfo **********
+public:
+	void AddPlayerInfo(FPlayerInfo PlayerInfo);
 
-	UFUNCTION()
-		void RemovePlayerInfo(int ID);
+	void RemovePlayerInfo(int ID);
 
-	UFUNCTION()
-		TArray<FPlayerInfo> GetPlayerInfos() const;
+	TArray<FPlayerInfo> GetPlayerInfos() const;
 
-	UFUNCTION()
-		void SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos);
+	FPlayerInfo GetPlayerInfo(int ID) const;
 
-	FNumberOfPlayerControllersChanged OnPlayerInfoChanged;
+	void SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
-	TSubclassOf<UCameraShake> ImpactCameraShake;
+	FPlayerInfoChanged OnPlayerInfoChanged;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
 		TArray<FPlayerInfo> ActivePlayerInfos;
+
+	// ********** Settings **********
+
+public:
+
+	bool ShouldUseSpreadSheets() const;
+	bool GameIsScoreBased() const;
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+	bool bShouldUseSpreadSheets = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+		bool bGameIsScoreBased = true;
 };

@@ -25,6 +25,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	UFUNCTION()
 		void OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 

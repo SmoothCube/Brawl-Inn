@@ -1,17 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Useable_B.h"
-#include "BrawlInn.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
-#include "NiagaraSystem.h"
-#include "NiagaraFunctionLibrary.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+#include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 
@@ -32,19 +29,18 @@ AUseable_B::AUseable_B()
 	DrinkMesh->SetRelativeLocation(FVector(2.3f, 36.5f, 38));
 	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void AUseable_B::BeginPlay()
 {
-	BWarn("Adding useable to camera!");
-	//Want to focus on useables as they spawn
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
-		GameMode->AddCameraFocusPoint(this);
-	}
-	GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::RemoveFromCameraFocus, CameraFocusDuration, false);
+	Super::BeginPlay();
+
+}
+
+void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
@@ -68,14 +64,14 @@ void AUseable_B::Dropped_Implementation()
 void AUseable_B::Use_Implementation()
 {
 	if (Duration > 0)
-		GetWorld()->GetTimerManager().SetTimer(TH_UnfocusHandle, this, &AUseable_B::ResetBoost, Duration, false);
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::ResetBoost, Duration, false);
 
 	if (DrinkSound)
 	{
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 		if (GameInstance)
 		{
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation(), 0.75 * GameInstance->MasterVolume * GameInstance->SfxVolume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation(), 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume());
 		}
 	}
 
@@ -87,20 +83,13 @@ void AUseable_B::Use_Implementation()
 	if (GameMode)
 		GameMode->RemoveCameraFocusPoint(this);
 
+	OnFracture_Delegate.Broadcast();
+
 	Execute_Dropped(this);
 }
 
 void AUseable_B::ResetBoost()
 {
-}
-
-void AUseable_B::RemoveFromCameraFocus()
-{
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
-		GameMode->RemoveCameraFocusPoint(this);
-	}
 }
 
 void AUseable_B::FellOutOfWorld(const UDamageType& dmgType)

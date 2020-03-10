@@ -28,6 +28,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
@@ -47,10 +49,8 @@ protected:
 		float CameraFocusDuration = 3.f;
 	
 	FTimerHandle TH_DrinkHandle;
-	FTimerHandle TH_UnfocusHandle;
 
 	UFUNCTION()
 		virtual void ResetBoost();
-	void RemoveFromCameraFocus();
 
 };

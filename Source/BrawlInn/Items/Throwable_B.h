@@ -6,28 +6,53 @@
 #include "Items/Item_B.h"
 #include "Throwable_B.generated.h"
 
+class UDestructibleComponent;
+
 UCLASS()
 class BRAWLINN_API AThrowable_B : public AItem_B
 {
 	GENERATED_BODY()
-	
-public:
 
-	// ** Overridden functions **
+protected:
+
+	AThrowable_B();
+
+	// ********** AActor **********
+
+	virtual void BeginPlay() override;
+
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	// ********** Throwing **********
+
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
 
 	virtual void Use_Implementation() override;
+
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
-protected:
-	// ** Variables **
-
 	UPROPERTY(EditAnywhere, Category = "Variables")
-	float ThrowHitStrength = 100;
+		float ThrowHitStrength = 100;
+	
+	// ********** Components **********
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables")
-	int DamageAmount = 1;
+public:
+
+	UDestructibleComponent* GetDestructibleComponent() const;
+protected:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UDestructibleComponent* DestructibleComponent;
+
+	// ********** Destroy/Fracture **********
+
+	UFUNCTION()
+		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
+	
+	// ********** Score **********
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+		int ScoreAmount = 1;
 
 };

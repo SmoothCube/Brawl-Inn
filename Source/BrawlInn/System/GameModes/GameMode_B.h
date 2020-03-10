@@ -8,7 +8,7 @@
 #include "GameMode_B.generated.h"
 
 class APlayerStart;
-class APlayerController_B;
+class AGamePlayerController_B;
 class APlayerCharacter_B;
 class ARespawnPawn_B;
 class UGameInstance_B;
@@ -16,7 +16,7 @@ class USoundCue;
 struct FPlayerInfo;
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, FPlayerInfo, bool, FTransform);
-DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, APlayerController_B*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, AGamePlayerController_B*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FRespawnCharacter, FPlayerInfo);
 DECLARE_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
 DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
@@ -32,7 +32,7 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
-	TArray<APlayerController*> PlayerControllers;
+	TArray<AGamePlayerController_B*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)
@@ -49,7 +49,7 @@ protected:
 public:
 
 	UFUNCTION()
-		virtual void UpdateViewTarget(APlayerController_B* PlayerController) {};
+		virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) {};
 
 	/// ** Delegates ** 
 		FSpawnCharacter SpawnCharacter_D;
@@ -68,7 +68,7 @@ public:
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
-		void DespawnCharacter(APlayerController_B* PlayerController);
+		void DespawnCharacter(AGamePlayerController_B* PlayerController);
 
 	UFUNCTION()
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
@@ -81,6 +81,7 @@ protected:
 	void CreatePlayerControllers();
 	void GetAllSpawnpointsInWorld();
 	FTransform GetRandomSpawnTransform();
+	FTransform GetSpawnTransform(const int PlayerControllerID);
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	USoundCue* Music;

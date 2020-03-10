@@ -3,21 +3,11 @@
 #include "PlayerController_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "TimerManager.h"
-#include "BrawlInn.h"
 
-#include "Characters/Player/PlayerCharacter_B.h"
-#include "Characters/Player/RespawnPawn_B.h"
-#include "Components/HoldComponent_B.h"
-#include "Components/HealthComponent_B.h"
-#include "Components/CharacterSelectionComponent_B.h"
-#include "Components/ThrowComponent_B.h"
-#include "System/GameModes/MainGameMode_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 
 APlayerController_B::APlayerController_B()
 {
-	HealthComponent = CreateDefaultSubobject<UHealthComponent_B>("Health Component");
 }
 
 void APlayerController_B::BeginPlay()
@@ -25,7 +15,6 @@ void APlayerController_B::BeginPlay()
 	Super::BeginPlay();
 	SetInputMode(FInputModeGameOnly());
 	bAutoManageActiveCameraTarget = false;
-	HealthComponent->RespawnIsZero_D.AddLambda([&]() { bCanRespawn = false; });
 }
 
 void APlayerController_B::SetupInputComponent()
@@ -34,44 +23,101 @@ void APlayerController_B::SetupInputComponent()
 
 	if (InputComponent != nullptr)
 	{
-		// Movement bindings
-		InputComponent->BindAxis("MoveUp", this, &APlayerController_B::MoveUp);
-		InputComponent->BindAxis("MoveRight", this, &APlayerController_B::MoveRight);
+		// DPad
+		InputComponent->BindAction("DPadUp", IE_Pressed, this, &APlayerController_B::DPadUpPressed);
+		InputComponent->BindAction("DPadUp", IE_Released, this, &APlayerController_B::DPadUpReleased);
+		InputComponent->BindAction("DPadUp", IE_Repeat, this, &APlayerController_B::DPadUpRepeat);
 
-		InputComponent->BindAction("Punch", IE_Pressed, this, &APlayerController_B::PunchButtonPressed);
-		InputComponent->BindAction("Punch", IE_Released, this, &APlayerController_B::PunchButtonReleased);
-		InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerController_B::PickupButtonPressed);
-		InputComponent->BindAction("Pickup", IE_Repeat, this, &APlayerController_B::PickupButtonRepeat);
-		InputComponent->BindAction("Select", IE_Pressed, this, &APlayerController_B::Select);
-		InputComponent->BindAction("SelectLeft", IE_Pressed, this, &APlayerController_B::SelectLeft);
-		InputComponent->BindAction("SelectRight", IE_Pressed, this, &APlayerController_B::SelectRight);
-		InputComponent->BindAction("Unselect", IE_Pressed, this, &APlayerController_B::Unselect);
+		InputComponent->BindAction("DPadRight", IE_Pressed, this, &APlayerController_B::DPadRightPressed);
+		InputComponent->BindAction("DPadRight", IE_Released, this, &APlayerController_B::DPadRightReleased);
+		InputComponent->BindAction("DPadRight", IE_Repeat, this, &APlayerController_B::DPadRightRepeat);
 
-		InputComponent->BindAction("Pause", IE_Pressed, this, &APlayerController_B::TryPauseGame);
-		InputComponent->BindAction("BreakFree", IE_Pressed, this, &APlayerController_B::BreakFreeButtonPressed);
+		InputComponent->BindAction("DPadDown", IE_Pressed, this, &APlayerController_B::DPadDownPressed);
+		InputComponent->BindAction("DPadDown", IE_Released, this, &APlayerController_B::DPadDownReleased);
+		InputComponent->BindAction("DPadDown", IE_Repeat, this, &APlayerController_B::DPadDownRepeat);
 
-		// Debug
-		InputComponent->BindAction("DEBUG_Spawn", IE_Pressed, this, &APlayerController_B::DEBUG_Spawn);
-		InputComponent->BindAction("DEBUG_Despawn", IE_Pressed, this, &APlayerController_B::DEBUG_Despawn);
-		InputComponent->BindAction("DEBUG_TEST01", IE_Pressed, this, &APlayerController_B::DEBUG_TEST01);
+		InputComponent->BindAction("DPadLeft", IE_Pressed, this, &APlayerController_B::DPadLeftPressed);
+		InputComponent->BindAction("DPadLeft", IE_Released, this, &APlayerController_B::DPadLeftReleased);
+		InputComponent->BindAction("DPadLeft", IE_Repeat, this, &APlayerController_B::DPadLeftRepeat);
+
+		// Face buttons
+		InputComponent->BindAction("FaceButtonTop", IE_Pressed, this, &APlayerController_B::FaceButtonTopPressed);
+		InputComponent->BindAction("FaceButtonTop", IE_Released, this, &APlayerController_B::FaceButtonTopReleased);
+		InputComponent->BindAction("FaceButtonTop", IE_Repeat, this, &APlayerController_B::FaceButtonTopRepeat);
+
+		InputComponent->BindAction("FaceButtonRight", IE_Pressed, this, &APlayerController_B::FaceButtonRightPressed);
+		InputComponent->BindAction("FaceButtonRight", IE_Released, this, &APlayerController_B::FaceButtonRightReleased);
+		InputComponent->BindAction("FaceButtonRight", IE_Repeat, this, &APlayerController_B::FaceButtonRightRepeat);
+
+		InputComponent->BindAction("FaceButtonBottom", IE_Pressed, this, &APlayerController_B::FaceButtonBottomPressed);
+		InputComponent->BindAction("FaceButtonBottom", IE_Released, this, &APlayerController_B::FaceButtonBottomReleased);
+		InputComponent->BindAction("FaceButtonBottom", IE_Repeat, this, &APlayerController_B::FaceButtonBottomRepeat);
+
+		InputComponent->BindAction("FaceButtonLeft", IE_Pressed, this, &APlayerController_B::FaceButtonLeftPressed);
+		InputComponent->BindAction("FaceButtonLeft", IE_Released, this, &APlayerController_B::FaceButtonLeftReleased);
+		InputComponent->BindAction("FaceButtonLeft", IE_Repeat, this, &APlayerController_B::FaceButtonLeftRepeat);
+
+		// Triggers/Shoulder
+		InputComponent->BindAction("LeftShoulder", IE_Pressed, this, &APlayerController_B::LeftShoulderPressed);
+		InputComponent->BindAction("LeftShoulder", IE_Released, this, &APlayerController_B::LeftShoulderReleased);
+		InputComponent->BindAction("LeftShoulder", IE_Repeat, this, &APlayerController_B::LeftShoulderRepeat);
+		
+		InputComponent->BindAction("LeftTrigger", IE_Pressed, this, &APlayerController_B::LeftTriggerPressed);
+		InputComponent->BindAction("LeftTrigger", IE_Released, this, &APlayerController_B::LeftTriggerReleased);
+		InputComponent->BindAction("LeftTrigger", IE_Repeat, this, &APlayerController_B::LeftTriggerRepeat);
+
+		InputComponent->BindAction("RightShoulder", IE_Pressed, this, &APlayerController_B::RightShoulderPressed);
+		InputComponent->BindAction("RightShoulder", IE_Released, this, &APlayerController_B::RightShoulderReleased);
+		InputComponent->BindAction("RightShoulder", IE_Repeat, this, &APlayerController_B::RightShoulderRepeat);
+
+		InputComponent->BindAction("RightTrigger", IE_Pressed, this, &APlayerController_B::RightTriggerPressed);
+		InputComponent->BindAction("RightTrigger", IE_Released, this, &APlayerController_B::RightTriggerReleased);
+		InputComponent->BindAction("RightTrigger", IE_Repeat, this, &APlayerController_B::RightTriggerRepeat);
+
+		// Special
+		InputComponent->BindAction("SpecialLeft", IE_Pressed, this, &APlayerController_B::SpecialLeftPressed);
+		InputComponent->BindAction("SpecialLeft", IE_Released, this, &APlayerController_B::SpecialLeftReleased);
+		InputComponent->BindAction("SpecialLeft", IE_Repeat, this, &APlayerController_B::SpecialLeftRepeat);
+
+		InputComponent->BindAction("SpecialRight", IE_Pressed, this, &APlayerController_B::SpecialRightPressed);
+		InputComponent->BindAction("SpecialRight", IE_Released, this, &APlayerController_B::SpecialRightReleased);
+		InputComponent->BindAction("SpecialRight", IE_Repeat, this, &APlayerController_B::SpecialRightRepeat);
+
+		// Sticks
+		InputComponent->BindAxis("LeftStickX", this, &APlayerController_B::LeftStickXAxis);
+		InputComponent->BindAxis("LeftStickY", this, &APlayerController_B::LeftStickYAxis);
+
+		InputComponent->BindAction("LeftStickRight", IE_Pressed, this, &APlayerController_B::LeftStickRightPressed);
+		InputComponent->BindAction("LeftStickRight", IE_Released, this, &APlayerController_B::LeftStickRightReleased);
+		InputComponent->BindAction("LeftStickRight", IE_Repeat, this, &APlayerController_B::LeftStickRightRepeat);
+
+		InputComponent->BindAction("LeftStickLeft", IE_Pressed, this, &APlayerController_B::LeftStickLeftPressed);
+		InputComponent->BindAction("LeftStickLeft", IE_Released, this, &APlayerController_B::LeftStickLeftReleased);
+		InputComponent->BindAction("LeftStickLeft", IE_Repeat, this, &APlayerController_B::LeftStickLeftRepeat);
+
+		
+		InputComponent->BindAxis("RightStickX", this, &APlayerController_B::RightStickXAxis);
+		InputComponent->BindAxis("RightStickY", this, &APlayerController_B::RightStickYAxis);
 	}
 }
 
-void APlayerController_B::TryPauseGame()
-{
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
 
-		GameMode->PauseGame(this);
-	}
-}
 
-bool APlayerController_B::HasValidCharacter()
+bool APlayerController_B::HasValidCharacter() const
 {
 	if (PlayerCharacter)
 		return true;
 	return false;
+}
+
+const FPlayerInfo& APlayerController_B::GetPlayerInfo() const
+{
+	return PlayerInfo;
+}
+
+void APlayerController_B::SetPlayerInfo(const FPlayerInfo& Info)
+{
+	PlayerInfo = Info;
 }
 
 void APlayerController_B::PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action)
@@ -81,143 +127,19 @@ void APlayerController_B::PlayControllerVibration(float Strength, float Duration
 
 }
 
-void APlayerController_B::FellOutOfWorld(const UDamageType& dmgType)
+APlayerCharacter_B* APlayerController_B::GetPlayerCharacter() const
 {
-
+	return PlayerCharacter;
 }
 
-void APlayerController_B::MoveUp(float Value)
+void APlayerController_B::SetPlayerCharacter(APlayerCharacter_B* CharacterIn)
 {
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->InputVector.X = Value;
-	}
-	else if (RespawnPawn)
-	{
-		RespawnPawn->InputVector.X = Value;
-	}
-}
-void APlayerController_B::MoveRight(float Value)
-{
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->InputVector.Y = Value;
-	}
-	else if (RespawnPawn)
-	{
-		RespawnPawn->InputVector.Y = Value;
-	}
+	PlayerCharacter = CharacterIn;
 }
 
-void APlayerController_B::Select()
-{
-	if (!PlayerCharacter)
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
-			GameMode->CharacterSelectionComponent->SelectCharacter(this);
-	}
-}
-
-void APlayerController_B::SelectLeft()
-{
-	if (!PlayerCharacter)
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode && GameMode->CharacterSelectionComponent)
-			GameMode->CharacterSelectionComponent->PreviousCharacter(this);
-	}
-}
-
-void APlayerController_B::SelectRight()
-{
-	if (!PlayerCharacter)
-	{
-		AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode && GameMode->CharacterSelectionComponent)
-			GameMode->CharacterSelectionComponent->NextCharacter(this);
-	}
-}
-
-
-void APlayerController_B::Unselect()
-{
-	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode && GameMode->CharacterSelectionComponent)
-		GameMode->CharacterSelectionComponent->Unselect(this);
-}
-
-void APlayerController_B::PickupButtonPressed()
-{
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->HoldComponent->TryPickup();
-	}
-}
-
-void APlayerController_B::PickupButtonRepeat()
-{
-	if (PlayerCharacter && PlayerCharacter->HoldComponent)
-		PlayerCharacter->HoldComponent->TryPickup();
-}
-
-void APlayerController_B::PunchButtonPressed()
-{
-	if (PlayerCharacter)
-	{
-		if (!PlayerCharacter->HoldComponent->IsHolding())
-			PlayerCharacter->TryPunch();
-		else
-			PlayerCharacter->ThrowComponent->TryThrow();
-	}
-	else if (RespawnPawn)
-	{
-		RespawnPawn->ThrowBarrel();
-	}
-}
-
-void APlayerController_B::PunchButtonReleased()
+void APlayerController_B::FellOutOfWorld(const UDamageType& DmgType)
 {
 
-	if (PlayerCharacter &&
-		PlayerCharacter->HoldComponent &&
-		PlayerCharacter->ThrowComponent &&
-		PlayerCharacter->HoldComponent->IsHolding())
-	{
-		PlayerCharacter->ThrowComponent->StartThrow();
-	}
-}
-
-void APlayerController_B::BreakFreeButtonPressed()
-{
-	if (!PlayerCharacter)
-		return;
-
-	if (PlayerCharacter->GetState() == EState::EBeingHeld)
-		PlayerCharacter->BreakFreeButtonMash();
-}
-
-void APlayerController_B::Respawn()
-{
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
-		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
-	}
-}
-
-void APlayerController_B::TryRespawn(float RespawnDelay)
-{
-	if (bCanRespawn)
-	{
-		GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &APlayerController_B::Respawn, RespawnDelay, false);
-	}
-	else
-	{
-		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (GameMode)
-			GameMode->DespawnCharacter_D.Broadcast(this);
-	}
 }
 
 void APlayerController_B::OnUnPossess()
@@ -226,31 +148,3 @@ void APlayerController_B::OnUnPossess()
 	PlayerCharacter = nullptr;
 }
 
-//Send in damage from 1-100
-void APlayerController_B::TakeDamage_Implementation(int DamageAmount)
-{
-	HealthComponent->TakeDamage(DamageAmount);
-}
-
-void APlayerController_B::DEBUG_TEST01()
-{
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-	{
-		GameMode->OnPlayerWin.Broadcast(this);
-	}
-}
-
-void APlayerController_B::DEBUG_Spawn()
-{
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
-}
-
-void APlayerController_B::DEBUG_Despawn()
-{
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->DespawnCharacter_D.Broadcast(this);
-}

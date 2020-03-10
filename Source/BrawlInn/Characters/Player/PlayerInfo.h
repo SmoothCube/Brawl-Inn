@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "System/Structs/CharacterVariants.h"
 #include "PlayerInfo.generated.h"
 
 UENUM(BlueprintType)
@@ -17,13 +18,13 @@ struct BRAWLINN_API FPlayerInfo
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int ID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EPlayerCharacterType Type = EPlayerCharacterType::YUGGO;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FLinearColor PlayerColor;
+	FCharacterVariants CharacterVariant;
 
 };

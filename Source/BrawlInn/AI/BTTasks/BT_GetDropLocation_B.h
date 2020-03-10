@@ -3,26 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "AI/BTTasks/BT_BaseTask_B.h"
+#include "Hazards/Bar_B.h"
 #include "BT_GetDropLocation_B.generated.h"
 
 class AItem_B;
-class ABar_B;
 
 UCLASS()
-class BRAWLINN_API UBT_GetDropLocation_B : public UBTTaskNode
+class BRAWLINN_API UBT_GetDropLocation_B : public UBT_BaseTask_B
 {
 	GENERATED_BODY()
 
 protected:
+
+	UBT_GetDropLocation_B();
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector DropActor;
+		FBlackboardKeySelector DropLocationActor;
+
+	UPROPERTY(EditAnywhere)
+		EBarDropLocationType Type = EBarDropLocationType::Stool;
 
 	UPROPERTY()
-	AItem_B* Item = nullptr;
+		AItem_B* Item = nullptr;
 
 	UPROPERTY()
-	ABar_B* Bar = nullptr;
+		ABar_B* Bar = nullptr;
 };
