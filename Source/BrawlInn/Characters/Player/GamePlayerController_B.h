@@ -7,7 +7,7 @@
 #include "GamePlayerController_B.generated.h"
 
 class ARespawnPawn_B;
-class UHealthWidget_B;
+class UColoredTextBlock_B;;
 
 UCLASS()
 class BRAWLINN_API AGamePlayerController_B : public APlayerController_B
@@ -77,11 +77,11 @@ protected:
 public:
 	void TryRespawn(const float ReSpawnDelay);
 
-	void SetHealthWidget(UHealthWidget_B* Widget);
+	void SetHealthWidget(UColoredTextBlock_B* Widget);
 protected:
 
 	UPROPERTY()
-		UHealthWidget_B* HealthWidget = nullptr;
+		UColoredTextBlock_B* ScoreTextBlock = nullptr;
 
 
 	// ********** EditorOnly **********
