@@ -37,6 +37,12 @@ void AUseable_B::BeginPlay()
 
 }
 
+void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);

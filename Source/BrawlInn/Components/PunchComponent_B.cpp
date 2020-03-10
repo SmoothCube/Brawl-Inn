@@ -35,6 +35,13 @@ void UPunchComponent_B::BeginPlay()
 	}
 }
 
+void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void UPunchComponent_B::PunchStart()
 {
 	BWarn("PunchStart");

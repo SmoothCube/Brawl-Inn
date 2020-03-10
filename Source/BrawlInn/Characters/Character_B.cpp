@@ -70,6 +70,13 @@ void ACharacter_B::BeginPlay()
 	//MakeInvulnerable(1.0f);
 }
 
+void ACharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void ACharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

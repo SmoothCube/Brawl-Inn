@@ -57,7 +57,7 @@ void AMainGameMode_B::BeginPlay()
 void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	GetWorld()->GetTimerManager().ClearTimer(TH_CountdownTimer);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void AMainGameMode_B::StartGame()

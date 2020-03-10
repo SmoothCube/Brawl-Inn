@@ -17,6 +17,8 @@ class BRAWLINN_API AGamePlayerController_B : public APlayerController_B
 protected:
 
 	void BeginPlay() override;
+
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	void OnPossess(APawn* InPawn) override;
 

@@ -36,6 +36,12 @@ void ARespawnPawn_B::BeginPlay()
 
 }
 
+void ARespawnPawn_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void ARespawnPawn_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);

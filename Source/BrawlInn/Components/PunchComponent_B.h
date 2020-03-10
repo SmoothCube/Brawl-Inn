@@ -29,6 +29,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	UPROPERTY()
 	ACharacter_B* OwningCharacter = nullptr;
 public:

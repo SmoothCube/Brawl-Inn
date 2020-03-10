@@ -38,6 +38,8 @@ void AThrowable_B::BeginPlay()
 void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	DestructibleComponent->OnComponentFracture.Clear();
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 

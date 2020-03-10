@@ -28,6 +28,13 @@ void AReadyTrigger_B::BeginPlay()
 	OnReadyOverlapChange.AddUObject(GameMode, &AMenuGameMode_B::UpdateNumberOfReadyPlayers);
 }
 
+void AReadyTrigger_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(OtherActor);

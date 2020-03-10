@@ -24,6 +24,13 @@ void AGamePlayerController_B::BeginPlay()
 
 }
 
+void AGamePlayerController_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void AGamePlayerController_B::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

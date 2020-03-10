@@ -28,6 +28,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;

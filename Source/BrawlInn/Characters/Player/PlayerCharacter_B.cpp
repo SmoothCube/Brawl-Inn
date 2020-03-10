@@ -61,6 +61,13 @@ void APlayerCharacter_B::BeginPlay()
 	}
 }
 
+void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
