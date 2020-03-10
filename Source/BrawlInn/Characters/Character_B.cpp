@@ -260,7 +260,7 @@ void ACharacter_B::Use_Implementation()
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
-	}, 0.3f, false);
+	}, TimeBeforeThrowCollision, false);
 
 	SetActorRotation(FRotator(0, 0, 0));
 }
@@ -360,7 +360,6 @@ void ACharacter_B::SetState(EState s)
 	switch (State)
 	{
 	case EState::EWalking:
-		BWarn("Setting state to walking");
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		break;
 	case EState::EHolding:
@@ -450,8 +449,6 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 
 EChargeLevel ACharacter_B::GetChargeLevel()
 {
-	BWarn("ChargeLevel: %d", (int)ChargeLevel);
-
 	return ChargeLevel;
 }
 

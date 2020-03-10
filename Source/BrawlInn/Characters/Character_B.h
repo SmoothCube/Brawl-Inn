@@ -113,8 +113,12 @@ protected:
 	UPROPERTY()
 	ACharacter_B* HoldingCharacter = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
+		float TimeBeforeThrowCollision = 0.3f;
+
 	bool bCanBeHeld = true;
 	FTimerHandle TH_FallCollisionTimer;
+
 	
 public:
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")

@@ -149,7 +149,6 @@ void APlayerCharacter_B::BreakFreeButtonMash()
 {
 	BreakFreeAnimationBlend += 0.1f;
 	CurrentHoldTime += HoldTimeDecreasePerButtonMash;
-	BWarn("Breaking Free!");
 	PlayerController->PlayControllerVibration(0.8f, 0.1f, true, true, true, true);
 }
 

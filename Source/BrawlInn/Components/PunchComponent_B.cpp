@@ -131,7 +131,7 @@ void UPunchComponent_B::Dash()
 			OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
 		},	
-		DashTime,
+		DashTime, 
 	false);
 
 }
@@ -140,7 +140,7 @@ void UPunchComponent_B::PunchEnd()
 {
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-
+	BWarn("PunchEnd!");
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
@@ -209,6 +209,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 
 		OwningCharacter->RemoveShield();
 		FVector PunchDirection = InPunchStrength.GetSafeNormal();
+
 		switch (PlayerThatPunched->GetChargeLevel())
 		{
 		case EChargeLevel::EChargeLevel1:
@@ -223,6 +224,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 			OwningCharacter->CheckFall(InPunchStrength);
 			return;
 		default:
+			BError("Character %s got hit with an invalid charge level from character %s", *GetNameSafe(OwningCharacter), *GetNameSafe(PlayerThatPunched));
 			break;
 		}
 
