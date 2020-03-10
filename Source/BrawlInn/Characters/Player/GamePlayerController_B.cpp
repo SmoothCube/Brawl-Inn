@@ -191,7 +191,7 @@ bool AGamePlayerController_B::TryPunch()
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->IsCharging())
 	{
-		PlayerCharacter->PunchComponent->bIsPunching = true;
+		//PlayerCharacter->PunchComponent->bIsPunching = true;
 		PlayerCharacter->SetIsCharging(false);
 		return true;
 	}
