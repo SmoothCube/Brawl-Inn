@@ -21,6 +21,12 @@ void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+}
+
+void AGamePlayerController_B::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (GameInstance)
 	{
@@ -28,11 +34,6 @@ void AGamePlayerController_B::BeginPlay()
 		if (ScoreTextBlock)
 			ScoreTextBlock->SetTextColor(PlayerInfo.CharacterVariant.TextColor);
 	}
-}
-
-void AGamePlayerController_B::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
 }
 
 void AGamePlayerController_B::DPadUpPressed()
