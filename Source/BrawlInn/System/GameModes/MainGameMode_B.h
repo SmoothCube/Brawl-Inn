@@ -27,6 +27,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	void StartGame();
 
 	void EndGame();

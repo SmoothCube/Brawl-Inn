@@ -51,6 +51,5 @@ void UPauseMenu_B::ContinueButtonClicked()
 
 void UPauseMenu_B::ExitButtonClicked()
 {
-	BScreen("Exit clicked");
 	UGameplayStatics::OpenLevel(GetWorld(), "MenuMap_v2");
 }
