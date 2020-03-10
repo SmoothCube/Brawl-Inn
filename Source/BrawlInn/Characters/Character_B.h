@@ -111,12 +111,16 @@ protected:
 	EState State = EState::EWalking;
 
 	UPROPERTY()
-		ACharacter_B* HoldingCharacter = nullptr;
+	ACharacter_B* HoldingCharacter = nullptr;
 
 	bool bCanBeHeld = true;
 	
-	// ********** Charge **********
 public:
+	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
+	FRotator HoldRotation = FRotator(0, 0, 0);
+
+
+	// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;
 	virtual void SetChargeLevel(EChargeLevel chargeLevel);

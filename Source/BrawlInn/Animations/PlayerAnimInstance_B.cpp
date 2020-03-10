@@ -32,6 +32,8 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 		bIsChargingPunch = Owner->IsCharging();
 	}
 
+	bIsBeingHeld = (Owner->GetState() == EState::EBeingHeld);
+
 	if (Owner->HoldComponent)
 		bIsHolding = Owner->HoldComponent->IsHolding();
 	if (Owner->ThrowComponent)

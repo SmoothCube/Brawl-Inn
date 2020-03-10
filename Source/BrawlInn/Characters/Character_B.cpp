@@ -224,7 +224,7 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetCharacterMovement()->StopActiveMovement();
 	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-	SetActorRotation(FRotator(-90, 0, 90));
+	SetActorRotation(HoldRotation);
 
 }
 

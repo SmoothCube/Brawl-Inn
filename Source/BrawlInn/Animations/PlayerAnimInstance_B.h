@@ -51,5 +51,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bHasFallen = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsBeingHeld = false;
 	
 };

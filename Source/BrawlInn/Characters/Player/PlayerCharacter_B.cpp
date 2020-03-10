@@ -68,6 +68,10 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 			BreakFree();
 	}
 
+	BreakFreeAnimationBlend -= 0.5 * DeltaTime;
+	if (BreakFreeAnimationBlend < 0.f)
+		BreakFreeAnimationBlend = 0.f;
+
 	//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
 	//BLog("Player %s, is  %i", *GetNameSafe(this), IsInvulnerable());
 	//BWarn("Capsule collision profile: %s for player: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString(), *GetNameSafe(this));
@@ -120,6 +124,7 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 			Volume
 		);
 	}
+
 }
 
 void APlayerCharacter_B::StandUp()
@@ -139,6 +144,7 @@ void APlayerCharacter_B::Dropped_Implementation()
 
 void APlayerCharacter_B::BreakFreeButtonMash()
 {
+	BreakFreeAnimationBlend += 0.1f;
 	CurrentHoldTime += HoldTimeDecreasePerButtonMash;
 	BWarn("Breaking Free!");
 	PlayerController->PlayControllerVibration(0.8f, 0.1f, true, true, true, true);

@@ -130,6 +130,14 @@ void UHoldComponent_B::Pickup(AActor* Item)
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), rules, HoldingSocketName);
 	HoldingItem = Item;
+	
+	ACharacter_B* Character= Cast<ACharacter_B>(Item);
+
+	if (Character)
+	{
+		Character->AddActorLocalOffset(FVector(0, 0, 75));
+		Character->SetActorRelativeRotation(Character->HoldRotation);
+	}
 }
 
 void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
