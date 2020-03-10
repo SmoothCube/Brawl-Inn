@@ -30,7 +30,11 @@ void AGamePlayerController_B::OnPossess(APawn* InPawn)
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (GameInstance)
 	{
-		PlayerInfo = GameInstance->GetPlayerInfo(UGameplayStatics::GetPlayerControllerID(this));
+		//If sjekken er true om playerinfo ikke er hentet fra menumap
+		if (PlayerInfo.CharacterVariant.bTaken == false)
+		{
+			PlayerInfo = GameInstance->GetPlayerInfo(UGameplayStatics::GetPlayerControllerID(this));
+		}
 		if (ScoreTextBlock)
 			ScoreTextBlock->SetTextColor(PlayerInfo.CharacterVariant.TextColor);
 	}

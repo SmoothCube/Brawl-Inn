@@ -79,7 +79,6 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	APlayerCharacter_B* Character = nullptr;
 	if (PlayerInfo.CharacterVariant.bTaken)
 	{
-		BScreen("bTaken!!");
 		Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), Params);
 		Character->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, PlayerInfo.CharacterVariant.MeshMaterial);
 		Character->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, PlayerInfo.CharacterVariant.IndicatorMaterial);

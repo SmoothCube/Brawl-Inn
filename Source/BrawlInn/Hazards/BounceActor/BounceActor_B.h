@@ -23,6 +23,8 @@ public:
 
 	void SpawnPlayerCharacter();
 
+	void SetupBarrel(APlayerController_B* Controller);
+
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;
 

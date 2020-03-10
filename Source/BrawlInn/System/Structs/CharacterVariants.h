@@ -5,6 +5,7 @@
 
 class UMaterialInterface;
 class UPaperSprite;
+class UTexture2D;
 
 USTRUCT(BlueprintType)
 struct FCharacterVariants
@@ -19,6 +20,9 @@ struct FCharacterVariants
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UMaterialInterface* IndicatorMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* BarrelTexture;
 
 	bool bTaken = false;
 
