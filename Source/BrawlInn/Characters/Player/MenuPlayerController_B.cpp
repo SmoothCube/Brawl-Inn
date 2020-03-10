@@ -67,6 +67,26 @@ void AMenuPlayerController_B::LeftStickLeftPressed()
 	SelectLeft();
 }
 
+void AMenuPlayerController_B::LeftShoulderPressed()
+{
+	SelectLeft();
+}
+
+void AMenuPlayerController_B::DPadLeftPressed()
+{
+	SelectLeft();
+}
+
+void AMenuPlayerController_B::DPadRightPressed()
+{
+	SelectRight();
+}
+
+void AMenuPlayerController_B::RightShoulderPressed()
+{
+	SelectRight();
+}
+
 void AMenuPlayerController_B::FaceButtonBottomPressed()
 {
 	TrySelect();
@@ -74,7 +94,7 @@ void AMenuPlayerController_B::FaceButtonBottomPressed()
 
 void AMenuPlayerController_B::FaceButtonRightPressed()
 {
-	Unselect();
+//	Unselect();
 }
 
 void AMenuPlayerController_B::TrySelect()

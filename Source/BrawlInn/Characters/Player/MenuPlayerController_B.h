@@ -37,6 +37,14 @@ protected:
 
 	void LeftStickLeftPressed() override;
 
+	void LeftShoulderPressed() override;
+
+	void DPadLeftPressed() override;
+
+	void DPadRightPressed() override;
+	
+	void RightShoulderPressed() override;
+
 	void FaceButtonBottomPressed() override;
 
 	void FaceButtonRightPressed() override;
