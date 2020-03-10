@@ -2,7 +2,8 @@
 
 
 #include "RespawnPawn_B.h"
-#include "Components/DecalComponent.h" 
+#include "Components/DecalComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -19,9 +20,13 @@ ARespawnPawn_B::ARespawnPawn_B()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
+	SetRootComponent(Sphere);
+	
 	Decal = CreateDefaultSubobject<UDecalComponent>("Decal");
 	Decal->AddLocalRotation(FRotator(90, 0, 0));
-	SetRootComponent(Decal);
+	Decal->SetupAttachment(Sphere);
 }
 
 // Called when the game starts or when spawned
@@ -54,7 +59,10 @@ void ARespawnPawn_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (!bBarrelIsThrown)
-		AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed);
+	{
+	//	AddMovementInput(InputVector, DeltaTime * MovementSpeed);
+		 AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed,true);
+	}
 }
 
 void ARespawnPawn_B::ThrowBarrel()

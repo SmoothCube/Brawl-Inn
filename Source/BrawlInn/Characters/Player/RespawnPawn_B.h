@@ -7,6 +7,8 @@
 #include "RespawnPawn_B.generated.h"
 
 class ABounceActor_B;
+class USphereComponent;
+
 UCLASS()
 class BRAWLINN_API ARespawnPawn_B : public APawn
 {
@@ -34,6 +36,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UDecalComponent* Decal;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USphereComponent* Sphere;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
 		float MovementSpeed = 1000;
