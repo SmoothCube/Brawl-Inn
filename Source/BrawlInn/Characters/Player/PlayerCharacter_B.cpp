@@ -14,10 +14,8 @@
 #include "System/DataTable_B.h"
 #include "System/Structs/ScoreLookupTable.h"
 #include "Characters/Player/GamePlayerController_B.h"
-#include "Components/HealthComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
-#include "UI/Game/HealthWidget_B.h"
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "System/DamageTypes/Fall_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
@@ -293,9 +291,6 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 	if (!PlayerController)
 		return;
 
-	PlayerInfo.ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
-
-	PlayerController->SetPlayerInfo(PlayerInfo);
 
 	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
 		{

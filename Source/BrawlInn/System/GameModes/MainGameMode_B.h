@@ -31,8 +31,6 @@ protected:
 
 	void EndGame();
 
-	void CheckIfPlayerWin();
-
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
@@ -45,8 +43,8 @@ public:
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
 
-	void AddCameraFocusPoint(AActor* FocusComponent);
-	void RemoveCameraFocusPoint(AActor* FocusComponent);
+	void AddCameraFocusPoint(AActor* FocusActor);
+	void RemoveCameraFocusPoint(AActor* FocusActor);
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")

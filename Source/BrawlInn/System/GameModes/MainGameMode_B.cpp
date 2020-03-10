@@ -19,7 +19,6 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	if (GameInstance && Birds)
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
@@ -49,7 +48,6 @@ void AMainGameMode_B::BeginPlay()
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 	StartGame();
 
-	DespawnCharacter_NOPARAM_D.AddUObject(this, &AMainGameMode_B::CheckIfPlayerWin);
 }
 
 void AMainGameMode_B::StartGame()
@@ -76,15 +74,6 @@ void AMainGameMode_B::EndGame()
 	VictoryScreen->AddToViewport();
 }
 
-void AMainGameMode_B::CheckIfPlayerWin() //TODO REMOVE
-{
-	if (GameInstance->GetPlayerInfos().Num() == 1)
-	{
-		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), GameInstance->GetPlayerInfos()[0].ID), BP_VictoryScreen);
-		VictoryScreen->AddToViewport();
-	}
-}
-
 void AMainGameMode_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -107,7 +96,7 @@ void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 	PlayerControllerThatPaused = ControllerThatPaused;
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
 	PauseMenuWidget->AddToViewport();
-	FInputModeUIOnly InputMode;
+	const FInputModeUIOnly InputMode;
 	ControllerThatPaused->SetInputMode(InputMode);
 	SetTickableWhenPaused(true);
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
@@ -118,7 +107,7 @@ void AMainGameMode_B::ResumeGame()
 	PauseMenuWidget->RemoveFromViewport();
 	if (PlayerControllerThatPaused)
 	{
-		FInputModeGameOnly InputMode;
+		const FInputModeGameOnly InputMode;
 		PlayerControllerThatPaused->SetInputMode(InputMode);
 	}
 	SetTickableWhenPaused(true);

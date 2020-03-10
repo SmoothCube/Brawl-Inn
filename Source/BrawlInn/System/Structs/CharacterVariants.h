@@ -20,4 +20,6 @@ struct FCharacterVariants
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UMaterialInterface* IndicatorMaterial;
 
+	bool bTaken = false;
+
 };

@@ -7,11 +7,9 @@
 #include "Camera/CameraActor.h"
 #include "LevelSequenceActor.h"
 #include "PaperSpriteComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
 
 #include "BrawlInn.h"
 #include "UI/Menus/CharacterSelection_B.h"
@@ -36,7 +34,9 @@ void AMenuGameMode_B::BeginPlay()
 	CharacterSelectionWidget = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelection);
 
 	for (auto Controller : PlayerControllers)
+	{
 		MenuPlayerControllers.Add(Cast<AMenuPlayerController_B>(Controller));
+	}
 
 	TArray<AActor*> TCharacters;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), APlayerCharacter_B::StaticClass(), FName("Selection"), TCharacters);
@@ -49,19 +49,16 @@ void AMenuGameMode_B::BeginPlay()
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		Characters.Add(PlayerCharacter);
 		PlayerCharacter->MakeInvulnerable(-1, false);
-
 	}
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
 		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
-	CharacterIsInLine.AddZeroed(Characters.Num());
 	CharacterStartTransforms.AddZeroed(Characters.Num());
 
 	for (int i = 0; i < Characters.Num(); i++)
 	{
-		CharacterIsInLine[i] = false;
 		CharacterStartTransforms[i] = Characters[i]->GetActorTransform();
 	}
 	// Find Character selection camera
@@ -72,17 +69,16 @@ void AMenuGameMode_B::BeginPlay()
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
 		auto SelectionPawn = MenuPlayerControllers[i]->GetSelectionPawn();
-		FVector Offset = SelectionArrowSpacing * (i);
+
 		if (SelectionIndicators.IsValidIndex(i))
 			SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[i]);
 		if (CharacterVariants.IsValidIndex(i))
 			SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[i].TextColor);
-		SelectionPawn->SetActorLocation(Characters[i]->GetActorLocation() + FirstSelectionArrowLocation);
+
+		SelectionPawn->SetActorLocation(Characters[i]->GetActorLocation() + SelectionIndicatorOffsetLocation);
 
 		MenuPlayerControllers[i]->SetCharacterVariantIndex(i);
 	}
-
-
 
 	LS_ToSelectionFinished(); // For å sette på mainmenu og sequencer kommenter denne linjen og uncomment de to linjene under.
 
@@ -112,7 +108,7 @@ void AMenuGameMode_B::ShowMainMenu()
 
 	MainMenuWidget->AddToViewport();
 
-	FInputModeUIOnly InputModeData;
+	const FInputModeUIOnly InputModeData;
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
 }
@@ -188,7 +184,7 @@ int AMenuGameMode_B::GetPlayersActive() const
 	return PlayersActive;
 }
 
-void AMenuGameMode_B::SetPlayersActive(int Value)
+void AMenuGameMode_B::SetPlayersActive(const int Value)
 {
 	PlayersActive = Value;
 }
@@ -198,20 +194,25 @@ int AMenuGameMode_B::GetPlayersReady() const
 	return PlayersReady;
 }
 
-void AMenuGameMode_B::SetPlayersReady(int Value)
+void AMenuGameMode_B::SetPlayersReady(const int Value)
 {
 	PlayersReady = Value;
 }
 
-void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index)
+void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
 {
 	PlayersActive++;
 	UpdateNumberOfActivePlayers();
 	UpdateNumberOfReadyPlayers();
-	if (CharacterIsInLine[Index] == false && Characters.IsValidIndex(Index))
+	if (Characters.IsValidIndex(Index))
 	{
-		CharacterIsInLine[Index] = true;
 		PlayerControllerThatSelected->GetSelectionPawn()->Destroy();
+		FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
+		FCharacterVariants& Variant = CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()];
+		Variant.bTaken = true;
+		Info.CharacterVariants = Variant;
+		Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+		PlayerControllerThatSelected->SetPlayerInfo(Info);
 		PlayerControllerThatSelected->Possess(Characters[UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected)]);
 	}
 	UpdateOtherSelections();
@@ -225,21 +226,36 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
 
-	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
-	CharacterIsInLine[ID] = false;
+	const int ControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+
 	Character->GetMovementComponent()->StopMovementImmediately();
-	Character->SetActorTransform(CharacterStartTransforms[ID]);
+	Character->SetActorTransform(CharacterStartTransforms[ControllerID]);
 
 	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
 		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
+	const int ID = PlayerControllerThatSelected->GetCharacterVariantIndex();
+	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
+	CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()].bTaken = false;
+	Info.CharacterVariants = FCharacterVariants();
+	PlayerControllerThatSelected->SetPlayerInfo(Info);
+
 	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ID]);
-	if (SelectionIndicators.IsValidIndex(ID))
-		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[ID]);
+	if (SelectionIndicators.IsValidIndex(ControllerID))
+		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[ControllerID]);
 	if (CharacterVariants.IsValidIndex(ID))
 		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[ID].TextColor);
+
 	PlayerControllerThatSelected->Possess(SelectionPawn);
+	SelectionPawn->SetActorLocation(Characters[ControllerID]->GetActorLocation() + SelectionIndicatorOffsetLocation);
+}
+
+void AMenuGameMode_B::UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* const SelectionPawn, const int ID)
+{
+	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].MeshMaterial);
+	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].IndicatorMaterial);
+	SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].TextColor);
 }
 
 void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
@@ -247,24 +263,15 @@ void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
-	while (CharacterIsInLine[PlayerController->GetCharacterVariantIndex()])
+
+	FCharacterVariants Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	while (Variant.bTaken == true)
+	{
 		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
+		Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	}
 
-	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].MeshMaterial);
-	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].IndicatorMaterial);
-	SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].TextColor);
-
-	
-	//const FVector Offset = SelectionArrowSpacing * (MenuPlayerControllers.Find(PlayerController));
-	//SelectionPawn->SetActorLocation(Characters[PlayerController->GetSelectedCharacterIndex()]->GetActorLocation() + FirstSelectionArrowLocation + Offset);
-}
-
-void AMenuGameMode_B::Hover(AMenuPlayerController_B* PlayerController, const int Index)
-{
-	auto SelectionPawn = PlayerController->GetSelectionPawn();
-	PlayerController->SetCharacterVariantIndex(Index); // Set the next index as current index.
-
-	SelectionPawn->SetActorLocation(Characters[UGameplayStatics::GetPlayerControllerID(PlayerController)]->GetActorLocation() + FirstSelectionArrowLocation);
+	UpdateCharacterVisuals(PlayerController, SelectionPawn, ID);
 }
 
 void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
@@ -272,12 +279,15 @@ void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	const int ID = UGameplayStatics::GetPlayerControllerID(PlayerController);
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num()); // Set the next index as current index.
-	while (CharacterIsInLine[PlayerController->GetCharacterVariantIndex()]) // Loop until you find a valid index and set that index to the current.
-		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num());
 
-	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].MeshMaterial);
-	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].IndicatorMaterial);
-	SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].TextColor);
+	FCharacterVariants Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	while (Variant.bTaken == true)
+	{
+		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num());
+		Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	}
+
+	UpdateCharacterVisuals(PlayerController, SelectionPawn, ID);
 }
 
 void AMenuGameMode_B::UpdateOtherSelections()
@@ -288,12 +298,13 @@ void AMenuGameMode_B::UpdateOtherSelections()
 		if (Controller->GetPlayerCharacter())
 			continue;
 
-		for (int i = 0; i < CharacterIsInLine.Num(); i++)
+		for (int i = 0; i < CharacterVariants.Num(); i++)
 		{
-			if (CharacterIsInLine[i] == true)
+			if (CharacterVariants[i].bTaken == true)
 			{
 				if (Controller->GetCharacterVariantIndex() == i)
 				{
+					BScreen("UPDATECOLOR");
 					HoverRight(Controller);
 				}
 			}
