@@ -20,5 +20,5 @@ void UCharacterSelection_B::UpdateNumberOfPlayersText(int Value)
 
 void UCharacterSelection_B::UpdateNumberOfPlayersReady(int Value)
 {
-	NumberOfPlayersReady->SetText(FText::FromString(FString("Ready: ") + FString::FormatAsNumber(Value)));
+	NumberOfPlayersReady->SetText(FText::FromString(FString::FormatAsNumber(Value)));
 }
