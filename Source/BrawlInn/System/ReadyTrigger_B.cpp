@@ -4,10 +4,12 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/LocalPlayer.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/MenuPlayerController_B.h"
+#include "SubSystems/ScoreSubSystem_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 
@@ -62,6 +64,12 @@ void AReadyTrigger_B::PrepareStartGame()
 	if (!IsValid(GameMode)) { BError("GameMode is not valid. Can't start game!"); return; }
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+
+	for(auto PlayerInfo : PlayerInfos)
+	{	
+		APlayerController* Controller = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID);
+		Controller->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
+	}
 
 	GameInstance->SetPlayerInfos(PlayerInfos);
 

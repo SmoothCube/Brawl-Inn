@@ -9,6 +9,7 @@
 #include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
+#include "System/DataTable_B.h"
 #include "Characters/Character_B.h"
 #include "System/GameInstance_B.h"
 
@@ -24,6 +25,14 @@ void UPunchComponent_B::BeginPlay()
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 
 	OnComponentBeginOverlap.AddDynamic(this, &UPunchComponent_B::OnOverlapBegin);
+
+	ScoreTable = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+	if (ScoreTable)
+	{
+		Level1ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel1ScoreValue")->Value;
+		Level2ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel2ScoreValue")->Value;
+		Level3ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel3ScoreValue")->Value;
+	}
 }
 
 void UPunchComponent_B::PunchStart()
@@ -91,7 +100,7 @@ void UPunchComponent_B::PunchDash()
 	OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->GetActorForwardVector() * PunchDashSpeed);
 
 }
-	
+
 void UPunchComponent_B::Dash()
 {
 	if (bIsDashing)
@@ -122,17 +131,17 @@ void UPunchComponent_B::Dash()
 			bIsDashing = false;
 		},
 		DashCooldown,
-		false);
+			false);
 
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_DashDoneHandle,
-		[&]() 
+		[&]()
 		{
 			OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
-		},	
+		},
 		DashTime,
-	false);
+			false);
 
 }
 
@@ -168,7 +177,7 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 	if (!OtherPlayer->bIsInvulnerable || !OtherPlayer->bHasShield)
 	{
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrength(), OwningCharacter);
-		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(OtherPlayer), OwningCharacter->GetController(), OwningCharacter, BP_DamageType);
+		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(), OwningCharacter->GetController(), OwningCharacter, BP_DamageType);
 
 		OwningCharacter->StunStrength = 1; // This ends the punch powerup after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
 		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
@@ -213,11 +222,11 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 		{
 		case EChargeLevel::EChargeLevel1:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
-			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection* PlayerThatPunched->PunchComponent->Level1PunchPushStrength);
+			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection * PlayerThatPunched->PunchComponent->Level1PunchPushStrength);
 			break;
 		case EChargeLevel::EChargeLevel2:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
-			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection* PlayerThatPunched->PunchComponent->Level2PunchPushStrength);
+			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection * PlayerThatPunched->PunchComponent->Level2PunchPushStrength);
 			break;
 		case EChargeLevel::EChargeLevel3:
 			OwningCharacter->CheckFall(InPunchStrength);
@@ -241,21 +250,30 @@ FVector UPunchComponent_B::CalculatePunchStrength()
 	{
 	case EChargeLevel::EChargeLevel1:
 		return OwningCharacter->GetActorForwardVector() * Level1PunchStrength;
-	case EChargeLevel::EChargeLevel2: 
+	case EChargeLevel::EChargeLevel2:
 		return OwningCharacter->GetActorForwardVector() * Level2PunchStrength;
-	case EChargeLevel::EChargeLevel3: 
+	case EChargeLevel::EChargeLevel3:
 		return OwningCharacter->GetActorForwardVector() * Level3PunchStrength;
 	default:
 		return FVector::ZeroVector;
 	}
 }
 
-float UPunchComponent_B::CalculatePunchDamage(ACharacter_B* OtherPlayer)
+int UPunchComponent_B::CalculatePunchDamage() const
 {
-	float f = VelocityBeforeDash.Size() / (OwningCharacter->GetCharacterMovement()->MaxWalkSpeed * OtherPlayer->FallLimitMultiplier);
-	f = FMath::Clamp(f, 0.f, 1.f);
-	float TotalDamage = 5 + (30 * (f));
-	return TotalDamage;
+	if (!OwningCharacter) { BError("No OwningCharactersss found for PunchComponent %s!", *GetNameSafe(this)); return 0; }
+
+	switch (OwningCharacter->ChargeLevel)
+	{
+	case EChargeLevel::EChargeLevel1:
+		return Level1ScoreValue;
+	case EChargeLevel::EChargeLevel2:
+		return Level2ScoreValue;
+	case EChargeLevel::EChargeLevel3:
+		return Level3ScoreValue;
+	default:
+		return Level1ScoreValue;
+	}
 }
 
 bool UPunchComponent_B::GetIsPunching()
@@ -283,7 +301,7 @@ void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	{
 		if (IsValid(OtherPlayer))
 		{
-			if(IsValid(Capsule))
+			if (IsValid(Capsule))
 				PunchHit(OtherPlayer);
 		}
 		else

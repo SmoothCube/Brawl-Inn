@@ -2,6 +2,8 @@
 
 #include "ScoreSubSystem_B.h"
 
+#include "BrawlInn.h"
+
 void UScoreSubSystem_B::Initialize(FSubsystemCollectionBase& Collection)
 {
 }
@@ -10,7 +12,7 @@ void UScoreSubSystem_B::Deinitialize()
 {
 }
 
-void UScoreSubSystem_B::AddScore(float Score)
+void UScoreSubSystem_B::AddScore(int Score)
 {
 	ScoreValues.Score += Score;
 	OnScoreValuesChanged.Broadcast(ScoreValues);

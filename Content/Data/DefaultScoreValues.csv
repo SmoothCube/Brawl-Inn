@@ -1,5 +1,8 @@
 ﻿,Value,Comment
-Fall,20,Hei
-FellOutOfWorld,100,Dette er en kommentar
-Throwable,25,
-Barrel,50,
+Fall,20,
+FellOutOfWorld,100,Er negativ hvis man falt ut selv
+Throwable,50,
+Barrel,25,Dette er per spiller man treffer
+PunchLevel1ScoreValue,10,Level1/2/3 er basert på hvilken charge level punchen har
+PunchLevel2ScoreValue,20,Level1/2/3 er basert på hvilken charge level punchen har
+PunchLevel3ScoreValue,30,Level1/2/3 er basert på hvilken charge level punchen har

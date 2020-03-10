@@ -21,7 +21,7 @@ private:
 	virtual void Deinitialize() override;
 
 public:
-	void AddScore(float Score);
+	void AddScore(int Score);
 	
 	void ResetScoreValues();
 	

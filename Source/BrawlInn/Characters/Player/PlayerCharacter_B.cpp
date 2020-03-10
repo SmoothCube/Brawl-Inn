@@ -87,8 +87,8 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
 		HoldComponent->Drop();
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 	Die();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, nullptr, this, UOutOfWorld_DamageType_B::StaticClass());
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -178,6 +178,10 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
+		return 0;
+	
+	BLog("%s Taking Damage. Causer: %s", *GetNameSafe(PlayerController), *GetNameSafe(EventInstigator));
 	if (GameInstance)
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
@@ -189,9 +193,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (EventInstigator == PlayerController)
 		return Super::TakeDamage(DamageAmount,DamageEvent,EventInstigator, DamageCauser);
 	
-	if (IsInvulnerable())
-		return 0;
-	
+
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		if (LastHitBy) // Hit by someone before falling out of the world!
@@ -207,14 +209,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
 		}
 	}
-	else if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
-	{
-		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
-		if (OtherPlayerController)
-		{
-			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
-		}
-	}
 	else
 	{
 		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
@@ -226,8 +220,8 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
 	SetLastHitBy(EventInstigator);
+
 	return DamageAmount;
 }
 
