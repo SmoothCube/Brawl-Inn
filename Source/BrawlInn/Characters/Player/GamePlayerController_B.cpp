@@ -38,6 +38,8 @@ void AGamePlayerController_B::OnPossess(APawn* InPawn)
 		if (ScoreTextBlock)
 			ScoreTextBlock->SetTextColor(PlayerInfo.CharacterVariant.TextColor);
 	}
+	GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
+
 }
 
 void AGamePlayerController_B::DPadUpPressed()
