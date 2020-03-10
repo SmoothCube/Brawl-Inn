@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "RespawnPawn_B.h"
 #include "Components/DecalComponent.h"
 #include "Components/SphereComponent.h"
@@ -77,7 +76,7 @@ void ARespawnPawn_B::ThrowBarrel()
 		//Barrel now spawns the player...
 		if (Barrel)
 		{
-			Barrel->PlayerController = Cast<APlayerController_B>(GetController());
+			Barrel->SetupBarrel(Cast<APlayerController_B>(GetController()));
 			AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 			if (GameMode)
 			{

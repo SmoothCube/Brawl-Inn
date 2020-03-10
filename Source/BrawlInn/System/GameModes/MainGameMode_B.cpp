@@ -54,14 +54,23 @@ void AMainGameMode_B::BeginPlay()
 
 }
 
+void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	GetWorld()->GetTimerManager().ClearTimer(TH_CountdownTimer);
+}
+
 void AMainGameMode_B::StartGame()
 {
 	if (GameInstance->GameIsScoreBased())
 	{
 		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, [&]() {
-			Overlay->UpdateTimerText(--TimeRemaining);
-			if (TimeRemaining < 0)
-				OnGameOver.Broadcast();
+			if (Overlay)
+			{
+				Overlay->UpdateTimerText(--TimeRemaining);
+				if (TimeRemaining < 0)
+					OnGameOver.Broadcast();
+			}
 			}, 1.f, true);
 	}
 }

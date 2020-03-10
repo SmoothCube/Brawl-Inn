@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
@@ -62,4 +63,19 @@ void ABounceActor_B::SpawnPlayerCharacter()
 			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
 		}
 	}
+}
+
+void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
+{
+	PlayerController = Controller;
+
+	UMaterialInstanceDynamic* MeshMaterial = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
+
+	MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
+
+	DestructibleComponent->SetMaterial(0, MeshMaterial);
+	DestructibleComponent->SetMaterial(1, MeshMaterial);
+
+	Mesh->SetMaterial(0, MeshMaterial);
+	
 }

@@ -304,7 +304,6 @@ void AMenuGameMode_B::UpdateOtherSelections()
 			{
 				if (Controller->GetCharacterVariantIndex() == i)
 				{
-					BScreen("UPDATECOLOR");
 					HoverRight(Controller);
 				}
 			}
