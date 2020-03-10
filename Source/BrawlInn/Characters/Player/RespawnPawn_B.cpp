@@ -42,7 +42,7 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(Decal->GetMaterial(0), this);
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(NewController);
 		if (PlayerController)
-			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->GetPlayerInfo().PlayerColor);
+			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
 		else
 			BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		Decal->SetMaterial(0, MI_ColoredDecal);

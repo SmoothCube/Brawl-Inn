@@ -24,10 +24,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EPlayerCharacterType Type = EPlayerCharacterType::YUGGO;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DeprecatedProperty, DeprecationMessage = "Use CharacterVariants instead."))
-		FLinearColor PlayerColor;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FCharacterVariants CharacterVariants;
+	FCharacterVariants CharacterVariant;
 
 };

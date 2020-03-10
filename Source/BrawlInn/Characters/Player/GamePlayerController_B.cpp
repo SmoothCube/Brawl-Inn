@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "GamePlayerController_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
@@ -15,8 +14,20 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
+#include "System/GameInstance_B.h"
 #include "UI/Game/HealthWidget_B.h"
 
+
+void AGamePlayerController_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if(GameInstance)
+	{
+		PlayerInfo = GameInstance->GetPlayerInfo(UGameplayStatics::GetPlayerControllerID(this));
+	}
+}
 
 void AGamePlayerController_B::OnPossess(APawn* InPawn)
 {

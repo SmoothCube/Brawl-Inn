@@ -46,6 +46,10 @@ void AMainGameMode_B::BeginPlay()
 
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
+
+	for (auto Controller : PlayerControllers)
+		UpdateViewTarget(Controller);
+
 	StartGame();
 
 }

@@ -16,6 +16,8 @@ class BRAWLINN_API AGamePlayerController_B : public APlayerController_B
 
 protected:
 
+	void BeginPlay() override;
+	
 	void OnPossess(APawn* InPawn) override;
 
 	void DPadUpPressed() override;
