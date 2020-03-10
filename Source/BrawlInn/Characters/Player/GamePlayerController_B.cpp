@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "GamePlayerController_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
@@ -15,14 +14,26 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
-#include "UI/Game/HealthWidget_B.h"
+#include "System/GameInstance_B.h"
+#include "UI/UIElements/ColoredTextBlock_B.h"
 
+void AGamePlayerController_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+
+}
 
 void AGamePlayerController_B::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (Cast<APlayerCharacter_B>(InPawn) && HealthWidget)
-		HealthWidget->PostInitialize(Cast<APlayerCharacter_B>(InPawn));
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if (GameInstance)
+	{
+		PlayerInfo = GameInstance->GetPlayerInfo(UGameplayStatics::GetPlayerControllerID(this));
+		if (ScoreTextBlock)
+			ScoreTextBlock->SetTextColor(PlayerInfo.CharacterVariant.TextColor);
+	}
 }
 
 void AGamePlayerController_B::DPadUpPressed()
@@ -230,13 +241,13 @@ void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
 		GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &AGamePlayerController_B::Respawn, ReSpawnDelay, false);
 }
 
-void AGamePlayerController_B::SetHealthWidget(UHealthWidget_B* Widget)
+void AGamePlayerController_B::SetHealthWidget(UColoredTextBlock_B* Widget)
 {
-	HealthWidget = Widget;
+	ScoreTextBlock = Widget;
 	UScoreSubSystem_B* ScoreSubSystem = GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
 	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(Widget))
 	{
-		ScoreSubSystem->OnScoreValuesChanged.AddUObject(Widget, &UHealthWidget_B::UpdateScoreValues);
+		ScoreSubSystem->OnScoreValuesChanged.AddUObject(Widget, &UColoredTextBlock_B::UpdateScore);
 	}
 }
 

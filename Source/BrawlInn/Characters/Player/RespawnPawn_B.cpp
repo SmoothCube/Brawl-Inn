@@ -2,7 +2,8 @@
 
 
 #include "RespawnPawn_B.h"
-#include "Components/DecalComponent.h" 
+#include "Components/DecalComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -19,9 +20,13 @@ ARespawnPawn_B::ARespawnPawn_B()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
+	SetRootComponent(Sphere);
+	
 	Decal = CreateDefaultSubobject<UDecalComponent>("Decal");
 	Decal->AddLocalRotation(FRotator(90, 0, 0));
-	SetRootComponent(Decal);
+	Decal->SetupAttachment(Sphere);
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +47,7 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(Decal->GetMaterial(0), this);
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(NewController);
 		if (PlayerController)
-			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->GetPlayerInfo().PlayerColor);
+			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
 		else
 			BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		Decal->SetMaterial(0, MI_ColoredDecal);
@@ -54,7 +59,10 @@ void ARespawnPawn_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (!bBarrelIsThrown)
-		AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed);
+	{
+	//	AddMovementInput(InputVector, DeltaTime * MovementSpeed);
+		 AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed,true);
+	}
 }
 
 void ARespawnPawn_B::ThrowBarrel()

@@ -210,7 +210,7 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 		FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
 		FCharacterVariants& Variant = CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()];
 		Variant.bTaken = true;
-		Info.CharacterVariants = Variant;
+		Info.CharacterVariant = Variant;
 		Info.ID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
 		PlayerControllerThatSelected->SetPlayerInfo(Info);
 		PlayerControllerThatSelected->Possess(Characters[UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected)]);
@@ -238,7 +238,7 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	const int ID = PlayerControllerThatSelected->GetCharacterVariantIndex();
 	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
 	CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()].bTaken = false;
-	Info.CharacterVariants = FCharacterVariants();
+	Info.CharacterVariant = FCharacterVariants();
 	PlayerControllerThatSelected->SetPlayerInfo(Info);
 
 	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ID]);

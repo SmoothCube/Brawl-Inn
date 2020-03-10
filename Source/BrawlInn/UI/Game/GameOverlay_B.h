@@ -6,8 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "GameOverlay_B.generated.h"
 
-class UHealthWidget_B;
 class UGameInstance_B;
+class UColoredTextBlock_B;
 class UTextBlock;
 
 UCLASS()
@@ -20,28 +20,20 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 	UPROPERTY(meta = (BindWidget))
-		UHealthWidget_B* Player0;
+		UColoredTextBlock_B* P1;
 
 	UPROPERTY(meta = (BindWidget))
-		UHealthWidget_B* Player1;
+		UColoredTextBlock_B* P2;
 
 	UPROPERTY(meta = (BindWidget))
-		UHealthWidget_B* Player2;
+		UColoredTextBlock_B* P3;
 
 	UPROPERTY(meta = (BindWidget))
-		UHealthWidget_B* Player3;
-
-	UPROPERTY()
-		TArray<UHealthWidget_B*> HealthWidgets;
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UHealthWidget_B> BP_HealthWidget;
+		UColoredTextBlock_B* P4;
 
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
 
-	UFUNCTION()
-		void ChangeHealthWidgetVisibility();
 
 	// ********** Timer **********
 public:

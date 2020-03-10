@@ -1,20 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BounceActor_B.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
-#include "DrawDebugHelpers.h"
-#include "NiagaraComponent.h"
-#include "DestructibleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "DestructibleComponent.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
 
 #include "BrawlInn.h"
-#include "Hazards/BounceActor/BarrelTargetPoint_B.h"
-#include "System/GameModes/GameMode_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "System/DataTable_B.h"
+#include "System/GameModes/GameMode_B.h"
 
 
 ABounceActor_B::ABounceActor_B()
@@ -27,16 +25,14 @@ void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
 	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Barrel")->Value;
-
 }
 
 // Old Explode
 void ABounceActor_B::OnItemFracture()
 {
 	Super::OnItemFracture();
+	
 	if (PlayerController)
-		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController);
-	else
 		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController);
 	
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
@@ -50,21 +46,13 @@ void ABounceActor_B::OnItemFracture()
 		}
 	}
 
-	if (Target)
-	{
-		Target->SetActorHiddenInGame(true);
-		if (bShouldDestroyTarget)
-		{
-			if (Target->Destroy())	//this doesnt work for some reason :c
-				BWarn("Destroyed");
-		}
-	}
-
 	SpawnPlayerCharacter();
 }
 
 void ABounceActor_B::SpawnPlayerCharacter()
 {
+	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0,0,-1),1000);
+	
 	//Respawns player. Kinda hates having this here.
 	if (PlayerController)
 	{

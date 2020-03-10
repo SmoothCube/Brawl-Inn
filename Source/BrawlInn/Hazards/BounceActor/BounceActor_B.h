@@ -3,15 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "Items/Throwable_B.h"
 #include "BounceActor_B.generated.h"
 
-class UStaticMeshComponent;
-class UProjectileMovementComponent;
-class ABarrelTargetPoint_B;
 class APlayerController_B;
-class UNiagaraComponent;
+
 UCLASS()
 class BRAWLINN_API ABounceActor_B : public AThrowable_B
 {
@@ -41,8 +37,7 @@ public:
 
 	FTimerHandle TH_ExplodeTimer;
 
-	ABarrelTargetPoint_B* Target = nullptr;
-
+	UPROPERTY()
 	APlayerController_B* PlayerController = nullptr;
 
 	bool bShouldDestroyTarget = false;

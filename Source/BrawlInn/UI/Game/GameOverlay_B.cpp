@@ -7,69 +7,46 @@
 #include "BrawlInn.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/GameInstance_B.h"
-#include "UI/Game/HealthWidget_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
-#include "Components/HealthComponent_B.h"
+#include "UI/UIElements/ColoredTextBlock_B.h"
 
 void UGameOverlay_B::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	HealthWidgets.Add(Player0);
-	HealthWidgets.Add(Player1);
-	HealthWidgets.Add(Player2);
-	HealthWidgets.Add(Player3);
+	TArray<UColoredTextBlock_B*> TextBlocks;
+
+	TextBlocks.Add(P1);
+	TextBlocks.Add(P2);
+	TextBlocks.Add(P3);
+	TextBlocks.Add(P4);
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (GameInstance)
-		GameInstance->OnPlayerInfoChanged.AddUObject(this, &UGameOverlay_B::ChangeHealthWidgetVisibility);
-
-	/// Setup Icons and connect the health widgets to playercontrollers
-	TArray<ULocalPlayer*> Players = GameInstance->GetLocalPlayers();
-	for (ULocalPlayer* PlayerID : Players)
 	{
-		HealthWidgets[PlayerID->GetControllerId()]->SetVisibility(ESlateVisibility::Visible);
-		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID->GetControllerId()));
-		if (PlayerController)
+		TArray<ULocalPlayer*> Players = GameInstance->GetLocalPlayers();
+		for (ULocalPlayer* PlayerID : Players)
 		{
-			HealthWidgets[PlayerID->GetControllerId()]->SetOwningPlayer(PlayerController);
-			PlayerController->SetHealthWidget(HealthWidgets[PlayerID->GetControllerId()]);
-		}
-	}
-
-	if (!GameInstance->GameIsScoreBased())
-		TimeText->RemoveFromParent();
-
-	ChangeHealthWidgetVisibility();
-}
-
-void UGameOverlay_B::ChangeHealthWidgetVisibility()
-{
-	if (GameInstance)
-	{
-		for (auto& HealthWidget : HealthWidgets)
-			HealthWidget->SetVisibility(ESlateVisibility::Hidden);
-
-		TArray<FPlayerInfo> Players = GameInstance->GetPlayerInfos();
-		for (FPlayerInfo Info : Players)
-		{
-			if (HealthWidgets.IsValidIndex(Info.ID))
-				HealthWidgets[Info.ID]->SetVisibility(ESlateVisibility::Visible);
+			AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerID->GetControllerId()));
+			if (PlayerController)
+			{
+				PlayerController->SetHealthWidget(TextBlocks[PlayerID->GetControllerId()]);
+			}
 		}
 	}
 }
 
-void UGameOverlay_B::UpdateTimerText(int TimeRemaining)
+void UGameOverlay_B::UpdateTimerText(const int TimeRemaining)
 {
 	if (TimeRemaining < 0 || !IsValid(TimeText))
 		return;
 
-	int Minutes = TimeRemaining / 60;
-	int Seconds = TimeRemaining - 60 * Minutes;
+	const int Minutes = TimeRemaining / 60;
+	const int Seconds = TimeRemaining - 60 * Minutes;
 
 	FNumberFormattingOptions Options;
 	Options.MinimumIntegralDigits = 2;
 
-	FText Display = FText::Join(FText::FromString(":"), FText::AsNumber(Minutes, &Options), FText::AsNumber(Seconds, &Options));
+	const FText Display = FText::Join(FText::FromString(":"), FText::AsNumber(Minutes, &Options), FText::AsNumber(Seconds, &Options));
 	TimeText->SetText(Display);
 }

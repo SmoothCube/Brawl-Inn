@@ -52,6 +52,17 @@ TArray<FPlayerInfo> UGameInstance_B::GetPlayerInfos() const
 	return ActivePlayerInfos;
 }
 
+FPlayerInfo UGameInstance_B::GetPlayerInfo(const int ID) const
+{
+	const auto t = ActivePlayerInfos.FindByPredicate([&](const FPlayerInfo& PlayerInfo) {
+		return PlayerInfo.ID == ID;
+		});
+	if (t)
+		return *t;
+
+	return FPlayerInfo();
+}
+
 void UGameInstance_B::SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos)
 {
 	ActivePlayerInfos = NewPlayerInfos;

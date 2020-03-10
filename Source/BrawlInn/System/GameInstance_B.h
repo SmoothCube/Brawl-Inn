@@ -55,6 +55,8 @@ public:
 
 	TArray<FPlayerInfo> GetPlayerInfos() const;
 
+	FPlayerInfo GetPlayerInfo(int ID) const;
+
 	void SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos);
 
 	FPlayerInfoChanged OnPlayerInfoChanged;
