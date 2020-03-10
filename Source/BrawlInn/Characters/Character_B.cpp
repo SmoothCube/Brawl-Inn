@@ -206,7 +206,7 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 
 	HoldingCharacter = Player;
-	SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 500));
+	SetActorLocation(GetActorLocation() + HoldOffset);
 	SetActorLocation(FindMeshGroundLocation());
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
@@ -240,12 +240,12 @@ void ACharacter_B::Dropped_Implementation()
 
 void ACharacter_B::Use_Implementation()
 {
+	FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
+	//AddActorLocalOffset(TargetLocation * 250);
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-	GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
 	if (IsValid(HoldingCharacter) && IsValid(HoldingCharacter->ThrowComponent))
 	{
-		FVector TargetLocation = HoldingCharacter->GetActorForwardVector();
 		HoldingCharacter->ThrowComponent->AimAssist(TargetLocation);
 		float ImpulseStrength = 0.f;
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
@@ -256,6 +256,11 @@ void ACharacter_B::Use_Implementation()
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
 	}
 	HoldingCharacter = nullptr;
+	
+	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
+	}, 0.3f, false);
 
 	SetActorRotation(FRotator(0, 0, 0));
 }
@@ -366,6 +371,7 @@ void ACharacter_B::SetState(EState s)
 
 EState ACharacter_B::GetState() const
 {
+
 	return State;
 }
 
@@ -444,6 +450,8 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 
 EChargeLevel ACharacter_B::GetChargeLevel()
 {
+	BWarn("ChargeLevel: %d", (int)ChargeLevel);
+
 	return ChargeLevel;
 }
 
@@ -455,36 +463,6 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	float SoundPitch = 1.0f;
 	bool ShouldPlayVibration = true;
 	float VibrationStrength = 1.0f;
-
-	switch (ChargeLevel)
-	{
-	case EChargeLevel::EChargeLevel1:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge1RotSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
-		//OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
-		ShouldPlaySound = false;
-		break;
-	case EChargeLevel::EChargeLevel2:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge2RotSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
-		//OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
-		SoundPitch = 1.0f;
-		BWarn("Charge 2!");
-		break;
-	case EChargeLevel::EChargeLevel3:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->Charge3RotSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
-		//OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
-		SoundPitch = 1.2f;
-		BWarn("Charge 3!");
-		break;
-
-	default:
-		//OwningCharacter->RotationInterpSpeed = OwningCharacter->NormalRotationInterpSpeed;
-		//OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
-		ShouldPlaySound = false;
-		break;
-	}
 
 	switch (ChargeLevel)
 	{

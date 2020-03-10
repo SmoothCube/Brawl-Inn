@@ -41,10 +41,10 @@ protected:
 		USphereComponent* Sphere;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
-		float MovementSpeed = 1000;
+		float MovementSpeed = 2250.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
-		float TimeUntilThrow = 10.f;
+		float TimeUntilThrow = 4.f;
 
 	UPROPERTY()
 		ABounceActor_B* Barrel = nullptr;

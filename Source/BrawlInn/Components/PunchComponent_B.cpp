@@ -76,7 +76,7 @@ void UPunchComponent_B::PunchDash()
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
 	float PunchDashSpeed = 0.f;
-	switch (OwningCharacter->ChargeLevel)
+	switch (OwningCharacter->GetChargeLevel())
 	{
 	case EChargeLevel::EChargeLevel1: PunchDashSpeed = Charge1PunchDashSpeed;
 		break;
@@ -209,7 +209,7 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 
 		OwningCharacter->RemoveShield();
 		FVector PunchDirection = InPunchStrength.GetSafeNormal();
-		switch (PlayerThatPunched->ChargeLevel)
+		switch (PlayerThatPunched->GetChargeLevel())
 		{
 		case EChargeLevel::EChargeLevel1:
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
@@ -237,7 +237,7 @@ FVector UPunchComponent_B::CalculatePunchStrength()
 {
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return FVector(); }
 
-	switch (OwningCharacter->ChargeLevel)
+	switch (OwningCharacter->GetChargeLevel())
 	{
 	case EChargeLevel::EChargeLevel1:
 		return OwningCharacter->GetActorForwardVector() * Level1PunchStrength;

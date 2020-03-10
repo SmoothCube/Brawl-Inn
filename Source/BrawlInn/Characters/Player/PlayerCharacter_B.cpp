@@ -37,10 +37,13 @@ APlayerCharacter_B::APlayerCharacter_B()
 	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
+	GetCapsuleComponent()->SetCapsuleRadius(75.f);
 	
-	Charge1ThrowStrength = 200000.f;
-	Charge2ThrowStrength = 500000.f;
-	Charge3ThrowStrength = 1000000.f;
+	Charge1ThrowStrength = 400000.f;
+	Charge2ThrowStrength = 1000000.f;
+	Charge3ThrowStrength = 2000000.f;
+
+	HoldOffset = FVector(0, 0, 500);
 }
 
 void APlayerCharacter_B::BeginPlay()

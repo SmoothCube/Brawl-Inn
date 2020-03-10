@@ -114,10 +114,12 @@ protected:
 	ACharacter_B* HoldingCharacter = nullptr;
 
 	bool bCanBeHeld = true;
+	FTimerHandle TH_FallCollisionTimer;
 	
 public:
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
 	FRotator HoldRotation = FRotator(0, 0, 0);
+	FVector HoldOffset = FVector(0, 0, 0);
 
 
 	// ********** Charge **********
@@ -129,7 +131,7 @@ public:
 
 protected:	
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge1ThrowStrength = 100000.f;
+	float Charge1ThrowStrength = 200000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
 	float Charge2ThrowStrength = 250000.f;
