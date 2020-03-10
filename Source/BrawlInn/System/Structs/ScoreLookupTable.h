@@ -5,13 +5,10 @@
 #include "ScoreLookupTable.generated.h"
 
 USTRUCT(BlueprintType)
-struct FScoreLookupTable : public FTableRowBase
+struct FScoreTable : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
-	int32 Value;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
-		int32 Player;
+	int Value;
 };

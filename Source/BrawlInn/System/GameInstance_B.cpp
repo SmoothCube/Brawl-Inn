@@ -8,26 +8,6 @@
 void UGameInstance_B::Init()
 {
 	Super::Init();
-
-	FPlayerInfo Info;
-	Info.ID = 0;
-	Info.Type = EPlayerCharacterType::YUGGO;
-	AddPlayerInfo(Info);
-
-	FPlayerInfo Info2;
-	Info2.ID = 1;
-	Info2.Type = EPlayerCharacterType::LEADJAW;
-	AddPlayerInfo(Info2);
-
-	FPlayerInfo Info3;
-	Info3.ID = 2;
-	Info3.Type = EPlayerCharacterType::SWIFTBOOT;
-	AddPlayerInfo(Info3);
-
-	FPlayerInfo Info4;
-	Info4.ID = 3;
-	Info4.Type = EPlayerCharacterType::DAGGER;
-	AddPlayerInfo(Info4);
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
@@ -72,8 +52,29 @@ TArray<FPlayerInfo> UGameInstance_B::GetPlayerInfos() const
 	return ActivePlayerInfos;
 }
 
+FPlayerInfo UGameInstance_B::GetPlayerInfo(const int ID) const
+{
+	const auto t = ActivePlayerInfos.FindByPredicate([&](const FPlayerInfo& PlayerInfo) {
+		return PlayerInfo.ID == ID;
+		});
+	if (t)
+		return *t;
+
+	return FPlayerInfo();
+}
+
 void UGameInstance_B::SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos)
 {
 	ActivePlayerInfos = NewPlayerInfos;
 	OnPlayerInfoChanged.Broadcast();
+}
+
+bool UGameInstance_B::ShouldUseSpreadSheets() const
+{
+	return bShouldUseSpreadSheets;
+}
+
+bool UGameInstance_B::GameIsScoreBased() const
+{
+	return bGameIsScoreBased;
 }

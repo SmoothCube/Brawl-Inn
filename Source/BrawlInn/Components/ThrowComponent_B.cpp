@@ -3,11 +3,13 @@
 #include "ThrowComponent_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
+#include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "System/GameModes/GameMode_B.h"
+#include "System/GameInstance_B.h"
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
 {
@@ -24,14 +26,13 @@ void UThrowComponent_B::BeginPlay()
 	GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
 	GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+
+	HoldComponent = OwningCharacter->HoldComponent;
 }
 
 void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (bIsCharging)
-		ImpulseSpeed = MinImpulseSpeed + ((MaxImpulseSpeed - MinImpulseSpeed) * ImpulseTimer);
 }
 
 bool UThrowComponent_B::TryThrow()
@@ -53,7 +54,8 @@ bool UThrowComponent_B::TryThrow()
 	}
 
 	//BWarn("Trying Charge!");
-	bIsCharging = true;
+	if (IsValid(OwningCharacter))
+		OwningCharacter->bIsCharging = true;
 	if (OwningCharacter && OwningCharacter->GetChargeParticle())
 		OwningCharacter->GetChargeParticle()->Activate();
 	return true;
@@ -61,9 +63,9 @@ bool UThrowComponent_B::TryThrow()
 
 void UThrowComponent_B::StartThrow()
 {
-	if (bIsCharging)
+	if (OwningCharacter->bIsCharging)
 	{
-		bIsCharging = false;
+		OwningCharacter->bIsCharging = false;
 		if (OwningCharacter && OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
@@ -80,6 +82,7 @@ void UThrowComponent_B::Throw()
 	if (!HoldComponent)
 	{
 		BError("No HoldComponent for ThrowComponent");
+		return;
 	}
 	if (!HoldComponent->IsHolding())
 	{
@@ -87,43 +90,28 @@ void UThrowComponent_B::Throw()
 		return;
 	}
 
+	OwningCharacter->SetState(EState::EWalking);
 	/// Prepare item to be thrown
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
 	if (Interface)
 	{
 		Interface->Execute_Use(HoldComponent->GetHoldingItem());
 	}
-	if (IsValid(OwningCharacter))
-	{
-		if (OwningCharacter->HoldComponent)
-		{
-			OwningCharacter->HoldComponent->RemoveItem(OwningCharacter->HoldComponent->GetHoldingItem());
-			OwningCharacter->HoldComponent->SetHoldingItem(nullptr);
-		}
-		else
-		{
-			BError("No HoldComponent for player %f", *GetNameSafe(OwningCharacter));
-		}
-		if (OwningCharacter->GetChargeParticle())
-			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
-		else
-			BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
-		OwningCharacter->SetState(EState::EWalking);
-	}
+
+	HoldComponent->SetHoldingItem(nullptr);
+
+	if (OwningCharacter->GetChargeParticle())
+		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 	else
-		BError("No OwningPlayer for hold component %f", *GetNameSafe(this));
-	bIsCharging = false;
+		BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
+
+	OwningCharacter->bIsCharging = false;
 	bIsThrowing = false;
 }
 
 bool UThrowComponent_B::IsThrowing() const
 {
 	return bIsThrowing;
-}
-
-bool UThrowComponent_B::IsCharging() const
-{
-	return bIsCharging;
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
@@ -142,7 +130,9 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
-		if (OtherPlayer->GetState() == EState::EFallen)
+		if (!IsValid(OtherPlayer) || (OtherPlayer->GetState() == EState::EFallen))
+			continue;
+		if (HoldComponent && (OtherPlayer == HoldComponent->GetHoldingItem()))
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
 		OtherPlayerLocation.Z = 0;

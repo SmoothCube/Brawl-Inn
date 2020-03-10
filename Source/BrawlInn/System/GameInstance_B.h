@@ -55,6 +55,8 @@ public:
 
 	TArray<FPlayerInfo> GetPlayerInfos() const;
 
+	FPlayerInfo GetPlayerInfo(int ID) const;
+
 	void SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos);
 
 	FPlayerInfoChanged OnPlayerInfoChanged;
@@ -63,4 +65,17 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
 		TArray<FPlayerInfo> ActivePlayerInfos;
+
+	// ********** Settings **********
+
+public:
+
+	bool ShouldUseSpreadSheets() const;
+	bool GameIsScoreBased() const;
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+	bool bShouldUseSpreadSheets = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+		bool bGameIsScoreBased = true;
 };

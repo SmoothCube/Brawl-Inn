@@ -9,6 +9,7 @@
 class ACharacter_B;
 class AGameMode_B;
 class UHoldComponent_B;
+class USoundCue;
 
 UCLASS()
 class BRAWLINN_API UThrowComponent_B : public UActorComponent
@@ -33,24 +34,12 @@ public:
 	void Throw();
 
 	bool IsThrowing() const;
+
 protected:
+
 	bool bIsThrowing = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
-		float MinImpulseSpeed = 1000.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Throw")
-		float MaxImpulseSpeed = 4000.f;
-
 public:
-	float ImpulseSpeed = 0.f;
-	// ********** Charging **********
-
-	bool IsCharging() const;
-protected:
-	bool bIsCharging = false;
-public:
-	float ImpulseTimer = 0.f;
 
 	// ********** AimAssist **********
 	bool AimAssist(FVector& TargetPlayerLocation);
@@ -59,7 +48,7 @@ protected:
 		float AimAssistAngle = 20.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
-		float AimAssistRange = 2000.f;
+		float AimAssistRange = 1000.f;
 
 	// ********** Misc. **********
 
@@ -76,7 +65,7 @@ protected:
 		UHoldComponent_B* HoldComponent = nullptr;
 
 	UPROPERTY()
-		ACharacter_B* OwningCharacter = nullptr;
+	ACharacter_B* OwningCharacter = nullptr;
 
 	bool IsReady() const;
 };

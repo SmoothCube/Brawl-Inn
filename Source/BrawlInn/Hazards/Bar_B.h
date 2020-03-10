@@ -5,17 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Items/Useable_B.h"
-#include "Containers/Queue.h"
+#include "System/Structs/BarDropLocations.h"
 #include "Bar_B.generated.h"
 
-class UBarMeshComponent_B;
-class USoundCue;
+class UStaticMeshComponent;
+class AAICharacter_B;
 class AAIDropPoint_B;
 class AItem_B;
-class AAIController_B;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDeliverStart, AItem_B*, AAICharacter_B*);
 
 UCLASS()
 class BRAWLINN_API ABar_B : public AActor
@@ -28,15 +29,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// ********** Bar **********
 public:
+	// ********** Bar (Kan egentlig fjernes)**********
 	UFUNCTION(BlueprintImplementableEvent)
 		void OpenDoor();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void CloseDoor();
-
-	USceneComponent* GetItemSpawnLocation() const;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FOnDoorOpen OnDoorOpen_D;
@@ -45,67 +44,62 @@ public:
 		FOnDoorClosed OnDoorClosed_D;
 
 protected:
-	UPROPERTY(VisibleAnywhere)
-		UBarMeshComponent_B* House;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UStaticMeshComponent* House;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* Door;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		USceneComponent* ItemSpawnLocation;
-
-	// ********** Tankards **********
-	void StartTimerForNextTankard();
-
-	void SpawnTankard();
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		FName ItemSocket = FName("Item");
+	// ********** Tankard **********
+protected:
+	void GiveRandomTankard(AAICharacter_B* Waiter);
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		float MinTankardSpawnTimer = 2.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Tankard")
+		FName WaiterTag = "Waiter";
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
-		float MaxTankardSpawnTimer = 10.f;
-
-	FTimerHandle TH_NextTankardTimer;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard|Sound")
-		USoundCue* TankardSpawnSound;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard|Vfx")
-		UNiagaraSystem* TankardSpawnParticle;
-
-	// ********** Stool Respawning **********
-
-	void StartTimerForNextStool();
-
-	void SpawnStool();
-
-public:
-	TQueue<AAIDropPoint_B*>& GetStoolDropLocations();
-
-protected:
-	TQueue<AAIDropPoint_B*> StoolDropLocations;
-
-	UPROPERTY()
-		AItem_B* StoolToDeliver = nullptr;
+	// ********** Stool **********
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
 		TSubclassOf<AItem_B> BP_Stool;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
-		float MinStoolSpawnTimer = 2.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
+		FName StoolReplacerTag = "StoolReplacer";
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
-		float MaxStoolSpawnTimer = 10.f;
+	// ********** Box **********
 
-	FTimerHandle TH_NextStoolTimer;
+	UPROPERTY(EditAnywhere, Category = "Variables|Box")
+		TSubclassOf<AItem_B> BP_Box;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Box")
+		FName BoxReplacerTag = "BoxReplacer";
 
-	// ********** Misc. **********
-	UPROPERTY()
-		AAIController_B* AIController = nullptr;
+public:
+
+	// ********** Delivery **********
+	
+	void AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint);
+
+	FBarDropLocations* GetDropLocations(AAICharacter_B* Character);
+
+	FOnDeliverStart& OnDeliverStart();
+	
+protected:
+	FOnDeliverStart OnDeliverStart_Delegate;
+
+	TMap<AAICharacter_B*, FBarDropLocations> DropLocationMap;
+
+	int CurrentWaiterIndex = 0;
+	TArray<AAICharacter_B*> Waiters;
+
+	int CurrentStoolReplacerIndex = 0;
+	TArray<AAICharacter_B*> StoolReplacers;
+
+	int CurrentBoxReplacerIndex = 0;
+	TArray<AAICharacter_B*> BoxReplacers;
+
 };
+
+

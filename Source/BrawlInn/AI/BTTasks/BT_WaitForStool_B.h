@@ -3,29 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "AI/BTTasks/BT_BaseTask_B.h"
 #include "BT_WaitForStool_B.generated.h"
 
-class AAIController_B;
-class UBehaviorTreeComponent;
 class AItem_B;
 
 UCLASS()
-class BRAWLINN_API UBT_WaitForStool_B : public UBTTaskNode
+class BRAWLINN_API UBT_WaitForStool_B : public UBT_BaseTask_B
 {
 	GENERATED_BODY()
 
-		virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+		UBT_WaitForStool_B();
 
-	UFUNCTION()
-		void RecieveStool(AItem_B* Stool);
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector HoldingActor;
+		FName Tag = "AIStool";
 
-	UPROPERTY()
-		AAIController_B* OwningAI = nullptr;
+	UPROPERTY(EditAnywhere)
+		FBlackboardKeySelector ItemToPickup;
 
-	UPROPERTY()
-		UBehaviorTreeComponent* OwnerComponent = nullptr;;
 };

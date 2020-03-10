@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "RespawnPawn_B.h"
-#include "Components/DecalComponent.h" 
+#include "Components/DecalComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -17,11 +17,15 @@
 // Sets default values
 ARespawnPawn_B::ARespawnPawn_B()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
+	SetRootComponent(Sphere);
+	
 	Decal = CreateDefaultSubobject<UDecalComponent>("Decal");
 	Decal->AddLocalRotation(FRotator(90, 0, 0));
-	SetRootComponent(Decal);
+	Decal->SetupAttachment(Sphere);
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +46,7 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 		auto MI_ColoredDecal = UMaterialInstanceDynamic::Create(Decal->GetMaterial(0), this);
 		APlayerController_B* PlayerController = Cast<APlayerController_B>(NewController);
 		if (PlayerController)
-			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->PlayerInfo.PlayerColor);
+			MI_ColoredDecal->SetVectorParameterValue(FName("Color"), PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
 		else
 			BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		Decal->SetMaterial(0, MI_ColoredDecal);
@@ -53,8 +57,11 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 void ARespawnPawn_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(!bBarrelIsThrown)
-		AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed);
+	if (!bBarrelIsThrown)
+	{
+	//	AddMovementInput(InputVector, DeltaTime * MovementSpeed);
+		 AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed,true);
+	}
 }
 
 void ARespawnPawn_B::ThrowBarrel()
@@ -69,20 +76,29 @@ void ARespawnPawn_B::ThrowBarrel()
 		//Barrel now spawns the player...
 		if (Barrel)
 		{
-			Barrel->PlayerController = Cast<APlayerController_B>(GetController());
+			Barrel->SetupBarrel(Cast<APlayerController_B>(GetController()));
 			AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 			if (GameMode)
 			{
 				GameMode->AddCameraFocusPoint(Barrel);
 				GameMode->RemoveCameraFocusPoint(this);
 			}
-			
 		}
 		bBarrelIsThrown = true;
 	}
-	else if(Barrel)
+	else if (Barrel)
 	{
-		Barrel->Destroy();
+		Barrel->SpawnPlayerCharacter();
 	}
+}
+
+void ARespawnPawn_B::SetInputVectorX(float X)
+{
+	InputVector.X = X;
+}
+
+void ARespawnPawn_B::SetInputVectorY(float Y)
+{
+	InputVector.Y = Y;
 }
 

@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Item_B.h"
-#include "NiagaraSystem.h"
-#include "NiagaraFunctionLibrary.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "Sound/SoundCue.h"
 
-#include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Character_B.h"
 #include "System/GameInstance_B.h"
-#include "Components/HoldComponent_B.h"
+
 AItem_B::AItem_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -25,44 +25,78 @@ AItem_B::AItem_B()
 	PickupCapsule->SetupAttachment(Mesh);
 }
 
+void AItem_B::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnFracture_Delegate.AddUObject(this, &AItem_B::OnItemFracture);
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
+}
+
+void AItem_B::FellOutOfWorld(const UDamageType& DmgType)
+{
+	OnFracture_Delegate.Broadcast();
+	Super::FellOutOfWorld(DmgType);
+}
+
+UStaticMeshComponent* AItem_B::GetMesh() const
+{
+	return Mesh;
+}
+
 bool AItem_B::IsHeld_Implementation() const
 {
 	return (IsValid(OwningCharacter));
 }
 
-void AItem_B::Use_Implementation()
+bool AItem_B::CanBeHeld_Implementation() const
 {
-
-}
-void AItem_B::BeginPlay()
-{
-	Super::BeginPlay();
-	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &AItem_B::OnThrowOverlapBegin);
+	return !bIsFractured;
 }
 
-void AItem_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
 {
-	if (EndPlayReason == EEndPlayReason::Destroyed)
+	switch (level)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90,0,0));
+	case EChargeLevel::EChargeLevel1:
+		return Charge1ThrowStrength;
 
+	case EChargeLevel::EChargeLevel2:
+		return Charge2ThrowStrength;
 
-		if (DestroyedCue)
-		{
-			float volume = 1.f;
-			UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-			if (GameInstance)
-			{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-			}
-			UGameplayStatics::PlaySoundAtLocation(
-				GetWorld(),
-				DestroyedCue,
-				GetActorLocation(),
-				volume
-			);
-		}
+	case EChargeLevel::EChargeLevel3:
+		return Charge3ThrowStrength;
+	default:
+		return 0;
 	}
+}
+
+FOnFracture& AItem_B::OnFracture()
+{
+	return OnFracture_Delegate;
+}
+
+void AItem_B::OnItemFracture()
+{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PS_OnDestroy, GetActorLocation(), FRotator(90, 0, 0));
+
+	if (DestroyedCue)
+	{
+		float volume = 1.f;
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+		}
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			DestroyedCue,
+			GetActorLocation(),
+			volume
+		);
+	}
+
+	bIsFractured = true;
 }
 
 void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -3,29 +3,44 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Player/PlayerController_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "MenuPlayerController_B.generated.h"
 
 class ASelectionPawn_B;
 
 UCLASS()
-class BRAWLINN_API AMenuPlayerController_B : public APlayerController_B
+class BRAWLINN_API AMenuPlayerController_B : public AGamePlayerController_B
 {
 	GENERATED_BODY()
 
 	// ********** AActor **********
 protected:
-	virtual void SetupInputComponent() override;
+
+	void BeginPlay() override;
+
+	void OnPossess(APawn* InPawn) override;
+
+	void OnUnPossess() override;
+
 
 	// ********** Character Selection **********
 public:
 	ASelectionPawn_B* GetSelectionPawn();
 
-	int GetSelectedCharacterIndex() const;
+	int GetCharacterVariantIndex() const;
 
-	void SetSelectedCharacterIndex(int Value);
+	void SetCharacterVariantIndex(int Value);
 
 protected:
+
+	void LeftStickRightPressed() override;
+
+	void LeftStickLeftPressed() override;
+
+	void FaceButtonBottomPressed() override;
+
+	void FaceButtonRightPressed() override;
+	
 	void TrySelect();
 	
 	void Unselect();
@@ -34,7 +49,7 @@ protected:
 	
 	void SelectRight();
 
-	int SelectedCharacterIndex = 0;
+	int CharacterVariantIndex = 0;
 
 	UPROPERTY()
 		ASelectionPawn_B* SelectionPawn;

@@ -8,7 +8,7 @@ ASelectionPawn_B::ASelectionPawn_B()
 	PrimaryActorTick.bCanEverTick = false;
 
 	SpriteIcon = CreateDefaultSubobject<UPaperSpriteComponent>("SpriteIcon");
-	SetRootComponent(SpriteIcon);
+	SetRootComponent(SpriteIcon);	
 	SpriteIcon->SetRelativeScale3D(FVector(0.2f));
 
 	SpriteIcon->SetGenerateOverlapEvents(false);
@@ -18,5 +18,10 @@ ASelectionPawn_B::ASelectionPawn_B()
 void ASelectionPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
-	SpriteIcon->SetRelativeRotation(FRotator(0, 90, 0));
+	SetActorRotation(FRotator(0, 90, -40));
+}
+
+UPaperSpriteComponent* ASelectionPawn_B::GetSpriteIcon() const
+{
+	return SpriteIcon;
 }

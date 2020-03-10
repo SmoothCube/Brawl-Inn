@@ -20,7 +20,6 @@ enum class EState : uint8
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
 	EFallen		UMETA(DisplayName = "Fallen"),
-	EStunned	UMETA(DisplayName = "Stunned"),
 	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
 };
 
@@ -50,22 +49,38 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	// ********** Movement **********
-
-	void HandleMovement(float DeltaTime);
-
-	float NormalMaxWalkSpeed = 0;
 public:
+	void SetInputVectorX(const float X);
+
+	void SetInputVectorY(const float Y);
+	
+protected:
+	
+	void HandleMovement(float DeltaTime);
+public:
+	float NormalMaxWalkSpeed = 0;
+
+protected:
+	float RotationInterpSpeed = 10.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	float NormalRotationInterpSpeed = 10.f;
+
+
+
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********
+public:
+	void CheckFall(FVector MeshForce);
 protected:
-	void CheckFall(float DeltaTime);
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
 
-	virtual void Fall(float RecoveryTime = -1);
+	virtual void StandUp();
 
-	void StandUp();
+	FVector FindMeshLocation() const;
 
-	FVector FindMeshLocation();
+	FVector FindMeshGroundLocation() const;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 2.f;
@@ -77,7 +92,6 @@ protected:
 
 	// ********** Hold players **********
 public:
-
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
@@ -86,20 +100,79 @@ public:
 
 	virtual bool IsHeld_Implementation() const override;
 
+	virtual bool CanBeHeld_Implementation() const override;
+
+	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
+
+	UFUNCTION()
+	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 protected:
+	EState State = EState::EWalking;
+
 	UPROPERTY()
 		ACharacter_B* HoldingCharacter = nullptr;
 
-	// ********** Stun **********
-
+	bool bCanBeHeld = true;
+	
+	// ********** Charge **********
 public:
-	void AddStun(int Strength = 1);
+	EChargeLevel GetChargeLevel();
+	bool IsCharging() const;
+	virtual void SetChargeLevel(EChargeLevel chargeLevel);
 
+	void SetIsCharging(bool Value);
+
+protected:	
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	float Charge1ThrowStrength = 100000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	float Charge2ThrowStrength = 250000.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	float Charge3ThrowStrength = 500000.f;
+
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+		float Charge1MoveSpeed = 500.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+		float Charge2MoveSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+		float Charge3MoveSpeed = 100.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		float Charge1RotSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		float Charge2RotSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		float Charge3RotSpeed = 10.f;		//TODO clean
+	
+	bool bIsCharging = false;
+
+	EChargeLevel ChargeLevel = EChargeLevel::ENotCharging;
+public:
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+		float ChargeTier2Percentage = 0.45;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+		float ChargeTier3Percentage = 0.9;
 protected:
-	virtual void RemoveStun();
 
-
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+		USoundCue* ChargeLevelSound = nullptr;
 public:
+
+
+	// ********** Stun **********
+public:
+	virtual void AddStun(const int Strength = 1);
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
 		int StunStrength = 1;
 
@@ -108,7 +181,7 @@ protected:
 		float StunTime = 3.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
-		int PunchesToStun = 2;
+		int PunchesToStun = 1;
 
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_Stun = nullptr;
@@ -117,17 +190,18 @@ protected:
 
 	FTimerHandle TH_StunTimer;
 
-	// ********** Invulnerability **********
-	/// A number less than 0 will make the character invulnerable until toggled off again
-	void MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect = true);
+
 public:
+	// ********** Invulnerability **********
+
+	/// A number less than 0 will make the character invulnerable until toggled off again
+	void MakeInvulnerable(float ITime = -1, bool bShowInvulnerabilityEffect = true);
+
 	bool IsInvulnerable();
-protected:
+
 	void MakeVulnerable();
 
-
-
-
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
 		float InvulnerabilityTime = 3.f;
 
@@ -161,10 +235,8 @@ protected:
 public:
 	void SetState(EState s);
 
+	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
-
-protected:
-	EState State = EState::EWalking;
 
 	// ********** Punch **********
 public:
@@ -184,15 +256,15 @@ protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int FellOutOfWorldDamageAmount = 100;
+		int FellOutOfWorldScoreAmount = 100;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int FallDamageAmount = 25;
+		int FallScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int ChairDamageAmount = 25;
+		int StoolScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HurtSound;
 
 	// ********** Misc. **********
@@ -203,6 +275,7 @@ protected:
 	FTransform RelativeMeshTransform;
 
 	friend class UPunchComponent_B;
+	friend class UThrowComponent_B;
 
 	bool bIsAlive = true;
 };

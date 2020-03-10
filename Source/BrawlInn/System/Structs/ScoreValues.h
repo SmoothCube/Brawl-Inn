@@ -8,5 +8,5 @@ struct FScoreValues {
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere)
-		int Score = 0.f;
+		int Score = 0;
 };

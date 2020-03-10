@@ -47,10 +47,8 @@ protected:
 		float CameraFocusDuration = 3.f;
 	
 	FTimerHandle TH_DrinkHandle;
-	FTimerHandle TH_UnfocusHandle;
 
 	UFUNCTION()
 		virtual void ResetBoost();
-	void RemoveFromCameraFocus();
 
 };

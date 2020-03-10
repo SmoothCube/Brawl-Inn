@@ -1,106 +1,100 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Bar_B.h"
-#include "Sound/SoundCue.h"
-#include "Engine/World.h"
-#include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "NiagaraFunctionLibrary.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 
-#include "BrawlInn.h"
-#include "Components/BarMeshComponent_B.h"
-#include "Characters/AI/AIController_B.h"
-#include "System/GameInstance_B.h"
+#include "Characters/AI/AICharacter_B.h"
 
 ABar_B::ABar_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	House = CreateDefaultSubobject<UBarMeshComponent_B>("House");
+	House = CreateDefaultSubobject<UStaticMeshComponent>("House");
 	SetRootComponent(House);
 
 	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
 	Door->SetupAttachment(House);
-
-	ItemSpawnLocation = CreateDefaultSubobject<USceneComponent>("Item spawnlocation");
-	ItemSpawnLocation->SetupAttachment(House);
 }
 
 void ABar_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StartTimerForNextTankard();
-	StartTimerForNextStool();
-
-	AIController = Cast<AAIController_B>(UGameplayStatics::GetActorOfClass(GetWorld(), AAIController_B::StaticClass()));
-	if (AIController)
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, OutActors);
+	for (auto WaiterActor : OutActors)
 	{
-		AIController->OnAIArrivedHome_D.AddUObject(this, &ABar_B::StartTimerForNextStool);
+		AAICharacter_B* Waiter = Cast<AAICharacter_B>(WaiterActor);
+		DropLocationMap.Add(Waiter, FBarDropLocations(EBarDropLocationType::Tankard));
+		Waiters.Add(Waiter);
+		GiveRandomTankard(Waiter);
 	}
-	else
+
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), StoolReplacerTag, Actors);
+	for (auto StoolReplacerActor : Actors)
 	{
-		BError("AI Controller not found!");
+		AAICharacter_B* StoolReplacer = Cast<AAICharacter_B>(StoolReplacerActor);
+		DropLocationMap.Add(StoolReplacer, FBarDropLocations(EBarDropLocationType::Stool));
+		StoolReplacers.Add(StoolReplacer);
+		StoolReplacer->SetItemDelivered(BP_Stool.GetDefaultObject());
 	}
-	House->OnItemDetach.AddUObject(this, &ABar_B::StartTimerForNextTankard);
+
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), BoxReplacerTag, Actors);
+	for (auto BoxReplacerActor : Actors)
+	{
+		AAICharacter_B* BoxReplacer = Cast<AAICharacter_B>(BoxReplacerActor);
+		DropLocationMap.Add(BoxReplacer, FBarDropLocations(EBarDropLocationType::Stool));
+		BoxReplacers.Add(BoxReplacer);
+		BoxReplacer->SetItemDelivered(BP_Box.GetDefaultObject());
+	}
 }
 
-USceneComponent* ABar_B::GetItemSpawnLocation() const
-{
-	return ItemSpawnLocation;
-}
-
-void ABar_B::StartTimerForNextTankard()
-{
-	GetWorld()->GetTimerManager().SetTimer(TH_NextTankardTimer, this, &ABar_B::SpawnTankard, FMath::FRandRange(MinTankardSpawnTimer, MaxTankardSpawnTimer), false);
-}
-
-void ABar_B::SpawnTankard()
+void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 {
 	if (BP_Useables.Num() == 0)
 		return;
 
-	int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
-	AUseable_B* Item = GetWorld()->SpawnActor<AUseable_B>(BP_Useables[RandomIndex], House->GetSocketTransform(ItemSocket));
-	Item->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, ItemSocket);
-
-	if (TankardSpawnSound)
-	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
-		UGameplayStatics::PlaySoundAtLocation(
-			GetWorld(),
-			TankardSpawnSound,
-			House->GetSocketLocation(ItemSocket),
-			volume
-		);
-	}
-	if (TankardSpawnParticle)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TankardSpawnParticle, House->GetSocketLocation(ItemSocket), FRotator(90, 0, 0), FVector(5, 5, 5));
-	}
-}
-void ABar_B::StartTimerForNextStool()
-{
-	GetWorld()->GetTimerManager().SetTimer(TH_NextStoolTimer, this, &ABar_B::SpawnStool, FMath::FRandRange(MinStoolSpawnTimer, MaxStoolSpawnTimer), false);
+	const int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
+	if (BP_Useables.IsValidIndex(RandomIndex))
+		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
-void ABar_B::SpawnStool()
+void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
 {
-	StoolToDeliver = GetWorld()->SpawnActor<AItem_B>(BP_Stool, ItemSpawnLocation->GetComponentTransform());
-	if (IsValid(StoolToDeliver))
+	switch (Type)
 	{
-		if (AIController)
+	case EBarDropLocationType::Stool:
+		CurrentStoolReplacerIndex = (CurrentStoolReplacerIndex + 1) % StoolReplacers.Num();
+		if (StoolReplacers.IsValidIndex(CurrentStoolReplacerIndex))
+			DropLocationMap.Find(StoolReplacers[CurrentStoolReplacerIndex])->AddBack(DropPoint);
+		break;
+	case EBarDropLocationType::Tankard:
+		CurrentWaiterIndex = (CurrentWaiterIndex + 1) % Waiters.Num();
+		if (Waiters.IsValidIndex(CurrentWaiterIndex))
 		{
-			AIController->OnStoolReceived_D.Broadcast(StoolToDeliver);
+			DropLocationMap.Find(Waiters[CurrentWaiterIndex])->AddBack(DropPoint);
+			GiveRandomTankard(Waiters[CurrentWaiterIndex]);
 		}
+		break;
+	case EBarDropLocationType::Box:
+		CurrentBoxReplacerIndex = (CurrentBoxReplacerIndex + 1) % BoxReplacers.Num();
+		if (BoxReplacers.IsValidIndex(CurrentBoxReplacerIndex))
+			DropLocationMap.Find(BoxReplacers[CurrentBoxReplacerIndex])->AddBack(DropPoint);
+		break;
+	default:;
 	}
+	
 }
-TQueue<AAIDropPoint_B*>& ABar_B::GetStoolDropLocations()
+
+FBarDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
 {
-	return StoolDropLocations;
+	return DropLocationMap.Find(Character);
+}
+
+FOnDeliverStart& ABar_B::OnDeliverStart()
+{
+	return OnDeliverStart_Delegate;
 }

@@ -11,8 +11,10 @@ class UVictoryScreenWidget_B;
 class USceneComponent; 
 class UPauseMenu_B;
 class UGameOverlay_B;
+class AGamePlayerController_B;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, APlayerController_B*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
+DECLARE_EVENT(AMainGameMode_B, FGameOver);
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B
@@ -25,21 +27,24 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void RemovePlayer();
+	void StartGame();
+
+	void EndGame();
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void UpdateViewTarget(APlayerController_B* PlayerController) override;
+	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
 
 public:
-	void PauseGame(APlayerController_B* ControllerThatPaused);
+	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
 	void ResumeGame();
-	APlayerController_B* PlayerControllerThatPaused = nullptr;
+	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	FPlayerWin OnPlayerWin;
+	FGameOver OnGameOver;
 
-	void AddCameraFocusPoint(AActor* FocusComponent);
-	void RemoveCameraFocusPoint(AActor* FocusComponent);
+	void AddCameraFocusPoint(AActor* FocusActor);
+	void RemoveCameraFocusPoint(AActor* FocusActor);
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
@@ -64,7 +69,16 @@ protected:
 		USoundCue* River;
 
 private:
+	UPROPERTY()
 	AGameCamera_B* GameCamera = nullptr;
 
+	UPROPERTY()
+	UGameOverlay_B* Overlay = nullptr;
 
+	// ********** Timer **********
+
+	UPROPERTY(EditDefaultsOnly)
+	int TimeRemaining = 300;
+
+	FTimerHandle TH_CountdownTimer;
 };
