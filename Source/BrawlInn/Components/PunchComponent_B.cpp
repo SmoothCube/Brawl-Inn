@@ -28,6 +28,7 @@ void UPunchComponent_B::BeginPlay()
 
 void UPunchComponent_B::PunchStart()
 {
+	BWarn("PunchStart");
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	OwningCharacter->bIsCharging = false;
 	bIsPunching = true;
@@ -144,12 +145,12 @@ void UPunchComponent_B::PunchEnd()
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
 	OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity.GetClampedToMaxSize(OwningCharacter->NormalMaxWalkSpeed * PostDashRemainingVelocityPercentage);
+	bIsPunching = false;
 
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
 		[&]()
 		{
-			bIsPunching = false;
 			bHasHit = false;
 		},
 		PunchWaitingTime,

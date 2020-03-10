@@ -13,5 +13,5 @@ void UPlayerPunchEnd_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 
 	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 	if (Player)
-		Player->PunchComponent->PunchEnd();
+		Player->PunchComponent->PunchEnd();	
 }
