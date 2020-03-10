@@ -84,7 +84,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	if (HoldComponent)
 		HoldComponent->Drop();
 	Die();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, PlayerController, this, UOutOfWorld_DamageType_B::StaticClass());
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, nullptr, this, UOutOfWorld_DamageType_B::StaticClass());
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -172,6 +172,17 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (GameInstance)
+	{
+		GameInstance->PlayImpactCameraShake(GetActorLocation());
+		const float Trauma = DamageAmount / 100;
+		if (PlayerController)
+			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
+	}
+	
+	if (EventInstigator == PlayerController)
+		return Super::TakeDamage(DamageAmount,DamageEvent,EventInstigator, DamageCauser);
+	
 	if (IsInvulnerable())
 		return 0;
 	
@@ -207,13 +218,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 	}
 
-	if (GameInstance)
-	{
-		GameInstance->PlayImpactCameraShake(GetActorLocation());
-		float trauma = DamageAmount / 100;
-		if (PlayerController)
-			PlayerController->PlayControllerVibration(FMath::Square(trauma), 0.3, true, true, true, true);
-	}
+	
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	SetLastHitBy(EventInstigator);
