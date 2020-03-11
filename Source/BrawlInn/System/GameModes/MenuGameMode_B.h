@@ -7,6 +7,9 @@
 #include "System/Structs/CharacterVariants.h"
 #include "MenuGameMode_B.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStart);
+
+
 class ACameraActor;
 class ULevelSequence;
 class ALevelSequenceActor;
@@ -84,7 +87,6 @@ protected:
 
 	// ********** Ready up **********
 public:
-	void StartGame();
 
 	void UpdateNumberOfActivePlayers();
 
@@ -98,12 +100,15 @@ public:
 
 	void SetPlayersReady(int Value);
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+		FOnGameStart PrepareGameStart_Delegate;
+	
 protected:
 	int PlayersActive = 0;
 
 	int PlayersReady = 0;
 
-	UPROPERTY(EditDefaultsonly, Category = "Variables|ReadyUp")
+	UPROPERTY(EditDefaultsonly, BlueprintReadOnly, Category = "Variables|ReadyUp")
 		FName PlayMap = "Graybox_v6";
 
 	// ********** CharacterSelection **********

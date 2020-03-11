@@ -174,11 +174,6 @@ void AMenuGameMode_B::LS_ToSelectionFinished()
 	//}
 }
 
-void AMenuGameMode_B::StartGame()
-{
-	UGameplayStatics::OpenLevel(GetWorld(), PlayMap);
-}
-
 void AMenuGameMode_B::UpdateNumberOfActivePlayers()
 {
 	CharacterSelectionWidget->UpdateNumberOfPlayersText(PlayersActive);
