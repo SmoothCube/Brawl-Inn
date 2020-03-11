@@ -69,9 +69,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float NormalRotationInterpSpeed = 10.f;
 
+public:
 	UPROPERTY()
 	AGameCamera_B* GameCamera = nullptr;
-
+protected:
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********

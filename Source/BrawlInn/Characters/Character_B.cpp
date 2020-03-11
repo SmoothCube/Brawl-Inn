@@ -70,8 +70,7 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-	
-	GameCamera = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
+	GameCamera = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
 }
 
 void ACharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -94,7 +93,7 @@ void ACharacter_B::Tick(float DeltaTime)
 		HandleMovement(DeltaTime);
 	}
 
-//	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
+	//	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
 
 }
 
@@ -118,9 +117,13 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
-	AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
-	AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
-	
+
+	if (GameCamera)
+	{
+		AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
+		AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
+	}
+
 	if (InputVector.SizeSquared() > 0)
 		SetActorRotation(FMath::RInterpTo(GetActorRotation(), GetMovementComponent()->GetLastInputVector().ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
 }
@@ -190,10 +193,10 @@ FVector ACharacter_B::FindMeshLocation() const
 
 	if (bDidHit)
 	{
-	//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()));
+		//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()));
 		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-//		BWarn("Did not hit");
+	//		BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -207,10 +210,10 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 	if (bDidHit)
 	{
 		//BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()))
-			return (Hit.Location - RelativeMeshTransform.GetLocation());
+		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-//	else
-	//	BWarn("Did not hit");
+	//	else
+		//	BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -268,11 +271,11 @@ void ACharacter_B::Use_Implementation()
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
 	}
 	HoldingCharacter = nullptr;
-	
+
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
-	}, TimeBeforeThrowCollision, false);
+		{
+			GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
+		}, TimeBeforeThrowCollision, false);
 
 	SetActorRotation(FRotator(0, 0, 0));
 }

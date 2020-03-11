@@ -7,6 +7,7 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameMode_B.generated.h"
 
+class AGameCamera_B;
 class APlayerStart;
 class AGamePlayerController_B;
 class APlayerCharacter_B;
@@ -73,6 +74,16 @@ public:
 	UFUNCTION()
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
 
+	AGameCamera_B* GetGameCamera() const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		TSubclassOf<AGameCamera_B> BP_GameCamera;
+
+	void AddCameraFocusPoint(AActor* FocusActor);
+	void RemoveCameraFocusPoint(AActor* FocusActor);
+
+	
+	UPROPERTY()
+		AGameCamera_B* GameCamera = nullptr;
 protected:
 
 	UPROPERTY()

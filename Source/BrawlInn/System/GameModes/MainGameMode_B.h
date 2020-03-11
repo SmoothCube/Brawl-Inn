@@ -45,12 +45,10 @@ public:
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
 
-	void AddCameraFocusPoint(AActor* FocusActor);
-	void RemoveCameraFocusPoint(AActor* FocusActor);
+
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		TSubclassOf<AGameCamera_B> BP_GameCamera;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
@@ -70,13 +68,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* River;
 
-	// ********** GameCamera **********
-public:
-	AGameCamera_B* GetGameCamera() const;
 	
 private:
-	UPROPERTY()
-	AGameCamera_B* GameCamera = nullptr;
+
 
 	UPROPERTY()
 	UGameOverlay_B* Overlay = nullptr;

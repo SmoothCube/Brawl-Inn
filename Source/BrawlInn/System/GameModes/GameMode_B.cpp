@@ -9,6 +9,8 @@
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
+#include "System/Camera/GameCamera_B.h"
+
 #include "System/GameModes/MainGameMode_B.h"
 #include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
@@ -166,4 +168,26 @@ void AGameMode_B::GetAllSpawnpointsInWorld()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), TempSpawnpoints);
 	for (auto& Point : TempSpawnpoints)
 		Spawnpoints.Add(Cast<APlayerStart>(Point));
+}
+
+AGameCamera_B* AGameMode_B::GetGameCamera() const
+{
+	return GameCamera;
+}
+
+void AGameMode_B::AddCameraFocusPoint(AActor* FocusActor)
+{
+	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
+	//TODO: check to see if they are inside the track box before adding.
+	BWarn("Adding Actor %s to camera", *GetNameSafe(FocusActor));
+	GameCamera->ActorsToTrack.Add(FocusActor);
+}
+
+void AGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
+{
+	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
+
+	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
+	GameCamera->ActorsToTrack.Remove(FocusActor);
+
 }

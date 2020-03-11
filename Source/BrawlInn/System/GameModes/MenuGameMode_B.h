@@ -26,6 +26,9 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void PostLevelLoad();
+
 	virtual void Tick(float DeltaTime) override;
 
 	// ********** MainMenu **********
@@ -152,15 +155,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void UpdateViewTargets();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		ACameraActor* Camera = nullptr;
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class ACameraActor> BP_SelectionCamera;
-
-	UPROPERTY()
-		class ACameraActor* SelectionCamera = nullptr;
 
 	bool bIsQuitting = false;
 };

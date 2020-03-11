@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "BrawlInn.h"
+#include "System/Camera/GameCamera_B.h"
 #include "UI/Menus/CharacterSelection_B.h"
 #include "UI/Menus/MainMenu_B.h"
 #include "Characters/Player/SelectionPawn_B.h"
@@ -21,8 +22,14 @@
 void AMenuGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
+void AMenuGameMode_B::PostLevelLoad()
+{
 	SetActorTickEnabled(true);
+	
+	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+	GameCamera->SetActorRotation(FRotator(0, -65, 0));
 
 	/// Level sequence stuff
 	const FMovieSceneSequencePlaybackSettings Settings;
@@ -48,6 +55,8 @@ void AMenuGameMode_B::BeginPlay()
 	{
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		Characters.Add(PlayerCharacter);
+		PlayerCharacter->GameCamera = GameCamera;
+		AddCameraFocusPoint(PlayerCharacter);
 		PlayerCharacter->MakeInvulnerable(-1, false);
 	}
 
@@ -61,10 +70,8 @@ void AMenuGameMode_B::BeginPlay()
 	{
 		CharacterStartTransforms[i] = Characters[i]->GetActorTransform();
 	}
-	// Find Character selection camera
-	TArray<AActor*> Cameras;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_SelectionCamera, Cameras);
-	SelectionCamera = Cast<ACameraActor>(Cameras[0]);
+
+
 
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
@@ -80,10 +87,13 @@ void AMenuGameMode_B::BeginPlay()
 		MenuPlayerControllers[i]->SetCharacterVariantIndex(i);
 	}
 
+	UpdateViewTargets();
+	
 	LS_ToSelectionFinished(); // For å sette på mainmenu og sequencer kommenter denne linjen og uncomment de to linjene under.
 
 	//LSA_Intro->GetSequencePlayer()->Play();
 	//LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
+
 }
 
 void AMenuGameMode_B::Tick(float DeltaTime)
@@ -157,11 +167,11 @@ void AMenuGameMode_B::LS_ToSelectionFinished()
 
 	CharacterSelectionWidget->AddToViewport();
 
-	for (auto& PlayerController : PlayerControllers)
-	{
-		if (IsValid(SelectionCamera))
-			PlayerController->SetViewTargetWithBlend(SelectionCamera);
-	}
+	//for (auto& PlayerController : PlayerControllers)
+	//{
+	//	if (IsValid(SelectionCamera))
+	//		PlayerController->SetViewTargetWithBlend(SelectionCamera);
+	//}
 }
 
 void AMenuGameMode_B::StartGame()
@@ -313,15 +323,15 @@ void AMenuGameMode_B::UpdateOtherSelections()
 
 void AMenuGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
 {
-	if (IsValid(SelectionCamera))
-		PlayerController->SetViewTargetWithBlend(SelectionCamera);
+	//if (IsValid(SelectionCamera))
+	//	PlayerController->SetViewTargetWithBlend(SelectionCamera);
 }
 
 void AMenuGameMode_B::UpdateViewTargets() // Used for sequences
 {
 	for (auto& PlayerController : PlayerControllers)
 	{
-		if (IsValid(Camera))
-			PlayerController->SetViewTargetWithBlend(Camera);
+		if (IsValid(GameCamera))
+			PlayerController->SetViewTargetWithBlend(GameCamera);
 	}
 }
