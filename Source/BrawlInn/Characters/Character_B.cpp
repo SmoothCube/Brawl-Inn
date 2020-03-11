@@ -11,11 +11,14 @@
 #include "Materials/Material.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Animation/AnimInstance.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "Components/PunchComponent_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
@@ -67,7 +70,8 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-	//MakeInvulnerable(1.0f);
+	
+	GameCamera = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
 }
 
 void ACharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -114,10 +118,11 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
-	GetMovementComponent()->AddInputVector(InputVector);
-
+	AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
+	AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
+	
 	if (InputVector.SizeSquared() > 0)
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), GetMovementComponent()->GetLastInputVector().ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
 }
 
 void ACharacter_B::CheckFall(FVector MeshForce)

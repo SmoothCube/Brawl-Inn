@@ -9,6 +9,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 
 #include "BrawlInn.h"
+#include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Hazards/BounceActor/BounceActorSpawner_B.h"
@@ -18,11 +19,11 @@
 ARespawnPawn_B::ARespawnPawn_B()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
 	SetRootComponent(Sphere);
-	
+
 	Decal = CreateDefaultSubobject<UDecalComponent>("Decal");
 	Decal->AddLocalRotation(FRotator(90, 0, 0));
 	Decal->SetupAttachment(Sphere);
@@ -33,6 +34,10 @@ void ARespawnPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
 	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilThrow);
+
+	GameCamera = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
+
+	check(GameCamera != nullptr);
 
 }
 
@@ -56,17 +61,6 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 		else
 			BWarn("No player controller found for RespawnPawn %s", *GetNameSafe(this));
 		Decal->SetMaterial(0, MI_ColoredDecal);
-	}
-}
-
-// Called every frame
-void ARespawnPawn_B::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	if (!bBarrelIsThrown)
-	{
-	//	AddMovementInput(InputVector, DeltaTime * MovementSpeed);
-		 AddActorWorldOffset(InputVector * DeltaTime * MovementSpeed,true);
 	}
 }
 
@@ -100,11 +94,23 @@ void ARespawnPawn_B::ThrowBarrel()
 
 void ARespawnPawn_B::SetInputVectorX(float X)
 {
-	InputVector.X = X;
+	if (!bBarrelIsThrown)
+	{
+		InputVector.X = X;
+		if (InputVector.SizeSquared() >= 1.f)
+			InputVector.Normalize();
+		AddActorLocalOffset(GameCamera->GetActorForwardVector() * InputVector.X * GetWorld()->GetDeltaSeconds() * MovementSpeed, true);
+	}
 }
 
 void ARespawnPawn_B::SetInputVectorY(float Y)
 {
-	InputVector.Y = Y;
+	if (!bBarrelIsThrown)
+	{
+		InputVector.Y = Y;
+		if (InputVector.SizeSquared() >= 1.f)
+			InputVector.Normalize();
+		AddActorWorldOffset(GameCamera->GetActorRightVector() * InputVector.Y * GetWorld()->GetDeltaSeconds() * MovementSpeed, true);
+	}
 }
 

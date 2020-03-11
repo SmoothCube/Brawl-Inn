@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "RespawnPawn_B.generated.h"
 
+class AGameCamera_B;
 class ABounceActor_B;
 class USphereComponent;
 
@@ -22,7 +23,6 @@ protected:
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	virtual void Tick(float DeltaTime) override;
 
 	virtual void PossessedBy(AController* NewController) override;
 
@@ -56,4 +56,7 @@ protected:
 	FTimerHandle TH_ThrowTimer;
 
 	bool bBarrelIsThrown = false;
+
+	UPROPERTY()
+	AGameCamera_B* GameCamera = nullptr;
 };

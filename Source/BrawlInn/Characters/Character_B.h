@@ -7,6 +7,7 @@
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Character_B.generated.h"
 
+class AGameCamera_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
 class UPunchComponent_B;
@@ -68,7 +69,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float NormalRotationInterpSpeed = 10.f;
 
-
+	UPROPERTY()
+	AGameCamera_B* GameCamera = nullptr;
 
 	FVector InputVector = FVector::ZeroVector;
 

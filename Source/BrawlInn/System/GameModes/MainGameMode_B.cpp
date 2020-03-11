@@ -143,3 +143,8 @@ void AMainGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
 	GameCamera->ActorsToTrack.Remove(FocusActor);
 
 }
+
+AGameCamera_B* AMainGameMode_B::GetGameCamera() const
+{
+	return GameCamera;
+}

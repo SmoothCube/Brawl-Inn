@@ -70,6 +70,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* River;
 
+	// ********** GameCamera **********
+public:
+	AGameCamera_B* GetGameCamera() const;
+	
 private:
 	UPROPERTY()
 	AGameCamera_B* GameCamera = nullptr;
