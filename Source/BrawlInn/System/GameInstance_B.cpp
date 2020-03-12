@@ -15,6 +15,16 @@ void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ImpactCameraShake, Epicenter, 0.0f, 10000.f);
 }
 
+void UGameInstance_B::SetCameraSwapTransform(const FTransform Transform)
+{
+	CameraSwapTransform = Transform;
+}
+
+FTransform UGameInstance_B::GetCameraSwapTransform() const
+{
+	return CameraSwapTransform;
+}
+
 float UGameInstance_B::GetMasterVolume() const
 {
 	return MasterVolume;

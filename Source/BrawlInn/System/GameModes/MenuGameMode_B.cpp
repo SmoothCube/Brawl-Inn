@@ -24,7 +24,7 @@ void AMenuGameMode_B::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AMenuGameMode_B::PostLevelLoad()
+void AMenuGameMode_B::PostLevelLoad_Implementation()
 {
 	SetActorTickEnabled(true);
 	
@@ -313,20 +313,5 @@ void AMenuGameMode_B::UpdateOtherSelections()
 				}
 			}
 		}
-	}
-}
-
-void AMenuGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
-{
-	//if (IsValid(SelectionCamera))
-	//	PlayerController->SetViewTargetWithBlend(SelectionCamera);
-}
-
-void AMenuGameMode_B::UpdateViewTargets() // Used for sequences
-{
-	for (auto& PlayerController : PlayerControllers)
-	{
-		if (IsValid(GameCamera))
-			PlayerController->SetViewTargetWithBlend(GameCamera);
 	}
 }

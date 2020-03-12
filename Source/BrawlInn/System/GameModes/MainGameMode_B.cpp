@@ -3,8 +3,11 @@
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Camera/CameraActor.h"
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
+#include "Math/UnrealMathUtility.h"
+#include "Camera/CameraComponent.h"
 
 #include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
@@ -30,6 +33,7 @@ void AMainGameMode_B::BeginPlay()
 
 	/// Spawns and setups camera
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
 
 	/// Create overlay
 	Overlay = CreateWidget<UGameOverlay_B>(GetWorld(), BP_GameOverlay);
@@ -47,8 +51,12 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-	for (auto Controller : PlayerControllers)
-		UpdateViewTarget(Controller);
+	UpdateViewTargets();
+	UpdateViewTargets(FromCharacterSelectionCamera);
+
+	///const FVector CameraLocation = FromCharacterSelectionCamera->GetActorLocation();
+//	FromCharacterSelectionCamera->SetActorLocation(FMath::VInterpConstantTo(CameraLocation, GameCamera->Camera->GetComponentLocation(), GetWorld()->GetDeltaSeconds(), 0.2f));
+	//UpdateViewTargets(nullptr, 3,true);
 
 	StartGame();
 
@@ -94,14 +102,6 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	if (!IsValid(PauseMenuWidget))
 		return;
 	PauseMenuWidget->MenuTick();
-}
-
-void AMainGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
-{
-	if (IsValid(GameCamera))
-		PlayerController->SetViewTargetWithBlend(GameCamera);
-	else
-		BWarn("Cannot Set view Target!");
 }
 
 void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)

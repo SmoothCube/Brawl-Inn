@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Sound/SoundCue.h"
+#include "Camera/CameraActor.h"
 #include "Components/SkeletalMeshComponent.h"
 
 #include "BrawlInn.h"
@@ -40,6 +41,19 @@ void AGameMode_B::BeginPlay()
 
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
 
+}
+
+void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool LockOutgoing)
+{
+	AActor* CameraToUse = GameCamera;
+	if (IsValid(Camera))
+		CameraToUse = Camera;
+
+	for (auto& PlayerController : PlayerControllers)
+	{
+		if (IsValid(CameraToUse))
+			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_Cubic,2, LockOutgoing);
+	}
 }
 
 void AGameMode_B::CreatePlayerControllers()
@@ -98,7 +112,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		MainMode->AddCameraFocusPoint(Character);
 	}
-	UpdateViewTarget(PlayerController);
+	UpdateViewTargets();
 	SpawnCharacter_NOPARAM_D.Broadcast();
 }
 
@@ -128,7 +142,7 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	}
 
 	PlayerController->SetPlayerCharacter(nullptr);
-	UpdateViewTarget(PlayerController);
+	UpdateViewTargets();
 	OnRespawnCharacter_D.Broadcast();
 }
 
@@ -145,7 +159,7 @@ void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 	if (GameInstance)
 		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 
-	UpdateViewTarget(PlayerController);
+	UpdateViewTargets();
 	DespawnCharacter_NOPARAM_D.Broadcast();
 }
 

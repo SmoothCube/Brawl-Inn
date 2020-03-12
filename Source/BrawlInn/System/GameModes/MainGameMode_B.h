@@ -8,10 +8,11 @@
 
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
-class USceneComponent; 
+class USceneComponent;
 class UPauseMenu_B;
 class UGameOverlay_B;
 class AGamePlayerController_B;
+class ACameraActor;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
@@ -35,8 +36,6 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
-
 public:
 	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
 	void ResumeGame();
@@ -48,7 +47,11 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Camera")
+		TSubclassOf<ACameraActor> BP_FromCharacterSelectionCamera;
 
+	UPROPERTY()
+		ACameraActor* FromCharacterSelectionCamera = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
@@ -60,7 +63,7 @@ protected:
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
 
 	UPROPERTY(BlueprintReadWrite)
-	UPauseMenu_B* PauseMenuWidget = nullptr;
+		UPauseMenu_B* PauseMenuWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Birds;
@@ -68,17 +71,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* River;
 
-	
+
 private:
 
 
 	UPROPERTY()
-	UGameOverlay_B* Overlay = nullptr;
+		UGameOverlay_B* Overlay = nullptr;
 
 	// ********** Timer **********
 
 	UPROPERTY(EditDefaultsOnly)
-	int TimeRemaining = 300;
+		int TimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;
 };

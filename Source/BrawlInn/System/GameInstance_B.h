@@ -24,7 +24,16 @@ protected:
 public:
 	void PlayImpactCameraShake(FVector Epicenter);
 
+	UFUNCTION(BlueprintCallable)
+	void SetCameraSwapTransform(FTransform Transform);
+
+	UFUNCTION(BlueprintCallable)
+	FTransform GetCameraSwapTransform() const;
+	
+	
 protected:
+	FTransform CameraSwapTransform;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		TSubclassOf<UCameraShake> ImpactCameraShake;
 

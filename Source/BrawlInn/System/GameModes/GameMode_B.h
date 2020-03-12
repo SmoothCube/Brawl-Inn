@@ -49,8 +49,8 @@ protected:
 
 public:
 
-	UFUNCTION()
-		virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) {};
+	UFUNCTION(BlueprintCallable)
+		void UpdateViewTargets(ACameraActor* Camera = nullptr, float BlendTime = 0, bool LockOutgoing = false);
 
 	/// ** Delegates ** 
 		FSpawnCharacter SpawnCharacter_D;

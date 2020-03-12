@@ -29,7 +29,7 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void PostLevelLoad();
 
 	virtual void Tick(float DeltaTime) override;
@@ -155,11 +155,6 @@ protected:
 	TArray<FTransform> CharacterStartTransforms;
 
 	// ********** Misc. **********
-
-	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
-
-	UFUNCTION(BlueprintCallable)
-		void UpdateViewTargets();
 
 	bool bIsQuitting = false;
 };
