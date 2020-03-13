@@ -51,12 +51,12 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-	UpdateViewTargets();
-	UpdateViewTargets(FromCharacterSelectionCamera);
+	//UpdateViewTargets();
+	//UpdateViewTargets(FromCharacterSelectionCamera);
 
 	///const FVector CameraLocation = FromCharacterSelectionCamera->GetActorLocation();
 //	FromCharacterSelectionCamera->SetActorLocation(FMath::VInterpConstantTo(CameraLocation, GameCamera->Camera->GetComponentLocation(), GetWorld()->GetDeltaSeconds(), 0.2f));
-	//UpdateViewTargets(nullptr, 3,true);
+	UpdateViewTargets(nullptr, 3,true);
 
 	StartGame();
 

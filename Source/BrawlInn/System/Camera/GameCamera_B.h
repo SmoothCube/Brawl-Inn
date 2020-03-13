@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ConvexVolume.h"
 #include "GameCamera_B.generated.h"
+
 
 class USpringArmComponent;
 class UCameraComponent;
 class APlayerCharacter_B;
+class ULocalPlayer;
 class ATriggerBox;
 
 UCLASS()
@@ -36,9 +39,12 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+		// ********** Frustum stuff **********
+	ULocalPlayer* LocalPlayer;
+
 	// ********** Camera Movement **********
 private:
-	void UpdateCameraPosition();
+	void UpdateCameraPosition(FConvexVolume& scene);
 
 	void LerpCameraLocation(FVector LerpLoc);
 
@@ -57,7 +63,7 @@ protected:
 
 	// ********** Zoom **********
 private:
-	void SetSpringArmLength();
+	void SetSpringArmLength(FConvexVolume& scene);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
