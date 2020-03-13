@@ -11,6 +11,7 @@
 #include "Engine/TriggerBox.h"
 #include "Engine/LocalPlayer.h"
 
+
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
@@ -52,60 +53,67 @@ void AGameCamera_B::BeginPlay()
 	//Caches the camera rotation angle
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
 	SetActorTickEnabled(false);
+
+	//setup for frustum checking
+	LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateCameraPosition();
+	FMatrix Proj;
+	FMatrix View;
+	FMatrix ViewProj;
+
+	FMinimalViewInfo ViewInfo;
+	Camera->GetCameraView(GetWorld()->GetDeltaSeconds(), ViewInfo);
+	UGameplayStatics::GetViewProjectionMatrix(ViewInfo, View,Proj, ViewProj);
+	FConvexVolume v;
+	GetViewFrustumBounds(v, ViewProj, true);
+
+	UpdateCameraPosition(v);
 	SetSpringArmPitch();
-	SetSpringArmLength();
+	SetSpringArmLength(v);
 
 }
 
 void AGameCamera_B::FakeTick()
 {
-	UpdateCameraPosition();
+
+FMatrix Proj;
+	FMatrix View;
+	FMatrix ViewProj;
+
+	FMinimalViewInfo ViewInfo;
+	Camera->GetCameraView(GetWorld()->GetDeltaSeconds(), ViewInfo);
+	UGameplayStatics::GetViewProjectionMatrix(ViewInfo, View,Proj, ViewProj);
+	FConvexVolume v;
+	GetViewFrustumBounds(v, ViewProj, true);
+
+
+	UpdateCameraPosition(v);
 	SetSpringArmPitch();
-	SetSpringArmLength();
+	SetSpringArmLength(v);
 }
 
 void AGameCamera_B::UpdateCameraPosition()
+void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 {
-	if (!TrackingBox)
-	{
-		BError("CameraTrackingBox not found!"); return;
-	}
+	if (!TrackingBox) { BError("CameraTrackingBox not found!"); return;}
+	//if (!scene) { BWarn("Could not find scene view! "); return; }
 
 	FVector sum = FVector::ZeroVector;
-	float distanceToFurthestPoint = 0.f;
-	int ActiveFocusPoints = 0;
-
-	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-
-	FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
-		LocalPlayer->ViewportClient->Viewport,
-		GetWorld()->Scene,
-		LocalPlayer->ViewportClient->EngineShowFlags)
-		.SetRealtimeUpdate(true));
-
-	FVector ViewLoc;
-	FRotator ViewRot;
-	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ViewLoc, /*out*/ViewRot, LocalPlayer->ViewportClient->Viewport);
-	if (!SceneView) { BWarn("Could not find scene view! "); return; }
-
-	float FurthestDist = -1000000;
-	float size = 0.1;
-	int CurrentPlane = 0;
 
 	//Cleanup in case some components dont get removed properly
 	TArray<AActor*> ActorsToRemove;
-	for (int i=0; i< SceneView->ViewFrustum.Planes.Num(); i++)
+	
+	for (int i=0; i< scene.Planes.Num(); i++)
 	{
 		
-		auto& p = SceneView->ViewFrustum.Planes[i];
-		float DistOutside = 0	;
+		auto& p = scene.Planes[i];
+		float DistOutside = 0;
 		float DistInside = -10000000;
 		p.GetSafeNormal();
 		FVector FurthestVec = FVector::ZeroVector;
@@ -140,11 +148,10 @@ void AGameCamera_B::UpdateCameraPosition()
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
 			FVector DistVec = (TrackingPointWithBorder - GetActorLocation());
 			
-
 			if (Dist >= DistOutside)	//Outside frustum
 			{
 				DistOutside = Dist;
-				FurthestVec = DirVec * DistOutside;
+				FurthestVec = DirVec *DistOutside;
 				ClosestVec = FVector::ZeroVector;
 			}
 			else if (Dist < 0 && Dist > DistInside )	//inside frustum
@@ -153,14 +160,15 @@ void AGameCamera_B::UpdateCameraPosition()
 				{
 
 					DistInside = Dist;
-					ClosestVec = DirVec * DistInside;
+					ClosestVec = DirVec *DistInside;
 				}
 			}
 			CurrentActor++;
 		}
+
+		float size = 0.1f;
 		sum -= FurthestVec*size;
 		sum -= ClosestVec*size;
-		CurrentPlane++;
 	}
 
 	for (auto& Actor : ActorsToRemove)
@@ -176,20 +184,9 @@ void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
 	SetActorLocation(FMath::Lerp(GetActorLocation(), LerpLoc, LerpAlpha));
 }
 
-void AGameCamera_B::SetSpringArmLength()
+void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 {
-	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-
-	FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
-		LocalPlayer->ViewportClient->Viewport,
-		GetWorld()->Scene,
-		LocalPlayer->ViewportClient->EngineShowFlags)
-		.SetRealtimeUpdate(true));
-
-	FVector ViewLoc;
-	FRotator ViewRot;
-	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ViewLoc, /*out*/ViewRot, LocalPlayer->ViewportClient->Viewport);
-	if (!SceneView) { BWarn("Could not find scene view! "); return; }
+	//if (!scene) { BWarn("Could not find scene view! "); return; }
 
 	float FurthestDist = -1000000;
 	for (auto& a : ActorsToTrack)
@@ -198,7 +195,7 @@ void AGameCamera_B::SetSpringArmLength()
 		BorderVector.Z = 0;
 		FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
-		for (auto& p : SceneView->ViewFrustum.Planes)
+		for (auto& p : scene.Planes)
 		{
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
 			if (Dist > 0 && Dist > FurthestDist)
