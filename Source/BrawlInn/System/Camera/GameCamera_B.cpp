@@ -74,27 +74,6 @@ void AGameCamera_B::UpdateCameraPosition()
 	float distanceToFurthestPoint = 0.f;
 	int ActiveFocusPoints = 0;
 
-	//Cleanup in case some components dont get removed properly
-	TArray<AActor*> ActorsToRemove;
-
-	//for (const auto& Actor : ActorsToTrack)
-	//{
-	//	if (!IsValid(Actor))
-	//	{
-	//		BWarn("Invalid component in camera!");
-	//		ActorsToRemove.Add(Actor);
-	//		continue;
-	//	}
-
-	//	FVector FocusLocation = Actor->GetActorLocation();
-	//	sum += FocusLocation;
-	//	ActiveFocusPoints++;
-
-	//	float distance = FVector::Dist(FocusLocation, GetActorLocation());
-	//	if (distance > distanceToFurthestPoint)
-	//		distanceToFurthestPoint = distance;
-
-	//}
 	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 
 	FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
@@ -111,6 +90,9 @@ void AGameCamera_B::UpdateCameraPosition()
 	float FurthestDist = -1000000;
 	float size = 0.1;
 	int CurrentPlane = 0;
+
+	//Cleanup in case some components dont get removed properly
+	TArray<AActor*> ActorsToRemove;
 	for (int i=0; i< SceneView->ViewFrustum.Planes.Num(); i++)
 	{
 		
@@ -162,32 +144,19 @@ void AGameCamera_B::UpdateCameraPosition()
 				if (FurthestVec == FVector::ZeroVector)
 				{
 
-					BWarn("DistInside: %f, Dist: %f", DistInside, Dist);
 					DistInside = Dist;
 					ClosestVec = DirVec * DistInside;
 				}
 			}
-			//BWarn("Actor: %d, ClosestVec: %s, FurthestVec: %s", CurrentActor, *ClosestVec.ToString(), *FurthestVec.ToString());
 			CurrentActor++;
 		}
-		BWarn("Plane: %d, PlaneVec: %s, ClosestVec: %s, FurthestVec: %s",CurrentPlane, *p.GetSafeNormal().ToString(), *ClosestVec.ToString(), *FurthestVec.ToString());
 		sum -= FurthestVec*size;
 		sum -= ClosestVec*size;
 		CurrentPlane++;
 	}
 
-	//BWarn("Sum: %s", *sum.ToString());
-
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
-
-	//if (ActiveFocusPoints != 0)
-	//	sum /= ActiveFocusPoints;
-
-	//if (sum.Z < MinCameraHeight)
-	//	sum.Z = MinCameraHeight;
-	//else if (sum.Z > MaxCameraHeight)
-	//	sum.Z = MaxCameraHeight;
 
 	FHitResult OutHit; 
 	LerpCameraLocation(GetActorLocation() + sum);

@@ -67,7 +67,7 @@ public:
 		float LargestSpringArmLength = 3000.f;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float BorderWidth = 500.f;
+		float BorderWidth = 1000.f;
 
 private:
 	float CameraZoom = 0.f;
