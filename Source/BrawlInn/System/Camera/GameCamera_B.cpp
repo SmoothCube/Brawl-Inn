@@ -54,18 +54,14 @@ void AGameCamera_B::BeginPlay()
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
 //	SetActorTickEnabled(false);
 
-	//setup for frustum checking
-	LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FMatrix Proj;
-	FMatrix View;
-	FMatrix ViewProj;
+	//finds the camera frustum
+	FMatrix Proj, View, ViewProj;
 
 	FMinimalViewInfo ViewInfo;
 	Camera->GetCameraView(GetWorld()->GetDeltaSeconds(), ViewInfo);
@@ -82,38 +78,29 @@ void AGameCamera_B::Tick(float DeltaTime)
 void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 {
 	if (!TrackingBox) { BError("CameraTrackingBox not found!"); return;}
-	//if (!scene) { BWarn("Could not find scene view! "); return; }
 
 	FVector sum = FVector::ZeroVector;
 
-	//Cleanup in case some components dont get removed properly
 	TArray<AActor*> ActorsToRemove;
-	
 	for (int i=0; i< scene.Planes.Num(); i++)
 	{
-		
 		auto& p = scene.Planes[i];
 		float DistOutside = 0;
 		float DistInside = -10000000;
-		p.GetSafeNormal();
-		FVector FurthestVec = FVector::ZeroVector;
-		FVector ClosestVec = FVector::ZeroVector;
-		int CurrentActor = 0;
+		FVector DistVec = FVector::ZeroVector;
 
+		//This makes it hardcoded to have x towards the front
+		//but the plane normals cant be used so i cant think of any other way
 		FVector DirVec = FVector::ZeroVector;
 		switch (i)
 		{
-		case 0:
-			DirVec = FVector(0, 1, 0);
+		case 0:		DirVec = FVector(0, 1, 0);
 			break;
-		case 1:
-			DirVec = FVector(0, -1, 0);
+		case 1:		DirVec = FVector(0, -1, 0);
 			break;
-		case 2:
-			DirVec = FVector(-1, 0, 0);
+		case 2:		DirVec = FVector(-1, 0, 0);
 			break;
-		case 3:
-			DirVec = FVector(1, 0, 0);
+		case 3:		DirVec = FVector(1, 0, 0);
 			break;
 		}
 
@@ -121,34 +108,28 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 		{
 			if (!IsValid(a)) { ActorsToRemove.Add(a); continue;}
 
+			//find player position with border
 			FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
 			BorderVector.Z = 0;
 			FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
-			FVector DistVec = (TrackingPointWithBorder - GetActorLocation());
-			
+
 			if (Dist >= DistOutside)	//Outside frustum
 			{
 				DistOutside = Dist;
-				FurthestVec = DirVec *DistOutside;
-				ClosestVec = FVector::ZeroVector;
+				DistVec = DirVec *DistOutside;
 			}
 			else if (Dist < 0 && Dist > DistInside )	//inside frustum
 			{
-				if (FurthestVec == FVector::ZeroVector)
+				if (DistOutside == 0)
 				{
-
 					DistInside = Dist;
-					ClosestVec = DirVec *DistInside;
+					DistVec = DirVec *DistInside;
 				}
 			}
-			CurrentActor++;
 		}
-
-		float size = 0.1f;
-		sum -= FurthestVec*size;
-		sum -= ClosestVec*size;
+		sum -= DistVec * CameraMoveSpeed;
 	}
 
 	for (auto& Actor : ActorsToRemove)
@@ -166,8 +147,6 @@ void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
 
 void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 {
-	//if (!scene) { BWarn("Could not find scene view! "); return; }
-
 	float FurthestDist = -1000000;
 	for (auto& a : ActorsToTrack)
 	{

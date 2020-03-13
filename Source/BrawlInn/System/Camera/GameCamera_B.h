@@ -39,10 +39,6 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-public:
-		// ********** Frustum stuff **********
-	ULocalPlayer* LocalPlayer;
-
 	// ********** Camera Movement **********
 private:
 	void UpdateCameraPosition(FConvexVolume& scene);
@@ -59,8 +55,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float LerpAlpha = 0.5;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	FVector CameraOffset = FVector(0,0,0);
+	float CameraMoveSpeed = 0.1f;
 
 	// ********** Zoom **********
 private:
