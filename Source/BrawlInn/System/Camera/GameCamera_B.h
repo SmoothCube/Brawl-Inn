@@ -38,7 +38,7 @@ protected:
 
 	// ********** Camera Movement **********
 private:
-	float UpdateCameraPosition();
+	void UpdateCameraPosition();
 
 	void LerpCameraLocation(FVector LerpLoc);
 
@@ -97,6 +97,7 @@ private:
 	ATriggerBox* TrackingBox = nullptr;
 
 public:
+	UPROPERTY()
 	TArray<AActor*> ActorsToTrack;
 
 };

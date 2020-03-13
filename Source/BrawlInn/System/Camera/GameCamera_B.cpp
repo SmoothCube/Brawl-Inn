@@ -63,11 +63,11 @@ void AGameCamera_B::Tick(float DeltaTime)
 
 }
 
-float AGameCamera_B::UpdateCameraPosition()
+void AGameCamera_B::UpdateCameraPosition()
 {
 	if (!TrackingBox)
 	{
-		BError("CameraTrackingBox not found!"); return 0;
+		BError("CameraTrackingBox not found!"); return;
 	}
 
 	FVector sum = FVector::ZeroVector;
@@ -77,39 +77,121 @@ float AGameCamera_B::UpdateCameraPosition()
 	//Cleanup in case some components dont get removed properly
 	TArray<AActor*> ActorsToRemove;
 
-	for (const auto& Actor : ActorsToTrack)
+	//for (const auto& Actor : ActorsToTrack)
+	//{
+	//	if (!IsValid(Actor))
+	//	{
+	//		BWarn("Invalid component in camera!");
+	//		ActorsToRemove.Add(Actor);
+	//		continue;
+	//	}
+
+	//	FVector FocusLocation = Actor->GetActorLocation();
+	//	sum += FocusLocation;
+	//	ActiveFocusPoints++;
+
+	//	float distance = FVector::Dist(FocusLocation, GetActorLocation());
+	//	if (distance > distanceToFurthestPoint)
+	//		distanceToFurthestPoint = distance;
+
+	//}
+	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
+	FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
+		LocalPlayer->ViewportClient->Viewport,
+		GetWorld()->Scene,
+		LocalPlayer->ViewportClient->EngineShowFlags)
+		.SetRealtimeUpdate(true));
+
+	FVector ViewLoc;
+	FRotator ViewRot;
+	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ViewLoc, /*out*/ViewRot, LocalPlayer->ViewportClient->Viewport);
+	if (!SceneView) { BWarn("Could not find scene view! "); return; }
+
+	float FurthestDist = -1000000;
+	float size = 0.1;
+	int CurrentPlane = 0;
+	for (int i=0; i< SceneView->ViewFrustum.Planes.Num(); i++)
 	{
-		if (!IsValid(Actor))
+		
+		auto& p = SceneView->ViewFrustum.Planes[i];
+		float DistOutside = 0	;
+		float DistInside = -10000000;
+		p.GetSafeNormal();
+		FVector FurthestVec = FVector::ZeroVector;
+		FVector ClosestVec = FVector::ZeroVector;
+		int CurrentActor = 0;
+
+		FVector DirVec = FVector::ZeroVector;
+		switch (i)
 		{
-			BWarn("Invalid component in camera!");
-			ActorsToRemove.Add(Actor);
-			continue;
+		case 0:
+			DirVec = FVector(0, 1, 0);
+			break;
+		case 1:
+			DirVec = FVector(0, -1, 0);
+			break;
+		case 2:
+			DirVec = FVector(-1, 0, 0);
+			break;
+		case 3:
+			DirVec = FVector(1, 0, 0);
+			break;
 		}
 
-		FVector FocusLocation = Actor->GetActorLocation();
-		sum += FocusLocation;
-		ActiveFocusPoints++;
+		for (auto& a : ActorsToTrack)
+		{
+			if (!IsValid(a)) { ActorsToRemove.Add(a); continue;}
 
-		float distance = FVector::Dist(FocusLocation, GetActorLocation());
-		if (distance > distanceToFurthestPoint)
-			distanceToFurthestPoint = distance;
+			FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
+			BorderVector.Z = 0;
+			FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
+			float Dist = p.PlaneDot(TrackingPointWithBorder);
+			FVector DistVec = (TrackingPointWithBorder - GetActorLocation());
+			
+
+			if (Dist >= DistOutside)	//Outside frustum
+			{
+				DistOutside = Dist;
+				FurthestVec = DirVec * DistOutside;
+				ClosestVec = FVector::ZeroVector;
+			}
+			else if (Dist < 0 && Dist > DistInside )	//inside frustum
+			{
+				if (FurthestVec == FVector::ZeroVector)
+				{
+
+					BWarn("DistInside: %f, Dist: %f", DistInside, Dist);
+					DistInside = Dist;
+					ClosestVec = DirVec * DistInside;
+				}
+			}
+			//BWarn("Actor: %d, ClosestVec: %s, FurthestVec: %s", CurrentActor, *ClosestVec.ToString(), *FurthestVec.ToString());
+			CurrentActor++;
+		}
+		BWarn("Plane: %d, PlaneVec: %s, ClosestVec: %s, FurthestVec: %s",CurrentPlane, *p.GetSafeNormal().ToString(), *ClosestVec.ToString(), *FurthestVec.ToString());
+		sum -= FurthestVec*size;
+		sum -= ClosestVec*size;
+		CurrentPlane++;
 	}
+
+	//BWarn("Sum: %s", *sum.ToString());
+
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
 
-	if (ActiveFocusPoints != 0)
-		sum /= ActiveFocusPoints;
+	//if (ActiveFocusPoints != 0)
+	//	sum /= ActiveFocusPoints;
 
-	if (sum.Z < MinCameraHeight)
-		sum.Z = MinCameraHeight;
-	else if (sum.Z > MaxCameraHeight)
-		sum.Z = MaxCameraHeight;
+	//if (sum.Z < MinCameraHeight)
+	//	sum.Z = MinCameraHeight;
+	//else if (sum.Z > MaxCameraHeight)
+	//	sum.Z = MaxCameraHeight;
 
 	FHitResult OutHit; 
-	LerpCameraLocation(sum + CameraOffset);
+	LerpCameraLocation(GetActorLocation() + sum);
 
-	return distanceToFurthestPoint;
 }
 
 void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
