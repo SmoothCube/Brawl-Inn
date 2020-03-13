@@ -23,18 +23,10 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GameInstance && Birds)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	}
-	if (GameInstance && River)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	}
 
-	/// Spawns and setups camera
+
+	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
-
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
 
 	/// Create overlay
@@ -53,14 +45,20 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
+	for (auto Controller : PlayerControllers)
+		Controller->DisableInput(Controller);
+
 	UpdateViewTargets(FromCharacterSelectionCamera);
 
-	GetWorld()->GetTimerManager().SetTimer(h3, [&]()
+	GetWorld()->GetTimerManager().SetTimer(SwapCameraHandle, [&]()
 		{
 			UpdateViewTargets(nullptr, 2, true);
+			GetWorld()->GetTimerManager().SetTimer(StartGameHandle, [&]()
+				{
+					PreStartGame();
+				}, 0.1f, false, 2);
 		}, 0.1f, false, 1);
 
-	StartGame();
 
 }
 
@@ -70,8 +68,31 @@ void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
+void AMainGameMode_B::PreStartGame()
+{
+	if (GameInstance && Countdown)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f);
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(CountDownHandle, [&]()
+		{
+			if (Overlay)
+			{
+				Overlay->UpdateTimerText(Timer--);
+			}
+		}, 1, true, 0);
+	
+	GetWorld()->GetTimerManager().SetTimer(StartGameHandle2, [&]()
+		{
+			GetWorld()->GetTimerManager().ClearTimer(CountDownHandle);
+			StartGame();
+		}, 0.1f, false, Countdown->GetDuration());
+}
+
 void AMainGameMode_B::StartGame()
 {
+
 	if (GameInstance->GameIsScoreBased())
 	{
 		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, [&]() {
@@ -82,6 +103,23 @@ void AMainGameMode_B::StartGame()
 					OnGameOver.Broadcast();
 			}
 			}, 1.f, true);
+	}
+
+	for (auto Controller : PlayerControllers)
+		Controller->EnableInput(Controller);
+
+	if (GameInstance && Birds)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
+	}
+	if (GameInstance && River)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
+	}
+
+	if (GameInstance && Music)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
 	}
 }
 

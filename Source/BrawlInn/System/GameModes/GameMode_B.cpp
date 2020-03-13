@@ -24,10 +24,7 @@ void AGameMode_B::BeginPlay()
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	if (GameInstance && Music)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
-	}
+
 
 	/// Finds spawnpoints
 	GetAllSpawnpointsInWorld();
