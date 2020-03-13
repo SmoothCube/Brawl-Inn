@@ -36,6 +36,9 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	void FakeTick();
+
 	// ********** Camera Movement **********
 private:
 	void UpdateCameraPosition();

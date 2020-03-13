@@ -74,7 +74,11 @@ protected:
 
 private:
 
+	FTimerHandle h;
+	FTimerHandle h3;
+	FTimerHandle h2;
 
+	
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
 

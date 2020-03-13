@@ -51,6 +51,7 @@ void AGameCamera_B::BeginPlay()
 
 	//Caches the camera rotation angle
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
+	SetActorTickEnabled(false);
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -61,6 +62,13 @@ void AGameCamera_B::Tick(float DeltaTime)
 	SetSpringArmPitch();
 	SetSpringArmLength();
 
+}
+
+void AGameCamera_B::FakeTick()
+{
+	UpdateCameraPosition();
+	SetSpringArmPitch();
+	SetSpringArmLength();
 }
 
 void AGameCamera_B::UpdateCameraPosition()
@@ -217,6 +225,8 @@ void AGameCamera_B::SetSpringArmPitch()
 	float PitchSetter = 1 - (NormalizedLength*NormalizedLength);
 	if (PitchSetter > 1)
 		PitchSetter = 1;
+	else if (PitchSetter < 0)
+		PitchSetter = 0;
 	//map normalization to the value
 	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
 

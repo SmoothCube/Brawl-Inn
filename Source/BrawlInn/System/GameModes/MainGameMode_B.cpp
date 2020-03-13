@@ -12,6 +12,7 @@
 #include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/Menus/PauseMenu_B.h"
@@ -32,7 +33,9 @@ void AMainGameMode_B::BeginPlay()
 	}
 
 	/// Spawns and setups camera
-	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, GameInstance->GetCameraSwapTransform());
+	//GameCamera->SpringArm->TargetArmLength = 0;
+//	GameCamera->SpringArm->SetRelativeRotation(FRotator());
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
 
 	/// Create overlay
@@ -51,12 +54,32 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-	UpdateViewTargets();
 	UpdateViewTargets(FromCharacterSelectionCamera);
 
-	///const FVector CameraLocation = FromCharacterSelectionCamera->GetActorLocation();
-//	FromCharacterSelectionCamera->SetActorLocation(FMath::VInterpConstantTo(CameraLocation, GameCamera->Camera->GetComponentLocation(), GetWorld()->GetDeltaSeconds(), 0.2f));
-	//UpdateViewTargets(nullptr, 3,true);
+
+	////GameCamera->SetActorTickEnabled(false);
+
+	GetWorld()->GetTimerManager().SetTimer(h, [&]()
+		{
+			GameCamera->FakeTick();
+			BLog("GameStart");
+		}, 0.05f, true);
+
+	GetWorld()->GetTimerManager().SetTimer(h3, [&]()
+		{
+			GetWorld()->GetTimerManager().ClearTimer(h);
+			UpdateViewTargets(nullptr, 3, true);
+
+			BLog("Clear GameStart timer");
+		}, 0.1f, false, 1);
+
+
+
+	GetWorld()->GetTimerManager().SetTimer(h2, [&]()
+		{
+			GameCamera->SetActorTickEnabled(true);
+			BLog("Tick turned on");
+		}, 0.1f, false, 4.f);
 
 	StartGame();
 

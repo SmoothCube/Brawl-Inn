@@ -52,7 +52,7 @@ void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool 
 	for (auto& PlayerController : PlayerControllers)
 	{
 		if (IsValid(CameraToUse))
-			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_Cubic,2, LockOutgoing);
+			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_Linear,2, LockOutgoing);
 	}
 }
 
