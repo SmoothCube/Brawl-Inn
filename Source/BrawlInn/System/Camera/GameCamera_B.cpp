@@ -52,7 +52,7 @@ void AGameCamera_B::BeginPlay()
 
 	//Caches the camera rotation angle
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
-	SetActorTickEnabled(false);
+//	SetActorTickEnabled(false);
 
 	//setup for frustum checking
 	LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
@@ -79,26 +79,6 @@ void AGameCamera_B::Tick(float DeltaTime)
 
 }
 
-void AGameCamera_B::FakeTick()
-{
-
-FMatrix Proj;
-	FMatrix View;
-	FMatrix ViewProj;
-
-	FMinimalViewInfo ViewInfo;
-	Camera->GetCameraView(GetWorld()->GetDeltaSeconds(), ViewInfo);
-	UGameplayStatics::GetViewProjectionMatrix(ViewInfo, View,Proj, ViewProj);
-	FConvexVolume v;
-	GetViewFrustumBounds(v, ViewProj, true);
-
-
-	UpdateCameraPosition(v);
-	SetSpringArmPitch();
-	SetSpringArmLength(v);
-}
-
-void AGameCamera_B::UpdateCameraPosition()
 void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 {
 	if (!TrackingBox) { BError("CameraTrackingBox not found!"); return;}
