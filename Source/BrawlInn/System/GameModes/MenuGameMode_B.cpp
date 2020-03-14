@@ -1,11 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MenuGameMode_B.h"
-#include "MovieSceneSequencePlayer.h"
-#include "LevelSequencePlayer.h"
 #include "Kismet/GameplayStatics.h"
-#include "Camera/CameraActor.h"
-#include "LevelSequenceActor.h"
 #include "PaperSpriteComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -27,18 +23,11 @@ void AMenuGameMode_B::BeginPlay()
 void AMenuGameMode_B::PostLevelLoad_Implementation()
 {
 	SetActorTickEnabled(true);
-	
+
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	GameCamera->SetActorRotation(FRotator(0, -65, 0));
 
-	/// Level sequence stuff
-	const FMovieSceneSequencePlaybackSettings Settings;
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Intro, Settings, LSA_Intro);
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_MainMenu, Settings, LSA_MainMenu);
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
-
-	CharacterSelectionWidget = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelection);
+	CharacterSelectionWidget = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelectionOverlay);
 
 	for (auto Controller : PlayerControllers)
 	{
@@ -71,8 +60,6 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 		CharacterStartTransforms[i] = Characters[i]->GetActorTransform();
 	}
 
-
-
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
 		auto SelectionPawn = MenuPlayerControllers[i]->GetSelectionPawn();
@@ -88,12 +75,9 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 	}
 
 	UpdateViewTargets();
-	
-	LS_ToSelectionFinished(); // For å sette på mainmenu og sequencer kommenter denne linjen og uncomment de to linjene under.
 
-	//LSA_Intro->GetSequencePlayer()->Play();
-	//LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
-
+	if (CharacterSelectionWidget)
+		CharacterSelectionWidget->AddToViewport();
 }
 
 void AMenuGameMode_B::Tick(float DeltaTime)
@@ -130,49 +114,6 @@ void AMenuGameMode_B::HideMainMenu()
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
-void AMenuGameMode_B::LS_PlayGame()
-{
-	HideMainMenu();
-	LSA_MainMenu->GetSequencePlayer()->Stop();
-
-	LSA_ToSelection->GetSequencePlayer()->Play();
-	LSA_ToSelection->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_ToSelectionFinished);
-}
-
-void AMenuGameMode_B::LS_QuitGame()
-{
-	HideMainMenu();
-
-	LSA_MainMenu->GetSequencePlayer()->Stop();
-	LSA_Intro->GetSequencePlayer()->PlayReverse();
-	bIsQuitting = true;
-}
-
-void AMenuGameMode_B::LS_IntroFinished()
-{
-	if (bIsQuitting)
-	{
-		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
-		return;
-	}
-
-	LSA_MainMenu->GetSequencePlayer()->PlayLooping();
-	ShowMainMenu();
-}
-
-void AMenuGameMode_B::LS_ToSelectionFinished()
-{
-	if (!CharacterSelectionWidget)
-		return;
-
-	CharacterSelectionWidget->AddToViewport();
-
-	//for (auto& PlayerController : PlayerControllers)
-	//{
-	//	if (IsValid(SelectionCamera))
-	//		PlayerController->SetViewTargetWithBlend(SelectionCamera);
-	//}
-}
 
 void AMenuGameMode_B::UpdateNumberOfActivePlayers()
 {

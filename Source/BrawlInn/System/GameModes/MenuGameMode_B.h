@@ -9,16 +9,12 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStart);
 
-
 class ACameraActor;
-class ULevelSequence;
-class ALevelSequenceActor;
 class UCharacterSelection_B;
 class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
 class ASelectionPawn_B;
-
 
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
@@ -47,43 +43,6 @@ protected:
 
 	UPROPERTY()
 		UMainMenu_B* MainMenuWidget = nullptr;
-
-	// ********** Level Sequence **********
-public:
-	UFUNCTION()
-		void LS_PlayGame();
-
-	UFUNCTION()
-		void LS_QuitGame();
-
-protected:
-	UFUNCTION()
-		void LS_IntroFinished();
-
-	UFUNCTION()
-		void LS_ToSelectionFinished();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		ULevelSequence* LS_Intro = nullptr;
-
-	UPROPERTY()
-		ALevelSequenceActor* LSA_Intro = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		ULevelSequence* LS_MainMenu = nullptr;
-
-	ALevelSequenceActor* LSA_MainMenu = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		ULevelSequence* LS_ToSelection = nullptr;
-
-	ALevelSequenceActor* LSA_ToSelection = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-		ULevelSequence* LS_Selection = nullptr;
-
-	UPROPERTY(BlueprintReadWrite)
-		ALevelSequenceActor* LSA_Selection = nullptr;
 
 	// ********** Ready up **********
 public:
@@ -126,8 +85,8 @@ public:
 protected:
 	void UpdateOtherSelections();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TSubclassOf<UCharacterSelection_B> BP_CharacterSelection;
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<UCharacterSelection_B> BP_CharacterSelectionOverlay;
 
 	UPROPERTY()
 		UCharacterSelection_B* CharacterSelectionWidget = nullptr;
@@ -148,7 +107,6 @@ protected:
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
 
 	
-
 	UPROPERTY()
 		TArray<APlayerCharacter_B*> Characters;
 
