@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/CapsuleComponent.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
@@ -20,6 +21,7 @@ ABounceActor_B::ABounceActor_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	Mesh->SetSimulatePhysics(true);
+	PickupCapsule->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 }
 
 void ABounceActor_B::BeginPlay()
@@ -28,14 +30,22 @@ void ABounceActor_B::BeginPlay()
 	Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 	ScoreAmount = Table->GetRow<FScoreTable>("Barrel")->Value;
 
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
+	
+}
+void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this)
+		return;
+	
+	BLog("HIT");
+	BreakBarrel();
 }
 
 // Old Explode
 void ABounceActor_B::OnItemFracture()
 {
 	Super::OnItemFracture();
-
-
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface && Interface->Execute_IsHeld(this))
@@ -68,7 +78,6 @@ void ABounceActor_B::SpawnPlayerCharacter()
 			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
 		}
 	}
-	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0, 0, -1), 1000);
 	if (PlayerController->GetPlayerCharacter())
 		PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);
 }
@@ -87,4 +96,9 @@ void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
 
 	Mesh->SetMaterial(0, MeshMaterial);
 
+}
+
+void ABounceActor_B::BreakBarrel()
+{
+	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0, 0, -1), 1000);
 }
