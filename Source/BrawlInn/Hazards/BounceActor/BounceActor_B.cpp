@@ -38,7 +38,6 @@ void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedCompo
 	if (OtherActor == this)
 		return;
 	
-	BLog("HIT");
 	BreakBarrel();
 }
 
