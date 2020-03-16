@@ -89,7 +89,6 @@ void AThrowable_B::Use_Implementation()
 		{
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, OwningCharacter->GetChargeLevel());
 		}
-		BWarn("Impulse Strength: %f", ImpulseStrength);
 		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * ImpulseStrength, NAME_None, true);
 		Mesh->SetVisibility(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

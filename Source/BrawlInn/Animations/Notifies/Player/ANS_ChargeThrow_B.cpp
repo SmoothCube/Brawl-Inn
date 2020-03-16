@@ -26,20 +26,17 @@ void UANS_ChargeThrow_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 		if (!bChargeLevel1Reached)		//Tier 1
 		{
-			BWarn("Setting Charge Level to 1");
 			Player->SetChargeLevel(EChargeLevel::EChargeLevel1);
 			bChargeLevel1Reached = true;
 
 		}
 		else if ((ChargeTimer >= Player->ChargeTier2Percentage) && (!bChargeLevel2Reached))	//Tier 2
 		{
-			BWarn("Setting Charge Level to 2");
 			Player->SetChargeLevel(EChargeLevel::EChargeLevel2);
 			bChargeLevel2Reached = true;
 		}
 		else if ((ChargeTimer >= Player->ChargeTier3Percentage) && (!bChargeLevel3Reached))															//Tier 3
 		{
-			BWarn("Setting Charge Level to 3");
 			Player->SetChargeLevel(EChargeLevel::EChargeLevel3);
 			bChargeLevel3Reached = true;
 		}
@@ -48,8 +45,6 @@ void UANS_ChargeThrow_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 void UANS_ChargeThrow_B::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	BWarn("Notify End!");
-
 	bChargeLevel1Reached = false;
 	bChargeLevel2Reached = false;
 	bChargeLevel3Reached = false;

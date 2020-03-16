@@ -44,7 +44,6 @@ void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UPunchComponent_B::PunchStart()
 {
-	BWarn("PunchStart");
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	OwningCharacter->bIsCharging = false;
 	bIsPunching = true;
@@ -156,7 +155,6 @@ void UPunchComponent_B::PunchEnd()
 {
 	if (!bIsPunching) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-	BWarn("PunchEnd!");
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
