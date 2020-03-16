@@ -1,17 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BT_WalkTo_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "AI/NavigationSystemBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 
-#include "Items/Item_B.h"
-#include "Items/Throwable_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
 #include "Characters/AI/AIController_B.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "AI/PathFollowingComponent_B.h"
@@ -42,12 +36,12 @@ void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 		{
 			FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		}
-		FVector TargetLocation = Target->GetActorLocation();
-		FVector CharacterLocation = AICharacter->GetActorLocation();
+		const FVector TargetLocation = Target->GetActorLocation();
+		const FVector CharacterLocation = AICharacter->GetActorLocation();
 
 		FVector Input = TargetLocation - CharacterLocation;
 		Input.Z = 0;
-		float Distance = FVector::Dist(CharacterLocation, TargetLocation);
+		const float Distance = FVector::Dist(CharacterLocation, TargetLocation);
 		if (Distance > AcceptanceRadius)
 		{
 			OwningAI->MoveToActor(Target);
@@ -60,6 +54,5 @@ void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	else {
 		BError("Can't find target");
 		FinishLatentTask(OwnerComp, EBTNodeResult::Aborted);
-
 	}
 }
