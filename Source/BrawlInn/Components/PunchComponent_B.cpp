@@ -44,13 +44,13 @@ void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UPunchComponent_B::PunchStart()
 {
-	BWarn("Starting Punch!") //REMOVE
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	OwningCharacter->bIsCharging = false;
 	SetIsPunching(true);
 	OwningCharacter->MakeVulnerable();
 
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BWarn("Starting Punch!") //REMOVE
 
 	TArray<UPrimitiveComponent*> OurOverlappingComponents;
 	GetOverlappingComponents(OurOverlappingComponents);
@@ -156,9 +156,9 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
-	BWarn("End Punch") //REMOVE
 	if (!GetIsPunching()) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
+	BWarn("End Punch") //REMOVE
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
@@ -317,6 +317,7 @@ bool UPunchComponent_B::GetIsDashing()
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	BWarn("PunchCompontent overlap!");
 	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 

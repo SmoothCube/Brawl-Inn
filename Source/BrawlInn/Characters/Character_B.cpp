@@ -33,7 +33,7 @@ ACharacter_B::ACharacter_B()
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
 
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
-	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
+	PunchComponent->SetupAttachment(GetCapsuleComponent());
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->MaxWalkSpeed = 1400.f;
