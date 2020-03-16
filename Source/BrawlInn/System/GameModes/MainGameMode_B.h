@@ -29,6 +29,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	void PreStartGame();
 
 	void StartGame();
 
@@ -71,13 +72,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* River;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* Countdown;
+
 
 private:
 
-	FTimerHandle h;
-	FTimerHandle h3;
-	FTimerHandle h2;
+	FTimerHandle SwapCameraHandle;
+	FTimerHandle StartGameHandle;
+	int Timer = 3;
 
+	FTimerHandle CountDownHandle;
+	FTimerHandle StartGameHandle2;
 	
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;

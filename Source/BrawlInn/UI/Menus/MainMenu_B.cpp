@@ -44,10 +44,8 @@ void UMainMenu_B::MenuTick()
 
 void UMainMenu_B::PlayButtonClicked()
 {
-	if (GameMode)
-	{
-		GameMode->LS_PlayGame();
-	}
+	BScreen("Play button clicked");
+
 }
 
 void UMainMenu_B::SettingsButtonClicked()
@@ -62,6 +60,5 @@ void UMainMenu_B::CreditsButtonClicked()
 
 void UMainMenu_B::QuitButtonClicked()
 {
-	if (GameMode)
-		GameMode->LS_QuitGame();
+	BScreen("Quit button pressed");
 }

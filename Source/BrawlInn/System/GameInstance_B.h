@@ -16,7 +16,7 @@ class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
 
-	// ********** UGameInstance **********
+		// ********** UGameInstance **********
 protected:
 	virtual void Init() override;
 
@@ -25,14 +25,14 @@ public:
 	void PlayImpactCameraShake(FVector Epicenter);
 
 	UFUNCTION(BlueprintCallable)
-	void SetCameraSwapTransform(FTransform Transform);
+		void SetCameraSwapTransform(FTransform Transform);
 
 	UFUNCTION(BlueprintCallable)
-	FTransform GetCameraSwapTransform() const;
-	
-	
+		FTransform GetCameraSwapTransform() const;
+
+
 protected:
-	FTransform CameraSwapTransform;
+	FTransform CameraSwapTransform = FTransform(FRotator(-35.667469f, 5.636588f ,-0.000007f), FVector(-302.956f, 880.419f, 657.871f));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		TSubclassOf<UCameraShake> ImpactCameraShake;
@@ -42,7 +42,7 @@ public:
 	float GetMasterVolume() const;
 
 	float GetMusicVolume() const;
-	
+
 	float GetSfxVolume() const;
 
 protected:
@@ -83,7 +83,7 @@ public:
 	bool GameIsScoreBased() const;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
-	bool bShouldUseSpreadSheets = false;
+		bool bShouldUseSpreadSheets = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 		bool bGameIsScoreBased = true;

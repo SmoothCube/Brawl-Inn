@@ -19,12 +19,18 @@ public:
 	ABounceActor_B();
 
 	virtual void BeginPlay() override;
-	
+
+	UFUNCTION()
+	void OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	                            const FHitResult& SweepResult);
+
 	virtual void OnItemFracture() override;
 
 	void SpawnPlayerCharacter();
 
 	void SetupBarrel(APlayerController_B* Controller);
+	void BreakBarrel();
 
 	UPROPERTY(EditAnywhere)
 	float ExplodeTime = 5.f;

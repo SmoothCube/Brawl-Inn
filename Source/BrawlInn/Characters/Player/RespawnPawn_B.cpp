@@ -85,10 +85,11 @@ void ARespawnPawn_B::ThrowBarrel()
 			}
 		}
 		bBarrelIsThrown = true;
+		GetWorld()->GetTimerManager().ClearTimer(TH_ThrowTimer);
 	}
 	else if (Barrel)
 	{
-		Barrel->SpawnPlayerCharacter();
+		Barrel->BreakBarrel();
 	}
 }
 
