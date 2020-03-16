@@ -32,6 +32,10 @@ float UGameInstance_B::GetMasterVolume() const
 
 float UGameInstance_B::GetMusicVolume() const
 {
+#if WITH_EDITOR
+	if (bMuteMusic)
+		return 0;
+#endif
 	return MusicVolume;
 }
 

@@ -95,4 +95,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
 	bool bIgnoreCountdown = true;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
+		bool bMuteMusic = true;
+
 };
