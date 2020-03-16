@@ -179,10 +179,9 @@ void AGameCamera_B::SetSpringArmPitch()
 
 	float NormalizedLength = (Length - SmallestSpringArmLength) / (LargestSpringArmLength - SmallestSpringArmLength);
 	float PitchSetter = 1 - (NormalizedLength*NormalizedLength);
-	if (PitchSetter > 1)
-		PitchSetter = 1;
-	else if (PitchSetter < 0)
-		PitchSetter = 0;
+
+	FMath::Clamp(PitchSetter, 0.f, 1.f);
+
 	//map normalization to the value
 	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
 
