@@ -97,8 +97,6 @@ void ACharacter_B::Tick(float DeltaTime)
 
 }
 
-
-
 void ACharacter_B::SetInputVectorX(const float X)
 {
 	InputVector.X = X;
@@ -114,6 +112,8 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	if (PunchComponent->GetIsPunching())
 		return;
 
+	if (InputVector.IsNearlyZero(0.1))
+		return;
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -125,7 +125,10 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	}
 
 	if (InputVector.SizeSquared() > 0)
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), GetMovementComponent()->GetLastInputVector().ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	{
+		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	}
 }
 
 void ACharacter_B::CheckFall(FVector MeshForce)
