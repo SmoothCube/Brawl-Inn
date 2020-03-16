@@ -47,8 +47,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* House;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* Door;
+//	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//	UStaticMeshComponent* Door;
 
 	// ********** Tankard **********
 protected:

@@ -14,8 +14,8 @@ ABar_B::ABar_B()
 	House = CreateDefaultSubobject<UStaticMeshComponent>("House");
 	SetRootComponent(House);
 
-	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
-	Door->SetupAttachment(House);
+//	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
+//	Door->SetupAttachment(House);
 }
 
 void ABar_B::BeginPlay()
