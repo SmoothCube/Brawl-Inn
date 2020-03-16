@@ -44,9 +44,10 @@ void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UPunchComponent_B::PunchStart()
 {
+	BWarn("Starting Punch!") //REMOVE
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	OwningCharacter->bIsCharging = false;
-	bIsPunching = true;
+	SetIsPunching(true);
 	OwningCharacter->MakeVulnerable();
 
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -109,7 +110,9 @@ void UPunchComponent_B::PunchDash()
 
 void UPunchComponent_B::Dash()
 {
-	if (bIsDashing)
+	if (!OwningCharacter) { BError("No OwningCnaracter for PunchComponent!"); return; }
+
+	if (bIsDashing || !OwningCharacter)
 		return;
 	bIsDashing = true;
 
@@ -153,18 +156,21 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
-	if (!bIsPunching) { return; }
+	BWarn("End Punch") //REMOVE
+	if (!GetIsPunching()) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
 	OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity.GetClampedToMaxSize(OwningCharacter->NormalMaxWalkSpeed * PostDashRemainingVelocityPercentage);
-	bIsPunching = false;
 
+	SetIsPunching(false);
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
 		[&]()
 		{
+			BWarn("Can Punch Again!");
+			SetCanPunch(true);
 			bHasHit = false;
 		},
 		PunchWaitingTime,
@@ -291,6 +297,16 @@ bool UPunchComponent_B::GetIsPunching()
 void UPunchComponent_B::SetIsPunching(bool Value)
 {
 	bIsPunching = Value;
+}
+
+bool UPunchComponent_B::GetCanPunch()
+{
+	return bCanPunch;
+}
+
+void UPunchComponent_B::SetCanPunch(bool Value)
+{
+	bCanPunch = Value;
 }
 
 

@@ -130,7 +130,7 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
-	if (PunchComponent->bIsPunching || bIsInvulnerable)
+	if (PunchComponent->GetIsPunching() || bIsInvulnerable)
 		return;
 
 	Fall(MeshForce, FallRecoveryTime);
@@ -389,7 +389,7 @@ EState ACharacter_B::GetState() const
 	return State;
 }
 
-void ACharacter_B::TryPunch()
+void ACharacter_B::TryStartCharging()
 {
 	if (GetState() != EState::EWalking)
 		return;

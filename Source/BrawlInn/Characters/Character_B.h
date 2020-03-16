@@ -255,7 +255,7 @@ public:
 
 	// ********** Punch **********
 public:
-	void TryPunch();
+	void TryStartCharging();
 
 	UNiagaraComponent* GetChargeParticle() const;
 
