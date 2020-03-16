@@ -14,8 +14,8 @@ ABar_B::ABar_B()
 	House = CreateDefaultSubobject<UStaticMeshComponent>("House");
 	SetRootComponent(House);
 
-//	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
-//	Door->SetupAttachment(House);
+	//	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
+	//	Door->SetupAttachment(House);
 }
 
 void ABar_B::BeginPlay()
@@ -62,7 +62,7 @@ void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
-void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
+void ABar_B::AddDropLocation(const EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
 {
 	switch (Type)
 	{
@@ -86,7 +86,7 @@ void ABar_B::AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoin
 		break;
 	default:;
 	}
-	
+
 }
 
 FBarDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
