@@ -53,7 +53,6 @@ bool UThrowComponent_B::TryThrow()
 		return false;
 	}
 
-	BWarn("Trying ThrowCharge!");
 	if (IsValid(OwningCharacter))
 		OwningCharacter->bIsCharging = true;
 	if (OwningCharacter && OwningCharacter->GetChargeParticle())
@@ -65,7 +64,6 @@ void UThrowComponent_B::StartThrow()
 {
 	if (OwningCharacter->bIsCharging)
 	{
-		BWarn("Starting Throw!");
 		OwningCharacter->bIsCharging = false;
 		if (OwningCharacter && OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
@@ -90,7 +88,6 @@ void UThrowComponent_B::Throw()
 		OwningCharacter->SetState(EState::EWalking);
 		return;
 	}
-	BWarn("Throwing!");
 	OwningCharacter->SetState(EState::EWalking);
 	/// Prepare item to be thrown
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());

@@ -190,7 +190,6 @@ void AGameMode_B::AddCameraFocusPoint(AActor* FocusActor)
 {
 	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
 	//TODO: check to see if they are inside the track box before adding.
-	BWarn("Adding Actor %s to camera", *GetNameSafe(FocusActor));
 	GameCamera->ActorsToTrack.Add(FocusActor);
 }
 
