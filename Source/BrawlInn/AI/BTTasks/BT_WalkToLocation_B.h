@@ -3,28 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AI/BTTasks/BT_BaseTask_B.h"
-#include "BT_WalkTo_B.generated.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "BT_WalkToLocation_B.generated.h"
+
+class AAIController_B;
+class ACharacter_B;
 
 UCLASS()
-class BRAWLINN_API UBT_WalkTo_B : public UBT_BaseTask_B
+class BRAWLINN_API UBT_WalkToLocation_B : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 protected:
-	UBT_WalkTo_B();
+	UBT_WalkToLocation_B();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector TargetActor;
+		FBlackboardKeySelector TargetLocation;
 
 	UPROPERTY(EditAnywhere)
 		float AcceptanceRadius = 150.f;
 
-	UPROPERTY()
-		AActor* Target = nullptr;
+	FVector Location;
 
+	UPROPERTY()
+		AAIController_B* OwningAI = nullptr;
+	
+	UPROPERTY()
+	ACharacter_B* Character = nullptr;
 };

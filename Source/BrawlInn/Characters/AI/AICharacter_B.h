@@ -35,9 +35,11 @@ protected:
 	// ********** Misc. **********
 public:
 
+	UFUNCTION(BlueprintCallable)
 	FTransform GetStartTransform() const;
 
 protected:
+
 	FTransform StartTransform;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Variables")

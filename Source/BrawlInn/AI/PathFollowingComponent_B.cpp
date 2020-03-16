@@ -5,7 +5,7 @@
 #include "BrawlInn.h"
 #include "DrawDebugHelpers.h"
 #include "Characters/AI/AIController_B.h"
-#include "Characters/AI/AICharacter_B.h"
+#include "Characters/Character_B.h"
 
 void UPathFollowingComponent_B::BeginPlay()
 {
@@ -24,7 +24,7 @@ void UPathFollowingComponent_B::FollowPathSegment(float DeltaTime)
 {
 	Super::FollowPathSegment(DeltaTime);
 	AAIController_B* Controller = Cast<AAIController_B>(GetOwner());
-	AAICharacter_B* Character = Cast<AAICharacter_B>(Controller->GetPawn());
+	ACharacter_B* Character = Cast<ACharacter_B>(Controller->GetPawn());
 	Character->SetActorRotation(MoveSegmentDirection.ToOrientationRotator());
 	//DrawDebugLine(GetWorld(), Character->GetActorLocation(), Character->GetActorLocation() + (MoveSegmentDirection.GetSafeNormal() * 200.f), FColor::Red, false, DeltaTime);
 

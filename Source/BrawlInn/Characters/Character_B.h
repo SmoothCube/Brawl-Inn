@@ -248,7 +248,7 @@ protected:
 	// ********** States **********
 
 public:
-	void SetState(EState s);
+	virtual void SetState(EState s);
 
 	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
