@@ -23,8 +23,6 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-
 	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
@@ -45,21 +43,28 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-	for (auto Controller : PlayerControllers)
-		Controller->DisableInput(Controller);
 
-	UpdateViewTargets(FromCharacterSelectionCamera);
+	///Countdown
+	if (!GameInstance->IgnoreCountdown())
+	{
+		for (auto Controller : PlayerControllers)
+			Controller->DisableInput(Controller);
 
-	GetWorld()->GetTimerManager().SetTimer(SwapCameraHandle, [&]()
-		{
-			UpdateViewTargets(nullptr, 2, true);
-			GetWorld()->GetTimerManager().SetTimer(StartGameHandle, [&]()
-				{
-					PreStartGame();
-				}, 0.1f, false, 2);
-		}, 0.1f, false, 1);
+		UpdateViewTargets(FromCharacterSelectionCamera);
 
-
+		GetWorld()->GetTimerManager().SetTimer(SwapCameraHandle, [&]()
+			{
+				UpdateViewTargets(nullptr, 2, true);
+				GetWorld()->GetTimerManager().SetTimer(StartGameHandle, [&]()
+					{
+						PreStartGame();
+					}, 0.1f, false, 2);
+			}, 0.1f, false, 1);
+	}
+	else
+	{
+		StartGame();
+	}
 }
 
 void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -82,7 +87,7 @@ void AMainGameMode_B::PreStartGame()
 				Overlay->UpdateTimerText(Timer--);
 			}
 		}, 1, true, 0);
-	
+
 	GetWorld()->GetTimerManager().SetTimer(StartGameHandle2, [&]()
 		{
 			GetWorld()->GetTimerManager().ClearTimer(CountDownHandle);

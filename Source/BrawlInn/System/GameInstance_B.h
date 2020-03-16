@@ -87,4 +87,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 		bool bGameIsScoreBased = true;
+
+	// ********** Editor Only Settings **********
+public:
+	bool IgnoreCountdown() const;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
+	bool bIgnoreCountdown = true;
+
 };

@@ -88,3 +88,13 @@ bool UGameInstance_B::GameIsScoreBased() const
 {
 	return bGameIsScoreBased;
 }
+
+
+bool UGameInstance_B::IgnoreCountdown() const
+{
+#if WITH_EDITOR
+	return bIgnoreCountdown;
+#else
+	return false;
+#endif
+}
