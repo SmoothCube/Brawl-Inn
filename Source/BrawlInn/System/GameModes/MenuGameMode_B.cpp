@@ -190,17 +190,17 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
-	const int ID = PlayerControllerThatSelected->GetCharacterVariantIndex();
+	const int VariantIndex = PlayerControllerThatSelected->GetCharacterVariantIndex();
 	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
-	CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()].bTaken = false;
+	CharacterVariants[VariantIndex].bTaken = false;
 	Info.CharacterVariant = FCharacterVariants();
 	PlayerControllerThatSelected->SetPlayerInfo(Info);
 
-	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ID]);
+	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ControllerID]);
 	if (SelectionIndicators.IsValidIndex(ControllerID))
 		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[ControllerID]);
-	if (CharacterVariants.IsValidIndex(ID))
-		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[ID].TextColor);
+	if (CharacterVariants.IsValidIndex(VariantIndex))
+		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[VariantIndex].TextColor);
 
 	PlayerControllerThatSelected->Possess(SelectionPawn);
 	SelectionPawn->SetActorLocation(Characters[ControllerID]->GetActorLocation() + SelectionIndicatorOffsetLocation);

@@ -97,7 +97,7 @@ void AMenuPlayerController_B::FaceButtonBottomPressed()
 
 void AMenuPlayerController_B::FaceButtonRightPressed()
 {
-//	Unselect();
+	Unselect();
 }
 
 void AMenuPlayerController_B::TrySelect()
