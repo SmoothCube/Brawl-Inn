@@ -14,6 +14,7 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/MenuPlayerController_B.h"
+#include "System/GameInstance_B.h"
 
 void AMenuGameMode_B::BeginPlay()
 {
@@ -76,9 +77,6 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 
 	UpdateViewTargets();
 
-	if (CharacterSelectionWidget)
-		CharacterSelectionWidget->AddToViewport();
-
 	ShowMainMenu();
 }
 
@@ -104,9 +102,9 @@ void AMenuGameMode_B::ShowMainMenu()
 
 	MainMenuWidget->AddToViewport();
 
-	const FInputModeUIOnly InputModeData;
+	 FInputModeUIOnly InputModeData;
+	 InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
-	PlayerControllers[0]->bShowMouseCursor = true;
 	PlayerControllers[0]->SetInputMode(InputModeData);
 }
 
@@ -114,8 +112,6 @@ void AMenuGameMode_B::HideMainMenu()
 {
 	MainMenuWidget->RemoveFromParent();
 	
-	PlayerControllers[0]->bShowMouseCursor = false;
-
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
@@ -153,6 +149,9 @@ void AMenuGameMode_B::SetPlayersReady(const int Value)
 void AMenuGameMode_B::PlayButtonClicked_Implementation()
 {
 	HideMainMenu();
+
+	if (CharacterSelectionWidget)
+		CharacterSelectionWidget->AddToViewport();
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)

@@ -4,21 +4,13 @@
 #include "Button_B.h"
 #include "BrawlInn.h"
 
-void UButton_B::ButtonTick()
+void UButton_B::Tick_Implementation()
 {
 	if (IsHovered())
-	{
 		SetUserFocus(GetOwningPlayer());
-		SetStyle(MouseHover);
-	}
-	else
-	{
-		if (HasUserFocus(GetOwningPlayer()))
-		{
-			SetStyle(Selected);
-		}
-		else {
-			SetStyle(Unselected);
-		}
-	}
+
+	 if (HasUserFocus(GetOwningPlayer()))
+		 SetStyle(Selected);
+	 else
+		 SetStyle(Unselected);
 }

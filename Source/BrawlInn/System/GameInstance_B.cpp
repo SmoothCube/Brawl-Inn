@@ -44,6 +44,21 @@ float UGameInstance_B::GetSfxVolume() const
 	return SfxVolume;
 }
 
+void UGameInstance_B::SetMasterVolume(const float Value)
+{
+	MasterVolume = Value;
+}
+
+void UGameInstance_B::SetMusicVolume(const float Value)
+{
+	MusicVolume = Value;
+}
+
+void UGameInstance_B::SetSfxVolume(const float Value)
+{
+	SfxVolume = Value;
+}
+
 void UGameInstance_B::AddPlayerInfo(FPlayerInfo PlayerInfo)
 {
 	if (!ActivePlayerInfos.FindByPredicate([&](const FPlayerInfo& Info) {return Info.ID == PlayerInfo.ID; }))

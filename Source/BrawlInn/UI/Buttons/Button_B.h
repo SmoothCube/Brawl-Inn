@@ -5,19 +5,18 @@
 #include "CoreMinimal.h"
 #include "Components/Button.h"
 #include "Styling/SlateBrush.h"
+#include "UI/UIElements/UIElementsInterface_B.h"
 #include "Button_B.generated.h"
 
-
 UCLASS()
-class BRAWLINN_API UButton_B : public UButton
+class BRAWLINN_API UButton_B : public UButton, public IUIElementsInterface_B
 {
 	GENERATED_BODY()
 
 
 public:
 
-	UFUNCTION(BlueprintCallable)
-	void ButtonTick();
+	void Tick_Implementation() override;
 
 protected:
 

@@ -28,6 +28,6 @@ void UVictoryScreenWidget_B::NativeConstruct()
 void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	ContinueButton->ButtonTick();
+	ContinueButton->Execute_Tick(ContinueButton);
 }
 	

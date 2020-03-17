@@ -37,7 +37,7 @@ void UPauseMenu_B::MenuTick()
 {
 	
 	for (const auto& Button : Buttons)
-		Button->ButtonTick();
+		Button->Execute_Tick(Button);
 }
 
 void UPauseMenu_B::ContinueButtonClicked()
@@ -51,5 +51,5 @@ void UPauseMenu_B::ContinueButtonClicked()
 
 void UPauseMenu_B::ExitButtonClicked()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), "MenuMap_v2");
+	UGameplayStatics::OpenLevel(GetWorld(), "MenuMap_v3");
 }
