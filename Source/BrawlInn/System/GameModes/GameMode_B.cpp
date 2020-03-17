@@ -24,8 +24,6 @@ void AGameMode_B::BeginPlay()
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-
-
 	/// Finds spawnpoints
 	GetAllSpawnpointsInWorld();
 
@@ -37,7 +35,18 @@ void AGameMode_B::BeginPlay()
 	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
 
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
+}
 
+void AGameMode_B::DisableControllerInputs()
+{
+	for (auto Controller : PlayerControllers)
+		Controller->DisableInput(Controller);
+}
+
+void AGameMode_B::EnableControllerInputs()
+{
+	for (auto Controller : PlayerControllers)
+		Controller->EnableInput(Controller);
 }
 
 void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool LockOutgoing)

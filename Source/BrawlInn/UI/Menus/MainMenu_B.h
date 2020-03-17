@@ -6,6 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu_B.generated.h"
 
+class UTextBlock;
+class IUIElementsInterface_B;
+class USlider_B;
+class UGameInstance_B;
+class UWidgetSwitcher;
 class UButton_B;
 class AMenuGameMode_B;
 
@@ -13,17 +18,16 @@ UCLASS()
 class BRAWLINN_API UMainMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
-		
+
 public:
 	void MenuTick();
 
 protected:
-	// ** Overridden Functions **
-	virtual bool Initialize() override;
+	// ********** UUserWidget **********
 
-	virtual void NativeConstruct() override;
+	void NativeConstruct() override;
 
-	// ** Delegates **
+	// ********** Button Clicks **********
 	UFUNCTION()
 		void PlayButtonClicked();
 
@@ -36,7 +40,21 @@ protected:
 	UFUNCTION()
 		void QuitButtonClicked();
 
-	// ** Buttons **
+	UFUNCTION()
+		void BackFromSettingsButtonClicked();
+
+	// ********** Sliders **********
+
+	UFUNCTION()
+	void OnSfxValueChanged(float Value);
+
+	UFUNCTION()
+	void OnMasterValueChanged(float Value);
+
+	UFUNCTION()
+	void OnMusicValueChanged(float Value);
+
+	// ********** Widgets **********
 
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* PlayButton;
@@ -50,10 +68,36 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* QuitButton;
 
-	// ** Variables **
+	UPROPERTY(meta = (BindWidget))
+		UButton_B* BackFromSettingsButton;
 
-	AMenuGameMode_B* GameMode = nullptr;
+	UPROPERTY(meta = (BindWidget))
+		UWidgetSwitcher* WidgetSwitcher;
 
-private:
-	TArray<UButton_B*> Buttons;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		USlider_B* MasterSlider;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		USlider_B* MusicSlider;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		USlider_B* SfxSlider;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* SfxValueText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* MasterValueText;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* MusicValueText;
+	// ********** Misc. **********
+
+	UPROPERTY()
+		AMenuGameMode_B* GameMode = nullptr;
+
+	UPROPERTY()
+		UGameInstance_B* GameInstance = nullptr;
+
+	TArray<UWidget*> UIElementsWithInterface;
 };

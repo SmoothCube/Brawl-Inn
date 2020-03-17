@@ -59,6 +59,9 @@ public:
 
 	void SetPlayersReady(int Value);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayButtonClicked();
+
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FOnGameStart PrepareGameStart_Delegate;
 	
@@ -76,6 +79,7 @@ public:
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 
 	void UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected);
+	
 	void UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* SelectionPawn, int ID);
 
 	void HoverLeft(AMenuPlayerController_B* PlayerController);
@@ -106,7 +110,6 @@ protected:
 	UPROPERTY()
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
 
-	
 	UPROPERTY()
 		TArray<APlayerCharacter_B*> Characters;
 

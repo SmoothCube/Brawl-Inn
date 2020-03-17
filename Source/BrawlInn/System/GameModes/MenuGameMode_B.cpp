@@ -14,6 +14,7 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/MenuPlayerController_B.h"
+#include "System/GameInstance_B.h"
 
 void AMenuGameMode_B::BeginPlay()
 {
@@ -76,8 +77,7 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 
 	UpdateViewTargets();
 
-	if (CharacterSelectionWidget)
-		CharacterSelectionWidget->AddToViewport();
+	ShowMainMenu();
 }
 
 void AMenuGameMode_B::Tick(float DeltaTime)
@@ -102,7 +102,8 @@ void AMenuGameMode_B::ShowMainMenu()
 
 	MainMenuWidget->AddToViewport();
 
-	const FInputModeUIOnly InputModeData;
+	 FInputModeUIOnly InputModeData;
+	 InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
 }
@@ -110,7 +111,7 @@ void AMenuGameMode_B::ShowMainMenu()
 void AMenuGameMode_B::HideMainMenu()
 {
 	MainMenuWidget->RemoveFromParent();
-
+	
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
@@ -143,6 +144,14 @@ int AMenuGameMode_B::GetPlayersReady() const
 void AMenuGameMode_B::SetPlayersReady(const int Value)
 {
 	PlayersReady = Value;
+}
+
+void AMenuGameMode_B::PlayButtonClicked_Implementation()
+{
+	HideMainMenu();
+
+	if (CharacterSelectionWidget)
+		CharacterSelectionWidget->AddToViewport();
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)

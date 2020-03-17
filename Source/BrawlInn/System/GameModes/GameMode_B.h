@@ -32,8 +32,15 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+
+		void DisableControllerInputs();
+
+	UFUNCTION(BlueprintCallable)
+		void EnableControllerInputs();
+
 	UPROPERTY()
-	TArray<AGamePlayerController_B*> PlayerControllers;
+		TArray<AGamePlayerController_B*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)
@@ -53,17 +60,17 @@ public:
 		void UpdateViewTargets(ACameraActor* Camera = nullptr, float BlendTime = 0, bool LockOutgoing = false);
 
 	/// ** Delegates ** 
-		FSpawnCharacter SpawnCharacter_D;
+	FSpawnCharacter SpawnCharacter_D;
 
-		FDespawnCharacter DespawnCharacter_D;
+	FDespawnCharacter DespawnCharacter_D;
 
-		FRespawnCharacter RespawnCharacter_D;
-		
-		FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
+	FRespawnCharacter RespawnCharacter_D;
 
-		FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+	FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
 
-		FOnRespawnCharacter OnRespawnCharacter_D;
+	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+
+	FOnRespawnCharacter OnRespawnCharacter_D;
 
 	UFUNCTION()
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
@@ -81,13 +88,13 @@ public:
 	void AddCameraFocusPoint(AActor* FocusActor);
 	void RemoveCameraFocusPoint(AActor* FocusActor);
 
-	
+
 	UPROPERTY()
 		AGameCamera_B* GameCamera = nullptr;
 protected:
 
 	UPROPERTY()
-	UGameInstance_B* GameInstance = nullptr;
+		UGameInstance_B* GameInstance = nullptr;
 
 	void CreatePlayerControllers();
 	void GetAllSpawnpointsInWorld();
@@ -95,5 +102,5 @@ protected:
 	FTransform GetSpawnTransform(const int PlayerControllerID);
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
-	USoundCue* Music;
+		USoundCue* Music;
 };

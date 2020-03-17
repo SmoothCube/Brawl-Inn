@@ -43,12 +43,10 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-
 	///Countdown
 	if (!GameInstance->IgnoreCountdown())
 	{
-		for (auto Controller : PlayerControllers)
-			Controller->DisableInput(Controller);
+		DisableControllerInputs();
 
 		UpdateViewTargets(FromCharacterSelectionCamera);
 
@@ -110,8 +108,7 @@ void AMainGameMode_B::StartGame()
 			}, 1.f, true);
 	}
 
-	for (auto Controller : PlayerControllers)
-		Controller->EnableInput(Controller);
+	EnableControllerInputs();
 
 	if (GameInstance && Birds)
 	{

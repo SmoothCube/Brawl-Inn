@@ -1,35 +1,51 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MainMenu_B.h"
+#include "Components/WidgetSwitcher.h"
 #include "Engine/World.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 #include "BrawlInn.h"
-#include "UI/Buttons/Button_B.h"
+#include "UI/UIElements/Slider_B.h"
+#include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
-
-bool UMainMenu_B::Initialize()
-{
-	bool success = Super::Initialize();
-	return success;
-}
+#include "TextBlock.h"
+#include "UI/Buttons/Button_B.h"
 
 void UMainMenu_B::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
 	PlayButton->OnClicked.AddDynamic(this, &UMainMenu_B::PlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
+	BackFromSettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
 
-	Buttons.Add(PlayButton);
-	Buttons.Add(SettingsButton);
-	Buttons.Add(CreditsButton);
-	Buttons.Add(QuitButton);
+	UIElementsWithInterface.Add(PlayButton);
+	UIElementsWithInterface.Add(SettingsButton);
+	UIElementsWithInterface.Add(CreditsButton);
+	UIElementsWithInterface.Add(QuitButton);
+	UIElementsWithInterface.Add(BackFromSettingsButton);
+
+	SfxSlider->OnValueChanged.AddDynamic(this, &UMainMenu_B::OnSfxValueChanged);
+	MasterSlider->OnValueChanged.AddDynamic(this, &UMainMenu_B::OnMasterValueChanged);
+	MusicSlider->OnValueChanged.AddDynamic(this, &UMainMenu_B::OnMusicValueChanged);
+
+	SfxSlider->SetValue(GameInstance->GetSfxVolume());
+	OnSfxValueChanged(GameInstance->GetSfxVolume());
+	MasterSlider->SetValue(GameInstance->GetMasterVolume());
+	OnMasterValueChanged(GameInstance->GetMasterVolume());
+	MusicSlider->SetValue(GameInstance->GetMusicVolume());
+	OnMusicValueChanged(GameInstance->GetMusicVolume());
+
+	UIElementsWithInterface.Add(SfxSlider);
+	UIElementsWithInterface.Add(MasterSlider);
+	UIElementsWithInterface.Add(MusicSlider);
 
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(PlayButton->GetCachedWidget());
@@ -38,19 +54,27 @@ void UMainMenu_B::NativeConstruct()
 
 void UMainMenu_B::MenuTick()
 {
-	for (const auto& Button : Buttons)
-		Button->ButtonTick();
+	for (auto Element : UIElementsWithInterface)
+	{
+		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
+		{
+			IUIElementsInterface_B::Execute_Tick(Element);
+		}
+	}
 }
 
 void UMainMenu_B::PlayButtonClicked()
 {
-	BScreen("Play button clicked");
-
+	GameMode->PlayButtonClicked();
 }
 
 void UMainMenu_B::SettingsButtonClicked()
 {
-	BScreen("Settings is disabled");
+	WidgetSwitcher->SetActiveWidgetIndex(1);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(BackFromSettingsButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
 void UMainMenu_B::CreditsButtonClicked()
@@ -60,5 +84,40 @@ void UMainMenu_B::CreditsButtonClicked()
 
 void UMainMenu_B::QuitButtonClicked()
 {
-	BScreen("Quit button pressed");
+	UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+}
+
+void UMainMenu_B::BackFromSettingsButtonClicked()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(0);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(SettingsButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+}
+
+void UMainMenu_B::OnSfxValueChanged(const float Value)
+{
+	if (IsValid(GameInstance))
+		GameInstance->SetSfxVolume(Value);
+
+	SfxValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
+}
+
+void UMainMenu_B::OnMasterValueChanged(const float Value)
+{
+	if (IsValid(GameInstance))
+		GameInstance->SetMasterVolume(Value);
+
+	MasterValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
+
+}
+
+void UMainMenu_B::OnMusicValueChanged(const float Value)
+{
+	if (IsValid(GameInstance))
+		GameInstance->SetMusicVolume(Value);
+
+	MusicValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
+
 }

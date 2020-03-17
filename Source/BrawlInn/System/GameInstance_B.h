@@ -30,7 +30,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FTransform GetCameraSwapTransform() const;
 
-
 protected:
 	FTransform CameraSwapTransform = FTransform(FRotator(-35.667469f, 5.636588f ,-0.000007f), FVector(-302.956f, 880.419f, 657.871f));
 
@@ -44,6 +43,12 @@ public:
 	float GetMusicVolume() const;
 
 	float GetSfxVolume() const;
+
+	void SetMasterVolume(float Value);
+	
+	void SetMusicVolume(float Value);
+	
+	void SetSfxVolume(float Value);
 
 protected:
 
