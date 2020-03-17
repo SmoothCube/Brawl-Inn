@@ -196,7 +196,7 @@ void AGameCamera_B::SetSpringArmPitch()
 
 void AGameCamera_B::EndFocus(AActor* OtherActor)
 {
-	if (!OtherActor)
+	if (!IsValid(OtherActor))
 		BWarn("No Other Actor!");
 	ActorsToTrack.Remove(OtherActor);
 

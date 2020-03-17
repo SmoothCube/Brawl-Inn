@@ -146,9 +146,10 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
-	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
+	if(IsValid(DirectionIndicatorPlane))
+		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
 	
-	if (HighShatterSound)
+	if (IsValid(HighShatterSound))
 	{
 		float Volume = 1.f;
 		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));

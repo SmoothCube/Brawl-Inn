@@ -281,8 +281,8 @@ void ACharacter_B::Use_Implementation()
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
 		}
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
+		HoldingCharacter = nullptr;
 	}
-	HoldingCharacter = nullptr;
 
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
 		{
