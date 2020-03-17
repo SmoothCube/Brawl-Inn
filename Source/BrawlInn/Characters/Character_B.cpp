@@ -88,7 +88,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if (GetState() != EState::EBeingHeld)
+	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp)
 	{
 		HandleMovement(DeltaTime);
 	}
@@ -134,18 +134,17 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
-	if (PunchComponent->GetIsPunching() || bIsInvulnerable)
+	if (!PunchComponent || PunchComponent->GetIsPunching() || bIsInvulnerable)
 		return;
-
 	Fall(MeshForce, FallRecoveryTime);
 }
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
+//	if (GetCharacterMovement()->IsFalling())	//Had to remove this but should probably be here? idk does this even work properly
+//		return;									//yes i know i wrote it
 
-	if (GetCharacterMovement()->IsFalling())
-		return;
-
+	BWarn("Character Fell!");
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
 
@@ -166,6 +165,9 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 void ACharacter_B::StandUp()
 {
+	if (!bIsAlive)
+		return;
+
 	SetActorLocation(FindMeshGroundLocation());
 
 	//if (GetCharacterMovement()->IsFalling() )// && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
@@ -173,6 +175,7 @@ void ACharacter_B::StandUp()
 	//	BWarn("Character is falling! Cant stand up!");
 	//	return;
 	//}
+
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 	
@@ -282,8 +285,8 @@ void ACharacter_B::Use_Implementation()
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
 		}
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
+		HoldingCharacter = nullptr;
 	}
-	HoldingCharacter = nullptr;
 
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
 		{
@@ -400,6 +403,12 @@ EState ACharacter_B::GetState() const
 {
 
 	return State;
+}
+
+void ACharacter_B::Die()
+{
+	Fall();
+	bIsAlive = false;
 }
 
 void ACharacter_B::TryStartCharging()

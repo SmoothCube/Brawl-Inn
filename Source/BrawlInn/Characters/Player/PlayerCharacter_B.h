@@ -38,14 +38,20 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 
+	// ********** Movement **********
+
+	void HandleMovementPoweredUp(float DeltaTime);
+
+	FVector PrevInputVector;
+
 	// ********** Falling **********
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
-
-	UFUNCTION()
-	void Die();
-
+public:
+	virtual void Die() override;
+protected:
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1) override;
+
 	virtual void StandUp() override;
 
 	// ********** Hold players **********

@@ -10,7 +10,7 @@
 #include "Engine/World.h"
 #include "Engine/TriggerBox.h"
 #include "Engine/LocalPlayer.h"
-
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerController_B.h"
@@ -53,7 +53,6 @@ void AGameCamera_B::BeginPlay()
 	//Caches the camera rotation angle
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
 //	SetActorTickEnabled(false);
-
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -72,6 +71,12 @@ void AGameCamera_B::Tick(float DeltaTime)
 	UpdateCameraPosition(v);
 	SetSpringArmPitch();
 	SetSpringArmLength(v);
+
+}
+
+void AGameCamera_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 }
 
@@ -189,8 +194,10 @@ void AGameCamera_B::SetSpringArmPitch()
 	SpringArm->SetWorldRotation(FRotator(StartPitch + VariablePitch, SpringArm->GetComponentRotation().Yaw, SpringArm->GetComponentRotation().Roll));
 }
 
-void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AGameCamera_B::EndFocus(AActor* OtherActor)
 {
+	if (!IsValid(OtherActor))
+		BWarn("No Other Actor!");
 	ActorsToTrack.Remove(OtherActor);
 
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
@@ -204,6 +211,14 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 			ActorsToTrack.Add(Player);
 		}
 	}
+}
+
+void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	FTimerHandle UniqueHandle;
+	FTimerDelegate RespawnDelegate = FTimerDelegate::CreateUObject(this, &AGameCamera_B::EndFocus, OtherActor);
+	GetWorldTimerManager().SetTimer(UniqueHandle, RespawnDelegate, EndFocusTime, false);
+	//GetWorld()->GetTimerManager().SetTimer(TH_EndFocusTimer, this, &AGameCamera_B::EndFocus, EndFocusTime, false);
 }
 
 void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

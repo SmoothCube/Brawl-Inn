@@ -306,6 +306,15 @@ void UPunchComponent_B::SetCanPunch(bool Value)
 	bCanPunch = Value;
 }
 
+bool UPunchComponent_B::GetCanDash()
+{
+	return bCanDash;
+}
+
+void UPunchComponent_B::SetCanDash(bool Value)
+{
+	bCanDash = Value;
+}
 
 bool UPunchComponent_B::GetIsDashing()
 {

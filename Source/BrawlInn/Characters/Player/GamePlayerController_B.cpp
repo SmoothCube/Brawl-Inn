@@ -187,13 +187,18 @@ bool AGamePlayerController_B::TryBreakFree()
 
 void AGamePlayerController_B::TryDash()
 {
-	if (PlayerCharacter && PlayerCharacter->PunchComponent)
+	if (PlayerCharacter && 
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->PunchComponent->GetCanDash()
+		) 
 		PlayerCharacter->PunchComponent->Dash();
 }
 
 bool AGamePlayerController_B::TryStartPunchCharge()
 {
-	if (PlayerCharacter)
+	if (PlayerCharacter &&
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->PunchComponent->GetCanPunch())
 	{
 		PlayerCharacter->TryStartCharging();
 		return true;
@@ -235,6 +240,7 @@ bool AGamePlayerController_B::TryPunch()
 		PlayerCharacter->PunchComponent->GetCanPunch()
 		)
 	{
+		BWarn("Trying punch!");
 		PlayerCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);
 		PlayerCharacter->PunchComponent->SetIsPunching(true);
 		PlayerCharacter->PunchComponent->SetCanPunch(false);

@@ -21,7 +21,8 @@ enum class EState : uint8
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
 	EFallen		UMETA(DisplayName = "Fallen"),
-	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
+	EBeingHeld 	UMETA(DisplayName = "BeingHeld"),
+	EPoweredUp 	UMETA(DisplayName = "PoweredUp")
 };
 
 UCLASS()
@@ -253,6 +254,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
 
+	UFUNCTION()
+	virtual void Die();
 	// ********** Punch **********
 public:
 	void TryStartCharging();
@@ -278,6 +281,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int StoolScoreAmount = 25;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+		int PowerupKnockdownScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HurtSound;

@@ -15,7 +15,8 @@ bool UCharacterSelection_B::Initialize()
 
 void UCharacterSelection_B::UpdateNumberOfPlayersText(int Value)
 {
-	NumberOfPlayersText->SetText(FText::FromString(FString("Number of players active: ") + FString::FormatAsNumber(Value)));
+	if(NumberOfPlayersText)
+		NumberOfPlayersText->SetText(FText::FromString(FString("Number of players active: ") + FString::FormatAsNumber(Value)));
 }
 
 void UCharacterSelection_B::UpdateNumberOfPlayersReady(int Value)

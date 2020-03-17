@@ -52,6 +52,7 @@ public:
 	bool GetCanPunch();
 
 	void SetCanPunch(bool Value);
+
 protected:
 	void PunchHit(ACharacter_B* OtherPlayer);
 	void PunchHit(UPrimitiveComponent* OtherComp);
@@ -137,7 +138,7 @@ protected:
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
-	float DashCooldown = 2.f;
+	float DashCooldown = 1.2f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
 	float DashTime = 0.1f;
@@ -146,9 +147,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))
 	float DashPushPercentage = 0.5f;
 	
+	bool GetCanDash();
+
+	void SetCanDash(bool Value);
+
 	bool GetIsDashing();
 private:
 	bool bIsDashing = false;
+	bool bCanDash = true;
 
 	FTimerHandle TH_DashAgainHandle;
 	FTimerHandle TH_DashDoneHandle;
