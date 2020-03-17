@@ -26,6 +26,15 @@ EBTNodeResult::Type UBT_WalkTo_B::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	return EBTNodeResult::InProgress;
 }
 
+EBTNodeResult::Type UBT_WalkTo_B::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	const EBTNodeResult::Type Result = Super::AbortTask(OwnerComp, NodeMemory);
+
+	OwningAI->StopMovement();
+
+	return Result;
+}
+
 void UBT_WalkTo_B::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);

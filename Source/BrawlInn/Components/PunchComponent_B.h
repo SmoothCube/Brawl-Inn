@@ -123,6 +123,7 @@ public:
 	FOnPunchHit OnPunchHit_D;
 
 	// ********** Dash **********
+	UFUNCTION(BlueprintCallable)
 	void Dash();
 protected:
 
