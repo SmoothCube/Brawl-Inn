@@ -88,7 +88,7 @@ void AGamePlayerController_B::FaceButtonBottomPressed()
 {
 	if (!TryBreakFree())
 		TryPickup();
-	else if (RespawnPawn)
+	if (RespawnPawn)
 		RespawnPawn->ThrowBarrel();
 }
 

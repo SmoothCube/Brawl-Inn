@@ -114,6 +114,7 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 	if (InputVector.IsNearlyZero(0.1))
 		return;
+
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -182,7 +183,7 @@ void ACharacter_B::StandUp()
 	//Saves snapshot for blending to animation
 	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
-	GetMovementComponent()->StopMovementImmediately();
+	GetMovementComponent()->StopMovementImmediately();	//CRASH HERE -E
 
 	SetState(EState::EWalking);
 	StunAmount = 0;
