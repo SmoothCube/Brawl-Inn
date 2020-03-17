@@ -47,13 +47,11 @@ protected:
 	// ********** Falling **********
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
-
 public:
-	UFUNCTION()
-	void Die();
+	virtual void Die() override;
 protected:
-
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1) override;
+
 	virtual void StandUp() override;
 
 	// ********** Hold players **********

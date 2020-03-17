@@ -165,6 +165,9 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 void ACharacter_B::StandUp()
 {
+	if (!bIsAlive)
+		return;
+
 	SetActorLocation(FindMeshGroundLocation());
 
 	//if (GetCharacterMovement()->IsFalling() )// && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
@@ -172,6 +175,7 @@ void ACharacter_B::StandUp()
 	//	BWarn("Character is falling! Cant stand up!");
 	//	return;
 	//}
+
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 	
@@ -399,6 +403,12 @@ EState ACharacter_B::GetState() const
 {
 
 	return State;
+}
+
+void ACharacter_B::Die()
+{
+	Fall();
+	bIsAlive = false;
 }
 
 void ACharacter_B::TryStartCharging()

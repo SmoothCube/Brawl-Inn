@@ -184,15 +184,19 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 {
 	BWarn("Tracking box end overlap from gamemode!");
 	
-	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
-	if (Player)
+	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
+	if (Character)
 	{
 		//Checks to see if the player is still overlapping. Same method as in DragArea
 		TArray<AActor*> OverlappingActors;
-		TrackingBox->GetOverlappingActors(OverlappingActors);
-		if (OverlappingActors.Find(Player) == INDEX_NONE)
+		if(TrackingBox)
+			TrackingBox->GetOverlappingActors(OverlappingActors);
+		if (OverlappingActors.Find(Character) == INDEX_NONE)
 		{
-			Player->Die();
+			BWarn("Character not found in box!");
+			if(!(Character->GetState() == EState::EBeingHeld))	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
+				Character->Die();
+
 		}
 	}
 }

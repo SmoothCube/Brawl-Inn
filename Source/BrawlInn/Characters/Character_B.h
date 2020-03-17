@@ -254,6 +254,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
 
+	UFUNCTION()
+	virtual void Die();
 	// ********** Punch **********
 public:
 	void TryStartCharging();

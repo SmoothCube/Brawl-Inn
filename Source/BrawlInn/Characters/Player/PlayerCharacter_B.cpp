@@ -131,8 +131,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 
 void APlayerCharacter_B::Die()
 {
-	Fall();
-	bIsAlive = false;
+	Super::Die();
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
