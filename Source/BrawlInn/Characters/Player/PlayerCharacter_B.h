@@ -49,6 +49,8 @@ protected:
 	virtual void StandUp() override;
 
 	// ********** Hold players **********
+	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
+
 
 	virtual void Dropped_Implementation() override;
 

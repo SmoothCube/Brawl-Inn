@@ -139,11 +139,20 @@ void APlayerCharacter_B::StandUp()
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
 	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
+	DirectionIndicatorPlane->SetHiddenInGame(false);
+}
+
+void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
+{
+	Super::PickedUp_Implementation(Player);
+
+	DirectionIndicatorPlane->SetHiddenInGame(true);
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
+	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
 }
 
