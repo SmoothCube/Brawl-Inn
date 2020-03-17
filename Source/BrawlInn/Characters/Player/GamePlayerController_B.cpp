@@ -88,7 +88,7 @@ void AGamePlayerController_B::FaceButtonBottomPressed()
 {
 	if (!TryBreakFree())
 		TryPickup();
-	else if (RespawnPawn)
+	if (RespawnPawn)
 		RespawnPawn->ThrowBarrel();
 }
 
@@ -235,8 +235,6 @@ bool AGamePlayerController_B::TryPunch()
 		PlayerCharacter->PunchComponent->GetCanPunch()
 		)
 	{
-		BWarn("Trying Punch!");
-
 		PlayerCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);
 		PlayerCharacter->PunchComponent->SetIsPunching(true);
 		PlayerCharacter->PunchComponent->SetCanPunch(false);

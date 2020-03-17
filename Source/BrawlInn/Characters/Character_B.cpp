@@ -33,7 +33,7 @@ ACharacter_B::ACharacter_B()
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
 
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
-	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
+	PunchComponent->SetupAttachment(GetCapsuleComponent());
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->MaxWalkSpeed = 1400.f;
@@ -97,8 +97,6 @@ void ACharacter_B::Tick(float DeltaTime)
 
 }
 
-
-
 void ACharacter_B::SetInputVectorX(const float X)
 {
 	InputVector.X = X;
@@ -114,6 +112,9 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	if (PunchComponent->GetIsPunching())
 		return;
 
+	if (InputVector.IsNearlyZero(0.1))
+		return;
+
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
@@ -125,7 +126,10 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 	}
 
 	if (InputVector.SizeSquared() > 0)
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), GetMovementComponent()->GetLastInputVector().ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	{
+		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	}
 }
 
 void ACharacter_B::CheckFall(FVector MeshForce)
@@ -179,7 +183,7 @@ void ACharacter_B::StandUp()
 	//Saves snapshot for blending to animation
 	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
 
-	GetMovementComponent()->StopMovementImmediately();
+	GetMovementComponent()->StopMovementImmediately();	//CRASH HERE -E
 
 	SetState(EState::EWalking);
 	StunAmount = 0;

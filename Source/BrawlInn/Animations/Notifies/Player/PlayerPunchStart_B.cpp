@@ -10,7 +10,6 @@
 void UPlayerPunchStart_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::Notify(MeshComp, Animation);
-	BWarn("PunchStart Notify!");
 
 	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 	if (Player)

@@ -44,7 +44,6 @@ void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UPunchComponent_B::PunchStart()
 {
-	BWarn("Starting Punch!") //REMOVE
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	OwningCharacter->bIsCharging = false;
 	SetIsPunching(true);
@@ -156,7 +155,6 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
-	BWarn("End Punch") //REMOVE
 	if (!GetIsPunching()) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -169,7 +167,6 @@ void UPunchComponent_B::PunchEnd()
 		TH_PunchAgainHandle,
 		[&]()
 		{
-			BWarn("Can Punch Again!");
 			SetCanPunch(true);
 			bHasHit = false;
 		},

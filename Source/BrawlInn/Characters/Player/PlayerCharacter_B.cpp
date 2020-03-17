@@ -150,6 +150,8 @@ void APlayerCharacter_B::Dropped_Implementation()
 void APlayerCharacter_B::BreakFreeButtonMash()
 {
 	BWarn("trying to break free");
+	if (BreakFreeAnimationBlend <= 0.f)
+		BreakFreeAnimationBlend = 0.5;
 	BreakFreeAnimationBlend += 0.1f;
 	CurrentHoldTime += HoldTimeDecreasePerButtonMash;
 	PlayerController->PlayControllerVibration(0.8f, 0.1f, true, true, true, true);
