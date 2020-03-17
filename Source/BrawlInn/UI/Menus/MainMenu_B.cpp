@@ -44,7 +44,7 @@ void UMainMenu_B::MenuTick()
 
 void UMainMenu_B::PlayButtonClicked()
 {
-	BScreen("Play button clicked");
+	GameMode->PlayButtonClicked();
 
 }
 
@@ -60,5 +60,5 @@ void UMainMenu_B::CreditsButtonClicked()
 
 void UMainMenu_B::QuitButtonClicked()
 {
-	BScreen("Quit button pressed");
+	BScreen("Quit");
 }

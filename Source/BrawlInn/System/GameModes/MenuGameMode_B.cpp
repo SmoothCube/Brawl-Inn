@@ -78,6 +78,8 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 
 	if (CharacterSelectionWidget)
 		CharacterSelectionWidget->AddToViewport();
+
+	ShowMainMenu();
 }
 
 void AMenuGameMode_B::Tick(float DeltaTime)
@@ -104,12 +106,15 @@ void AMenuGameMode_B::ShowMainMenu()
 
 	const FInputModeUIOnly InputModeData;
 
+	PlayerControllers[0]->bShowMouseCursor = true;
 	PlayerControllers[0]->SetInputMode(InputModeData);
 }
 
 void AMenuGameMode_B::HideMainMenu()
 {
 	MainMenuWidget->RemoveFromParent();
+	
+	PlayerControllers[0]->bShowMouseCursor = false;
 
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
@@ -143,6 +148,11 @@ int AMenuGameMode_B::GetPlayersReady() const
 void AMenuGameMode_B::SetPlayersReady(const int Value)
 {
 	PlayersReady = Value;
+}
+
+void AMenuGameMode_B::PlayButtonClicked_Implementation()
+{
+	HideMainMenu();
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
