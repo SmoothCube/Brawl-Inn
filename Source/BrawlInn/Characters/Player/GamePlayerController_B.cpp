@@ -43,7 +43,6 @@ void AGamePlayerController_B::OnPossess(APawn* InPawn)
 		if (ScoreTextBlock)
 			ScoreTextBlock->SetTextColor(PlayerInfo.CharacterVariant.TextColor);
 	}
-
 }
 
 void AGamePlayerController_B::DPadUpPressed()
@@ -76,7 +75,6 @@ void AGamePlayerController_B::FaceButtonTopReleased()
 	if (!TryThrow())
 		TryEndPunchCharge();
 }
-
 
 void AGamePlayerController_B::FaceButtonRightPressed()
 {
@@ -231,6 +229,8 @@ bool AGamePlayerController_B::TryEndPunchCharge()
 bool AGamePlayerController_B::TryPunch()
 {
 	if (PlayerCharacter &&
+		PlayerCharacter->HoldComponent &&
+		!PlayerCharacter->HoldComponent->IsHolding() &&
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->PunchComponent->GetCanPunch()
 		)

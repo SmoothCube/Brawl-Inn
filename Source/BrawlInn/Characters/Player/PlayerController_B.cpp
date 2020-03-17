@@ -101,8 +101,6 @@ void APlayerController_B::SetupInputComponent()
 	}
 }
 
-
-
 bool APlayerController_B::HasValidCharacter() const
 {
 	if (PlayerCharacter)
