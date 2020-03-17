@@ -88,7 +88,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if (GetState() != EState::EBeingHeld)
+	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp)
 	{
 		HandleMovement(DeltaTime);
 	}
@@ -134,7 +134,7 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
-	if (PunchComponent->GetIsPunching() || bIsInvulnerable)
+	if (!PunchComponent || PunchComponent->GetIsPunching() || bIsInvulnerable)
 		return;
 
 	Fall(MeshForce, FallRecoveryTime);

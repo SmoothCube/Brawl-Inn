@@ -7,21 +7,22 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LocalPlayer.h"
-#include "TimerManager.h"
 #include "Sound/SoundCue.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
-#include "System/DataTable_B.h"
-#include "System/Structs/ScoreLookupTable.h"
-#include "Characters/Player/GamePlayerController_B.h"
-#include "Components/PunchComponent_B.h"
-#include "Components/HoldComponent_B.h"
 #include "System/DamageTypes/Stool_DamageType_B.h"
 #include "System/DamageTypes/Fall_DamageType_B.h"
+#include "System/Structs/ScoreLookupTable.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "System/DataTable_B.h"
+#include "Components/PunchComponent_B.h"
+#include "Components/HoldComponent_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
 {
@@ -58,6 +59,7 @@ void APlayerCharacter_B::BeginPlay()
 		Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
 		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
+		PowerupKnockdownScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockdown")->Value;
 	}
 }
 
@@ -71,22 +73,53 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (GetState() == EState::EBeingHeld)
+	if (GetState() == EState::EPoweredUp)
+	{
+		HandleMovementPoweredUp(DeltaTime);
+	}
+	else if (GetState() == EState::EBeingHeld)
 	{
 		CurrentHoldTime += DeltaTime;
 		if (CurrentHoldTime >= MaxHoldTime)
 			BreakFree();
 	}
+	
 
 	BreakFreeAnimationBlend -= 0.5 * DeltaTime;
 	if (BreakFreeAnimationBlend < 0.f)
 		BreakFreeAnimationBlend = 0.f;
 }
 
+void APlayerCharacter_B::HandleMovementPoweredUp(float DeltaTime)
+{
+	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
+	if (InputVector.SizeSquared() >= 1.f)
+		InputVector.Normalize();
+
+	if (InputVector.SizeSquared() > 0)
+	{
+		if (GameCamera)
+		{
+			AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
+			AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
+		}
+	
+		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	}
+	else
+	{
+		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().UnrotateVector(GetActorRotation().Vector());
+		AddMovementInput(GameCamera->GetActorForwardVector(), vec.X);
+		AddMovementInput(GameCamera->GetActorRightVector(), vec.Y);
+	}
+}
+
 UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
 {
 	return DirectionIndicatorPlane;
 }
+
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
@@ -129,7 +162,6 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 			Volume
 		);
 	}
-
 }
 
 void APlayerCharacter_B::StandUp()
@@ -329,16 +361,28 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	//Dash push stuff
 	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,SweepResult);
 	
-	if (!PunchComponent->GetIsDashing())	
+	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
+	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen)
 		return;
 
-
-	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
-	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
-	//Might be triggered twice
-	if (IsValid(OtherCharacter) && IsValid(Capsule))
+	int DamageAmount = 0;
+	
+	if (PunchComponent->GetIsDashing())
 	{
-		if (IsValid(PunchComponent))
-			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
+		//Might be triggered twice
+		if (IsValid(Capsule))
+		{
+			if (IsValid(PunchComponent))
+				OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+		}
 	}
+	else if (GetState() == EState::EPoweredUp)
+	{
+		OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation())* 1000);
+		DamageAmount = PowerupKnockdownScoreAmount;
+	}
+	BWarn("Overlaps");
+	UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
+
 }

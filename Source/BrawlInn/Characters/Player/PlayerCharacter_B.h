@@ -38,6 +38,12 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
 
+	// ********** Movement **********
+
+	void HandleMovementPoweredUp(float DeltaTime);
+
+	FVector PrevInputVector;
+
 	// ********** Falling **********
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
