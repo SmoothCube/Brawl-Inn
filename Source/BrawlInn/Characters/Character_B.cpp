@@ -175,15 +175,24 @@ void ACharacter_B::StandUp()
 	//}
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionProfileName("CharacterMesh");
-	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
+	
+	if (IsValid(GetMesh()))
+	{
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionProfileName("CharacterMesh");
+		GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
 
-	//Saves snapshot for blending to animation
-	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
+		//Saves snapshot for blending to animation
+		GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
+	}
+	else
+	{
+		BError("Mesh invalid for character %s", *GetNameSafe(this)); //This was the crash we thought was below
+	}
 
-	GetMovementComponent()->StopMovementImmediately();	//CRASH HERE -E
+	if(IsValid(GetMovementComponent()))
+		GetMovementComponent()->StopMovementImmediately();	//CRASH HERE -E
 
 	SetState(EState::EWalking);
 	StunAmount = 0;

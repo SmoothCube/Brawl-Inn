@@ -136,14 +136,26 @@ void APlayerCharacter_B::StandUp()
 {
 	Super::StandUp();
 	bCanBeHeld = false;
-	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
+	if (DirectionIndicatorPlane)
+	{
+		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
+		DirectionIndicatorPlane->SetHiddenInGame(false);
+	}
 	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
+}
+
+void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
+{
+	Super::PickedUp_Implementation(Player);
+
+	DirectionIndicatorPlane->SetHiddenInGame(true);
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
+	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
 }
 
