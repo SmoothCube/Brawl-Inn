@@ -382,7 +382,6 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 		OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation())* 1000);
 		DamageAmount = PowerupKnockdownScoreAmount;
 	}
-	BWarn("Overlaps");
 	UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 
 }
