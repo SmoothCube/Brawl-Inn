@@ -55,7 +55,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float LerpAlpha = 0.5;
 
-	float CameraMoveSpeed = 0.1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	float CameraMoveSpeed = 0.05f;
 
 	// ********** Zoom **********
 private:
@@ -71,6 +72,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float BorderWidth = 1000.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float CameraZoomSpeed = 0.1f;
 private:
 	float CameraZoom = 0.f;
 

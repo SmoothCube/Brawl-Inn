@@ -164,7 +164,7 @@ void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 		}
 	}
 
-	CameraZoom += FurthestDist * 0.1f;
+	CameraZoom += FurthestDist * CameraZoomSpeed;
 	
 	if (CameraZoom < SmallestSpringArmLength)
 		CameraZoom = SmallestSpringArmLength;
