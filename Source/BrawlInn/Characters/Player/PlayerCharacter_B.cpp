@@ -126,7 +126,6 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	if (HoldComponent)
 		HoldComponent->Drop();
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
-	Die();
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -193,7 +192,6 @@ void APlayerCharacter_B::Dropped_Implementation()
 
 void APlayerCharacter_B::BreakFreeButtonMash()
 {
-	BWarn("trying to break free");
 	if (BreakFreeAnimationBlend <= 0.f)
 		BreakFreeAnimationBlend = 0.5;
 	BreakFreeAnimationBlend += 0.1f;
@@ -269,7 +267,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 	}
 
-	
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	SetLastHitBy(EventInstigator);
 

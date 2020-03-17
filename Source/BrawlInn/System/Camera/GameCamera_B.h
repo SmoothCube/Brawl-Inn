@@ -39,6 +39,9 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+
 	// ********** Camera Movement **********
 private:
 	void UpdateCameraPosition(FConvexVolume& scene);
@@ -92,6 +95,8 @@ protected:
 
 	// ********** Tracking **********
 private:
+	void EndFocus(AActor* OtherActor);
+
 	UFUNCTION()
 	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
@@ -100,7 +105,10 @@ private:
 	
 	UPROPERTY()
 	ATriggerBox* TrackingBox = nullptr;
+	
+	FTimerHandle TH_EndFocusTimer;
 
+	float EndFocusTime = 1.f;
 public:
 	UPROPERTY()
 	TArray<AActor*> ActorsToTrack;

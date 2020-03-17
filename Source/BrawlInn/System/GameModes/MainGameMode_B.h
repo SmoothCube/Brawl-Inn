@@ -6,6 +6,7 @@
 #include "System/GameModes/GameMode_B.h"
 #include "MainGameMode_B.generated.h"
 
+class ATriggerBox;
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
 class USceneComponent;
@@ -29,27 +30,35 @@ protected:
 	virtual void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	virtual void Tick(float DeltaTime) override;
+	// ********** Game States **********
 	void PreStartGame();
 
 	void StartGame();
 
 	void EndGame();
 
-	virtual void Tick(float DeltaTime) override;
-
 public:
 	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
 	void ResumeGame();
-	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
+	
+	// ********** Tracking **********
+	UFUNCTION()
+	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
+	UPROPERTY()
+	ATriggerBox* TrackingBox = nullptr;
 
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Camera")
 		TSubclassOf<ACameraActor> BP_FromCharacterSelectionCamera;
+	// ********** UI **********
 
 	UPROPERTY()
 		ACameraActor* FromCharacterSelectionCamera = nullptr;
@@ -62,7 +71,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
+private:
+	UPROPERTY()
+		UGameOverlay_B* Overlay = nullptr;
+protected:
 
+	// ********** Sound **********
 	UPROPERTY(BlueprintReadWrite)
 		UPauseMenu_B* PauseMenuWidget = nullptr;
 
@@ -78,17 +92,14 @@ protected:
 
 private:
 
+	// ********** Timer **********
+
 	FTimerHandle SwapCameraHandle;
 	FTimerHandle StartGameHandle;
 	int Timer = 3;
 
 	FTimerHandle CountDownHandle;
 	FTimerHandle StartGameHandle2;
-	
-	UPROPERTY()
-		UGameOverlay_B* Overlay = nullptr;
-
-	// ********** Timer **********
 
 	UPROPERTY(EditDefaultsOnly)
 		int TimeRemaining = 300;

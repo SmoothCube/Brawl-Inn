@@ -136,16 +136,15 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 {
 	if (!PunchComponent || PunchComponent->GetIsPunching() || bIsInvulnerable)
 		return;
-
 	Fall(MeshForce, FallRecoveryTime);
 }
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
+//	if (GetCharacterMovement()->IsFalling())	//Had to remove this but should probably be here? idk does this even work properly
+//		return;									//yes i know i wrote it
 
-	if (GetCharacterMovement()->IsFalling())
-		return;
-
+	BWarn("Character Fell!");
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
 

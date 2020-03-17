@@ -2,6 +2,8 @@
 
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
+#include "Engine/TriggerBox.h"
+#include "Components/ShapeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
 #include "Sound/SoundCue.h"
@@ -12,6 +14,7 @@
 #include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
@@ -62,6 +65,14 @@ void AMainGameMode_B::BeginPlay()
 	else
 	{
 		StartGame();
+	}
+
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
+	TrackingBox = Cast<ATriggerBox>(Actors[0]);
+	if (TrackingBox)
+	{
+		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AMainGameMode_B::OnTrackingBoxEndOverlap);
 	}
 }
 
@@ -169,3 +180,19 @@ void AMainGameMode_B::ResumeGame()
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
+void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	BWarn("Tracking box end overlap from gamemode!");
+	
+	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
+	if (Player)
+	{
+		//Checks to see if the player is still overlapping. Same method as in DragArea
+		TArray<AActor*> OverlappingActors;
+		TrackingBox->GetOverlappingActors(OverlappingActors);
+		if (OverlappingActors.Find(Player) == INDEX_NONE)
+		{
+			Player->Die();
+		}
+	}
+}
