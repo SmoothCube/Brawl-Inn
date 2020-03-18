@@ -29,6 +29,8 @@ void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AIdleAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
+	bIsAlive = true;
+	StandUp();
 	SetActorLocation(RespawnLocation);
 	bCanMove = false;
 	GetWorld()->GetTimerManager().SetTimer(TH_ResetCanMove, [&]()
