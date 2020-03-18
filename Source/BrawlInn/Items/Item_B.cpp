@@ -44,6 +44,11 @@ UStaticMeshComponent* AItem_B::GetMesh() const
 	return Mesh;
 }
 
+FRotator& AItem_B::GetHoldRotation()
+{
+	return HoldRotation;
+}
+
 bool AItem_B::IsHeld_Implementation() const
 {
 	return (IsValid(OwningCharacter));
