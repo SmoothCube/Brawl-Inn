@@ -371,21 +371,21 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 	int DamageAmount = 0;
 
-	if (PunchComponent->GetIsDashing())
+	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
+	if (IsValid(Capsule))
 	{
-		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
-		//Might be triggered twice
-		if (IsValid(Capsule))
+		if (IsValid(PunchComponent) && PunchComponent->GetIsDashing())
 		{
-			if (IsValid(PunchComponent))
-				OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
 		}
-	}
-	else if (GetState() == EState::EPoweredUp)
-	{
-		OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()) * 1000);
-		DamageAmount = PowerupKnockdownScoreAmount;
-	}
-	UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
+		else if (GetState() == EState::EPoweredUp)
+		{
+			BWarn("OtherComp: %s", *GetNameSafe(OtherComp));
 
+			OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()) * 1000);
+			DamageAmount = PowerupKnockdownScoreAmount;
+		}
+		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
+	}
+	BWarn("OtherComp: %s", *GetNameSafe(OtherComp));
 }
