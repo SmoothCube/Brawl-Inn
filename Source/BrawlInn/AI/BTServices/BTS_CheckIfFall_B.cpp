@@ -10,10 +10,10 @@
 #include "BrawlInn.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/AIController_B.h"
-#include "Items/Item_B.h"
 
 UBTS_CheckIfFall_B::UBTS_CheckIfFall_B()
 {
+	bCreateNodeInstance = true;
 	bNotifyTick = true;
 }
 
