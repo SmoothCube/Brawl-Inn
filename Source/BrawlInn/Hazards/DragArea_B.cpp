@@ -96,20 +96,25 @@ void ADragArea_B::Tick(float DeltaTime)
 
 void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	BWarn("Overlap begin! Actor: %s, Component: %s", *GetNameSafe(OtherActor), *GetNameSafe(OtherComp)); //REMOVE
+
 	//only adds to one of the three arrays
 	USkeletalMeshComponent* Skeleton = Cast<USkeletalMeshComponent>(OtherComp);
-	ACharacter_B* Player = Cast<ACharacter_B>(OtherActor);
-	if (Skeleton)
+	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
+	if (Skeleton && SkeletonsToMove.Find(Skeleton) == INDEX_NONE)
 	{
 		SkeletonsToMove.Add(Skeleton);
+		BWarn("Adding Skeleton!"); //REMOVE
 	}
-	else if (Player)
+	else if (Character)
 	{
 		if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		{
 			return;
 		}
-		PlayersToMove.Add(Player);
+		USkeletalMeshComponent* CharacterMesh = Character->GetMesh();
+		if(IsValid(CharacterMesh) && SkeletonsToMove.Find(CharacterMesh) == INDEX_NONE)
+			SkeletonsToMove.Add(Character->GetMesh());
 	}
 	else
 	{

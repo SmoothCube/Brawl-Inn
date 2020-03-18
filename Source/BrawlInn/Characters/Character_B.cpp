@@ -332,12 +332,6 @@ void ACharacter_B::AddStun(const int Strength)
 		return;
 	}
 	StunAmount += Strength;
-	if (StunAmount >= PunchesToStun - 1)
-	{
-		//StunAmount = PunchesToStun - 1;
-		//if (IsValid(PS_Stun))
-		//	PS_Stun->Activate();
-	}
 }
 
 void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
