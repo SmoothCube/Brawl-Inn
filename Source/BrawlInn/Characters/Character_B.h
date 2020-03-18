@@ -305,4 +305,7 @@ protected:
 	friend class UThrowComponent_B;
 
 	bool bIsAlive = true;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The strength og which this character will be knocked back when hit by a powered up player"))
+	float PowerupPushStrength = 400000.0f;
 };
