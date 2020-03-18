@@ -4,8 +4,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 #include "Characters/AI/AICharacter_B.h"
+#include "Characters/AI/IdleAICharacter_B.h"
+#include "System/GameInstance_B.h"
 
 ABar_B::ABar_B()
 {
@@ -13,14 +17,14 @@ ABar_B::ABar_B()
 
 	House = CreateDefaultSubobject<UStaticMeshComponent>("House");
 	SetRootComponent(House);
-
-	//	Door = CreateDefaultSubobject<UStaticMeshComponent>("Door");
-	//	Door->SetupAttachment(House);
 }
 
 void ABar_B::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, OutActors);
@@ -50,6 +54,16 @@ void ABar_B::BeginPlay()
 		BoxReplacers.Add(BoxReplacer);
 		BoxReplacer->SetItemDelivered(BP_Box.GetDefaultObject());
 	}
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AIdleAICharacter_B::StaticClass(), Actors);
+	for (auto CustomerActor : Actors)
+	{
+		AIdleAICharacter_B* Customer = Cast<AIdleAICharacter_B>(CustomerActor);
+		if (!Customer || !Customer->CanOrderDrink())
+			continue;;
+		Customers.Add(Customer);
+	}
+	StartRandomOrder(2);
 }
 
 void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
@@ -60,6 +74,35 @@ void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 	const int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
 	if (BP_Useables.IsValidIndex(RandomIndex))
 		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
+}
+
+void ABar_B::StartRandomOrder(const float TimeUntilDelivery)
+{
+	GetWorld()->GetTimerManager().SetTimer(TH_StartOrderTimer, [&]()
+		{
+			const int RandomIndex = FMath::RandRange(0, Customers.Num() - 1);
+			if (Customers.IsValidIndex(RandomIndex))
+				Customers[RandomIndex]->OrderDrink();
+
+			if (IsValid(DrinkReadySound))
+			{
+				float Volume = 1.f;
+				if (GameInstance)
+					Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+
+				UGameplayStatics::PlaySoundAtLocation(
+					GetWorld(),
+					DrinkReadySound,
+					GetActorLocation(),
+					Volume
+					);
+			}
+		}, TimeUntilDelivery, false);
+}
+
+void ABar_B::GetOrder(AAIDropPoint_B* DropPoint)
+{
+	AddDropLocation(EBarDropLocationType::Tankard, DropPoint);
 }
 
 void ABar_B::AddDropLocation(const EBarDropLocationType Type, AAIDropPoint_B* DropPoint)

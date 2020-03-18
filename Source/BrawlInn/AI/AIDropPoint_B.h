@@ -10,6 +10,8 @@
 class AItem_B;
 class ABar_B;
 
+DECLARE_MULTICAST_DELEGATE(FOnItemDelivered);
+
 UCLASS()
 class BRAWLINN_API AAIDropPoint_B : public ATargetPoint
 {
@@ -18,7 +20,9 @@ class BRAWLINN_API AAIDropPoint_B : public ATargetPoint
 protected:
 	virtual void BeginPlay() override;
 
-	void ItemDestroyed();
+	virtual void SpawnItem() {}
+
+	virtual void ItemDestroyed() {}
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AItem_B> ItemToSpawn;
@@ -27,11 +31,19 @@ protected:
 		EBarDropLocationType Type = EBarDropLocationType::Stool;
 
 	UPROPERTY(BlueprintReadOnly)
-	ABar_B* Bar = nullptr;
+		ABar_B* Bar = nullptr;
 
 	UPROPERTY()
 		AItem_B* Item = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Item")
+		bool bSpawnItemAtBeginPlay = true;
+
+public:
+	FOnItemDelivered& OnItemDelivered();
+protected:
+	FOnItemDelivered OnItemDelivered_Delegate;
+	
 public:
 	UFUNCTION()
 		void SetNewItem(AItem_B* NewItem);

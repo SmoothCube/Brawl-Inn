@@ -13,26 +13,19 @@ void AAIDropPoint_B::BeginPlay()
 
 	Super::BeginPlay();
 
-	Item = GetWorld()->SpawnActor<AItem_B>(ItemToSpawn, GetActorTransform());
-	if (Item)
-	{
-		Item->OnFracture().AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
-	}
+	SpawnItem();
 }
 
-void AAIDropPoint_B::ItemDestroyed()
+FOnItemDelivered& AAIDropPoint_B::OnItemDelivered()
 {
-	if (Bar)
-	{
-		Bar->AddDropLocation(Type,this);
-	}
+	return OnItemDelivered_Delegate;
 }
 
 void AAIDropPoint_B::SetNewItem(AItem_B* NewItem)
 {
 	Item = NewItem;
 	if (Item)
-	{
 		Item->OnFracture().AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
-	}
+
+	OnItemDelivered_Delegate.Broadcast();
 }

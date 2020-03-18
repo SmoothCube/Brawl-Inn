@@ -8,6 +8,8 @@
 #include "System/Structs/BarDropLocations.h"
 #include "Bar_B.generated.h"
 
+class UGameInstance_B;
+class AIdleAICharacter_B;
 class UStaticMeshComponent;
 class AAICharacter_B;
 class AAIDropPoint_B;
@@ -47,9 +49,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* House;
 
-//	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//	UStaticMeshComponent* Door;
-
 	// ********** Tankard **********
 protected:
 	void GiveRandomTankard(AAICharacter_B* Waiter);
@@ -72,20 +71,34 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Box")
 		TSubclassOf<AItem_B> BP_Box;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Box")
 		FName BoxReplacerTag = "BoxReplacer";
 
+
+	// ********** Drink ordering **********
 public:
+	void StartRandomOrder(float TimeUntilDelivery);
+
+	void GetOrder(AAIDropPoint_B* DropPoint);
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Audio")
+		USoundCue* DrinkReadySound;
+
+	TArray<AIdleAICharacter_B*> Customers;
+
+	FTimerHandle TH_StartOrderTimer;
 
 	// ********** Delivery **********
-	
+public:
 	void AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint);
 
 	FBarDropLocations* GetDropLocations(AAICharacter_B* Character);
 
 	FOnDeliverStart& OnDeliverStart();
-	
+
 protected:
 	FOnDeliverStart OnDeliverStart_Delegate;
 
@@ -100,6 +113,11 @@ protected:
 	int CurrentBoxReplacerIndex = 0;
 	TArray<AAICharacter_B*> BoxReplacers;
 
+	// ********** Misc. **********
+
+	UPROPERTY()
+		UGameInstance_B* GameInstance = nullptr;
 };
+
 
 

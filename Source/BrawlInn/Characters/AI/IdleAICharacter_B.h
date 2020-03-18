@@ -6,6 +6,8 @@
 #include "Characters/Character_B.h"
 #include "IdleAICharacter_B.generated.h"
 
+class AAIDropPoint_B;
+class ABar_B;
 UCLASS()
 class BRAWLINN_API AIdleAICharacter_B : public ACharacter_B
 {
@@ -38,6 +40,24 @@ protected:
 		float ResetCanMoveTime = 60.f;
 
 	FTimerHandle TH_ResetCanMove;
+
+	// ********** Drink ordering**********
+public:
+	void OrderDrink();
+
+	bool CanOrderDrink() const;
+	
+	void TryPickup();
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category="Variables|Ordering")
+	TSubclassOf<AAIDropPoint_B> BP_DropPoint;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Ordering")
+	bool bCanOrderDrink = true;
+
+	UPROPERTY()
+		ABar_B* Bar = nullptr;
 
 
 

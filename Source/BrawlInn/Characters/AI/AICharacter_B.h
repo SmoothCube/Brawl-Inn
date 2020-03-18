@@ -23,6 +23,8 @@ protected:
 
 	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
 
+	void Die() override;
+
 
 	// ********** Components **********
 public:

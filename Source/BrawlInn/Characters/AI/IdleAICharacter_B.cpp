@@ -2,10 +2,16 @@
 
 #include "IdleAICharacter_B.h"
 
-#include "AIController_B.h"
+
+#include "AI/AIDropPoint_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+
+#include "AIController_B.h"
+#include "Components/HoldComponent_B.h"
+#include "Components/PunchComponent_B.h"
+#include "Hazards/Bar_B.h"
 
 void AIdleAICharacter_B::BeginPlay()
 {
@@ -13,12 +19,15 @@ void AIdleAICharacter_B::BeginPlay()
 
 	StartLocation = GetActorLocation();
 
+	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "NPCPlatform", OutActors);
 	if (OutActors.IsValidIndex(0))
 		RespawnLocation = OutActors[0]->GetActorLocation() + FVector(0, 0, 150);
 	else
 		RespawnLocation = StartLocation;
+
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -46,4 +55,21 @@ void AIdleAICharacter_B::SetState(EState s)
 		Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 
 	Super::SetState(s);
+}
+
+void AIdleAICharacter_B::OrderDrink()
+{
+	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, GetActorLocation(), FRotator());
+	DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
+	Bar->GetOrder(DropPoint);
+}
+
+bool AIdleAICharacter_B::CanOrderDrink() const
+{
+	return bCanOrderDrink;
+}
+
+void AIdleAICharacter_B::TryPickup()
+{
+	HoldComponent->TryPickup();
 }

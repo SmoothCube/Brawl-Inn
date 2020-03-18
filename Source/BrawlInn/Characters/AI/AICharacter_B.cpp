@@ -39,6 +39,14 @@ void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)
 		Super::FellOutOfWorld(DmgType);
 }
 
+void AAICharacter_B::Die()
+{
+	if (bShouldRespawn)
+		SetActorTransform(StartTransform);
+	else
+		Super::Die();
+}
+
 UPawnSensingComponent* AAICharacter_B::GetPawnSensingComponent() const
 {
 	return PawnSensingComponent;
