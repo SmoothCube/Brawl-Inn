@@ -477,7 +477,6 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 
 }
 
-
 FRotator& ACharacter_B::GetHoldRotation()
 {
 	return HoldRotation;
