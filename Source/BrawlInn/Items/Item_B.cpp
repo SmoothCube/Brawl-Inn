@@ -82,18 +82,17 @@ void AItem_B::OnItemFracture()
 
 	if (DestroyedCue)
 	{
-		float volume = 1.f;
+		float  Volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			DestroyedCue,
 			GetActorLocation(),
-			volume
-		);
+			Volume
+			);
 	}
 
 	bIsFractured = true;
@@ -103,7 +102,7 @@ void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 {
 	if (OtherActor == OwningCharacter || OtherActor->StaticClass() == this->StaticClass())
 		return;
-	
+
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface)
 	{

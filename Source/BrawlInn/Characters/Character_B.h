@@ -127,11 +127,17 @@ protected:
 
 	
 public:
+
+	 FRotator& GetHoldRotation();
+
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
+	
 	FRotator HoldRotation = FRotator(0, 0, 0);
+	
 	FVector HoldOffset = FVector(0, 0, 0);
 
-
+public:
 	// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;

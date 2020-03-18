@@ -121,23 +121,27 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AActor* Item)
 {
-
 	OwningCharacter->SetState(EState::EHolding);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
 		Interface->Execute_PickedUp(Item, OwningCharacter);
 
-	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
-	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), rules, HoldingSocketName);
+	const FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldingSocketName);
 	HoldingItem = Item;
+
+
 	
 	ACharacter_B* Character= Cast<ACharacter_B>(Item);
 
 	if (Character)
 	{
 		Character->AddActorLocalOffset(FVector(0, 0, 75));
-		Character->SetActorRelativeRotation(Character->HoldRotation);
+		Character->SetActorRelativeRotation(Character->GetHoldRotation());
 	}
+	else
+		Item->SetActorRelativeRotation(FRotator(180, 0, 0));
+
 }
 
 void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
