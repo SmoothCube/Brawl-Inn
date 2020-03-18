@@ -41,6 +41,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
+	PowerupPushStrength = 800000.0f;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
 
 	Charge1ThrowStrength = 400000.f;
@@ -380,12 +381,9 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 		}
 		else if (GetState() == EState::EPoweredUp)
 		{
-			BWarn("OtherComp: %s", *GetNameSafe(OtherComp));
-
-			OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()) * 1000);
+			OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * OtherCharacter->PowerupPushStrength);
 			DamageAmount = PowerupKnockdownScoreAmount;
 		}
 		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
-	BWarn("OtherComp: %s", *GetNameSafe(OtherComp));
 }
