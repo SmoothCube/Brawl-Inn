@@ -76,6 +76,7 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(TH_MakeNoiseTimer);
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
