@@ -39,10 +39,13 @@ protected:
 	
 
 	//for characters that has not fallen (movement components)
+	UPROPERTY()
 	TArray<ACharacter_B*> PlayersToMove;
 	//for all skeletal meshes? 
+	UPROPERTY()
 	TArray<USkeletalMeshComponent*> SkeletonsToMove;
 	//for all other objects
+	UPROPERTY()
 	TArray<UPrimitiveComponent*> ComponentsToMove;
 
 public:	

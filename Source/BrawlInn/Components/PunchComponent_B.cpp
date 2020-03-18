@@ -128,7 +128,7 @@ void UPunchComponent_B::Dash()
 	}
 	else
 	{
-		OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->InputVector * DashSpeed);
+		OwningCharacter->GetCharacterMovement()->Velocity = FVector(NormInput * DashSpeed);
 		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
 	}
 
