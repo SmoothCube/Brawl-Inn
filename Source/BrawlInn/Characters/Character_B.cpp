@@ -478,6 +478,11 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 }
 
 
+FRotator& ACharacter_B::GetHoldRotation()
+{
+	return HoldRotation;
+}
+
 EChargeLevel ACharacter_B::GetChargeLevel()
 {
 	return ChargeLevel;

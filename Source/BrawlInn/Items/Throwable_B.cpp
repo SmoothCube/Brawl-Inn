@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Throwable_B.h"
-#include "Components/StaticMeshComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
 #include "DestructibleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
+#include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Characters/Character_B.h"
 #include "System/DataTable_B.h"
 
 AThrowable_B::AThrowable_B()
@@ -45,6 +45,7 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
+	
 	Mesh->SetVisibility(true);
 
 	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
