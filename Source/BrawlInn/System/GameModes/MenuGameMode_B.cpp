@@ -14,7 +14,6 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/MenuPlayerController_B.h"
-#include "System/GameInstance_B.h"
 
 void AMenuGameMode_B::BeginPlay()
 {
@@ -31,9 +30,7 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 	CharacterSelectionWidget = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelectionOverlay);
 
 	for (auto Controller : PlayerControllers)
-	{
 		MenuPlayerControllers.Add(Cast<AMenuPlayerController_B>(Controller));
-	}
 
 	TArray<AActor*> TCharacters;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), APlayerCharacter_B::StaticClass(), FName("Selection"), TCharacters);
@@ -41,7 +38,7 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 	if (TCharacters.Num() == 0)
 		BError("Can't find any characters to select!");
 
-	for (const auto& Character : TCharacters)
+	for (auto Character : TCharacters)
 	{
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		Characters.Add(PlayerCharacter);
@@ -50,16 +47,15 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 		PlayerCharacter->MakeInvulnerable(-1, false);
 	}
 
-	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
-		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
+	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right)
+		{
+			return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
 	CharacterStartTransforms.AddZeroed(Characters.Num());
 
 	for (int i = 0; i < Characters.Num(); i++)
-	{
 		CharacterStartTransforms[i] = Characters[i]->GetActorTransform();
-	}
 
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
@@ -84,10 +80,8 @@ void AMenuGameMode_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!MainMenuWidget || !IsValid(MainMenuWidget))
-		return;
-
-	MainMenuWidget->MenuTick();
+	if (MainMenuWidget && IsValid(MainMenuWidget))
+		MainMenuWidget->MenuTick();
 }
 
 void AMenuGameMode_B::ShowMainMenu()
@@ -102,8 +96,8 @@ void AMenuGameMode_B::ShowMainMenu()
 
 	MainMenuWidget->AddToViewport();
 
-	 FInputModeUIOnly InputModeData;
-	 InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+	FInputModeUIOnly InputModeData;
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
 }
@@ -111,7 +105,7 @@ void AMenuGameMode_B::ShowMainMenu()
 void AMenuGameMode_B::HideMainMenu()
 {
 	MainMenuWidget->RemoveFromParent();
-	
+
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
@@ -186,8 +180,9 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	Character->GetMovementComponent()->StopMovementImmediately();
 	Character->SetActorTransform(CharacterStartTransforms[ControllerID]);
 
-	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
-		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
+	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right)
+		{
+			return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
 	const int VariantIndex = PlayerControllerThatSelected->GetCharacterVariantIndex();
@@ -258,9 +253,7 @@ void AMenuGameMode_B::UpdateOtherSelections()
 			if (CharacterVariants[i].bTaken == true)
 			{
 				if (Controller->GetCharacterVariantIndex() == i)
-				{
 					HoverRight(Controller);
-				}
 			}
 		}
 	}
