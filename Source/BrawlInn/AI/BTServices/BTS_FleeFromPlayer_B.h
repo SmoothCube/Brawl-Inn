@@ -31,11 +31,15 @@ protected:
 		float FleeMaxAcceleration = 3000;
 
 	UPROPERTY(EditAnywhere)
-		float FleeMaxWalkSpeed = 3000;
+		float FleeMaxWalkSpeed = 2000;
+
+	UPROPERTY(EditAnywhere)
+		float ResetSpeedTime = 0.5f;
 
 	UPROPERTY()
 		AAICharacter_B* Character = nullptr;
 
 	FTimerHandle TH_ResetSpeed;
-	float ResetSpeedTime = 1.f;
+
+
 };
