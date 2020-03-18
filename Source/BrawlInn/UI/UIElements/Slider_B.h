@@ -12,7 +12,9 @@ class BRAWLINN_API USlider_B : public USlider, public IUIElementsInterface_B
 {
 	GENERATED_BODY()
 
+#if WITH_EDITOR
 	void OnCreationFromPalette() override;
+#endif
 
 	virtual void Tick_Implementation() override;
 
