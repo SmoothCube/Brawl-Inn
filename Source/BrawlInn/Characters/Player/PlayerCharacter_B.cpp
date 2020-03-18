@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
@@ -33,13 +34,15 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 
+	NoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>("NoiseEmitterComponent");
+
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
-	
+
 	Charge1ThrowStrength = 400000.f;
 	Charge2ThrowStrength = 1000000.f;
 	Charge3ThrowStrength = 2000000.f;
@@ -61,6 +64,11 @@ void APlayerCharacter_B::BeginPlay()
 		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
 		PowerupKnockdownScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockdown")->Value;
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TH_MakeNoiseTimer, [&]()
+		{
+			NoiseEmitterComponent->MakeNoise(this, 1.f, GetActorLocation());
+		}, 0.5f, true);
 }
 
 void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -83,7 +91,6 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 		if (CurrentHoldTime >= MaxHoldTime)
 			BreakFree();
 	}
-	
 
 	BreakFreeAnimationBlend -= 0.5 * DeltaTime;
 	if (BreakFreeAnimationBlend < 0.f)
@@ -103,15 +110,15 @@ void APlayerCharacter_B::HandleMovementPoweredUp(float DeltaTime)
 			AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
 			AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
 		}
-	
-		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+
+		const FVector Vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), Vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
 	}
 	else
 	{
-		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().UnrotateVector(GetActorRotation().Vector());
-		AddMovementInput(GameCamera->GetActorForwardVector(), vec.X);
-		AddMovementInput(GameCamera->GetActorRightVector(), vec.Y);
+		const FVector Vec = GameCamera->GetActorForwardVector().ToOrientationRotator().UnrotateVector(GetActorRotation().Vector());
+		AddMovementInput(GameCamera->GetActorForwardVector(), Vec.X);
+		AddMovementInput(GameCamera->GetActorRightVector(), Vec.Y);
 	}
 }
 
@@ -119,7 +126,6 @@ UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
 {
 	return DirectionIndicatorPlane;
 }
-
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
@@ -145,9 +151,9 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
-	if(IsValid(DirectionIndicatorPlane))
+	if (IsValid(DirectionIndicatorPlane))
 		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
-	
+
 	if (IsValid(HighShatterSound))
 	{
 		float Volume = 1.f;
@@ -159,7 +165,7 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 			HighShatterSound,
 			GetActorLocation(),
 			Volume
-		);
+			);
 	}
 }
 
@@ -211,7 +217,7 @@ void APlayerCharacter_B::BreakFree()
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
 		HoldingCharacter->SetState(EState::EWalking);
 		HoldingCharacter->SetIsCharging(false); //TODO set charge level? 
-		HoldingCharacter->AddStun(PunchesToStun-1);
+		HoldingCharacter->AddStun(PunchesToStun - 1);
 		HoldingCharacter = nullptr;
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
@@ -229,7 +235,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
-	
+
 	BLog("%s Taking Damage. Causer: %s", *GetNameSafe(PlayerController), *GetNameSafe(EventInstigator));
 	if (GameInstance)
 	{
@@ -238,10 +244,10 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
 	}
-	
+
 	if (EventInstigator == PlayerController)
-		return Super::TakeDamage(DamageAmount,DamageEvent,EventInstigator, DamageCauser);
-	
+		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
@@ -253,7 +259,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 			}
 		}
-		else 
+		else
 		{
 			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
 		}
@@ -356,14 +362,14 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Dash push stuff
-	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,SweepResult);
-	
+	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+
 	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
 	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen)
 		return;
 
 	int DamageAmount = 0;
-	
+
 	if (PunchComponent->GetIsDashing())
 	{
 		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
@@ -376,7 +382,7 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	}
 	else if (GetState() == EState::EPoweredUp)
 	{
-		OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation())* 1000);
+		OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()) * 1000);
 		DamageAmount = PowerupKnockdownScoreAmount;
 	}
 	UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());

@@ -21,7 +21,7 @@ class BRAWLINN_API APlayerCharacter_B : public ACharacter_B
 public:
 	APlayerCharacter_B();
 
-	
+
 	// ********** AActor **********
 protected:
 	virtual void BeginPlay() override;
@@ -37,6 +37,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UPawnNoiseEmitterComponent* NoiseEmitterComponent = nullptr;
 
 	// ********** Movement **********
 
@@ -57,7 +60,6 @@ protected:
 	// ********** Hold players **********
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
-
 	virtual void Dropped_Implementation() override;
 
 public:
@@ -74,7 +76,7 @@ public:
 	float BreakFreeAnimationBlend = 0.f;
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
-	float HoldTimeDecreasePerButtonMash = 0.05f;
+		float HoldTimeDecreasePerButtonMash = 0.05f;
 
 	// ********** Damage **********
 
@@ -102,8 +104,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HighShatterSound = nullptr;
-	
-	
+
+
 	// ********** Misc. **********
 
 public:
@@ -122,9 +124,10 @@ protected:
 	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 private:
+	FTimerHandle TH_MakeNoiseTimer;
 
 	UPROPERTY()
-	UDataTable_B* Table = nullptr;
+		UDataTable_B* Table = nullptr;
 
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
