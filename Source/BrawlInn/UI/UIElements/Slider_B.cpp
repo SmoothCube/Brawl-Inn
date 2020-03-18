@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Slider_B.h"
 
+#if WITH_EDITOR
 void USlider_B::OnCreationFromPalette()
 {
 	MouseUsesStep = true;
@@ -18,6 +18,7 @@ void USlider_B::OnCreationFromPalette()
 	
 	Super::OnCreationFromPalette();
 }
+#endif
 
 void USlider_B::Tick_Implementation()
 {
