@@ -11,6 +11,7 @@
 //#include "System/Interfaces/ThrowableInterface_B.h"
 //#include "Items/Throwable_B.h"
 #include "Characters/Character_B.h"
+#include "Items/Item_B.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
@@ -130,8 +131,6 @@ void UHoldComponent_B::Pickup(AActor* Item)
 	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldingSocketName);
 	HoldingItem = Item;
 
-
-	
 	ACharacter_B* Character= Cast<ACharacter_B>(Item);
 
 	if (Character)
@@ -140,8 +139,7 @@ void UHoldComponent_B::Pickup(AActor* Item)
 		Character->SetActorRelativeRotation(Character->GetHoldRotation());
 	}
 	else
-		Item->SetActorRelativeRotation(FRotator(180, 0, 0));
-
+		Item->SetActorRelativeRotation(Cast<AItem_B>(Item)->GetHoldRotation());
 }
 
 void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
