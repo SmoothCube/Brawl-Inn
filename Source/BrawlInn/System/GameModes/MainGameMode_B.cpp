@@ -4,12 +4,13 @@
 #include "Engine/World.h"
 #include "Engine/TriggerBox.h"
 #include "Components/ShapeComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Camera/CameraActor.h"
-#include "Sound/SoundCue.h"
-#include "TimerManager.h"
-#include "Math/UnrealMathUtility.h"
+#include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/CameraActor.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Math/UnrealMathUtility.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
@@ -21,6 +22,14 @@
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
 #include "UI/Game/GameOverlay_B.h"
+
+AMainGameMode_B::AMainGameMode_B()
+{
+	MainMusicComponent = CreateDefaultSubobject<UAudioComponent>("MainMusicComponent");
+	SetRootComponent(MainMusicComponent);
+	if (!MainMusicComponent)
+		BError("MusicComponet Not created properly!");
+}
 
 void AMainGameMode_B::BeginPlay()
 {
@@ -125,14 +134,16 @@ void AMainGameMode_B::StartGame()
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
 	}
-	if (GameInstance && River)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	}
+	//if (GameInstance && River)
+	//{
+	//	UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
+	//}
 
-	if (GameInstance && Music)
+	if (GameInstance && MainMusicComponent)
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
+		MainMusicComponent->SetSound(Music);
+		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
+		MainMusicComponent->Play();
 	}
 }
 
@@ -182,7 +193,6 @@ void AMainGameMode_B::ResumeGame()
 
 void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	BWarn("Tracking box end overlap from gamemode!");
 	
 	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
 	if (Character)
@@ -193,10 +203,26 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 			TrackingBox->GetOverlappingActors(OverlappingActors);
 		if (OverlappingActors.Find(Character) == INDEX_NONE)
 		{
-			BWarn("Character not found in box!");
 			if(!(Character->GetState() == EState::EBeingHeld))	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
 				Character->Die();
-
 		}
+	}
+}
+
+void AMainGameMode_B::SetMusic(USoundCue* NewMusic)
+{
+	if (NewMusic && MainMusicComponent)
+		MainMusicComponent->SetSound(NewMusic);
+	else
+		BWarn("New Music invalid!");
+}
+
+void AMainGameMode_B::ResetMusic()
+{
+	if (MainMusicComponent && (MainMusicComponent->Sound != Music))
+	{
+		MainMusicComponent->SetSound(Music);
+		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
+		MainMusicComponent->Play();
 	}
 }

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DragArea_B.generated.h"
 
+class UAudioComponent;
 class UBoxComponent;
 class UStaticMeshComponent; //TODO delete?
 class USkeletalMeshComponent;
@@ -16,11 +17,27 @@ UCLASS()
 class BRAWLINN_API ADragArea_B : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
 	ADragArea_B();
 
+protected:
+	// ********** Components **********
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UAudioComponent* RiverSoundComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* DragArea = nullptr;
+
+public:
+	// ********** Overridden functions **********
+	virtual void BeginPlay() override;
+	
+	virtual void Tick(float DeltaTime) override;
+
+public:	
+	// Sets default values for this actor's properties
+
+	// ********** Drag **********
 	UPROPERTY(EditAnywhere, Category="Variables")
 	float ItemDragStrength = 100000.0f;
 
@@ -29,15 +46,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 	float SkeletalDragStrength= 4000.f;
-
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere)
-	UBoxComponent* DragArea = nullptr;
-	
-
 	//for characters that has not fallen (movement components)
 	UPROPERTY()
 	TArray<ACharacter_B*> PlayersToMove;
@@ -49,10 +58,10 @@ protected:
 	TArray<UPrimitiveComponent*> ComponentsToMove;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// ********** Overlaps **********
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
 };

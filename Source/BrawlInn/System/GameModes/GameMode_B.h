@@ -100,7 +100,7 @@ protected:
 	void GetAllSpawnpointsInWorld();
 	FTransform GetRandomSpawnTransform();
 	FTransform GetSpawnTransform(const int PlayerControllerID);
-
+	
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Music;
 };

@@ -14,6 +14,7 @@ class UPauseMenu_B;
 class UGameOverlay_B;
 class AGamePlayerController_B;
 class ACameraActor;
+class UAudioComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
@@ -25,6 +26,13 @@ class BRAWLINN_API AMainGameMode_B : public AGameMode_B
 
 protected:
 
+	AMainGameMode_B();
+
+	// ********** Components **********
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UAudioComponent* MainMusicComponent;
+
+
 	// ** Overridden functions **
 
 	virtual void BeginPlay() override;
@@ -32,6 +40,7 @@ protected:
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void Tick(float DeltaTime) override;
+
 	// ********** Game States **********
 	void PreStartGame();
 
@@ -74,9 +83,13 @@ protected:
 private:
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
-protected:
 
 	// ********** Sound **********
+public:
+	void SetMusic(USoundCue* NewMusic);
+	
+	void ResetMusic();
+protected:
 	UPROPERTY(BlueprintReadWrite)
 		UPauseMenu_B* PauseMenuWidget = nullptr;
 

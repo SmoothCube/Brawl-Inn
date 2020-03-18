@@ -144,7 +144,6 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 //	if (GetCharacterMovement()->IsFalling())	//Had to remove this but should probably be here? idk does this even work properly
 //		return;									//yes i know i wrote it
 
-	BWarn("Character Fell!");
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
 
@@ -380,6 +379,15 @@ bool ACharacter_B::HasShield() const
 
 void ACharacter_B::SetState(EState s)
 {
+	if (State == EState::EPoweredUp)
+	{
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+		{
+			GameMode->ResetMusic();
+		}
+	}
+
 	State = s;
 	//Entering state
 	switch (State)
