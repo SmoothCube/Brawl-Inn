@@ -45,6 +45,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsHoldingUseable = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsDrinking = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsChargingThrow = false;

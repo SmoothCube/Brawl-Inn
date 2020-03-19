@@ -63,16 +63,17 @@ bool UThrowComponent_B::TryStartCharge()
 		return false;
 	}
 	
-	OwningCharacter->bIsCharging = true;
 
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
 	if (Useable)
 	{
 		StartDrinking();
+
 		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::StopDrinking,Useable->GetUseTime());
 	}
 	else if (OwningCharacter->GetChargeParticle())
 	{
+		OwningCharacter->bIsCharging = true;
 		OwningCharacter->GetChargeParticle()->Activate();
 	}
 
@@ -81,6 +82,9 @@ bool UThrowComponent_B::TryStartCharge()
 
 void UThrowComponent_B::StartThrow()
 {
+	if(HoldComponent)
+		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
+			return;
 	if (OwningCharacter->bIsCharging)
 	{
 		OwningCharacter->bIsCharging = false;
@@ -133,6 +137,7 @@ bool UThrowComponent_B::IsThrowing() const
 
 void UThrowComponent_B::StartDrinking()
 {
+	OwningCharacter->bIsDrinking = true;
 	//remove all control from player for a while
 	OwningCharacter->SetCanMove(false);
 	if (OwningCharacter->PunchComponent)
@@ -144,6 +149,7 @@ void UThrowComponent_B::StartDrinking()
 
 void UThrowComponent_B::StopDrinking()
 {
+	OwningCharacter->bIsDrinking = false;
 	OwningCharacter->SetCanMove(true);
 	if (OwningCharacter->PunchComponent)
 	{

@@ -134,6 +134,7 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 void ACharacter_B::SetCanMove(bool Value)
 {
+	BWarn("Setting can move to %s", Value ? TEXT("True") : TEXT("False"))
 	bCanMove = Value;
 }
 

@@ -34,7 +34,6 @@ void UHoldComponent_B::BeginPlay()
 
 bool UHoldComponent_B::TryPickup()
 {
-
 	if (!OwningCharacter || OwningCharacter->GetState() != EState::EWalking) return false;
 	if (OwningCharacter->PunchComponent->GetIsPunching()) return false;
 	
