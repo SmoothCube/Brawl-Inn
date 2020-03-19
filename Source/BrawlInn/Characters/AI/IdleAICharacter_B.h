@@ -33,9 +33,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Variables|Movement")
 		FVector RespawnLocation;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Variables|Movement")
-		bool bCanMove = false;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Movement")
 		float ResetCanMoveTime = 60.f;
 

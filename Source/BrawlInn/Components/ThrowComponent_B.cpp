@@ -4,12 +4,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "Sound/SoundCue.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/PunchComponent_B.h"
 #include "System/GameModes/GameMode_B.h"
 #include "System/GameInstance_B.h"
+#include "Items/Useable_B.h"
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
 {
@@ -30,12 +33,19 @@ void UThrowComponent_B::BeginPlay()
 	HoldComponent = OwningCharacter->HoldComponent;
 }
 
+void UThrowComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UThrowComponent_B::TryThrow()
+bool UThrowComponent_B::TryStartCharge()
 {
 	if (!IsReady())
 	{
@@ -52,11 +62,19 @@ bool UThrowComponent_B::TryThrow()
 		BWarn("Wrong Player State");
 		return false;
 	}
-
-	if (IsValid(OwningCharacter))
-		OwningCharacter->bIsCharging = true;
-	if (OwningCharacter && OwningCharacter->GetChargeParticle())
+	
+	OwningCharacter->bIsCharging = true;
+	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
+	if (Useable)
+	{
+		StartDrinking();
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::StopDrinking,Useable->GetUseTime());
+	}
+	else if (OwningCharacter->GetChargeParticle())
+	{
 		OwningCharacter->GetChargeParticle()->Activate();
+	}
+
 	return true;
 }
 
@@ -110,6 +128,27 @@ void UThrowComponent_B::Throw()
 bool UThrowComponent_B::IsThrowing() const
 {
 	return bIsThrowing;
+}
+
+void UThrowComponent_B::StartDrinking()
+{
+	//remove all control from player for a while
+	OwningCharacter->SetCanMove(false);
+	if (OwningCharacter->PunchComponent)
+	{
+		OwningCharacter->PunchComponent->SetCanPunch(false);
+		OwningCharacter->PunchComponent->SetCanDash(false);
+	}
+}
+
+void UThrowComponent_B::StopDrinking()
+{
+	OwningCharacter->SetCanMove(true);
+	if (OwningCharacter->PunchComponent)
+	{
+		OwningCharacter->PunchComponent->SetCanPunch(true);
+		OwningCharacter->PunchComponent->SetCanDash(true);
+	}
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)

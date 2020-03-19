@@ -63,12 +63,16 @@ protected:
 	void HandleMovement(float DeltaTime);
 public:
 	float NormalMaxWalkSpeed = 0;
-
+	void SetCanMove(bool Value);
+	bool GetCanMove();
 protected:
 	float RotationInterpSpeed = 10.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float NormalRotationInterpSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	bool bCanMove = true;
 
 public:
 	UPROPERTY()

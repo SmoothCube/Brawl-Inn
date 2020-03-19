@@ -6,6 +6,7 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Items/Useable_B.h"
 #include "BrawlInn.h"
 
 void UPlayerAnimInstance_B::NativeBeginPlay()
@@ -35,7 +36,18 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 	bIsBeingHeld = (Owner->GetState() == EState::EBeingHeld);
 
 	if (Owner->HoldComponent)
+	{
 		bIsHolding = Owner->HoldComponent->IsHolding();
+		if (bIsHolding)
+		{
+			AUseable_B* Useable = Cast<AUseable_B>(Owner->HoldComponent->GetHoldingItem());	//hmm. not good to have a cast here
+			if (Useable)
+				bIsHoldingUseable = true;
+			else
+				bIsHoldingUseable = false;
+		}
+
+	}
 	if (Owner->ThrowComponent)
 	{
 		bIsThrowing = Owner->ThrowComponent->IsThrowing();

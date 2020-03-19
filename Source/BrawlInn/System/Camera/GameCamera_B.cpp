@@ -76,6 +76,7 @@ void AGameCamera_B::Tick(float DeltaTime)
 
 void AGameCamera_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 }

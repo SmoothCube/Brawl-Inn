@@ -42,6 +42,9 @@ protected:
 							 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsHolding = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsHoldingUseable = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsChargingThrow = false;

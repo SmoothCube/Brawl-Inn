@@ -88,7 +88,7 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp)
+	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp && bCanMove)
 	{
 		HandleMovement(DeltaTime);
 	}
@@ -130,6 +130,16 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
 		SetActorRotation(FMath::RInterpTo(GetActorRotation(), vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
 	}
+}
+
+void ACharacter_B::SetCanMove(bool Value)
+{
+	bCanMove = Value;
+}
+
+bool ACharacter_B::GetCanMove()
+{
+	return bCanMove;
 }
 
 void ACharacter_B::CheckFall(FVector MeshForce)

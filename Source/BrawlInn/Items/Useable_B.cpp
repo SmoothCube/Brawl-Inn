@@ -88,6 +88,11 @@ void AUseable_B::Use_Implementation()
 	Execute_Dropped(this);
 }
 
+float AUseable_B::GetUseTime()
+{
+	return UseTime;
+}
+
 void AUseable_B::ResetBoost()
 {
 }

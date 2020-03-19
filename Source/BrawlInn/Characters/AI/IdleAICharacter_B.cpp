@@ -20,7 +20,7 @@ void AIdleAICharacter_B::BeginPlay()
 	StartLocation = GetActorLocation();
 
 	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
-	
+	bCanMove = false;
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "NPCPlatform", OutActors);
 	if (OutActors.IsValidIndex(0))

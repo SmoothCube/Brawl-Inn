@@ -23,11 +23,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// ********** Throw **********
 public:
-	bool TryThrow();
+	bool TryStartCharge();
 
 	void StartThrow();
 
@@ -41,6 +43,12 @@ protected:
 
 public:
 
+	// ********** Drinking **********
+	void StartDrinking();
+
+	void StopDrinking();
+
+	FTimerHandle TH_DrinkTimer;
 	// ********** AimAssist **********
 	bool AimAssist(FVector& TargetPlayerLocation);
 protected:

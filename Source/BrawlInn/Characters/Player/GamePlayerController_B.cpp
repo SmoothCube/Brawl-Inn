@@ -213,7 +213,7 @@ bool AGamePlayerController_B::TryStartThrowCharge()
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->PunchComponent->GetCanPunch())
 	{
-		PlayerCharacter->ThrowComponent->TryThrow();
+		PlayerCharacter->ThrowComponent->TryStartCharge();
 		return true;
 	}
 	return false;
