@@ -14,6 +14,7 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "System/DataTable_B.h"
+#include "System/GameInstance_B.h"
 #include "System/GameModes/GameMode_B.h"
 
 
@@ -27,17 +28,25 @@ ABounceActor_B::ABounceActor_B()
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
-	ScoreAmount = Table->GetRow<FScoreTable>("Barrel")->Value;
-
-	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
 	
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
+
+	if (GameInstance->ShouldUseSpreadSheets())
+	{
+		UDataTable_B* Table = NewObject<UDataTable_B>();
+		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		ScoreAmount = Table->GetRow<FScoreTable>("Barrel")->Value;
+		Table->ConditionalBeginDestroy();
+	}
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
+
 }
 void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == this)
 		return;
-	
+
 	BreakBarrel();
 }
 

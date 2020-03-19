@@ -51,8 +51,4 @@ public:
 
 	bool bShouldDestroyTarget = false;
 
-private:
-
-	UPROPERTY()
-		UDataTable_B* Table = nullptr;
 };

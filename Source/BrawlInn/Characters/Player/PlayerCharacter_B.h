@@ -127,8 +127,5 @@ private:
 	FTimerHandle TH_MakeNoiseTimer;
 
 	UPROPERTY()
-		UDataTable_B* Table = nullptr;
-
-	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
 };

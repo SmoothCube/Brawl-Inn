@@ -26,12 +26,17 @@ void UPunchComponent_B::BeginPlay()
 
 	OnComponentBeginOverlap.AddDynamic(this, &UPunchComponent_B::OnOverlapBegin);
 
-	ScoreTable = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
-	if (ScoreTable)
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(OwningCharacter->GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
+
+	if (GameInstance->ShouldUseSpreadSheets())
 	{
+		UDataTable_B* ScoreTable = NewObject<UDataTable_B>();
+		ScoreTable->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		Level1ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel1ScoreValue")->Value;
 		Level2ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel2ScoreValue")->Value;
 		Level3ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel3ScoreValue")->Value;
+		ScoreTable->ConditionalBeginDestroy();
 	}
 }
 
@@ -80,7 +85,7 @@ void UPunchComponent_B::PunchStart()
 			PunchSound,
 			GetComponentLocation(),
 			volume
-		);
+			);
 	}
 
 	PunchDash();

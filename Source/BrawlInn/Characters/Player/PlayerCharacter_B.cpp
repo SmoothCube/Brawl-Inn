@@ -61,7 +61,8 @@ void APlayerCharacter_B::BeginPlay()
 
 	if (GameInstance->ShouldUseSpreadSheets())
 	{
-		Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		 UDataTable_B* Table = NewObject<UDataTable_B>();
+		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
 		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
 		PowerupKnockdownScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockdown")->Value;
@@ -134,7 +135,6 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
 		HoldComponent->Drop();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -143,6 +143,8 @@ void APlayerCharacter_B::Die()
 	Super::Die();
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
+
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
 	PlayerController->TryRespawn(RespawnDelay);
 	PlayerController->UnPossess();
@@ -236,6 +238,7 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	BLog("%f", DamageAmount);
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
 

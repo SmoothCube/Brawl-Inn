@@ -8,7 +8,7 @@
 void ATankardDropPoint_B::ItemDestroyed()
 {
 	if (Bar)
-		Bar->StartRandomOrder(10);
+		Bar->StartRandomOrder();
 
 	Destroy();
 }
