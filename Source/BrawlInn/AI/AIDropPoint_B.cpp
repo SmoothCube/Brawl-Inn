@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AIDropPoint_B.h"
+
+#include "BrawlInn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
@@ -27,5 +29,6 @@ void AAIDropPoint_B::SetNewItem(AItem_B* NewItem)
 	if (Item)
 		Item->OnFracture().AddUObject(this, &AAIDropPoint_B::ItemDestroyed);
 
-	OnItemDelivered_Delegate.Broadcast();
+	if (GetSquaredDistanceTo(Item) < 10)
+		OnItemDelivered_Delegate.Broadcast();
 }

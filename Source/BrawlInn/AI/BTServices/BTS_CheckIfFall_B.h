@@ -27,6 +27,9 @@ protected:
 		FBlackboardKeySelector HoldingItem;
 
 	UPROPERTY(EditAnywhere)
+		FBlackboardKeySelector DropLocation;
+
+	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector HasFallen;
 
 	UPROPERTY()

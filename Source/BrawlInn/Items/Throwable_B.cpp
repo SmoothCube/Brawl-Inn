@@ -141,6 +141,8 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
 		PickupCapsule->DestroyComponent();
+
+	DestructibleComponent->ApplyDamage(1000, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 100);
 }
 
 UDestructibleComponent* AThrowable_B::GetDestructibleComponent() const
