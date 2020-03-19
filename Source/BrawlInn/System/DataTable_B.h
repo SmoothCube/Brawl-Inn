@@ -14,7 +14,7 @@ class BRAWLINN_API UDataTable_B : public UDataTable
 public:
 	UDataTable_B();
 
-	static UDataTable_B* CreateDataTable(UScriptStruct* StaticStruct, FString FileName);
+	void LoadCSVFile(UScriptStruct* StaticStruct, FString FileName);
 
 	template <class T>
 	T* GetRow(FName RowName);

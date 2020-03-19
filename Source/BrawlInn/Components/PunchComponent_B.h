@@ -6,8 +6,6 @@
 #include "Components/SphereComponent.h"
 #include "PunchComponent_B.generated.h"
 
-
-class UDataTable_B;
 class ACharacter_B;
 class USoundCue;
 class UDamageType;
@@ -160,9 +158,6 @@ private:
 	FTimerHandle TH_DashDoneHandle;
 
 	// ********** Score **********
-
-	UPROPERTY()
-		UDataTable_B* ScoreTable = nullptr;
 
 	int Level1ScoreValue = 10;
 	int Level2ScoreValue = 20;

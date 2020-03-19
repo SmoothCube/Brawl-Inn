@@ -32,7 +32,9 @@ void AThrowable_B::BeginPlay()
 	DestructibleComponent->OnComponentFracture.Clear();
 	DestructibleComponent->OnComponentFracture.AddDynamic(this, &AThrowable_B::OnComponentFracture);
 
-	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Throwable")->Value;
+	UDataTable_B* DataTable = NewObject<UDataTable_B>();
+	DataTable->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+	ScoreAmount = DataTable->GetRow<FScoreTable>("Throwable")->Value;
 }
 
 void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -45,7 +47,7 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
-	
+
 	Mesh->SetVisibility(true);
 
 	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);

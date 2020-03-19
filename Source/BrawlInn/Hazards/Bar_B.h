@@ -15,9 +15,6 @@ class AAICharacter_B;
 class AAIDropPoint_B;
 class AItem_B;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
-
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDeliverStart, AItem_B*, AAICharacter_B*);
 
 UCLASS()
@@ -31,20 +28,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	// ********** Bar (Kan egentlig fjernes)**********
-	UFUNCTION(BlueprintImplementableEvent)
-		void OpenDoor();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void CloseDoor();
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnDoorOpen OnDoorOpen_D;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnDoorClosed OnDoorClosed_D;
-
+	// ********** Components **********
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* House;
@@ -78,7 +62,7 @@ protected:
 
 	// ********** Drink ordering **********
 public:
-	void StartRandomOrder(float TimeUntilDelivery);
+	void StartRandomOrder(float Time = -1);
 
 	void GetOrder(AAIDropPoint_B* DropPoint);
 
@@ -90,6 +74,12 @@ protected:
 	TArray<AIdleAICharacter_B*> Customers;
 
 	FTimerHandle TH_StartOrderTimer;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+		float TimeUntilFirstDelivery = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+		float TimeUntilDelivery = 10;
 
 	// ********** Delivery **********
 public:

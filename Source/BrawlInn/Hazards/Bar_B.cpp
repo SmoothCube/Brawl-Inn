@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Bar_B.h"
+
+#include "BrawlInn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 
+#include "System/DataTable_B.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/IdleAICharacter_B.h"
 #include "System/GameInstance_B.h"
@@ -25,6 +28,16 @@ void ABar_B::BeginPlay()
 
 	GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
+
+	if (GameInstance->ShouldUseSpreadSheets())
+	{
+		UDataTable_B* DataTable = NewObject<UDataTable_B>();
+		DataTable->LoadCSVFile(FBarValues::StaticStruct(), "BarSettings.csv");
+		TimeUntilFirstDelivery = DataTable->GetRow<FBarValues>("FirstDeliveryTime")->Value;
+		TimeUntilDelivery = DataTable->GetRow<FBarValues>("DeliveryTime")->Value;
+		DataTable->ConditionalBeginDestroy();
+	}
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), WaiterTag, OutActors);
@@ -63,7 +76,8 @@ void ABar_B::BeginPlay()
 			continue;;
 		Customers.Add(Customer);
 	}
-	StartRandomOrder(2);
+
+	StartRandomOrder(TimeUntilFirstDelivery);
 }
 
 void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
@@ -76,7 +90,7 @@ void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
-void ABar_B::StartRandomOrder(const float TimeUntilDelivery)
+void ABar_B::StartRandomOrder(const float Time)
 {
 	GetWorld()->GetTimerManager().SetTimer(TH_StartOrderTimer, [&]()
 		{
@@ -97,7 +111,7 @@ void ABar_B::StartRandomOrder(const float TimeUntilDelivery)
 					Volume
 					);
 			}
-		}, TimeUntilDelivery, false);
+		}, Time < 0 ? TimeUntilDelivery : Time, false);
 }
 
 void ABar_B::GetOrder(AAIDropPoint_B* DropPoint)
