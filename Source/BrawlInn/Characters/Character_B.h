@@ -64,7 +64,9 @@ protected:
 public:
 	float NormalMaxWalkSpeed = 0;
 	void SetCanMove(bool Value);
+
 	bool GetCanMove();
+	
 protected:
 	float RotationInterpSpeed = 10.f;
 	
@@ -142,7 +144,10 @@ protected:
 	FVector HoldOffset = FVector(0, 0, 0);
 
 public:
-	// ********** Charge **********
+	// ********** Holding Drink **********
+	FVector HoldingDrinkOffset = FVector::ZeroVector;
+	
+		// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;
 	virtual void SetChargeLevel(EChargeLevel chargeLevel);

@@ -34,17 +34,14 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 	}
 
 	bIsBeingHeld = (Owner->GetState() == EState::EBeingHeld);
-
+	bIsHoldingUseable = false;
 	if (Owner->HoldComponent)
 	{
 		bIsHolding = Owner->HoldComponent->IsHolding();
 		if (bIsHolding)
 		{
-			AUseable_B* Useable = Cast<AUseable_B>(Owner->HoldComponent->GetHoldingItem());	//hmm. not good to have a cast here
-			if (Useable)
+			if (Owner->HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
 				bIsHoldingUseable = true;
-			else
-				bIsHoldingUseable = false;
 		}
 
 	}

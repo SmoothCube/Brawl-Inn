@@ -64,6 +64,7 @@ bool UThrowComponent_B::TryStartCharge()
 	}
 	
 	OwningCharacter->bIsCharging = true;
+
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
 	if (Useable)
 	{

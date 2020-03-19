@@ -10,6 +10,7 @@
 #include "Components/PunchComponent_B.h"
 //#include "System/Interfaces/ThrowableInterface_B.h"
 //#include "Items/Throwable_B.h"
+#include "Items/Useable_B.h"
 #include "Characters/Character_B.h"
 #include "Items/Item_B.h"
 
@@ -127,8 +128,15 @@ void UHoldComponent_B::Pickup(AActor* Item)
 	if (Interface)
 		Interface->Execute_PickedUp(Item, OwningCharacter);
 
+	FVector Offset = FVector::ZeroVector;
+	FName HoldSocketName = HoldingSocketName;
+	if (Item->IsA(AUseable_B::StaticClass()))
+	{
+		Offset = OwningCharacter->HoldingDrinkOffset;
+		HoldSocketName = FName("HoldingDrinkSocket");
+	}
 	const FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
-	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldingSocketName);
+	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldSocketName);
 	HoldingItem = Item;
 
 	ACharacter_B* Character= Cast<ACharacter_B>(Item);
@@ -139,7 +147,10 @@ void UHoldComponent_B::Pickup(AActor* Item)
 		Character->SetActorRelativeRotation(Character->GetHoldRotation());
 	}
 	else
+	{
+		Item->AddActorLocalOffset(Offset);
 		Item->SetActorRelativeRotation(Cast<AItem_B>(Item)->GetHoldRotation());
+	}
 }
 
 void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
