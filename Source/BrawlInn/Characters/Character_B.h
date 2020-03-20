@@ -168,22 +168,10 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float Charge1MoveSpeed = 500.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float Charge2MoveSpeed = 250.f;
+		float Charge2MoveSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float Charge3MoveSpeed = 100.f;
-	
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-		float Charge1RotSpeed = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-		float Charge2RotSpeed = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-		float Charge3RotSpeed = 10.f;		//TODO clean
 	
 	bool bIsCharging = false;
 
@@ -191,7 +179,7 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float ChargeTier2Percentage = 0.45;
+		float ChargeTier2Percentage = 0.2;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float ChargeTier3Percentage = 0.9;

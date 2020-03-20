@@ -111,8 +111,8 @@ void ACharacter_B::SetInputVectorY(const float Y)
 
 void ACharacter_B::HandleMovement(float DeltaTime)
 {
-	if (PunchComponent->GetIsPunching())
-		return;
+	//if (PunchComponent->GetIsPunching())
+	//	return;
 
 	if (InputVector.IsNearlyZero(0.1))
 		return;
@@ -538,26 +538,20 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	switch (ChargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1:
-		RotationInterpSpeed = Charge1RotSpeed;
-		GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
-		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
 		ShouldPlaySound = false;
 		SoundPitch = 0.8f;
 		break;
 	case EChargeLevel::EChargeLevel2:
-		RotationInterpSpeed = Charge2RotSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
 		SoundPitch = 1.0f;
 		break;
 	case EChargeLevel::EChargeLevel3:
-		RotationInterpSpeed = Charge3RotSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
 		SoundPitch = 1.2f;
 		break;
 	default:
-		RotationInterpSpeed = NormalRotationInterpSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		ShouldPlaySound = false;
 		break;
