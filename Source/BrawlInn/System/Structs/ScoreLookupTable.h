@@ -21,3 +21,12 @@ struct FBarValues : public FTableRowBase
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Values")
 		float Value;
 };
+
+USTRUCT(BlueprintType)
+struct FStringValues : public FTableRowBase
+{
+	GENERATED_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Values")
+		FString Value;
+};

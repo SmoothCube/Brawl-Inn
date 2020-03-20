@@ -80,6 +80,13 @@ void ABar_B::BeginPlay()
 	StartRandomOrder(TimeUntilFirstDelivery);
 }
 
+void ABar_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
 void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 {
 	if (BP_Useables.Num() == 0)
@@ -90,28 +97,30 @@ void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
+void ABar_B::RandomOrder()
+{
+	const int RandomIndex = FMath::RandRange(0, Customers.Num() - 1);
+	if (Customers.IsValidIndex(RandomIndex))
+		Customers[RandomIndex]->OrderDrink();
+
+	if (IsValid(DrinkReadySound))
+	{
+		float Volume = 1.f;
+		if (GameInstance)
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			DrinkReadySound,
+			GetActorLocation(),
+			Volume
+		);
+	}
+}
+
 void ABar_B::StartRandomOrder(const float Time)
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_StartOrderTimer, [&]()
-		{
-			const int RandomIndex = FMath::RandRange(0, Customers.Num() - 1);
-			if (Customers.IsValidIndex(RandomIndex))
-				Customers[RandomIndex]->OrderDrink();
-
-			if (IsValid(DrinkReadySound))
-			{
-				float Volume = 1.f;
-				if (GameInstance)
-					Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
-				UGameplayStatics::PlaySoundAtLocation(
-					GetWorld(),
-					DrinkReadySound,
-					GetActorLocation(),
-					Volume
-					);
-			}
-		}, Time < 0 ? TimeUntilDelivery : Time, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_StartOrderTimer, this, &ABar_B::RandomOrder, Time < 0 ? TimeUntilDelivery : Time, false);
 }
 
 void ABar_B::GetOrder(AAIDropPoint_B* DropPoint)
@@ -143,7 +152,6 @@ void ABar_B::AddDropLocation(const EBarDropLocationType Type, AAIDropPoint_B* Dr
 		break;
 	default:;
 	}
-
 }
 
 FBarDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)

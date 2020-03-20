@@ -28,6 +28,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	// ********** Components **********
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -36,6 +38,7 @@ protected:
 	// ********** Tankard **********
 protected:
 	void GiveRandomTankard(AAICharacter_B* Waiter);
+	void RandomOrder();
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;

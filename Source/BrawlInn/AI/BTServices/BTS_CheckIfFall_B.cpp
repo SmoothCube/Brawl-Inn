@@ -47,7 +47,7 @@ void UBTS_CheckIfFall_B::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		if (Bar)
 		{
 			AAIDropPoint_B* DropPoint = Bar->GetDropLocations(AICharacter)->PeekFront();
-			if (DropPoint == Cast<AAIDropPoint_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(DropLocation.SelectedKeyName)))
+			if (DropPoint && DropPoint == Cast<AAIDropPoint_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(DropLocation.SelectedKeyName)))
 			{
 				DropPoint->SetNewItem(Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(HoldingItem.SelectedKeyName)));
 				Bar->GetDropLocations(AICharacter)->RemoveFront();

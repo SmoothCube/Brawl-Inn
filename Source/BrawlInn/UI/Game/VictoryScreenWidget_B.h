@@ -22,6 +22,9 @@ protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	UFUNCTION()
+		void ContinueButtonClicked();
+
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* PlayerWon;
 
