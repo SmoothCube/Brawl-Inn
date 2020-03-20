@@ -34,9 +34,14 @@ protected:
 
 public:
 	UStaticMeshComponent* GetDirectionIndicatorPlane() const;
+
+	UNiagaraComponent* GetChiliBrewParticle() const;
 protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* PS_ChiliBrew = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 		UPawnNoiseEmitterComponent* NoiseEmitterComponent = nullptr;
