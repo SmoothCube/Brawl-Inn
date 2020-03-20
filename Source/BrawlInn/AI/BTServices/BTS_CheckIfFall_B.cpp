@@ -41,28 +41,21 @@ void UBTS_CheckIfFall_B::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		return;
 	}
 
-	if (AICharacter->GetState() == EState::EBeingHeld)
+	if ((AICharacter->GetState() == EState::EBeingHeld && AICharacter->HoldComponent->IsHolding()) || (AICharacter->GetState() == EState::EFallen))
 	{
-
-		if(AICharacter->HoldComponent->IsHolding())
+		ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+		if (Bar)
 		{
-			ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
-			if (Bar)
+			AAIDropPoint_B* DropPoint = Bar->GetDropLocations(AICharacter)->PeekFront();
+			if (DropPoint == Cast<AAIDropPoint_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(DropLocation.SelectedKeyName)))
 			{
-				AAIDropPoint_B* DropPoint = Bar->GetDropLocations(AICharacter)->PeekFront();
-				if (DropPoint == Cast<AAIDropPoint_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(DropLocation.SelectedKeyName)))
-				{
-					DropPoint->SetNewItem(Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(HoldingItem.SelectedKeyName)));
-					Bar->GetDropLocations(AICharacter)->RemoveFront();
-				}
-				
+				DropPoint->SetNewItem(Cast<AItem_B>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(HoldingItem.SelectedKeyName)));
+				Bar->GetDropLocations(AICharacter)->RemoveFront();
 			}
 		}
 		OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 		OwnerComp.GetBlackboardComponent()->ClearValue(HoldingItem.SelectedKeyName);
 		OwnerComp.GetBlackboardComponent()->ClearValue(DropLocation.SelectedKeyName);
-		//OwnerComp.GetBlackboardComponent()->SetValueAsBool(HasFallen.SelectedKeyName, true);
 		OwningAI->OnCharacterFall().Broadcast();
 	}
-	
 }

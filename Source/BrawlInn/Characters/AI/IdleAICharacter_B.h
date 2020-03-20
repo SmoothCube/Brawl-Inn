@@ -20,9 +20,12 @@ protected:
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void FellOutOfWorld(const UDamageType& dmgType) override;
+	void Respawn();
 
 	// ********** ACharacter_B **********
 
+	void Die() override;
+	
 	void SetState(EState s) override;
 
 	// ********** Location/Movement **********
@@ -37,6 +40,7 @@ protected:
 		float ResetCanMoveTime = 60.f;
 
 	FTimerHandle TH_ResetCanMove;
+	FTimerHandle TH_Respawn;
 
 	// ********** Drink ordering**********
 public:
