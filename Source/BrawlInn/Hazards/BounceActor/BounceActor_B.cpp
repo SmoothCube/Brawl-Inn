@@ -72,6 +72,10 @@ void ABounceActor_B::OnItemFracture()
 	{
 		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController, true);
 	}
+
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->RemoveCameraFocusPoint(this);
 }
 
 void ABounceActor_B::SpawnPlayerCharacter()
