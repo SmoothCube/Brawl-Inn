@@ -69,7 +69,7 @@ bool UThrowComponent_B::TryStartCharge()
 	{
 		StartDrinking();
 
-		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::StopDrinking,Useable->GetUseTime());
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::SetIsDrinkingFalse,Useable->GetUseTime());
 	}
 	else if (OwningCharacter->GetChargeParticle())
 	{
@@ -147,6 +147,11 @@ void UThrowComponent_B::StartDrinking()
 		OwningCharacter->PunchComponent->SetCanPunch(false);
 		OwningCharacter->PunchComponent->SetCanDash(false);
 	}
+}
+
+void UThrowComponent_B::SetIsDrinkingFalse()
+{
+	OwningCharacter->bIsDrinking = false;
 }
 
 void UThrowComponent_B::StopDrinking()

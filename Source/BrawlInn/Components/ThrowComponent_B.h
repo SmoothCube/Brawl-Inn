@@ -46,6 +46,8 @@ public:
 	// ********** Drinking **********
 	void StartDrinking();
 
+	void SetIsDrinkingFalse();
+
 	void StopDrinking();
 
 	FTimerHandle TH_DrinkTimer;
