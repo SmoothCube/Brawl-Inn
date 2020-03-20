@@ -36,7 +36,7 @@ bool UHoldComponent_B::TryPickup()
 {
 	if (!OwningCharacter || OwningCharacter->GetState() != EState::EWalking) return false;
 	if (OwningCharacter->PunchComponent->GetIsPunching()) return false;
-	
+	BWarn("Trying Pickup!");
 	TArray<AActor*> OverlappingThrowables;
 	GetOverlappingActors(OverlappingThrowables, UThrowableInterface_B::StaticClass());
 	OverlappingThrowables.Remove(OwningCharacter);

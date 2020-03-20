@@ -49,7 +49,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	Charge3ThrowStrength = 2000000.f;
 
 	HoldOffset = FVector(0, 0, 500);
-	HoldingDrinkOffset = FVector(-53.706013, 88.513603, -0.406806);
+	HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
 }
 
 void APlayerCharacter_B::BeginPlay()

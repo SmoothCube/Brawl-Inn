@@ -147,7 +147,7 @@ public:
 	// ********** Holding Drink **********
 	FVector HoldingDrinkOffset = FVector::ZeroVector;
 	
-	bool bIsDrinking = true;
+	bool bIsDrinking = false;
 		// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;

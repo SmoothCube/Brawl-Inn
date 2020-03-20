@@ -19,10 +19,5 @@ void UPlayerCharacterAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 	if (!PlayerOwner) { return; }
 
 	BreakFreeBlend = PlayerOwner->BreakFreeAnimationBlend;
-
-	if (bIsThrowing)
-		BWarn("%s is throwing!", *GetNameSafe(PlayerOwner));
-	if (bIsChargingThrow)
-		BWarn("%s is charging throw!", *GetNameSafe(PlayerOwner));
 }
 
