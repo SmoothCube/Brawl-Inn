@@ -113,19 +113,23 @@ void AMainGameMode_B::PreStartGame()
 		}, 0.1f, false, Countdown->GetDuration());
 }
 
+void AMainGameMode_B::UpdateClock()
+{
+	if (Overlay)
+	{
+		Overlay->UpdateTimerText(--TimeRemaining);
+		if (TimeRemaining < 0)
+			OnGameOver.Broadcast();
+	}
+}
+
 void AMainGameMode_B::StartGame()
 {
 
 	if (GameInstance->GameIsScoreBased())
 	{
-		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, [&]() {
-			if (Overlay)
-			{
-				Overlay->UpdateTimerText(--TimeRemaining);
-				if (TimeRemaining < 0)
-					OnGameOver.Broadcast();
-			}
-			}, 1.f, true);
+		
+		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 	}
 
 	EnableControllerInputs();

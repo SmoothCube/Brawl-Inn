@@ -21,7 +21,6 @@ public:
 		UButton_B* ContinueButton;
 protected:
 	// ** Overridden Functions **
-	virtual bool Initialize() override;
 
 	virtual void NativeConstruct() override;
 

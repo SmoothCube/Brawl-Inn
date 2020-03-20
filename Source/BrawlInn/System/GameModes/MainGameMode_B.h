@@ -43,6 +43,7 @@ protected:
 
 	// ********** Game States **********
 	void PreStartGame();
+	void UpdateClock();
 
 	void StartGame();
 
