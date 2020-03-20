@@ -217,7 +217,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	}
 
 	FVector TargetLocation = TargetPlayer->GetActorLocation();
-	TargetLocation.Z = 0;
+
 	FVector ThrowDirection = TargetLocation - PlayerLocation;
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 	return true;
