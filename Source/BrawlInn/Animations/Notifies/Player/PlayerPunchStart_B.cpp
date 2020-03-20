@@ -3,6 +3,7 @@
 #include "PlayerPunchStart_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/PunchComponent_B.h"
 

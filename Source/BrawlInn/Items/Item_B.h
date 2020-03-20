@@ -40,6 +40,11 @@ protected:
 		UCapsuleComponent* PickupCapsule;
 
 	// ********** Throwing **********
+public:
+
+	FRotator& GetHoldRotation();
+
+protected:
 
 	virtual bool IsHeld_Implementation() const override;
 
@@ -48,13 +53,16 @@ protected:
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge1ThrowStrength = 1000.f;
-	
+		float Charge1ThrowStrength = 1000.f;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge2ThrowStrength = 2000.f;
-	
+		float Charge2ThrowStrength = 2000.f;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge3ThrowStrength = 3000.f;
+		float Charge3ThrowStrength = 3000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Throw")
+		FRotator HoldRotation = FRotator(0, 0, 0);
 
 	// ********** Destroy/Fracture **********
 public:

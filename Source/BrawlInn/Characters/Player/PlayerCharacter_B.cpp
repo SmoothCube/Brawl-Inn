@@ -1,26 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerCharacter_B.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/PawnNoiseEmitterComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Engine/LocalPlayer.h"
-#include "TimerManager.h"
 #include "Sound/SoundCue.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
-#include "System/DataTable_B.h"
-#include "System/Structs/ScoreLookupTable.h"
 #include "Characters/Player/GamePlayerController_B.h"
-#include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
-#include "System/DamageTypes/Fall_DamageType_B.h"
+#include "Components/PunchComponent_B.h"
+#include "NiagaraComponent.h"
+#include "System/Camera/GameCamera_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
+#include "System/DataTable_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
+#include "System/Structs/ScoreLookupTable.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 
 APlayerCharacter_B::APlayerCharacter_B()
@@ -32,33 +34,50 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 
+	NoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>("NoiseEmitterComponent");
+
+	PS_ChiliBrew = CreateDefaultSubobject<UNiagaraComponent>("ChiliBrewParticle");
+	PS_ChiliBrew->SetupAttachment(GetMesh());
+	PS_ChiliBrew->SetRelativeLocation(FVector(0.f, -14.5f, 80.f));
+
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
+	PowerupPushStrength = 800000.0f;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
-	
+
 	Charge1ThrowStrength = 400000.f;
 	Charge2ThrowStrength = 1000000.f;
 	Charge3ThrowStrength = 2000000.f;
 
 	HoldOffset = FVector(0, 0, 500);
+	HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
 }
 
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PS_ChiliBrew->Deactivate();
+
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
 
 	if (GameInstance->ShouldUseSpreadSheets())
 	{
-		Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		 UDataTable_B* Table = NewObject<UDataTable_B>();
+		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
 		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
+		PowerupKnockdownScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockdown")->Value;
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TH_MakeNoiseTimer, [&]()
+		{
+			NoiseEmitterComponent->MakeNoise(this, 1.f, GetActorLocation());
+		}, 0.5f, true);
 }
 
 void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -66,12 +85,17 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(TH_MakeNoiseTimer);
 }
 
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (GetState() == EState::EBeingHeld)
+	if (GetState() == EState::EPoweredUp)
+	{
+		HandleMovementPoweredUp(DeltaTime);
+	}
+	else if (GetState() == EState::EBeingHeld)
 	{
 		CurrentHoldTime += DeltaTime;
 		if (CurrentHoldTime >= MaxHoldTime)
@@ -81,11 +105,31 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 	BreakFreeAnimationBlend -= 0.5 * DeltaTime;
 	if (BreakFreeAnimationBlend < 0.f)
 		BreakFreeAnimationBlend = 0.f;
+}
 
-	//	BLog("Last Hit By: %s", *GetNameSafe(LastHitBy));
-	//BLog("Player %s, is  %i", *GetNameSafe(this), IsInvulnerable());
-	//BWarn("Capsule collision profile: %s for player: %s", *GetCapsuleComponent()->GetCollisionProfileName().ToString(), *GetNameSafe(this));
+void APlayerCharacter_B::HandleMovementPoweredUp(float DeltaTime)
+{
+	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
+	if (InputVector.SizeSquared() >= 1.f)
+		InputVector.Normalize();
 
+	if (InputVector.SizeSquared() > 0)
+	{
+		if (GameCamera)
+		{
+			AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
+			AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
+		}
+
+		const FVector Vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), Vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	}
+	else
+	{
+		const FVector Vec = GameCamera->GetActorForwardVector().ToOrientationRotator().UnrotateVector(GetActorRotation().Vector());
+		AddMovementInput(GameCamera->GetActorForwardVector(), Vec.X);
+		AddMovementInput(GameCamera->GetActorRightVector(), Vec.Y);
+	}
 }
 
 UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
@@ -93,21 +137,31 @@ UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
 	return DirectionIndicatorPlane;
 }
 
+UNiagaraComponent* APlayerCharacter_B::GetChiliBrewParticle() const
+{
+	return PS_ChiliBrew;
+}
+
+USoundCue* APlayerCharacter_B::GetChiliBrewSound() const
+{
+	return ChiliBrewSound;
+}
+
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
 		HoldComponent->Drop();
-	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
-	Die();
 	Super::FellOutOfWorld(dmgType);
 }
 
 void APlayerCharacter_B::Die()
 {
-	Fall();
-	bIsAlive = false;
+	Super::Die();
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
+
+	BLog("DIE");
+	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
 	PlayerController->TryRespawn(RespawnDelay);
 	PlayerController->UnPossess();
@@ -119,9 +173,10 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
-	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
-	
-	if (HighShatterSound)
+	if (IsValid(DirectionIndicatorPlane))
+		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
+
+	if (IsValid(HighShatterSound))
 	{
 		float Volume = 1.f;
 		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -132,28 +187,41 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 			HighShatterSound,
 			GetActorLocation(),
 			Volume
-		);
+			);
 	}
-
 }
 
 void APlayerCharacter_B::StandUp()
 {
 	Super::StandUp();
 	bCanBeHeld = false;
-	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
+	if (DirectionIndicatorPlane)
+	{
+		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
+		DirectionIndicatorPlane->SetHiddenInGame(false);
+	}
 	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
+}
+
+void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
+{
+	Super::PickedUp_Implementation(Player);
+
+	DirectionIndicatorPlane->SetHiddenInGame(true);
 }
 
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
+	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
 }
 
 void APlayerCharacter_B::BreakFreeButtonMash()
 {
+	if (BreakFreeAnimationBlend <= 0.f)
+		BreakFreeAnimationBlend = 0.5;
 	BreakFreeAnimationBlend += 0.1f;
 	CurrentHoldTime += HoldTimeDecreasePerButtonMash;
 	PlayerController->PlayControllerVibration(0.8f, 0.1f, true, true, true, true);
@@ -171,7 +239,7 @@ void APlayerCharacter_B::BreakFree()
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
 		HoldingCharacter->SetState(EState::EWalking);
 		HoldingCharacter->SetIsCharging(false); //TODO set charge level? 
-		HoldingCharacter->AddStun(PunchesToStun-1);
+		HoldingCharacter->AddStun(PunchesToStun - 1);
 		HoldingCharacter = nullptr;
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
@@ -187,9 +255,10 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	BLog("%f", DamageAmount);
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
-	
+
 	BLog("%s Taking Damage. Causer: %s", *GetNameSafe(PlayerController), *GetNameSafe(EventInstigator));
 	if (GameInstance)
 	{
@@ -198,10 +267,10 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		if (PlayerController)
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
 	}
-	
+
 	if (EventInstigator == PlayerController)
-		return Super::TakeDamage(DamageAmount,DamageEvent,EventInstigator, DamageCauser);
-	
+		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
 
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
@@ -213,7 +282,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
 			}
 		}
-		else 
+		else
 		{
 			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
 		}
@@ -227,7 +296,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 	}
 
-	
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	SetLastHitBy(EventInstigator);
 
@@ -317,18 +385,26 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Dash push stuff
-	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,SweepResult);
-	
-	if (!PunchComponent->GetIsDashing())	
-		return;
-
+	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
 	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
+	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen)
+		return;
+
+	int DamageAmount = 0;
+
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
-	//Might be triggered twice
-	if (IsValid(OtherCharacter) && IsValid(Capsule))
+	if (IsValid(Capsule))
 	{
-		if (IsValid(PunchComponent))
+		if (IsValid(PunchComponent) && PunchComponent->GetIsDashing())
+		{
 			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+		}
+		else if (GetState() == EState::EPoweredUp)
+		{
+			OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * OtherCharacter->PowerupPushStrength);
+			DamageAmount = PowerupKnockdownScoreAmount;
+		}
+		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
 }

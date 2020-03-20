@@ -1,17 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MenuGameMode_B.h"
-#include "MovieSceneSequencePlayer.h"
-#include "LevelSequencePlayer.h"
 #include "Kismet/GameplayStatics.h"
-#include "Camera/CameraActor.h"
-#include "LevelSequenceActor.h"
 #include "PaperSpriteComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "BrawlInn.h"
+#include "System/Camera/GameCamera_B.h"
 #include "UI/Menus/CharacterSelection_B.h"
 #include "UI/Menus/MainMenu_B.h"
 #include "Characters/Player/SelectionPawn_B.h"
@@ -21,22 +18,19 @@
 void AMenuGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
+void AMenuGameMode_B::PostLevelLoad_Implementation()
+{
 	SetActorTickEnabled(true);
 
-	/// Level sequence stuff
-	const FMovieSceneSequencePlaybackSettings Settings;
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Intro, Settings, LSA_Intro);
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_MainMenu, Settings, LSA_MainMenu);
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_Selection, Settings, LSA_Selection);
-	ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LS_ToSelection, Settings, LSA_ToSelection);
+	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+	GameCamera->SetActorRotation(FRotator(0, -65, 0));
 
-	CharacterSelectionWidget = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelection);
+	CharacterSelectionWidget = CreateWidget<UCharacterSelection_B>(GetWorld(), BP_CharacterSelectionOverlay);
 
 	for (auto Controller : PlayerControllers)
-	{
 		MenuPlayerControllers.Add(Cast<AMenuPlayerController_B>(Controller));
-	}
 
 	TArray<AActor*> TCharacters;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), APlayerCharacter_B::StaticClass(), FName("Selection"), TCharacters);
@@ -44,27 +38,24 @@ void AMenuGameMode_B::BeginPlay()
 	if (TCharacters.Num() == 0)
 		BError("Can't find any characters to select!");
 
-	for (const auto& Character : TCharacters)
+	for (auto Character : TCharacters)
 	{
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		Characters.Add(PlayerCharacter);
+		PlayerCharacter->GameCamera = GameCamera;
+		AddCameraFocusPoint(PlayerCharacter);
 		PlayerCharacter->MakeInvulnerable(-1, false);
 	}
 
-	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
-		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
+	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right)
+		{
+			return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
 	CharacterStartTransforms.AddZeroed(Characters.Num());
 
 	for (int i = 0; i < Characters.Num(); i++)
-	{
 		CharacterStartTransforms[i] = Characters[i]->GetActorTransform();
-	}
-	// Find Character selection camera
-	TArray<AActor*> Cameras;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_SelectionCamera, Cameras);
-	SelectionCamera = Cast<ACameraActor>(Cameras[0]);
 
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
@@ -80,20 +71,17 @@ void AMenuGameMode_B::BeginPlay()
 		MenuPlayerControllers[i]->SetCharacterVariantIndex(i);
 	}
 
-	LS_ToSelectionFinished(); // For å sette på mainmenu og sequencer kommenter denne linjen og uncomment de to linjene under.
+	UpdateViewTargets();
 
-	//LSA_Intro->GetSequencePlayer()->Play();
-	//LSA_Intro->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_IntroFinished);
+	ShowMainMenu();
 }
 
 void AMenuGameMode_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!MainMenuWidget || !IsValid(MainMenuWidget))
-		return;
-
-	MainMenuWidget->MenuTick();
+	if (MainMenuWidget && IsValid(MainMenuWidget))
+		MainMenuWidget->MenuTick();
 }
 
 void AMenuGameMode_B::ShowMainMenu()
@@ -108,7 +96,8 @@ void AMenuGameMode_B::ShowMainMenu()
 
 	MainMenuWidget->AddToViewport();
 
-	const FInputModeUIOnly InputModeData;
+	FInputModeUIOnly InputModeData;
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
 }
@@ -120,54 +109,6 @@ void AMenuGameMode_B::HideMainMenu()
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
-void AMenuGameMode_B::LS_PlayGame()
-{
-	HideMainMenu();
-	LSA_MainMenu->GetSequencePlayer()->Stop();
-
-	LSA_ToSelection->GetSequencePlayer()->Play();
-	LSA_ToSelection->GetSequencePlayer()->OnFinished.AddDynamic(this, &AMenuGameMode_B::LS_ToSelectionFinished);
-}
-
-void AMenuGameMode_B::LS_QuitGame()
-{
-	HideMainMenu();
-
-	LSA_MainMenu->GetSequencePlayer()->Stop();
-	LSA_Intro->GetSequencePlayer()->PlayReverse();
-	bIsQuitting = true;
-}
-
-void AMenuGameMode_B::LS_IntroFinished()
-{
-	if (bIsQuitting)
-	{
-		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
-		return;
-	}
-
-	LSA_MainMenu->GetSequencePlayer()->PlayLooping();
-	ShowMainMenu();
-}
-
-void AMenuGameMode_B::LS_ToSelectionFinished()
-{
-	if (!CharacterSelectionWidget)
-		return;
-
-	CharacterSelectionWidget->AddToViewport();
-
-	for (auto& PlayerController : PlayerControllers)
-	{
-		if (IsValid(SelectionCamera))
-			PlayerController->SetViewTargetWithBlend(SelectionCamera);
-	}
-}
-
-void AMenuGameMode_B::StartGame()
-{
-	UGameplayStatics::OpenLevel(GetWorld(), PlayMap);
-}
 
 void AMenuGameMode_B::UpdateNumberOfActivePlayers()
 {
@@ -197,6 +138,14 @@ int AMenuGameMode_B::GetPlayersReady() const
 void AMenuGameMode_B::SetPlayersReady(const int Value)
 {
 	PlayersReady = Value;
+}
+
+void AMenuGameMode_B::PlayButtonClicked_Implementation()
+{
+	HideMainMenu();
+
+	if (CharacterSelectionWidget)
+		CharacterSelectionWidget->AddToViewport();
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
@@ -231,21 +180,22 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	Character->GetMovementComponent()->StopMovementImmediately();
 	Character->SetActorTransform(CharacterStartTransforms[ControllerID]);
 
-	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right) {
-		return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
+	Characters.Sort([](const APlayerCharacter_B& Left, const APlayerCharacter_B& Right)
+		{
+			return Left.GetActorLocation().Y < Right.GetActorLocation().Y;
 		});
 
-	const int ID = PlayerControllerThatSelected->GetCharacterVariantIndex();
+	const int VariantIndex = PlayerControllerThatSelected->GetCharacterVariantIndex();
 	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
-	CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()].bTaken = false;
+	CharacterVariants[VariantIndex].bTaken = false;
 	Info.CharacterVariant = FCharacterVariants();
 	PlayerControllerThatSelected->SetPlayerInfo(Info);
 
-	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ID]);
+	ASelectionPawn_B* SelectionPawn = GetWorld()->SpawnActor<ASelectionPawn_B>(BP_SelectionPawn, CharacterStartTransforms[ControllerID]);
 	if (SelectionIndicators.IsValidIndex(ControllerID))
 		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[ControllerID]);
-	if (CharacterVariants.IsValidIndex(ID))
-		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[ID].TextColor);
+	if (CharacterVariants.IsValidIndex(VariantIndex))
+		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[VariantIndex].TextColor);
 
 	PlayerControllerThatSelected->Possess(SelectionPawn);
 	SelectionPawn->SetActorLocation(Characters[ControllerID]->GetActorLocation() + SelectionIndicatorOffsetLocation);
@@ -303,25 +253,8 @@ void AMenuGameMode_B::UpdateOtherSelections()
 			if (CharacterVariants[i].bTaken == true)
 			{
 				if (Controller->GetCharacterVariantIndex() == i)
-				{
 					HoverRight(Controller);
-				}
 			}
 		}
-	}
-}
-
-void AMenuGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
-{
-	if (IsValid(SelectionCamera))
-		PlayerController->SetViewTargetWithBlend(SelectionCamera);
-}
-
-void AMenuGameMode_B::UpdateViewTargets() // Used for sequences
-{
-	for (auto& PlayerController : PlayerControllers)
-	{
-		if (IsValid(Camera))
-			PlayerController->SetViewTargetWithBlend(Camera);
 	}
 }

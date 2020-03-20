@@ -45,6 +45,8 @@ void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
+	BWarn("Picking up Item %s", *GetNameSafe(this));
+
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -55,6 +57,7 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 
 void AUseable_B::Dropped_Implementation()
 {
+	BWarn("Dropping Item %s", *GetNameSafe(this));
 	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
@@ -63,6 +66,8 @@ void AUseable_B::Dropped_Implementation()
 
 void AUseable_B::Use_Implementation()
 {
+	BWarn("Using Item %s", *GetNameSafe(this));
+
 	if (Duration > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::ResetBoost, Duration, false);
 
@@ -86,6 +91,11 @@ void AUseable_B::Use_Implementation()
 	OnFracture_Delegate.Broadcast();
 
 	Execute_Dropped(this);
+}
+
+float AUseable_B::GetUseTime()
+{
+	return UseTime;
 }
 
 void AUseable_B::ResetBoost()

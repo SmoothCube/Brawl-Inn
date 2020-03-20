@@ -7,12 +7,14 @@
 #include "System/Interfaces/ThrowableInterface_B.h"
 #include "Character_B.generated.h"
 
+class AGameCamera_B;
 class UHoldComponent_B;
 class UThrowComponent_B;
 class UPunchComponent_B;
 class UMaterial;
 class USoundCue;
 class UNiagaraComponent;
+class UMaterialInstance;
 
 UENUM(BlueprintType)
 enum class EState : uint8
@@ -20,7 +22,8 @@ enum class EState : uint8
 	EWalking 	UMETA(DisplayName = "Walking"),
 	EHolding 	UMETA(DisplayName = "Holding"),
 	EFallen		UMETA(DisplayName = "Fallen"),
-	EBeingHeld 	UMETA(DisplayName = "BeingHeld")
+	EBeingHeld 	UMETA(DisplayName = "BeingHeld"),
+	EPoweredUp 	UMETA(DisplayName = "PoweredUp")
 };
 
 UCLASS()
@@ -61,15 +64,23 @@ protected:
 	void HandleMovement(float DeltaTime);
 public:
 	float NormalMaxWalkSpeed = 0;
+	void SetCanMove(bool Value);
 
+	bool GetCanMove();
+	
 protected:
 	float RotationInterpSpeed = 10.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
 	float NormalRotationInterpSpeed = 10.f;
 
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	bool bCanMove = true;
 
-
+public:
+	UPROPERTY()
+	AGameCamera_B* GameCamera = nullptr;
+protected:
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********
@@ -116,19 +127,29 @@ protected:
 	ACharacter_B* HoldingCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-		float TimeBeforeThrowCollision = 0.3f;
+	float TimeBeforeThrowCollision = 0.3f;
 
 	bool bCanBeHeld = true;
 	FTimerHandle TH_FallCollisionTimer;
 
 	
 public:
+
+	 FRotator& GetHoldRotation();
+
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
+	
 	FRotator HoldRotation = FRotator(0, 0, 0);
+	
 	FVector HoldOffset = FVector(0, 0, 0);
 
-
-	// ********** Charge **********
+public:
+	// ********** Holding Drink **********
+	FVector HoldingDrinkOffset = FVector::ZeroVector;
+	
+	bool bIsDrinking = false;
+		// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;
 	virtual void SetChargeLevel(EChargeLevel chargeLevel);
@@ -147,22 +168,10 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float Charge1MoveSpeed = 500.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float Charge2MoveSpeed = 250.f;
+		float Charge2MoveSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float Charge3MoveSpeed = 100.f;
-	
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-		float Charge1RotSpeed = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-		float Charge2RotSpeed = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-		float Charge3RotSpeed = 10.f;		//TODO clean
 	
 	bool bIsCharging = false;
 
@@ -170,7 +179,7 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float ChargeTier2Percentage = 0.45;
+		float ChargeTier2Percentage = 0.2;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float ChargeTier3Percentage = 0.9;
@@ -203,7 +212,11 @@ protected:
 	FTimerHandle TH_StunTimer;
 
 
+	// ********** Special Material **********
 public:
+	void SetSpecialMaterial(UMaterialInstance* Material);
+	void RemoveSpecialMaterial();
+
 	// ********** Invulnerability **********
 
 	/// A number less than 0 will make the character invulnerable until toggled off again
@@ -220,10 +233,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsInvulnerable = false;
 
-	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* InvulnerableMat;
+	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+		UMaterialInstance* InvulnerableMat;
 
-	UPROPERTY(EditAnywhere, Category = "Visuals")
+	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
 		UMaterial* InvisibleMat;
 
 	FTimerHandle TH_InvincibilityTimer;
@@ -240,19 +253,21 @@ protected:
 	bool bHasShield = false;
 
 	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* ShieldMat;
+		UMaterialInstance* ShieldMat;
 
 	// ********** States **********
 
 public:
-	void SetState(EState s);
+	virtual void SetState(EState s);
 
 	UFUNCTION(BlueprintCallable)
 	EState GetState() const;
 
+	UFUNCTION()
+	virtual void Die();
 	// ********** Punch **********
 public:
-	void TryPunch();
+	void TryStartCharging();
 
 	UNiagaraComponent* GetChargeParticle() const;
 
@@ -276,12 +291,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int StoolScoreAmount = 25;
 
+	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+		int PowerupKnockdownScoreAmount = 25;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HurtSound;
 
 	// ********** Misc. **********
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
 		int SpecialMaterialIndex = 6;
 
 	FTransform RelativeMeshTransform;
@@ -289,5 +307,14 @@ protected:
 	friend class UPunchComponent_B;
 	friend class UThrowComponent_B;
 
+public:
+
+	bool IsAlive() const;
+	
+protected:
+	
 	bool bIsAlive = true;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The strength og which this character will be knocked back when hit by a powered up player"))
+	float PowerupPushStrength = 1600000.f;
 };

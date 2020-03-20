@@ -26,12 +26,17 @@ void UPunchComponent_B::BeginPlay()
 
 	OnComponentBeginOverlap.AddDynamic(this, &UPunchComponent_B::OnOverlapBegin);
 
-	ScoreTable = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
-	if (ScoreTable)
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(OwningCharacter->GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
+
+	if (GameInstance->ShouldUseSpreadSheets())
 	{
+		UDataTable_B* ScoreTable = NewObject<UDataTable_B>();
+		ScoreTable->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		Level1ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel1ScoreValue")->Value;
 		Level2ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel2ScoreValue")->Value;
 		Level3ScoreValue = ScoreTable->GetRow<FScoreTable>("PunchLevel3ScoreValue")->Value;
+		ScoreTable->ConditionalBeginDestroy();
 	}
 }
 
@@ -44,10 +49,9 @@ void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UPunchComponent_B::PunchStart()
 {
-	BWarn("PunchStart");
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
 	OwningCharacter->bIsCharging = false;
-	bIsPunching = true;
+	SetIsPunching(true);
 	OwningCharacter->MakeVulnerable();
 
 	SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -81,7 +85,7 @@ void UPunchComponent_B::PunchStart()
 			PunchSound,
 			GetComponentLocation(),
 			volume
-		);
+			);
 	}
 
 	PunchDash();
@@ -110,7 +114,9 @@ void UPunchComponent_B::PunchDash()
 
 void UPunchComponent_B::Dash()
 {
-	if (bIsDashing)
+	if (!OwningCharacter) { BError("No OwningCnaracter for PunchComponent!"); return; }
+
+	if (bIsDashing || !OwningCharacter)
 		return;
 	bIsDashing = true;
 
@@ -127,7 +133,7 @@ void UPunchComponent_B::Dash()
 	}
 	else
 	{
-		OwningCharacter->GetCharacterMovement()->Velocity = FVector(OwningCharacter->InputVector * DashSpeed);
+		OwningCharacter->GetCharacterMovement()->Velocity = FVector(NormInput * DashSpeed);
 		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
 	}
 
@@ -154,19 +160,19 @@ void UPunchComponent_B::Dash()
 
 void UPunchComponent_B::PunchEnd()
 {
-	if (!bIsPunching) { return; }
+	if (!GetIsPunching()) { return; }
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-	BWarn("PunchEnd!");
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
 	OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity.GetClampedToMaxSize(OwningCharacter->NormalMaxWalkSpeed * PostDashRemainingVelocityPercentage);
-	bIsPunching = false;
 
+	SetIsPunching(false);
 	GetWorld()->GetTimerManager().SetTimer(
 		TH_PunchAgainHandle,
 		[&]()
 		{
+			SetCanPunch(true);
 			bHasHit = false;
 		},
 		PunchWaitingTime,
@@ -295,6 +301,25 @@ void UPunchComponent_B::SetIsPunching(bool Value)
 	bIsPunching = Value;
 }
 
+bool UPunchComponent_B::GetCanPunch()
+{
+	return bCanPunch;
+}
+
+void UPunchComponent_B::SetCanPunch(bool Value)
+{
+	bCanPunch = Value;
+}
+
+bool UPunchComponent_B::GetCanDash()
+{
+	return bCanDash;
+}
+
+void UPunchComponent_B::SetCanDash(bool Value)
+{
+	bCanDash = Value;
+}
 
 bool UPunchComponent_B::GetIsDashing()
 {

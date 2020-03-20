@@ -6,6 +6,7 @@
 #include "Components/PunchComponent_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Items/Useable_B.h"
 #include "BrawlInn.h"
 
 void UPlayerAnimInstance_B::NativeBeginPlay()
@@ -31,11 +32,21 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 		bIsPunching = Owner->PunchComponent->GetIsPunching();
 		bIsChargingPunch = Owner->IsCharging();
 	}
-
+	bIsDrinking = Owner->bIsDrinking;
 	bIsBeingHeld = (Owner->GetState() == EState::EBeingHeld);
-
+	bIsHoldingUseable = false;
 	if (Owner->HoldComponent)
+	{
 		bIsHolding = Owner->HoldComponent->IsHolding();
+		if (bIsHolding)
+		{
+			if (Owner->HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
+			{
+				bIsHoldingUseable = true;
+			}
+		}
+
+	}
 	if (Owner->ThrowComponent)
 	{
 		bIsThrowing = Owner->ThrowComponent->IsThrowing();

@@ -1,0 +1,3 @@
+﻿,Value,Comment
+FirstDeliveryTime,5,Hvor lang tid det tar før første powerup blir levert
+DeliveryTime,30,Hvor lang tid det tar før en powerup blir levert etter at den som er ute er drukket

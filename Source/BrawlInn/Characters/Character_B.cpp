@@ -9,16 +9,21 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
+#include "Materials/MaterialInstance.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Animation/AnimInstance.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "Components/PunchComponent_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
+#include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 
 ACharacter_B::ACharacter_B()
 {
@@ -30,7 +35,7 @@ ACharacter_B::ACharacter_B()
 	ThrowComponent = CreateDefaultSubobject<UThrowComponent_B>("Throw Component");
 
 	PunchComponent = CreateDefaultSubobject<UPunchComponent_B>("PunchComponent");
-	PunchComponent->SetupAttachment(GetMesh(), "PunchCollisionHere");
+	PunchComponent->SetupAttachment(GetCapsuleComponent());
 	PunchComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->MaxWalkSpeed = 1400.f;
@@ -67,7 +72,7 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-	//MakeInvulnerable(1.0f);
+	GameCamera = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
 }
 
 void ACharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -85,16 +90,14 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if (GetState() != EState::EBeingHeld)
+	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp && bCanMove)
 	{
 		HandleMovement(DeltaTime);
 	}
 
-//	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
+	//	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
 
 }
-
-
 
 void ACharacter_B::SetInputVectorX(const float X)
 {
@@ -108,31 +111,51 @@ void ACharacter_B::SetInputVectorY(const float Y)
 
 void ACharacter_B::HandleMovement(float DeltaTime)
 {
-	if (PunchComponent->GetIsPunching())
+	//if (PunchComponent->GetIsPunching())
+	//	return;
+
+	if (InputVector.IsNearlyZero(0.1))
 		return;
 
 	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
 	if (InputVector.SizeSquared() >= 1.f)
 		InputVector.Normalize();
-	GetMovementComponent()->AddInputVector(InputVector);
+
+	if (GameCamera)
+	{
+		AddMovementInput(GameCamera->GetActorForwardVector(), InputVector.X);
+		AddMovementInput(GameCamera->GetActorRightVector(), InputVector.Y);
+	}
 
 	if (InputVector.SizeSquared() > 0)
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), InputVector.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	{
+		FVector vec = GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(InputVector);
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), vec.ToOrientationRotator(), DeltaTime, RotationInterpSpeed));
+	}
+}
+
+void ACharacter_B::SetCanMove(bool Value)
+{
+	BWarn("Setting can move to %s", Value ? TEXT("True") : TEXT("False"))
+	bCanMove = Value;
+}
+
+bool ACharacter_B::GetCanMove()
+{
+	return bCanMove;
 }
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
-	if (PunchComponent->bIsPunching || bIsInvulnerable)
+	if (!PunchComponent || PunchComponent->GetIsPunching() || bIsInvulnerable)
 		return;
-
 	Fall(MeshForce, FallRecoveryTime);
 }
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
-
-	if (GetCharacterMovement()->IsFalling())
-		return;
+//	if (GetCharacterMovement()->IsFalling())	//Had to remove this but should probably be here? idk does this even work properly
+//		return;									//yes i know i wrote it
 
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
@@ -154,6 +177,9 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 
 void ACharacter_B::StandUp()
 {
+	if (!bIsAlive)
+		return;
+
 	SetActorLocation(FindMeshGroundLocation());
 
 	//if (GetCharacterMovement()->IsFalling() )// && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
@@ -162,16 +188,26 @@ void ACharacter_B::StandUp()
 	//	return;
 	//}
 
+
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionProfileName("CharacterMesh");
-	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
+	
+	if (IsValid(GetMesh()))
+	{
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionProfileName("CharacterMesh");
+		GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		GetMesh()->SetRelativeTransform(RelativeMeshTransform);
 
-	//Saves snapshot for blending to animation
-	GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
+		//Saves snapshot for blending to animation
+		GetMesh()->GetAnimInstance()->SavePoseSnapshot("Ragdoll");
+	}
+	else
+	{
+		BError("Mesh invalid for character %s", *GetNameSafe(this)); //This was the crash we thought was below
+	}
 
-	GetMovementComponent()->StopMovementImmediately();
+	if(IsValid(GetMovementComponent()))
+		GetMovementComponent()->StopMovementImmediately();	//CRASH HERE -E
 
 	SetState(EState::EWalking);
 	StunAmount = 0;
@@ -185,10 +221,10 @@ FVector ACharacter_B::FindMeshLocation() const
 
 	if (bDidHit)
 	{
-	//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()));
+		//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()));
 		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-//		BWarn("Did not hit");
+	//		BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -202,10 +238,10 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 	if (bDidHit)
 	{
 		//BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()))
-			return (Hit.Location - RelativeMeshTransform.GetLocation());
+		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-//	else
-	//	BWarn("Did not hit");
+	//	else
+		//	BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -261,13 +297,13 @@ void ACharacter_B::Use_Implementation()
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
 		}
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
+		HoldingCharacter = nullptr;
 	}
-	HoldingCharacter = nullptr;
-	
+
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
-	}, TimeBeforeThrowCollision, false);
+		{
+			GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
+		}, TimeBeforeThrowCollision, false);
 
 	SetActorRotation(FRotator(0, 0, 0));
 }
@@ -308,12 +344,18 @@ void ACharacter_B::AddStun(const int Strength)
 		return;
 	}
 	StunAmount += Strength;
-	if (StunAmount >= PunchesToStun - 1)
-	{
-		//StunAmount = PunchesToStun - 1;
-		//if (IsValid(PS_Stun))
-		//	PS_Stun->Activate();
-	}
+}
+
+void ACharacter_B::SetSpecialMaterial(UMaterialInstance* Material)
+{
+	if(Material)
+		GetMesh()->SetMaterial(SpecialMaterialIndex, Material);
+}
+
+void ACharacter_B::RemoveSpecialMaterial()
+{
+	if(InvisibleMat)
+		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
 }
 
 void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
@@ -321,7 +363,7 @@ void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect
 	bIsInvulnerable = true;
 
 	if (bShowInvulnerabilityEffect && InvulnerableMat)
-		GetMesh()->SetMaterial(SpecialMaterialIndex, InvulnerableMat);
+		SetSpecialMaterial(InvulnerableMat);
 	if (ITime > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &ACharacter_B::MakeVulnerable, ITime, false);
 }
@@ -330,9 +372,10 @@ void ACharacter_B::MakeVulnerable()
 {
 	bIsInvulnerable = false;
 
-	if (InvisibleMat && !bHasShield)
-		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
+	if (!bHasShield)
+		RemoveSpecialMaterial();
 }
+
 
 bool ACharacter_B::IsInvulnerable()
 {
@@ -357,11 +400,20 @@ void ACharacter_B::RemoveShield()
 
 bool ACharacter_B::HasShield() const
 {
-	return bHasShield;
+	return bHasShield; 
 }
 
 void ACharacter_B::SetState(EState s)
 {
+	if (State == EState::EPoweredUp)
+	{
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode)
+		{
+			GameMode->ResetMusic();
+		}
+	}
+
 	State = s;
 	//Entering state
 	switch (State)
@@ -381,7 +433,13 @@ EState ACharacter_B::GetState() const
 	return State;
 }
 
-void ACharacter_B::TryPunch()
+void ACharacter_B::Die()
+{
+	Fall();
+	bIsAlive = false;
+}
+
+void ACharacter_B::TryStartCharging()
 {
 	if (GetState() != EState::EWalking)
 		return;
@@ -414,21 +472,26 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		//ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
 	}
 
-	if (HurtSound)
+	if (HurtSound && !DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		float volume = 1.f;
+		float Volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HurtSound,
 			GetActorLocation(),
-			volume
+			Volume
 		);
 	}
 	return DamageAmount;
+}
+
+bool ACharacter_B::IsAlive() const
+{
+	return bIsAlive;
 }
 
 void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -453,6 +516,10 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 
 }
 
+FRotator& ACharacter_B::GetHoldRotation()
+{
+	return HoldRotation;
+}
 
 EChargeLevel ACharacter_B::GetChargeLevel()
 {
@@ -471,26 +538,20 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	switch (ChargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1:
-		RotationInterpSpeed = Charge1RotSpeed;
-		GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
-		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge1MoveSpeed);
 		ShouldPlaySound = false;
 		SoundPitch = 0.8f;
 		break;
 	case EChargeLevel::EChargeLevel2:
-		RotationInterpSpeed = Charge2RotSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
 		SoundPitch = 1.0f;
 		break;
 	case EChargeLevel::EChargeLevel3:
-		RotationInterpSpeed = Charge3RotSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
 		SoundPitch = 1.2f;
 		break;
 	default:
-		RotationInterpSpeed = NormalRotationInterpSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		ShouldPlaySound = false;
 		break;

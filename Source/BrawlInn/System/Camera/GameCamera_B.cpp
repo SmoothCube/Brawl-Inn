@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "Engine/TriggerBox.h"
 #include "Engine/LocalPlayer.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerController_B.h"
@@ -51,65 +52,98 @@ void AGameCamera_B::BeginPlay()
 
 	//Caches the camera rotation angle
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
+//	SetActorTickEnabled(false);
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateCameraPosition();
+	//finds the camera frustum
+	FMatrix Proj, View, ViewProj;
+
+	FMinimalViewInfo ViewInfo;
+	Camera->GetCameraView(GetWorld()->GetDeltaSeconds(), ViewInfo);
+	UGameplayStatics::GetViewProjectionMatrix(ViewInfo, View,Proj, ViewProj);
+	FConvexVolume v;
+	GetViewFrustumBounds(v, ViewProj, true);
+
+	UpdateCameraPosition(v);
 	SetSpringArmPitch();
-	SetSpringArmLength();
+	SetSpringArmLength(v);
 
 }
 
-float AGameCamera_B::UpdateCameraPosition()
+void AGameCamera_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (!TrackingBox)
-	{
-		BError("CameraTrackingBox not found!"); return 0;
-	}
+	Super::EndPlay(EndPlayReason);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+}
+
+void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
+{
+	if (!TrackingBox) { BError("CameraTrackingBox not found!"); return;}
 
 	FVector sum = FVector::ZeroVector;
-	float distanceToFurthestPoint = 0.f;
-	int ActiveFocusPoints = 0;
 
-	//Cleanup in case some components dont get removed properly
 	TArray<AActor*> ActorsToRemove;
-
-	for (const auto& Actor : ActorsToTrack)
+	for (int i=0; i< scene.Planes.Num(); i++)
 	{
-		if (!IsValid(Actor))
+		auto& p = scene.Planes[i];
+		float DistOutside = 0;
+		float DistInside = -10000000;
+		FVector DistVec = FVector::ZeroVector;
+
+		//This makes it hardcoded to have x towards the front
+		//but the plane normals cant be used so i cant think of any other way
+		FVector DirVec = FVector::ZeroVector;
+		switch (i)
 		{
-			BWarn("Invalid component in camera!");
-			ActorsToRemove.Add(Actor);
-			continue;
+		case 0:		DirVec = FVector(0, 1, 0);
+			break;
+		case 1:		DirVec = FVector(0, -1, 0);
+			break;
+		case 2:		DirVec = FVector(-1, 0, 0);
+			break;
+		case 3:		DirVec = FVector(1, 0, 0);
+			break;
 		}
 
-		FVector FocusLocation = Actor->GetActorLocation();
-		sum += FocusLocation;
-		ActiveFocusPoints++;
+		for (auto& a : ActorsToTrack)
+		{
+			if (!IsValid(a)) { ActorsToRemove.Add(a); continue;}
 
-		float distance = FVector::Dist(FocusLocation, GetActorLocation());
-		if (distance > distanceToFurthestPoint)
-			distanceToFurthestPoint = distance;
+			//find player position with border
+			FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
+			BorderVector.Z = 0;
+			FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
+			float Dist = p.PlaneDot(TrackingPointWithBorder);
+
+			if (Dist >= DistOutside)	//Outside frustum
+			{
+				DistOutside = Dist;
+				DistVec = DirVec *DistOutside;
+			}
+			else if (Dist < 0 && Dist > DistInside )	//inside frustum
+			{
+				if (DistOutside == 0)
+				{
+					DistInside = Dist;
+					DistVec = DirVec *DistInside;
+				}
+			}
+		}
+		sum -= DistVec * CameraMoveSpeed;
 	}
+
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
 
-	if (ActiveFocusPoints != 0)
-		sum /= ActiveFocusPoints;
-
-	if (sum.Z < MinCameraHeight)
-		sum.Z = MinCameraHeight;
-	else if (sum.Z > MaxCameraHeight)
-		sum.Z = MaxCameraHeight;
-
 	FHitResult OutHit; 
-	LerpCameraLocation(sum + CameraOffset);
+	LerpCameraLocation(GetActorLocation() + sum);
 
-	return distanceToFurthestPoint;
 }
 
 void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
@@ -117,21 +151,8 @@ void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
 	SetActorLocation(FMath::Lerp(GetActorLocation(), LerpLoc, LerpAlpha));
 }
 
-void AGameCamera_B::SetSpringArmLength()
+void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 {
-	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-
-	FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
-		LocalPlayer->ViewportClient->Viewport,
-		GetWorld()->Scene,
-		LocalPlayer->ViewportClient->EngineShowFlags)
-		.SetRealtimeUpdate(true));
-
-	FVector ViewLoc;
-	FRotator ViewRot;
-	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ViewLoc, /*out*/ViewRot, LocalPlayer->ViewportClient->Viewport);
-	if (!SceneView) { BWarn("Could not find scene view! "); return; }
-
 	float FurthestDist = -1000000;
 	for (auto& a : ActorsToTrack)
 	{
@@ -139,7 +160,7 @@ void AGameCamera_B::SetSpringArmLength()
 		BorderVector.Z = 0;
 		FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
-		for (auto& p : SceneView->ViewFrustum.Planes)
+		for (auto& p : scene.Planes)
 		{
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
 			if (Dist > 0 && Dist > FurthestDist)
@@ -149,7 +170,7 @@ void AGameCamera_B::SetSpringArmLength()
 		}
 	}
 
-	CameraZoom += FurthestDist * 0.1f;
+	CameraZoom += FurthestDist * CameraZoomSpeed;
 	
 	if (CameraZoom < SmallestSpringArmLength)
 		CameraZoom = SmallestSpringArmLength;
@@ -164,8 +185,9 @@ void AGameCamera_B::SetSpringArmPitch()
 
 	float NormalizedLength = (Length - SmallestSpringArmLength) / (LargestSpringArmLength - SmallestSpringArmLength);
 	float PitchSetter = 1 - (NormalizedLength*NormalizedLength);
-	if (PitchSetter > 1)
-		PitchSetter = 1;
+
+	FMath::Clamp(PitchSetter, 0.f, 1.f);
+
 	//map normalization to the value
 	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
 
@@ -173,8 +195,10 @@ void AGameCamera_B::SetSpringArmPitch()
 	SpringArm->SetWorldRotation(FRotator(StartPitch + VariablePitch, SpringArm->GetComponentRotation().Yaw, SpringArm->GetComponentRotation().Roll));
 }
 
-void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AGameCamera_B::EndFocus(AActor* OtherActor)
 {
+	if (!IsValid(OtherActor))
+		BWarn("No Other Actor!");
 	ActorsToTrack.Remove(OtherActor);
 
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
@@ -188,6 +212,14 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 			ActorsToTrack.Add(Player);
 		}
 	}
+}
+
+void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	FTimerHandle UniqueHandle;
+	FTimerDelegate RespawnDelegate = FTimerDelegate::CreateUObject(this, &AGameCamera_B::EndFocus, OtherActor);
+	GetWorldTimerManager().SetTimer(UniqueHandle, RespawnDelegate, EndFocusTime, false);
+	//GetWorld()->GetTimerManager().SetTimer(TH_EndFocusTimer, this, &AGameCamera_B::EndFocus, EndFocusTime, false);
 }
 
 void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

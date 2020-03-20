@@ -6,8 +6,6 @@
 #include "AI/BTTasks/BT_BaseTask_B.h"
 #include "BT_WalkTo_B.generated.h"
 
-
-
 UCLASS()
 class BRAWLINN_API UBT_WalkTo_B : public UBT_BaseTask_B
 {
@@ -18,6 +16,8 @@ protected:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
@@ -27,6 +27,6 @@ protected:
 		float AcceptanceRadius = 150.f;
 
 	UPROPERTY()
-	AActor* Target = nullptr;
+		AActor* Target = nullptr;
 
 };

@@ -27,7 +27,7 @@ protected:
 		FBlackboardKeySelector HoldingItem;
 
 	UPROPERTY(EditAnywhere)
-		FBlackboardKeySelector HasFallen;
+		FBlackboardKeySelector DropLocation;
 
 	UPROPERTY()
 		AAIController_B* OwningAI = nullptr;

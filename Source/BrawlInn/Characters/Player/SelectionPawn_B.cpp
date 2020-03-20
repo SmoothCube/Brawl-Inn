@@ -18,7 +18,7 @@ ASelectionPawn_B::ASelectionPawn_B()
 void ASelectionPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorRotation(FRotator(0, 90, -40));
+	SetActorRotation(FRotator(0, 25, -25));
 }
 
 UPaperSpriteComponent* ASelectionPawn_B::GetSpriteIcon() const

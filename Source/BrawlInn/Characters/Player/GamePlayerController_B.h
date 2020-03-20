@@ -27,11 +27,13 @@ protected:
 	void DPadDownPressed() override;
 
 	void FaceButtonTopPressed() override;
-	void FaceButtonTopRepeat() override;
+	void FaceButtonTopReleased() override;
 
 	void FaceButtonRightPressed() override;
 
 	void FaceButtonBottomPressed() override;
+
+	void FaceButtonBottomRepeat() override;
 
 	void FaceButtonLeftPressed() override;
 	void FaceButtonLeftReleased() override;
@@ -39,24 +41,17 @@ protected:
 	void SpecialRightPressed() override;
 
 	void LeftShoulderPressed() override;
-	void TryDash();
 
-	bool TryStartPunchCharge();
-	bool TryStartThrowCharge();
-	bool TryPunch();
 	void RightShoulderPressed() override;
+	void RightShoulderReleased() override;
 
 	void LeftTriggerPressed() override;
-	void TryPickup();
 	void LeftTriggerRepeat() override;
 
 	void RightTriggerPressed() override;
-	void PunchOrThrowCharge();
 	void RightTriggerReleased() override;
 
-	bool TryThrow();
 
-	void PunchOrThrow();
 
 	void LeftStickXAxis(float Value) override;
 
@@ -65,6 +60,21 @@ protected:
 	void TryPauseGame();
 	///Returns true if the player character is being held
 	bool TryBreakFree();
+
+	bool TryThrow();
+
+	bool TryStartPunchCharge();
+
+	bool TryStartThrowCharge();
+
+	bool TryEndPunchCharge();
+
+	bool TryPunch();
+
+	void TryDash();
+
+	void TryPickup();
+
 
 	// ********** Respawn **********
 public:

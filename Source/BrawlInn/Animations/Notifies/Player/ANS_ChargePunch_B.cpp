@@ -17,7 +17,7 @@ void UANS_ChargePunch_B::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 void UANS_ChargePunch_B::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
-	if (IsValid(Player))
+	if (IsValid(Player) && Player->IsCharging())
 	{
 		CurrentTime += FrameDeltaTime;
 		float ChargeTimer = (CurrentTime / AnimLength);

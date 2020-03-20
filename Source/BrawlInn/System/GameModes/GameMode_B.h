@@ -7,6 +7,7 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameMode_B.generated.h"
 
+class AGameCamera_B;
 class APlayerStart;
 class AGamePlayerController_B;
 class APlayerCharacter_B;
@@ -31,8 +32,15 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+
+		void DisableControllerInputs();
+
+	UFUNCTION(BlueprintCallable)
+		void EnableControllerInputs();
+
 	UPROPERTY()
-	TArray<AGamePlayerController_B*> PlayerControllers;
+		TArray<AGamePlayerController_B*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)
@@ -48,21 +56,21 @@ protected:
 
 public:
 
-	UFUNCTION()
-		virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) {};
+	UFUNCTION(BlueprintCallable)
+		void UpdateViewTargets(ACameraActor* Camera = nullptr, float BlendTime = 0, bool LockOutgoing = false);
 
 	/// ** Delegates ** 
-		FSpawnCharacter SpawnCharacter_D;
+	FSpawnCharacter SpawnCharacter_D;
 
-		FDespawnCharacter DespawnCharacter_D;
+	FDespawnCharacter DespawnCharacter_D;
 
-		FRespawnCharacter RespawnCharacter_D;
-		
-		FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
+	FRespawnCharacter RespawnCharacter_D;
 
-		FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+	FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
 
-		FOnRespawnCharacter OnRespawnCharacter_D;
+	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+
+	FOnRespawnCharacter OnRespawnCharacter_D;
 
 	UFUNCTION()
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
@@ -73,16 +81,26 @@ public:
 	UFUNCTION()
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
 
+	AGameCamera_B* GetGameCamera() const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		TSubclassOf<AGameCamera_B> BP_GameCamera;
+
+	void AddCameraFocusPoint(AActor* FocusActor);
+	void RemoveCameraFocusPoint(AActor* FocusActor);
+
+
+	UPROPERTY()
+		AGameCamera_B* GameCamera = nullptr;
 protected:
 
 	UPROPERTY()
-	UGameInstance_B* GameInstance = nullptr;
+		UGameInstance_B* GameInstance = nullptr;
 
 	void CreatePlayerControllers();
 	void GetAllSpawnpointsInWorld();
 	FTransform GetRandomSpawnTransform();
 	FTransform GetSpawnTransform(const int PlayerControllerID);
-
+	
 	UPROPERTY(EditAnywhere, Category = "Audio")
-	USoundCue* Music;
+		USoundCue* Music;
 };

@@ -36,14 +36,18 @@ public:
 
 	virtual void Use_Implementation() override;
 
+	float GetUseTime();
 protected:
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Juice")
 		USoundCue* DrinkSound;
-
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "How long it takes to use the powerup"))
+		float UseTime = 2.f;
+  
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The duration of the powerup. Set to -1 if it shouldn't expire by time"))
-		float Duration = 5;
+		float Duration = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The amount of time the camera will focus on this after it spawns"))
 		float CameraFocusDuration = 3.f;

@@ -3,10 +3,23 @@
 #include "AICharacter_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Kismet/GameplayStatics.h"
+#include "Perception/PawnSensingComponent.h"
 #include "Engine/World.h"
 
 #include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
+
+AAICharacter_B::AAICharacter_B()
+{
+	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
+	PawnSensingComponent->HearingThreshold = 700;
+	PawnSensingComponent->LOSHearingThreshold = 700;
+	PawnSensingComponent->HearingMaxSoundAge = 2;
+	PawnSensingComponent->bSeePawns = false;
+	PawnSensingComponent->SightRadius = 0;
+	PawnSensingComponent->SetPeripheralVisionAngle(0);
+	
+}
 
 void AAICharacter_B::BeginPlay()
 {
@@ -24,6 +37,19 @@ void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)
 		SetActorTransform(StartTransform);
 	else
 		Super::FellOutOfWorld(DmgType);
+}
+
+void AAICharacter_B::Die()
+{
+	if (bShouldRespawn)
+		SetActorTransform(StartTransform);
+	else
+		Super::Die();
+}
+
+UPawnSensingComponent* AAICharacter_B::GetPawnSensingComponent() const
+{
+	return PawnSensingComponent;
 }
 
 void AAICharacter_B::Deliver(AItem_B* ItemToDeliver, AAICharacter_B* CharacterToDeliver)

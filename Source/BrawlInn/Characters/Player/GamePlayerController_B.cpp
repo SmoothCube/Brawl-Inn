@@ -20,8 +20,6 @@
 void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
-
-
 }
 
 void AGamePlayerController_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -45,7 +43,6 @@ void AGamePlayerController_B::OnPossess(APawn* InPawn)
 		if (ScoreTextBlock)
 			ScoreTextBlock->SetTextColor(PlayerInfo.CharacterVariant.TextColor);
 	}
-
 }
 
 void AGamePlayerController_B::DPadUpPressed()
@@ -60,13 +57,23 @@ void AGamePlayerController_B::DPadDownPressed()
 
 void AGamePlayerController_B::FaceButtonTopPressed()
 {
-	if (!TryBreakFree())
-		TryPickup();
+	if (TryBreakFree())
+	{
+	}
+	else if (TryStartThrowCharge())
+	{
+	}
+	else if (TryStartPunchCharge())
+	{
+	}
+	else if (RespawnPawn)
+		RespawnPawn->ThrowBarrel();
 }
 
-void AGamePlayerController_B::FaceButtonTopRepeat()
+void AGamePlayerController_B::FaceButtonTopReleased()
 {
-	TryPickup();
+	if (!TryThrow())
+		TryEndPunchCharge();
 }
 
 void AGamePlayerController_B::FaceButtonRightPressed()
@@ -78,26 +85,26 @@ void AGamePlayerController_B::FaceButtonRightPressed()
 void AGamePlayerController_B::FaceButtonBottomPressed()
 {
 	if (!TryBreakFree())
-		TryDash();
+		TryPickup();
+	if (RespawnPawn)
+		RespawnPawn->ThrowBarrel();
+}
+
+void AGamePlayerController_B::FaceButtonBottomRepeat()
+{
+	TryPickup();
 }
 
 void AGamePlayerController_B::FaceButtonLeftPressed()
 {
 	if (!TryBreakFree())
-		;
-	else if (!TryStartThrowCharge())
-		;
-	else if (TryStartPunchCharge())
-		;
-	else if (RespawnPawn)
-		RespawnPawn->ThrowBarrel();
+		if (!TryStartThrowCharge())
+			TryPunch();
 }
 
 void AGamePlayerController_B::FaceButtonLeftReleased()
 {
-	if (!TryThrow())
-		TryPunch();
-
+	TryThrow();
 }
 
 void AGamePlayerController_B::SpecialRightPressed()
@@ -113,7 +120,15 @@ void AGamePlayerController_B::LeftShoulderPressed()
 
 void AGamePlayerController_B::RightShoulderPressed()
 {
-	TryBreakFree();
+	if (!TryBreakFree())
+		if (!TryStartThrowCharge())
+			TryPunch();
+	
+}
+
+void AGamePlayerController_B::RightShoulderReleased()
+{
+	TryThrow();
 }
 
 void AGamePlayerController_B::RightTriggerPressed()
@@ -134,7 +149,7 @@ void AGamePlayerController_B::RightTriggerPressed()
 void AGamePlayerController_B::RightTriggerReleased()
 {
 	if (!TryThrow())
-		TryPunch();
+		TryEndPunchCharge();
 }
 
 void AGamePlayerController_B::LeftTriggerPressed()
@@ -184,15 +199,20 @@ bool AGamePlayerController_B::TryBreakFree()
 
 void AGamePlayerController_B::TryDash()
 {
-	if (PlayerCharacter && PlayerCharacter->PunchComponent)
+	if (PlayerCharacter && 
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->PunchComponent->GetCanDash()
+		) 
 		PlayerCharacter->PunchComponent->Dash();
 }
 
 bool AGamePlayerController_B::TryStartPunchCharge()
 {
-	if (PlayerCharacter)
+	if (PlayerCharacter &&
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->PunchComponent->GetCanPunch())
 	{
-		PlayerCharacter->TryPunch();
+		PlayerCharacter->TryStartCharging();
 		return true;
 	}
 	return false;
@@ -200,9 +220,24 @@ bool AGamePlayerController_B::TryStartPunchCharge()
 
 bool AGamePlayerController_B::TryStartThrowCharge()
 {
-	if (PlayerCharacter && PlayerCharacter->HoldComponent->IsHolding())
+	if (PlayerCharacter && 
+		PlayerCharacter->HoldComponent->IsHolding() &&
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->PunchComponent->GetCanPunch())
 	{
-		PlayerCharacter->ThrowComponent->TryThrow();
+		PlayerCharacter->ThrowComponent->TryStartCharge();
+		return true;
+	}
+	return false;
+}
+
+bool AGamePlayerController_B::TryEndPunchCharge()
+{
+	if (PlayerCharacter &&
+		PlayerCharacter->PunchComponent &&
+		PlayerCharacter->IsCharging())
+	{
+		PlayerCharacter->SetIsCharging(false);
 		return true;
 	}
 	return false;
@@ -211,11 +246,17 @@ bool AGamePlayerController_B::TryStartThrowCharge()
 bool AGamePlayerController_B::TryPunch()
 {
 	if (PlayerCharacter &&
+		PlayerCharacter->HoldComponent &&
+		!PlayerCharacter->HoldComponent->IsHolding() &&
 		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->IsCharging())
+		PlayerCharacter->PunchComponent->GetCanPunch()
+		)
 	{
-		//PlayerCharacter->PunchComponent->bIsPunching = true;
-		PlayerCharacter->SetIsCharging(false);
+		BWarn("Trying punch!");
+		PlayerCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);
+		PlayerCharacter->PunchComponent->SetIsPunching(true);
+		PlayerCharacter->PunchComponent->SetCanPunch(false);
+		PlayerCharacter->SetIsCharging(false);	//do i need this?
 		return true;
 	}
 	return false;

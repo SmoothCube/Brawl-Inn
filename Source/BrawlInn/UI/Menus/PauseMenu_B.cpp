@@ -8,13 +8,7 @@
 #include "UI/Buttons/Button_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "BrawlInn.h"
-
-
-bool UPauseMenu_B::Initialize()
-{
-	bool success = Super::Initialize();
-	return success;
-}
+#include "System/DataTable_B.h"
 
 void UPauseMenu_B::NativeConstruct()
 {
@@ -37,7 +31,7 @@ void UPauseMenu_B::MenuTick()
 {
 	
 	for (const auto& Button : Buttons)
-		Button->ButtonTick();
+		Button->Execute_Tick(Button);
 }
 
 void UPauseMenu_B::ContinueButtonClicked()
@@ -51,5 +45,9 @@ void UPauseMenu_B::ContinueButtonClicked()
 
 void UPauseMenu_B::ExitButtonClicked()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), "MenuMap_v2");
+	UDataTable_B* DataTable = NewObject<UDataTable_B>();
+	DataTable->LoadCSVFile(FStringValues::StaticStruct(), "MapNames.csv");
+	const FName LevelName = *DataTable->GetRow<FStringValues>("MenuMap")->Value;
+	DataTable->ConditionalBeginDestroy();
+	UGameplayStatics::OpenLevel(GetWorld(), LevelName);
 }

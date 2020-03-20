@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ConvexVolume.h"
 #include "GameCamera_B.generated.h"
+
 
 class USpringArmComponent;
 class UCameraComponent;
 class APlayerCharacter_B;
+class ULocalPlayer;
 class ATriggerBox;
 
 UCLASS()
@@ -36,9 +39,12 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+
 	// ********** Camera Movement **********
 private:
-	float UpdateCameraPosition();
+	void UpdateCameraPosition(FConvexVolume& scene);
 
 	void LerpCameraLocation(FVector LerpLoc);
 
@@ -53,11 +59,11 @@ protected:
 		float LerpAlpha = 0.5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	FVector CameraOffset = FVector(0,0,0);
+	float CameraMoveSpeed = 0.05f;
 
 	// ********** Zoom **********
 private:
-	void SetSpringArmLength();
+	void SetSpringArmLength(FConvexVolume& scene);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
@@ -67,8 +73,10 @@ public:
 		float LargestSpringArmLength = 3000.f;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float BorderWidth = 500.f;
+		float BorderWidth = 1000.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float CameraZoomSpeed = 0.1f;
 private:
 	float CameraZoom = 0.f;
 
@@ -87,6 +95,8 @@ protected:
 
 	// ********** Tracking **********
 private:
+	void EndFocus(AActor* OtherActor);
+
 	UFUNCTION()
 	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
@@ -95,8 +105,12 @@ private:
 	
 	UPROPERTY()
 	ATriggerBox* TrackingBox = nullptr;
+	
+	FTimerHandle TH_EndFocusTimer;
 
+	float EndFocusTime = 1.f;
 public:
+	UPROPERTY()
 	TArray<AActor*> ActorsToTrack;
 
 };

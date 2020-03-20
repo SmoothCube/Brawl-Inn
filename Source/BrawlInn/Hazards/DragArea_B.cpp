@@ -8,7 +8,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
@@ -22,6 +22,7 @@ ADragArea_B::ADragArea_B()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	DragArea = CreateDefaultSubobject<UBoxComponent>("DragArea");
+	RiverSoundComponent = CreateDefaultSubobject<UAudioComponent>("RiverSoundComponent");
 //	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	SetRootComponent(DragArea);
 }
@@ -32,24 +33,14 @@ void ADragArea_B::BeginPlay()
 	Super::BeginPlay();
 	DragArea->OnComponentBeginOverlap.AddDynamic(this, &ADragArea_B::OnOverlapBegin);
 	DragArea->OnComponentEndOverlap.AddDynamic(this, &ADragArea_B::OnOverlapEnd);
+	if (RiverSoundComponent)
+	{
+		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+		if (GameInstance)
+			RiverSoundComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume());
+		RiverSoundComponent->Play(FMath::FRandRange(0, 100));
+	}
 
-
-	////Play sound with settings
-	//if (RiverSound)
-	//{
-	//	float volume = 1.f;
-	//	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-	//	if (GameInstance)
-	//	{
-	//		volume *= GameInstance->MasterVolume * GameInstance->SfxVolume;
-	//	}
-	//	UGameplayStatics::PlaySoundAtLocation(
-	//		GetWorld(),
-	//		RiverSound,
-	//		GetActorLocation(),
-	//		volume
-	//	);
-	//}
 }
 
 // Called every frame
@@ -58,6 +49,7 @@ void ADragArea_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//active players that have not fallen over
+	TArray<ACharacter_B*> ActorsToRemove;
 	for (int i = 0; i < PlayersToMove.Num(); i++)
 	{
 		if (PlayersToMove.IsValidIndex(i) && PlayersToMove[i])
@@ -65,9 +57,19 @@ void ADragArea_B::Tick(float DeltaTime)
 			//this is not really how i want it :c
 			PlayersToMove[i]->GetCharacterMovement()->AddInputVector(GetActorForwardVector()*InputMultiplier, true);
 		}
+		else
+		{
+			ActorsToRemove.Add(PlayersToMove[i]);
+		}
+	}
+	for (auto& a : ActorsToRemove)
+	{
+		PlayersToMove.Remove(a);
 	}
 
+
 	//Skeletal meshes
+	TArray<USkeletalMeshComponent*> SkeletonsToRemove;
 	for (int i = 0; i < SkeletonsToMove.Num(); i++)
 	{		
 		if (SkeletonsToMove.IsValidIndex(i) && SkeletonsToMove[i])
@@ -76,10 +78,18 @@ void ADragArea_B::Tick(float DeltaTime)
 		}
 		else
 		{
-			BError("Invalid Index!: %s", *GetActorForwardVector().ToString())
+			BError("Invalid SkeletalMesh in River! Index: %d", i);
+			SkeletonsToRemove.Add(SkeletonsToMove[i]);
 		}
 	}
-	
+
+	for (auto& a : SkeletonsToRemove)
+	{
+		SkeletonsToMove.Remove(a);
+	}
+
+	TArray<UPrimitiveComponent*> ComponentsToRemove;
+
 	//all other stuff
 	for (int i=0; i<ComponentsToMove.Num(); i++)
 	{
@@ -89,27 +99,36 @@ void ADragArea_B::Tick(float DeltaTime)
 		}
 		else
 		{
-			BError("Invalid Index!: %s", *GetActorForwardVector().ToString());
+			BError("Invalid Component in river! Index: %s", *GetActorForwardVector().ToString());
+			ComponentsToRemove.Add(ComponentsToMove[i]);
 		}
+	}
+
+	for (auto& a : ComponentsToRemove)
+	{
+		ComponentsToMove.Remove(a);
 	}
 }
 
 void ADragArea_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
 	//only adds to one of the three arrays
 	USkeletalMeshComponent* Skeleton = Cast<USkeletalMeshComponent>(OtherComp);
-	ACharacter_B* Player = Cast<ACharacter_B>(OtherActor);
-	if (Skeleton)
+	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
+	if (Skeleton && SkeletonsToMove.Find(Skeleton) == INDEX_NONE)
 	{
 		SkeletonsToMove.Add(Skeleton);
 	}
-	else if (Player)
+	else if (Character)
 	{
 		if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		{
 			return;
 		}
-		PlayersToMove.Add(Player);
+		USkeletalMeshComponent* CharacterMesh = Character->GetMesh();
+		if(IsValid(CharacterMesh) && SkeletonsToMove.Find(CharacterMesh) == INDEX_NONE)
+			SkeletonsToMove.Add(Character->GetMesh());
 	}
 	else
 	{

@@ -3,6 +3,7 @@
 
 #include "PlayerCharacterAnimInstance_B.h"
 
+#include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 
 
@@ -15,6 +16,8 @@ void UPlayerCharacterAnimInstance_B::NativeBeginPlay()
 void UPlayerCharacterAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
-	if(PlayerOwner)
-		BreakFreeBlend = PlayerOwner->BreakFreeAnimationBlend;
+	if (!PlayerOwner) { return; }
+
+	BreakFreeBlend = PlayerOwner->BreakFreeAnimationBlend;
 }
+

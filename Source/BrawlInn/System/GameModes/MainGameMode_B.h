@@ -6,15 +6,19 @@
 #include "System/GameModes/GameMode_B.h"
 #include "MainGameMode_B.generated.h"
 
+class ATriggerBox;
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
-class USceneComponent; 
+class USceneComponent;
 class UPauseMenu_B;
 class UGameOverlay_B;
 class AGamePlayerController_B;
+class ACameraActor;
+class UAudioComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
+DECLARE_EVENT(AMainGameMode_B, FGameStart);
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B
@@ -23,34 +27,53 @@ class BRAWLINN_API AMainGameMode_B : public AGameMode_B
 
 protected:
 
+	AMainGameMode_B();
+
+	// ********** Components **********
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UAudioComponent* MainMusicComponent;
+
+
 	// ** Overridden functions **
 
 	virtual void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	virtual void Tick(float DeltaTime) override;
+
+	// ********** Game States **********
+	void PreStartGame();
+	void UpdateClock();
+
 	void StartGame();
 
 	void EndGame();
 
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void UpdateViewTarget(AGamePlayerController_B* PlayerController) override;
-
 public:
 	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
 	void ResumeGame();
-	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
+	FGameStart OnGameStart;
+	
+	// ********** Tracking **********
+	UFUNCTION()
+	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
-	void AddCameraFocusPoint(AActor* FocusActor);
-	void RemoveCameraFocusPoint(AActor* FocusActor);
+	UPROPERTY()
+	ATriggerBox* TrackingBox = nullptr;
+
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		TSubclassOf<AGameCamera_B> BP_GameCamera;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Camera")
+		TSubclassOf<ACameraActor> BP_FromCharacterSelectionCamera;
+	// ********** UI **********
+
+	UPROPERTY()
+		ACameraActor* FromCharacterSelectionCamera = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
@@ -60,9 +83,18 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
+private:
+	UPROPERTY()
+		UGameOverlay_B* Overlay = nullptr;
 
+	// ********** Sound **********
+public:
+	void SetMusic(USoundCue* NewMusic);
+	
+	void ResetMusic();
+protected:
 	UPROPERTY(BlueprintReadWrite)
-	UPauseMenu_B* PauseMenuWidget = nullptr;
+		UPauseMenu_B* PauseMenuWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Birds;
@@ -70,17 +102,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* River;
 
-private:
-	UPROPERTY()
-	AGameCamera_B* GameCamera = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* Countdown;
 
-	UPROPERTY()
-	UGameOverlay_B* Overlay = nullptr;
+
+private:
 
 	// ********** Timer **********
 
+	FTimerHandle SwapCameraHandle;
+	FTimerHandle StartGameHandle;
+	int Timer = 3;
+
+	FTimerHandle CountDownHandle;
+	FTimerHandle StartGameHandle2;
+
 	UPROPERTY(EditDefaultsOnly)
-	int TimeRemaining = 300;
+		int TimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;
 };

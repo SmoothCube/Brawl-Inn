@@ -5,10 +5,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Sound/SoundCue.h"
+#include "Camera/CameraActor.h"
 #include "Components/SkeletalMeshComponent.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
+#include "System/Camera/GameCamera_B.h"
+
 #include "System/GameModes/MainGameMode_B.h"
 #include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
@@ -21,11 +24,6 @@ void AGameMode_B::BeginPlay()
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	if (GameInstance && Music)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Music, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
-	}
-
 	/// Finds spawnpoints
 	GetAllSpawnpointsInWorld();
 
@@ -37,7 +35,31 @@ void AGameMode_B::BeginPlay()
 	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
 
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
+}
 
+void AGameMode_B::DisableControllerInputs()
+{
+	for (auto Controller : PlayerControllers)
+		Controller->DisableInput(Controller);
+}
+
+void AGameMode_B::EnableControllerInputs()
+{
+	for (auto Controller : PlayerControllers)
+		Controller->EnableInput(Controller);
+}
+
+void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool LockOutgoing)
+{
+	AActor* CameraToUse = GameCamera;
+	if (IsValid(Camera))
+		CameraToUse = Camera;
+
+	for (auto& PlayerController : PlayerControllers)
+	{
+		if (IsValid(CameraToUse))
+			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut,2, LockOutgoing);
+	}
 }
 
 void AGameMode_B::CreatePlayerControllers()
@@ -96,7 +118,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		MainMode->AddCameraFocusPoint(Character);
 	}
-	UpdateViewTarget(PlayerController);
+	UpdateViewTargets();
 	SpawnCharacter_NOPARAM_D.Broadcast();
 }
 
@@ -126,7 +148,7 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	}
 
 	PlayerController->SetPlayerCharacter(nullptr);
-	UpdateViewTarget(PlayerController);
+	UpdateViewTargets();
 	OnRespawnCharacter_D.Broadcast();
 }
 
@@ -143,7 +165,7 @@ void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 	if (GameInstance)
 		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 
-	UpdateViewTarget(PlayerController);
+	UpdateViewTargets();
 	DespawnCharacter_NOPARAM_D.Broadcast();
 }
 
@@ -166,4 +188,25 @@ void AGameMode_B::GetAllSpawnpointsInWorld()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), TempSpawnpoints);
 	for (auto& Point : TempSpawnpoints)
 		Spawnpoints.Add(Cast<APlayerStart>(Point));
+}
+
+AGameCamera_B* AGameMode_B::GetGameCamera() const
+{
+	return GameCamera;
+}
+
+void AGameMode_B::AddCameraFocusPoint(AActor* FocusActor)
+{
+	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
+	//TODO: check to see if they are inside the track box before adding.
+	GameCamera->ActorsToTrack.Add(FocusActor);
+}
+
+void AGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
+{
+	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
+
+	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
+	GameCamera->ActorsToTrack.Remove(FocusActor);
+
 }

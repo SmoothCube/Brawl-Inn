@@ -6,8 +6,6 @@
 #include "Components/SphereComponent.h"
 #include "PunchComponent_B.generated.h"
 
-
-class UDataTable_B;
 class ACharacter_B;
 class USoundCue;
 class UDamageType;
@@ -46,7 +44,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsPunching();
 
-protected:	
+	void SetIsPunching(bool Value);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetCanPunch();
+
+	void SetCanPunch(bool Value);
+
+protected:
 	void PunchHit(ACharacter_B* OtherPlayer);
 	void PunchHit(UPrimitiveComponent* OtherComp);
 
@@ -60,13 +65,11 @@ protected:
 	//calculates the punch strength for the player. Has to be used by the puncher.
 	FVector CalculatePunchStrength();
 
-	void SetIsPunching(bool Value);
-
-public:
 	bool bIsPunching = false;
 
+	bool bCanPunch = true;
+
 	// ********** ChargePunch **********
-protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a character is pushed with from a level 1 punch"))
 		float Level1PunchPushStrength = 200000.f;												 
@@ -97,7 +100,7 @@ protected:
 	float PunchStrengthMultiplier = 135.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-	float PunchWaitingTime = 0.1f;
+	float PunchWaitingTime = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|PunchDash")
 	float Charge1PunchDashSpeed = 1000.f;
@@ -119,6 +122,7 @@ public:
 	FOnPunchHit OnPunchHit_D;
 
 	// ********** Dash **********
+	UFUNCTION(BlueprintCallable)
 	void Dash();
 protected:
 
@@ -132,7 +136,7 @@ protected:
 	float PostDashRemainingVelocityPercentage = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
-	float DashCooldown = 2.f;
+	float DashCooldown = 1.2f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Dash")
 	float DashTime = 0.1f;
@@ -141,17 +145,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))
 	float DashPushPercentage = 0.5f;
 	
+	bool GetCanDash();
+
+	void SetCanDash(bool Value);
+
 	bool GetIsDashing();
 private:
 	bool bIsDashing = false;
+	bool bCanDash = true;
 
 	FTimerHandle TH_DashAgainHandle;
 	FTimerHandle TH_DashDoneHandle;
 
 	// ********** Score **********
-
-	UPROPERTY()
-		UDataTable_B* ScoreTable = nullptr;
 
 	int Level1ScoreValue = 10;
 	int Level2ScoreValue = 20;

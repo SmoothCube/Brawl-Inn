@@ -80,5 +80,5 @@ void AReadyTrigger_B::PrepareStartGame()
 
 	GameInstance->SetPlayerInfos(PlayerInfos);
 
-	GameMode->StartGame();
+	GameMode->PrepareGameStart_Delegate.Broadcast();
 }

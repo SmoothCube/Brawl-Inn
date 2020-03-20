@@ -1,17 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Throwable_B.h"
-#include "Components/StaticMeshComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
 #include "DestructibleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
+#include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "Characters/Character_B.h"
 #include "System/DataTable_B.h"
 
 AThrowable_B::AThrowable_B()
@@ -32,7 +33,9 @@ void AThrowable_B::BeginPlay()
 	DestructibleComponent->OnComponentFracture.Clear();
 	DestructibleComponent->OnComponentFracture.AddDynamic(this, &AThrowable_B::OnComponentFracture);
 
-	ScoreAmount = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv")->GetRow<FScoreTable>("Throwable")->Value;
+	UDataTable_B* DataTable = NewObject<UDataTable_B>();
+	DataTable->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+	ScoreAmount = DataTable->GetRow<FScoreTable>("Throwable")->Value;
 }
 
 void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -40,8 +43,8 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	DestructibleComponent->OnComponentFracture.Clear();
 
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(TH_Despawn);
 }
-
 
 void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
@@ -89,7 +92,6 @@ void AThrowable_B::Use_Implementation()
 		{
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, OwningCharacter->GetChargeLevel());
 		}
-		BWarn("Impulse Strength: %f", ImpulseStrength);
 		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * ImpulseStrength, NAME_None, true);
 		Mesh->SetVisibility(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -115,14 +117,27 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 
 	OnFracture_Delegate.Broadcast();
 
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, [&]() {
-		Destroy();
-		}, 5.f, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AThrowable_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &AThrowable_B::StartDestroy, TimeBeforeDespawn + 0.1f, false);
+}
+
+void AThrowable_B::StartDestroy()
+{
+	Destroy();
+}
+
+void AThrowable_B::BeginDespawn()
+{
+	FVector Location = GetActorLocation();
+	Location.Z -= DownValuePerTick;
+	SetActorLocation(Location);
 }
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
+		return;
+
 	ACharacter_B* HitPlayer = Cast<ACharacter_B>(OtherActor);
 	if (HitPlayer && !HitPlayer->IsInvulnerable())
 	{
@@ -141,6 +156,8 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
 		PickupCapsule->DestroyComponent();
+
+	DestructibleComponent->ApplyDamage(1000, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 100);
 }
 
 UDestructibleComponent* AThrowable_B::GetDestructibleComponent() const

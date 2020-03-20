@@ -2,34 +2,44 @@
 
 #include "MainGameMode_B.h"
 #include "Engine/World.h"
+#include "Engine/TriggerBox.h"
+#include "Components/ShapeComponent.h"
+#include "Components/AudioComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Camera/CameraActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Math/UnrealMathUtility.h"
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
 #include "UI/Game/GameOverlay_B.h"
 
+AMainGameMode_B::AMainGameMode_B()
+{
+	MainMusicComponent = CreateDefaultSubobject<UAudioComponent>("MainMusicComponent");
+	SetRootComponent(MainMusicComponent);
+	if (!MainMusicComponent)
+		BError("MusicComponet Not created properly!");
+}
+
 void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GameInstance && Birds)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	}
-	if (GameInstance && River)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	}
+	MainMusicComponent->Stop();
 
-	/// Spawns and setups camera
+	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
+	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
 
 	/// Create overlay
 	Overlay = CreateWidget<UGameOverlay_B>(GetWorld(), BP_GameOverlay);
@@ -47,11 +57,34 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-	for (auto Controller : PlayerControllers)
-		UpdateViewTarget(Controller);
+	///Countdown
+	if (!GameInstance->IgnoreCountdown())
+	{
+		DisableControllerInputs();
 
-	StartGame();
+		UpdateViewTargets(FromCharacterSelectionCamera);
 
+		GetWorld()->GetTimerManager().SetTimer(SwapCameraHandle, [&]()
+			{
+				UpdateViewTargets(nullptr, 2, true);
+				GetWorld()->GetTimerManager().SetTimer(StartGameHandle, [&]()
+					{
+						PreStartGame();
+					}, 0.1f, false, 2);
+			}, 0.1f, false, 1);
+	}
+	else
+	{
+		StartGame();
+	}
+
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
+	TrackingBox = Cast<ATriggerBox>(Actors[0]);
+	if (TrackingBox)
+	{
+		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AMainGameMode_B::OnTrackingBoxEndOverlap);
+	}
 }
 
 void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -60,18 +93,63 @@ void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
-void AMainGameMode_B::StartGame()
+void AMainGameMode_B::PreStartGame()
 {
-	if (GameInstance->GameIsScoreBased())
+	if (GameInstance && Countdown)
 	{
-		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, [&]() {
+		UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f);
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(CountDownHandle, [&]()
+		{
 			if (Overlay)
 			{
-				Overlay->UpdateTimerText(--TimeRemaining);
-				if (TimeRemaining < 0)
-					OnGameOver.Broadcast();
+				Overlay->UpdateTimerText(Timer--);
 			}
-			}, 1.f, true);
+		}, 1, true, 0);
+
+	GetWorld()->GetTimerManager().SetTimer(StartGameHandle2, [&]()
+		{
+			GetWorld()->GetTimerManager().ClearTimer(CountDownHandle);
+			StartGame();
+		}, 0.1f, false, Countdown->GetDuration());
+}
+
+void AMainGameMode_B::UpdateClock()
+{
+	if (Overlay)
+	{
+		Overlay->UpdateTimerText(--TimeRemaining);
+		if (TimeRemaining < 0)
+			OnGameOver.Broadcast();
+	}
+}
+
+void AMainGameMode_B::StartGame()
+{
+	OnGameStart.Broadcast();
+	
+	if (GameInstance->GameIsScoreBased())
+	{
+		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
+	}
+
+	EnableControllerInputs();
+
+	if (GameInstance && Birds)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
+	}
+	//if (GameInstance && River)
+	//{
+	//	UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
+	//}
+
+	if (GameInstance && MainMusicComponent)
+	{
+		MainMusicComponent->SetSound(Music);
+		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
+		MainMusicComponent->Play();
 	}
 }
 
@@ -94,14 +172,6 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	if (!IsValid(PauseMenuWidget))
 		return;
 	PauseMenuWidget->MenuTick();
-}
-
-void AMainGameMode_B::UpdateViewTarget(AGamePlayerController_B* PlayerController)
-{
-	if (IsValid(GameCamera))
-		PlayerController->SetViewTargetWithBlend(GameCamera);
-	else
-		BWarn("Cannot Set view Target!");
 }
 
 void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
@@ -127,19 +197,38 @@ void AMainGameMode_B::ResumeGame()
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
-void AMainGameMode_B::AddCameraFocusPoint(AActor* FocusActor)
+void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
-	//TODO: check to see if they are inside the track box before adding.
-	BWarn("Adding Actor %s to camera", *GetNameSafe(FocusActor));
-	GameCamera->ActorsToTrack.Add(FocusActor);
+	
+	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
+	if (Character)
+	{
+		//Checks to see if the player is still overlapping. Same method as in DragArea
+		TArray<AActor*> OverlappingActors;
+		if(TrackingBox)
+			TrackingBox->GetOverlappingActors(OverlappingActors);
+		if (OverlappingActors.Find(Character) == INDEX_NONE)
+		{
+			if(!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive())	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
+				Character->Die();
+		}
+	}
 }
 
-void AMainGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
+void AMainGameMode_B::SetMusic(USoundCue* NewMusic)
 {
-	if (!IsValid(GameCamera) || !IsValid(FocusActor)) return;
+	if (NewMusic && MainMusicComponent)
+		MainMusicComponent->SetSound(NewMusic);
+	else
+		BWarn("New Music invalid!");
+}
 
-	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
-	GameCamera->ActorsToTrack.Remove(FocusActor);
-
+void AMainGameMode_B::ResetMusic()
+{
+	if (MainMusicComponent && (MainMusicComponent->Sound != Music))
+	{
+		MainMusicComponent->SetSound(Music);
+		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
+		MainMusicComponent->Play();
+	}
 }

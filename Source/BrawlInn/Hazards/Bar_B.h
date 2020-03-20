@@ -8,13 +8,12 @@
 #include "System/Structs/BarDropLocations.h"
 #include "Bar_B.generated.h"
 
+class UGameInstance_B;
+class AIdleAICharacter_B;
 class UStaticMeshComponent;
 class AAICharacter_B;
 class AAIDropPoint_B;
 class AItem_B;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpen);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorClosed);
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDeliverStart, AItem_B*, AAICharacter_B*);
 
@@ -29,30 +28,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	// ********** Bar (Kan egentlig fjernes)**********
-	UFUNCTION(BlueprintImplementableEvent)
-		void OpenDoor();
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void CloseDoor();
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnDoorOpen OnDoorOpen_D;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnDoorClosed OnDoorClosed_D;
-
+	// ********** Components **********
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* House;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* Door;
-
 	// ********** Tankard **********
 protected:
 	void GiveRandomTankard(AAICharacter_B* Waiter);
+	void RandomOrder();
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;
@@ -72,20 +58,40 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Box")
 		TSubclassOf<AItem_B> BP_Box;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Box")
 		FName BoxReplacerTag = "BoxReplacer";
 
+
+	// ********** Drink ordering **********
 public:
+	void StartRandomOrder(float Time = -1);
+
+	void GetOrder(AAIDropPoint_B* DropPoint);
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Audio")
+		USoundCue* DrinkReadySound;
+
+	TArray<AIdleAICharacter_B*> Customers;
+
+	FTimerHandle TH_StartOrderTimer;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+		float TimeUntilFirstDelivery = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+		float TimeUntilDelivery = 10;
 
 	// ********** Delivery **********
-	
+public:
 	void AddDropLocation(EBarDropLocationType Type, AAIDropPoint_B* DropPoint);
 
 	FBarDropLocations* GetDropLocations(AAICharacter_B* Character);
 
 	FOnDeliverStart& OnDeliverStart();
-	
+
 protected:
 	FOnDeliverStart OnDeliverStart_Delegate;
 
@@ -100,6 +106,11 @@ protected:
 	int CurrentBoxReplacerIndex = 0;
 	TArray<AAICharacter_B*> BoxReplacers;
 
+	// ********** Misc. **********
+
+	UPROPERTY()
+		UGameInstance_B* GameInstance = nullptr;
 };
+
 
 

@@ -7,12 +7,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/CapsuleComponent.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/PlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "System/DataTable_B.h"
+#include "System/GameInstance_B.h"
 #include "System/GameModes/GameMode_B.h"
 
 
@@ -20,22 +22,38 @@ ABounceActor_B::ABounceActor_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	Mesh->SetSimulatePhysics(true);
+	PickupCapsule->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 }
 
 void ABounceActor_B::BeginPlay()
 {
 	Super::BeginPlay();
-	Table = UDataTable_B::CreateDataTable(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
-	ScoreAmount = Table->GetRow<FScoreTable>("Barrel")->Value;
+	
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
 
+	if (GameInstance->ShouldUseSpreadSheets())
+	{
+		UDataTable_B* Table = NewObject<UDataTable_B>();
+		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		ScoreAmount = Table->GetRow<FScoreTable>("Barrel")->Value;
+		Table->ConditionalBeginDestroy();
+	}
+	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
+
+}
+void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this)
+		return;
+
+	BreakBarrel();
 }
 
 // Old Explode
 void ABounceActor_B::OnItemFracture()
 {
 	Super::OnItemFracture();
-
-
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface && Interface->Execute_IsHeld(this))
@@ -54,6 +72,10 @@ void ABounceActor_B::OnItemFracture()
 	{
 		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController, true);
 	}
+
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+		GameMode->RemoveCameraFocusPoint(this);
 }
 
 void ABounceActor_B::SpawnPlayerCharacter()
@@ -68,7 +90,6 @@ void ABounceActor_B::SpawnPlayerCharacter()
 			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
 		}
 	}
-	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0, 0, -1), 1000);
 	if (PlayerController->GetPlayerCharacter())
 		PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);
 }
@@ -87,4 +108,9 @@ void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
 
 	Mesh->SetMaterial(0, MeshMaterial);
 
+}
+
+void ABounceActor_B::BreakBarrel()
+{
+	DestructibleComponent->ApplyDamage(100, DestructibleComponent->GetComponentLocation(), FVector(0, 0, -1), 1000);
 }
