@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BTS_FleeFromPlayer_B.h"
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,6 +14,7 @@ UBTS_FleeFromPlayer_B::UBTS_FleeFromPlayer_B()
 {
 	bCreateNodeInstance = true;
 	bNotifyBecomeRelevant = true;
+	bNotifyCeaseRelevant = true;
 }
 
 void UBTS_FleeFromPlayer_B::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -39,7 +39,6 @@ void UBTS_FleeFromPlayer_B::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 void UBTS_FleeFromPlayer_B::OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnCeaseRelevant(OwnerComp, NodeMemory);
-
 	GetWorld()->GetTimerManager().ClearTimer(TH_ResetSpeed);
 }
 
