@@ -14,6 +14,7 @@ class UPunchComponent_B;
 class UMaterial;
 class USoundCue;
 class UNiagaraComponent;
+class UMaterialInstance;
 
 UENUM(BlueprintType)
 enum class EState : uint8
@@ -126,7 +127,7 @@ protected:
 	ACharacter_B* HoldingCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-		float TimeBeforeThrowCollision = 0.3f;
+	float TimeBeforeThrowCollision = 0.3f;
 
 	bool bCanBeHeld = true;
 	FTimerHandle TH_FallCollisionTimer;
@@ -223,7 +224,11 @@ protected:
 	FTimerHandle TH_StunTimer;
 
 
+	// ********** Special Material **********
 public:
+	void SetSpecialMaterial(UMaterialInstance* Material);
+	void RemoveSpecialMaterial();
+
 	// ********** Invulnerability **********
 
 	/// A number less than 0 will make the character invulnerable until toggled off again
@@ -240,10 +245,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsInvulnerable = false;
 
-	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* InvulnerableMat;
+	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+		UMaterialInstance* InvulnerableMat;
 
-	UPROPERTY(EditAnywhere, Category = "Visuals")
+	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
 		UMaterial* InvisibleMat;
 
 	FTimerHandle TH_InvincibilityTimer;
@@ -260,7 +265,7 @@ protected:
 	bool bHasShield = false;
 
 	UPROPERTY(EditAnywhere, Category = "Visuals")
-		UMaterial* ShieldMat;
+		UMaterialInstance* ShieldMat;
 
 	// ********** States **********
 
@@ -306,7 +311,7 @@ protected:
 
 	// ********** Misc. **********
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
 		int SpecialMaterialIndex = 6;
 
 	FTransform RelativeMeshTransform;

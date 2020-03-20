@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
+#include "Materials/MaterialInstance.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
@@ -344,12 +345,24 @@ void ACharacter_B::AddStun(const int Strength)
 	StunAmount += Strength;
 }
 
+void ACharacter_B::SetSpecialMaterial(UMaterialInstance* Material)
+{
+	if(Material)
+		GetMesh()->SetMaterial(SpecialMaterialIndex, Material);
+}
+
+void ACharacter_B::RemoveSpecialMaterial()
+{
+	if(InvisibleMat)
+		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
+}
+
 void ACharacter_B::MakeInvulnerable(float ITime, bool bShowInvulnerabilityEffect)
 {
 	bIsInvulnerable = true;
 
 	if (bShowInvulnerabilityEffect && InvulnerableMat)
-		GetMesh()->SetMaterial(SpecialMaterialIndex, InvulnerableMat);
+		SetSpecialMaterial(InvulnerableMat);
 	if (ITime > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_InvincibilityTimer, this, &ACharacter_B::MakeVulnerable, ITime, false);
 }
@@ -358,9 +371,10 @@ void ACharacter_B::MakeVulnerable()
 {
 	bIsInvulnerable = false;
 
-	if (InvisibleMat && !bHasShield)
-		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
+	if (!bHasShield)
+		RemoveSpecialMaterial();
 }
+
 
 bool ACharacter_B::IsInvulnerable()
 {
