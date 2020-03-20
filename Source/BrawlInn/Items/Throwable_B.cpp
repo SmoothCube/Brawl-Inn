@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Throwable_B.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "DestructibleComponent.h"
@@ -42,12 +43,11 @@ void AThrowable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	DestructibleComponent->OnComponentFracture.Clear();
 
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(TH_Despawn);
 }
-
 
 void AThrowable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
-
 	Mesh->SetVisibility(true);
 
 	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -117,10 +117,20 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 
 	OnFracture_Delegate.Broadcast();
 
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, [&]() {
-		Destroy();
-		}, 5.f, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AThrowable_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &AThrowable_B::StartDestroy, TimeBeforeDespawn + 0.1f, false);
+}
+
+void AThrowable_B::StartDestroy()
+{
+	Destroy();
+}
+
+void AThrowable_B::BeginDespawn()
+{
+	FVector Location = GetActorLocation();
+	Location.Z -= DownValuePerTick;
+	SetActorLocation(Location);
 }
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

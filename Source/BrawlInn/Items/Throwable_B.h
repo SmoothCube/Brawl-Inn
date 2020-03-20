@@ -35,14 +35,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables")
 		float ThrowHitStrength = 100;
-	
+
 	// ********** Components **********
 
 public:
 
 	UDestructibleComponent* GetDestructibleComponent() const;
 protected:
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UDestructibleComponent* DestructibleComponent;
 
@@ -50,7 +50,20 @@ protected:
 
 	UFUNCTION()
 		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
-	
+
+	void BeginDespawn();
+
+	void StartDestroy();
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Despawning")
+		float DownValuePerTick = 10;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Despawning")
+		float TimeBeforeDespawn = 5.f;
+
+	FTimerHandle TH_Destroy;
+	FTimerHandle TH_Despawn;
+
 	// ********** Score **********
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
 		int ScoreAmount = 1;
