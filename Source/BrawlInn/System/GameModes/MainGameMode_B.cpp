@@ -125,10 +125,10 @@ void AMainGameMode_B::UpdateClock()
 
 void AMainGameMode_B::StartGame()
 {
-
+	OnGameStart.Broadcast();
+	
 	if (GameInstance->GameIsScoreBased())
 	{
-		
 		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 	}
 
