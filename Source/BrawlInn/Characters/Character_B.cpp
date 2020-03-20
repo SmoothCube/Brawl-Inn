@@ -22,6 +22,7 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/ThrowComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
+#include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 
 ACharacter_B::ACharacter_B()
 {
@@ -457,21 +458,26 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		//ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
 	}
 
-	if (HurtSound)
+	if (HurtSound && !DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		float volume = 1.f;
+		float Volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HurtSound,
 			GetActorLocation(),
-			volume
+			Volume
 		);
 	}
 	return DamageAmount;
+}
+
+bool ACharacter_B::IsAlive() const
+{
+	return bIsAlive;
 }
 
 void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
