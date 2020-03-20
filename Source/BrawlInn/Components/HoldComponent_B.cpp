@@ -1,18 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "HoldComponent_B.h"
-//#include "Math/UnrealMathUtility.h"
-//#include "Kismet/KismetSystemLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
-//
+
 #include "BrawlInn.h"
-#include "Components/PunchComponent_B.h"
-//#include "System/Interfaces/ThrowableInterface_B.h"
-//#include "Items/Throwable_B.h"
-#include "Items/Useable_B.h"
 #include "Characters/Character_B.h"
+#include "Components/PunchComponent_B.h"
 #include "Items/Item_B.h"
+#include "Items/Useable_B.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
@@ -43,7 +38,7 @@ bool UHoldComponent_B::TryPickup()
 
 	if (OverlappingThrowables.Num() == 0)
 		return false;
-	
+
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
 	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * PickupRange;
@@ -56,7 +51,7 @@ bool UHoldComponent_B::TryPickup()
 	{
 		if (!IsValid(Item) || Item == OwningCharacter)
 			continue;
-		
+
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 		if (!Interface) continue;
 
@@ -86,7 +81,7 @@ bool UHoldComponent_B::TryPickup()
 				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
-		NearestItem = OverlappingThrowables[0];	
+		NearestItem = OverlappingThrowables[0];
 		break;
 	case 1:
 		NearestItem = ThrowableItemsInCone[0];	//crashed?
@@ -105,7 +100,7 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
-	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);		
+	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);
 	if (Character)
 	{
 		if (Character->CanBeHeld_Implementation() && !Character->IsInvulnerable())
@@ -138,7 +133,7 @@ void UHoldComponent_B::Pickup(AActor* Item)
 	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldSocketName);
 	HoldingItem = Item;
 
-	ACharacter_B* Character= Cast<ACharacter_B>(Item);
+	ACharacter_B* Character = Cast<ACharacter_B>(Item);
 
 	if (Character)
 	{
@@ -192,6 +187,6 @@ void UHoldComponent_B::Drop()
 		Interface->Execute_Dropped(GetHoldingItem());
 	}
 	SetHoldingItem(nullptr);
-	if(IsValid(OwningCharacter))
+	if (IsValid(OwningCharacter))
 		OwningCharacter->SetState(EState::EWalking);
 }

@@ -13,6 +13,7 @@
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/IdleAICharacter_B.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 ABar_B::ABar_B()
 {
@@ -77,7 +78,14 @@ void ABar_B::BeginPlay()
 		Customers.Add(Customer);
 	}
 
-	StartRandomOrder(TimeUntilFirstDelivery);
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->OnGameStart.AddLambda([&]()
+			{
+				StartRandomOrder(TimeUntilFirstDelivery);
+			});
+	}
 }
 
 void ABar_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -114,7 +122,7 @@ void ABar_B::RandomOrder()
 			DrinkReadySound,
 			GetActorLocation(),
 			Volume
-		);
+			);
 	}
 }
 

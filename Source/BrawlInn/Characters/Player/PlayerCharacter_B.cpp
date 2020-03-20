@@ -3,6 +3,7 @@
 #include "PlayerCharacter_B.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PawnNoiseEmitterComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,10 +16,9 @@
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
+#include "NiagaraComponent.h"
 #include "System/Camera/GameCamera_B.h"
-#include "System/DamageTypes/Fall_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
-#include "System/DamageTypes/Stool_DamageType_B.h"
 #include "System/DataTable_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
@@ -35,6 +35,10 @@ APlayerCharacter_B::APlayerCharacter_B()
 	DirectionIndicatorPlane->SetRelativeScale3D(FVector(3.327123, 3.327123, 1));
 
 	NoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>("NoiseEmitterComponent");
+
+	PS_ChiliBrew = CreateDefaultSubobject<UNiagaraComponent>("ChiliBrewParticle");
+	PS_ChiliBrew->SetupAttachment(GetMesh());
+	PS_ChiliBrew->SetRelativeLocation(FVector(0.f, -14.5f, 80.f));
 
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
@@ -55,6 +59,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 void APlayerCharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PS_ChiliBrew->Deactivate();
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
@@ -129,6 +135,16 @@ void APlayerCharacter_B::HandleMovementPoweredUp(float DeltaTime)
 UStaticMeshComponent* APlayerCharacter_B::GetDirectionIndicatorPlane() const
 {
 	return DirectionIndicatorPlane;
+}
+
+UNiagaraComponent* APlayerCharacter_B::GetChiliBrewParticle() const
+{
+	return PS_ChiliBrew;
+}
+
+USoundCue* APlayerCharacter_B::GetChiliBrewSound() const
+{
+	return ChiliBrewSound;
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)

@@ -34,9 +34,20 @@ protected:
 
 public:
 	UStaticMeshComponent* GetDirectionIndicatorPlane() const;
+
+	UNiagaraComponent* GetChiliBrewParticle() const;
+
+	USoundCue* GetChiliBrewSound() const;
+	
 protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* PS_ChiliBrew = nullptr;
+
+	UPROPERTY(EditAnywhere, Category="Audio")
+		USoundCue* ChiliBrewSound = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 		UPawnNoiseEmitterComponent* NoiseEmitterComponent = nullptr;

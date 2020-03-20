@@ -35,6 +35,8 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	MainMusicComponent->Stop();
+
 	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
@@ -125,10 +127,10 @@ void AMainGameMode_B::UpdateClock()
 
 void AMainGameMode_B::StartGame()
 {
-
+	OnGameStart.Broadcast();
+	
 	if (GameInstance->GameIsScoreBased())
 	{
-		
 		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 	}
 

@@ -18,6 +18,7 @@ class UAudioComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
+DECLARE_EVENT(AMainGameMode_B, FGameStart);
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B
@@ -55,6 +56,7 @@ public:
 
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
+	FGameStart OnGameStart;
 	
 	// ********** Tracking **********
 	UFUNCTION()
