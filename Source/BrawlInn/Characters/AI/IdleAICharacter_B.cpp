@@ -48,6 +48,7 @@ void AIdleAICharacter_B::Respawn()
 	GetWorld()->GetTimerManager().SetTimer(TH_ResetCanMove, [&]()
 		{
 			bCanMove = true;
+			GetWorld()->GetTimerManager().ClearTimer(TH_Respawn);
 			Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 		}, ResetCanMoveTime, false);
 }
@@ -71,7 +72,7 @@ void AIdleAICharacter_B::SetState(EState s)
 
 void AIdleAICharacter_B::OrderDrink()
 {
-	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, RespawnLocation, FRotator());
+	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, StartLocation, FRotator());
 	DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
 	Bar->GetOrder(DropPoint);
 }
