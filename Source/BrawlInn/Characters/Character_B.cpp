@@ -400,7 +400,7 @@ void ACharacter_B::RemoveShield()
 
 bool ACharacter_B::HasShield() const
 {
-	return bHasShield;
+	return bHasShield; 
 }
 
 void ACharacter_B::SetState(EState s)
