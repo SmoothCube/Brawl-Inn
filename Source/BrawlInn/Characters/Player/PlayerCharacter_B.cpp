@@ -144,6 +144,7 @@ void APlayerCharacter_B::Die()
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
+	BLog("DIE");
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
 	PlayerController->TryRespawn(RespawnDelay);
