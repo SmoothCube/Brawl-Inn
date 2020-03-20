@@ -35,6 +35,8 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	MainMusicComponent->Stop();
+
 	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());

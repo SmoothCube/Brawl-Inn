@@ -142,6 +142,11 @@ UNiagaraComponent* APlayerCharacter_B::GetChiliBrewParticle() const
 	return PS_ChiliBrew;
 }
 
+USoundCue* APlayerCharacter_B::GetChiliBrewSound() const
+{
+	return ChiliBrewSound;
+}
+
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
