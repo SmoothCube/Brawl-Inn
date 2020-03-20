@@ -10,7 +10,6 @@
 
 #include "AIController_B.h"
 #include "Components/HoldComponent_B.h"
-#include "Components/PunchComponent_B.h"
 #include "Hazards/Bar_B.h"
 
 void AIdleAICharacter_B::BeginPlay()
@@ -27,7 +26,6 @@ void AIdleAICharacter_B::BeginPlay()
 		RespawnLocation = OutActors[0]->GetActorLocation() + FVector(0, 0, 150);
 	else
 		RespawnLocation = StartLocation;
-
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -37,6 +35,11 @@ void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 void AIdleAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
+{
+	Respawn();
+}
+
+void AIdleAICharacter_B::Respawn()
 {
 	bIsAlive = true;
 	StandUp();
@@ -49,6 +52,15 @@ void AIdleAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 		}, ResetCanMoveTime, false);
 }
 
+void AIdleAICharacter_B::Die()
+{
+	Super::Die();
+	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, [&]()
+		{
+			Respawn();
+		}, 5, false);
+}
+
 void AIdleAICharacter_B::SetState(EState s)
 {
 	if (State == EState::EFallen && s == EState::EWalking)
@@ -59,7 +71,7 @@ void AIdleAICharacter_B::SetState(EState s)
 
 void AIdleAICharacter_B::OrderDrink()
 {
-	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, GetActorLocation(), FRotator());
+	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, RespawnLocation, FRotator());
 	DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
 	Bar->GetOrder(DropPoint);
 }
