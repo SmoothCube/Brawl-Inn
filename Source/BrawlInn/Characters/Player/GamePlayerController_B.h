@@ -36,12 +36,14 @@ protected:
 	void FaceButtonBottomRepeat() override;
 
 	void FaceButtonLeftPressed() override;
+	void FaceButtonLeftReleased() override;
 
 	void SpecialRightPressed() override;
 
 	void LeftShoulderPressed() override;
 
 	void RightShoulderPressed() override;
+	void RightShoulderReleased() override;
 
 	void LeftTriggerPressed() override;
 	void LeftTriggerRepeat() override;

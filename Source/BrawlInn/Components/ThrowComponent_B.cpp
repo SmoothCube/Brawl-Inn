@@ -137,6 +137,8 @@ bool UThrowComponent_B::IsThrowing() const
 
 void UThrowComponent_B::StartDrinking()
 {
+	BWarn("StartDrinking!");
+
 	OwningCharacter->bIsDrinking = true;
 	//remove all control from player for a while
 	OwningCharacter->SetCanMove(false);
@@ -149,6 +151,7 @@ void UThrowComponent_B::StartDrinking()
 
 void UThrowComponent_B::StopDrinking()
 {
+	BWarn("StopDrinking!");
 	OwningCharacter->bIsDrinking = false;
 	OwningCharacter->SetCanMove(true);
 	if (OwningCharacter->PunchComponent)

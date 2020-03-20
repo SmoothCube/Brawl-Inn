@@ -98,7 +98,13 @@ void AGamePlayerController_B::FaceButtonBottomRepeat()
 void AGamePlayerController_B::FaceButtonLeftPressed()
 {
 	if (!TryBreakFree())
-		TryPunch();
+		if (!TryStartThrowCharge())
+			TryPunch();
+}
+
+void AGamePlayerController_B::FaceButtonLeftReleased()
+{
+	TryThrow();
 }
 
 void AGamePlayerController_B::SpecialRightPressed()
@@ -115,8 +121,14 @@ void AGamePlayerController_B::LeftShoulderPressed()
 void AGamePlayerController_B::RightShoulderPressed()
 {
 	if (!TryBreakFree())
-		TryPunch();
+		if (!TryStartThrowCharge())
+			TryPunch();
 	
+}
+
+void AGamePlayerController_B::RightShoulderReleased()
+{
+	TryThrow();
 }
 
 void AGamePlayerController_B::RightTriggerPressed()
