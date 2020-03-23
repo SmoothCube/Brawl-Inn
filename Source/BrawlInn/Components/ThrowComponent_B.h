@@ -44,13 +44,22 @@ protected:
 public:
 
 	// ********** Drinking **********
+	bool IsDrinking();
+
 	void StartDrinking();
 
-	void SetIsDrinkingFalse();
+	void FinishDrinking();
 
-	void StopDrinking();
+	void CancelDrinking();
 
+	bool IsDrinkingFinished();
+protected:
+	bool bIsDrinkingFinished = false;
+	
+	bool bIsDrinking = false;
+	
 	FTimerHandle TH_DrinkTimer;
+public:
 	// ********** AimAssist **********
 	bool AimAssist(FVector& TargetPlayerLocation);
 protected:

@@ -69,7 +69,7 @@ bool UThrowComponent_B::TryStartCharge()
 	{
 		StartDrinking();
 
-		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::SetIsDrinkingFalse,Useable->GetUseTime());
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::FinishDrinking,Useable->GetUseTime());
 	}
 	else if (OwningCharacter->GetChargeParticle())
 	{
@@ -135,11 +135,14 @@ bool UThrowComponent_B::IsThrowing() const
 	return bIsThrowing;
 }
 
+bool UThrowComponent_B::IsDrinking()
+{
+	return bIsDrinking;
+}
+
 void UThrowComponent_B::StartDrinking()
 {
-	BWarn("StartDrinking!");
-
-	OwningCharacter->bIsDrinking = true;
+	bIsDrinking = true;
 	//remove all control from player for a while
 	OwningCharacter->SetCanMove(false);
 	if (OwningCharacter->PunchComponent)
@@ -149,15 +152,27 @@ void UThrowComponent_B::StartDrinking()
 	}
 }
 
-void UThrowComponent_B::SetIsDrinkingFalse()
+void UThrowComponent_B::FinishDrinking()
 {
-	OwningCharacter->bIsDrinking = false;
+	OwningCharacter->MakeInvulnerable(-1.f, false);
+	bIsDrinking = false;
+	bIsDrinkingFinished = true;
 }
 
-void UThrowComponent_B::StopDrinking()
+void UThrowComponent_B::CancelDrinking()
 {
-	BWarn("StopDrinking!");
-	OwningCharacter->MakeInvulnerable(-1.f, false);
+	bIsDrinking = false;
+	OwningCharacter->SetCanMove(true);
+	if (OwningCharacter->PunchComponent)
+	{
+		OwningCharacter->PunchComponent->SetCanPunch(true);
+		OwningCharacter->PunchComponent->SetCanDash(true);
+	}
+}
+
+bool UThrowComponent_B::IsDrinkingFinished()
+{
+	return bIsDrinkingFinished;
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)

@@ -7,3 +7,4 @@ PunchLevel1ScoreValue,10,Level1/2/3 er basert på hvilken charge level punchen h
 PunchLevel2ScoreValue,20,Level1/2/3 er basert på hvilken charge level punchen har
 PunchLevel3ScoreValue,30,Level1/2/3 er basert på hvilken charge level punchen har
 PowerupKnockdown,25,Når du får en spiller til å falle med powerup
+DashThroughScoreValue,5,Når du dasher gjennom en annen spiller

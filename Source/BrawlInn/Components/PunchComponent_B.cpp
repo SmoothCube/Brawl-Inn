@@ -12,6 +12,7 @@
 #include "System/DataTable_B.h"
 #include "System/GameInstance_B.h"
 #include "System/Camera/GameCamera_B.h"
+#include "Components/ThrowComponent_B.h"
 #include "Characters/Character_B.h"
 
 UPunchComponent_B::UPunchComponent_B()
@@ -227,10 +228,11 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 
 void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched)
 {
-
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
+	
+	if (OwningCharacter->ThrowComponent && OwningCharacter->ThrowComponent->IsDrinking())
+		OwningCharacter->ThrowComponent->CancelDrinking();
 
-	float Strength = InPunchStrength.Size();
 	OnGetPunched_D.Broadcast(PlayerThatPunched);
 
 	PunchEnd(); //In case the player got hit while punching, mostly to make sure punch collisions get turned off

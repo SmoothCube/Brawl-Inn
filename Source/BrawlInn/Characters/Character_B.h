@@ -146,10 +146,10 @@ protected:
 
 public:
 	// ********** Holding Drink **********
-	FVector HoldingDrinkOffset = FVector::ZeroVector;
 	
-	bool bIsDrinking = false;
-		// ********** Charge **********
+	FVector HoldingDrinkOffset = FVector::ZeroVector;
+
+	// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;
 	virtual void SetChargeLevel(EChargeLevel chargeLevel);
@@ -316,5 +316,5 @@ protected:
 	bool bIsAlive = true;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The strength og which this character will be knocked back when hit by a powered up player"))
-	float PowerupPushStrength = 1600000.f;
+	float PowerupPushStrength = 8000.f;
 };

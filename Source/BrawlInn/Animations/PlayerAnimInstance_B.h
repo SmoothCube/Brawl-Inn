@@ -60,5 +60,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsBeingHeld = false;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsFinishedDrinking = false;
 };

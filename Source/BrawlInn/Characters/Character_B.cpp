@@ -111,9 +111,6 @@ void ACharacter_B::SetInputVectorY(const float Y)
 
 void ACharacter_B::HandleMovement(float DeltaTime)
 {
-	//if (PunchComponent->GetIsPunching())
-	//	return;
-
 	if (InputVector.IsNearlyZero(0.1))
 		return;
 
@@ -146,7 +143,6 @@ bool ACharacter_B::GetCanMove()
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
-
 	if (bIsInvulnerable)
 		return;
 	Fall(MeshForce, FallRecoveryTime);
@@ -489,7 +485,6 @@ bool ACharacter_B::IsAlive() const
 
 void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
 	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
 	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))

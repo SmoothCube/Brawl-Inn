@@ -58,6 +58,7 @@ protected:
 
 	FVector PrevInputVector;
 
+	int DashThroughScoreValue = 5.f;
 	// ********** Falling **********
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;

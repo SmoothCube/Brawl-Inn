@@ -45,7 +45,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
-	PowerupPushStrength = 800000.0f;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
 
 	Charge1ThrowStrength = 400000.f;
@@ -67,11 +66,12 @@ void APlayerCharacter_B::BeginPlay()
 
 	if (GameInstance->ShouldUseSpreadSheets())
 	{
-		 UDataTable_B* Table = NewObject<UDataTable_B>();
+		UDataTable_B* Table = NewObject<UDataTable_B>();
 		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
 		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
 		PowerupKnockdownScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockdown")->Value;
+		DashThroughScoreValue = Table->GetRow<FScoreTable>("DashThroughScoreValue")->Value;
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(TH_MakeNoiseTimer, [&]()
@@ -361,7 +361,6 @@ void APlayerCharacter_B::AddStun(const int Strength)
 	case 4:
 		break;
 	}
-
 }
 
 void APlayerCharacter_B::PossessedBy(AController* NewController)
@@ -373,7 +372,6 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 	if (!PlayerController)
 		return;
 
-
 	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
 		{
 			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
@@ -384,26 +382,28 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 //For dashing through characters
 void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Dash push stuff
 	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
 	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
 	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen)
 		return;
 
-	int DamageAmount = 0;
+	int DamageAmount = 5;
 
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 	if (IsValid(Capsule))
 	{
-		if (IsValid(PunchComponent) && PunchComponent->GetIsDashing())
+		if (GetState() == EState::EPoweredUp)
+		{
+			OtherCharacter->GetCharacterMovement()->Velocity = (OtherCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * OtherCharacter->PowerupPushStrength;
+
+			DamageAmount = PowerupKnockdownScoreAmount;
+		}
+		else if (IsValid(PunchComponent) && PunchComponent->GetIsDashing() && !OtherCharacter->IsInvulnerable())
 		{
 			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
-		}
-		else if (GetState() == EState::EPoweredUp)
-		{
-			OtherCharacter->CheckFall((OtherCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * OtherCharacter->PowerupPushStrength);
-			DamageAmount = PowerupKnockdownScoreAmount;
+			
+			DamageAmount = DashThroughScoreValue;
 		}
 		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
