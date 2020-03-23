@@ -44,7 +44,7 @@ public:
 		UThrowComponent_B* ThrowComponent;
 
 protected:
-	
+
 	// ********** AActor **********
 
 	virtual void BeginPlay() override;
@@ -58,29 +58,32 @@ public:
 	void SetInputVectorX(const float X);
 
 	void SetInputVectorY(const float Y);
-	
+
 protected:
-	
+
 	void HandleMovement(float DeltaTime);
 public:
 	float NormalMaxWalkSpeed = 0;
 	void SetCanMove(bool Value);
 
 	bool GetCanMove();
-	
+
 protected:
 	float RotationInterpSpeed = 10.f;
-	
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float NormalRotationInterpSpeed = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	bool bCanMove = true;
+		float NormalRotationInterpSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+		bool bCanMove = true;
 
 public:
-	UPROPERTY()
-	AGameCamera_B* GameCamera = nullptr;
+
+	void SetGameCamera(AGameCamera_B* Camera);
 protected:
+	UPROPERTY()
+		AGameCamera_B* GameCamera = nullptr;
+	
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********
@@ -118,53 +121,53 @@ public:
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
 	UFUNCTION()
-	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+		virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 protected:
 	EState State = EState::EWalking;
 
 	UPROPERTY()
-	ACharacter_B* HoldingCharacter = nullptr;
+		ACharacter_B* HoldingCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-	float TimeBeforeThrowCollision = 0.3f;
+		float TimeBeforeThrowCollision = 0.3f;
 
 	bool bCanBeHeld = true;
 	FTimerHandle TH_FallCollisionTimer;
 
-	
+
 public:
 
-	 FRotator& GetHoldRotation();
+	FRotator& GetHoldRotation();
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-	
-	FRotator HoldRotation = FRotator(0, 0, 0);
-	
+
+		FRotator HoldRotation = FRotator(0, 0, 0);
+
 	FVector HoldOffset = FVector(0, 0, 0);
 
 public:
 	// ********** Holding Drink **********
 	FVector HoldingDrinkOffset = FVector::ZeroVector;
-	
+
 	bool bIsDrinking = false;
-		// ********** Charge **********
+	// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;
 	virtual void SetChargeLevel(EChargeLevel chargeLevel);
 
 	void SetIsCharging(bool Value);
 
-protected:	
+protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge1ThrowStrength = 200000.f;
+		float Charge1ThrowStrength = 200000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge2ThrowStrength = 250000.f;
-	
+		float Charge2ThrowStrength = 250000.f;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge3ThrowStrength = 500000.f;
+		float Charge3ThrowStrength = 500000.f;
 
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
@@ -172,7 +175,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
 		float Charge3MoveSpeed = 100.f;
-	
+
 	bool bIsCharging = false;
 
 	EChargeLevel ChargeLevel = EChargeLevel::ENotCharging;
@@ -261,10 +264,10 @@ public:
 	virtual void SetState(EState s);
 
 	UFUNCTION(BlueprintCallable)
-	EState GetState() const;
+		EState GetState() const;
 
 	UFUNCTION()
-	virtual void Die();
+		virtual void Die();
 	// ********** Punch **********
 public:
 	void TryStartCharging();
@@ -310,11 +313,11 @@ protected:
 public:
 
 	bool IsAlive() const;
-	
+
 protected:
-	
+
 	bool bIsAlive = true;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The strength og which this character will be knocked back when hit by a powered up player"))
-	float PowerupPushStrength = 1600000.f;
+		float PowerupPushStrength = 1600000.f;
 };

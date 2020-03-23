@@ -11,7 +11,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReady);
 
 DECLARE_DELEGATE(FPlayersActiveUpdated);
 
-class ACameraActor;
 class UCharacterSelectionOverlay_B;
 class UMainMenu_B;
 class APlayerCharacter_B;
@@ -37,6 +36,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void HideMainMenu();
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<UMainMenu_B> BP_MainMenu;
@@ -48,7 +48,7 @@ protected:
 public:
 
 	void UpdateCharacterSelectionOverlay();
-
+	
 	int GetPlayersActive() const;
 
 	void SetPlayersActive(int Value);
@@ -83,6 +83,8 @@ public:
 
 	void HoverRight(AMenuPlayerController_B* PlayerController);
 
+	UCharacterSelectionOverlay_B* GetCharacterSelectionOverlay() const;
+	
 protected:
 	void UpdateOtherSelections();
 

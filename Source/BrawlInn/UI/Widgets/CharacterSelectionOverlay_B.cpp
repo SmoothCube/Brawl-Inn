@@ -3,7 +3,7 @@
 #include "CharacterSelectionOverlay_B.h"
 #include "Components/TextBlock.h"
 
-void UCharacterSelectionOverlay_B::UpdateNumberOfPlayersReady(const int Value)
+void UCharacterSelectionOverlay_B::UpdateNumberOfPlayersReady(int Value)
 {
 	if (NumberOfPlayersReady)
 		NumberOfPlayersReady->SetText(FText::FromString(FString::FormatAsNumber(Value)));

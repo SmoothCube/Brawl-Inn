@@ -1,22 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameMode_B.h"
-#include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/PlayerStart.h"
-#include "Sound/SoundCue.h"
 #include "Camera/CameraActor.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
-#include "System/GameInstance_B.h"
-#include "System/Camera/GameCamera_B.h"
-
-#include "System/GameModes/MainGameMode_B.h"
-#include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
+#include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 void AGameMode_B::BeginPlay()
 {

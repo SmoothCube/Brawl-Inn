@@ -21,8 +21,6 @@ AMenuGameMode_B::AMenuGameMode_B()
 
 void AMenuGameMode_B::PostLevelLoad_Implementation()
 {
-	SetActorTickEnabled(true);
-
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	GameCamera->SetActorRotation(FRotator(0, -65, 0));
 
@@ -39,7 +37,7 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 	for (AActor* Character : SelectionCharacters)
 	{
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
-		PlayerCharacter->GameCamera = GameCamera;
+		PlayerCharacter->SetGameCamera(GameCamera);
 		PlayerCharacter->MakeInvulnerable(-1, false);
 		Characters.Add(PlayerCharacter);
 	}
@@ -56,10 +54,10 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 
 	for (int i = 0; i < MenuPlayerControllers.Num(); i++)
 	{
-		ASelectionPawn_B* SelectionPawn = MenuPlayerControllers[i]->GetSelectionPawn();
-
 		checkf(SelectionIndicators.IsValidIndex(i), TEXT("Selection indicator index %i is not valid"), i);
 		checkf(CharacterVariants.IsValidIndex(i), TEXT("Character variant index %i is not valid"), i);
+
+		ASelectionPawn_B* SelectionPawn = MenuPlayerControllers[i]->GetSelectionPawn();
 
 		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[i]);
 
@@ -131,8 +129,6 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 {
 	PlayersActive++;
 
-	UpdateCharacterSelectionOverlay();
-
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
 	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
 
@@ -155,8 +151,6 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected)
 {
 	PlayersActive--;
-
-	UpdateCharacterSelectionOverlay();
 
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
@@ -219,6 +213,11 @@ void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 	}
 
 	UpdateCharacterVisuals(PlayerController, SelectionPawn, PlayerControllerID);
+}
+
+UCharacterSelectionOverlay_B* AMenuGameMode_B::GetCharacterSelectionOverlay() const
+{
+	return CharacterSelectionOverlay;
 }
 
 void AMenuGameMode_B::UpdateOtherSelections()

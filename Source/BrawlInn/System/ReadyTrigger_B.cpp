@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ReadyTrigger_B.h"
-#include "Engine/World.h"
-#include "TimerManager.h"
-#include "Kismet/GameplayStatics.h"
 #include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
-#include "BrawlInn.h"
-#include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/MenuPlayerController_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "SubSystems/ScoreSubSystem_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
+#include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
 AReadyTrigger_B::AReadyTrigger_B()
 {
@@ -26,7 +26,6 @@ void AReadyTrigger_B::BeginPlay()
 
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->PlayersActiveUpdated.BindUObject(this, &AReadyTrigger_B::ClearReadyTimer);
-	OnReadyOverlapChange.AddUObject(GameMode, &AMenuGameMode_B::UpdateCharacterSelectionOverlay);
 }
 
 void AReadyTrigger_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -42,9 +41,10 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 	if (PlayerCharacter && GameMode)
 	{
 		GameMode->SetPlayersReady(GameMode->GetPlayersReady() + 1);
+
 		PlayerInfos.Add(Cast<AMenuPlayerController_B>(PlayerCharacter->GetController())->GetPlayerInfo());
 
-		OnReadyOverlapChange.Broadcast();
+		GameMode->UpdateCharacterSelectionOverlay();
 
 		if (GameMode->GetPlayersReady() >= GameMode->GetPlayersActive())
 			GetWorld()->GetTimerManager().SetTimer(TH_StartTimer, this, &AReadyTrigger_B::PrepareStartGame, 3.f, false);
@@ -62,11 +62,12 @@ void AReadyTrigger_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 	if (PlayerCharacter && GameMode)
 	{
 		GameMode->SetPlayersReady(GameMode->GetPlayersReady() - 1);
+
 		PlayerInfos.RemoveAll([&](const FPlayerInfo& Info) {
 			return Info.ID == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
 			});
 
-		OnReadyOverlapChange.Broadcast();
+		GameMode->UpdateCharacterSelectionOverlay();
 
 		ClearReadyTimer();
 	}
@@ -74,7 +75,7 @@ void AReadyTrigger_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 void AReadyTrigger_B::PrepareStartGame()
 {
-	if (!IsValid(GameMode)) { BError("GameMode is not valid. Can't start game!"); return; }
+	checkf(IsValid(GameMode), TEXT("GameMode is not valid. Can't start game!"));
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
