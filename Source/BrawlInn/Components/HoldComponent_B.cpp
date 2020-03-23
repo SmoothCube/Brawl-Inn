@@ -6,24 +6,20 @@
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/PunchComponent_B.h"
-#include "Items/Item_B.h"
 #include "Items/Useable_B.h"
 
 UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 {
-	SphereRadius = PickupRange;
+	SphereRadius = 200.f;
 	PrimaryComponentTick.bCanEverTick = false;
-	SetCollisionProfileName("Pickup-Trigger");
 }
 
 void UHoldComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
-	SphereRadius = PickupRange;
-
-	OnComponentBeginOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapBegin);
-	OnComponentEndOverlap.AddDynamic(this, &UHoldComponent_B::OnOverlapEnd);
-
+	
+	SetCollisionProfileName("Pickup-Trigger");
+	
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
 
@@ -41,10 +37,10 @@ bool UHoldComponent_B::TryPickup()
 
 	FVector PlayerLocation = OwningCharacter->GetMesh()->GetComponentLocation();
 	PlayerLocation.Z = 0;
-	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * PickupRange;
+	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * SphereRadius;
 	PlayerForward.Z = 0;
 
-	FVector PlayerToForward = PlayerForward - PlayerLocation;
+	const FVector PlayerToForward = PlayerForward - PlayerLocation;
 
 	TArray<AActor*> ThrowableItemsInCone;
 	for (const auto& Item : OverlappingThrowables)
@@ -62,39 +58,31 @@ bool UHoldComponent_B::TryPickup()
 
 		FVector PlayerToItem = ItemLocation - PlayerLocation;
 
-		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToItem.GetSafeNormal())));
+		const float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToItem.GetSafeNormal())));
 		if (AngleA <= PickupAngle)
 			ThrowableItemsInCone.Add(Item);
 	}
-	AActor* NearestItem = nullptr;
+	AActor* NearestItem;
 
 	switch (ThrowableItemsInCone.Num())
 	{
 	case 0:
 		OverlappingThrowables.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
-				FVector A = LeftSide.GetActorLocation();
-				A.Z = 0;
-				FVector B = RightSide.GetActorLocation();
-				B.Z = 0;
-				float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
-				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
+				const float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
+				const float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
 		NearestItem = OverlappingThrowables[0];
 		break;
 	case 1:
-		NearestItem = ThrowableItemsInCone[0];	//crashed?
+		NearestItem = ThrowableItemsInCone[0]; //crashed?
 		break;
 	default:
 		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
-				FVector A = LeftSide.GetActorLocation();
-				A.Z = 0;
-				FVector B = RightSide.GetActorLocation();
-				B.Z = 0;
-				float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
-				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
+				const float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
+				const float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
 		NearestItem = ThrowableItemsInCone[0];
@@ -103,7 +91,7 @@ bool UHoldComponent_B::TryPickup()
 	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);
 	if (Character)
 	{
-		if (Character->CanBeHeld_Implementation() && !Character->IsInvulnerable())
+		if (Character->Execute_CanBeHeld(Character) && !Character->IsInvulnerable())
 		{
 			Pickup(NearestItem);
 			return true;
@@ -111,13 +99,15 @@ bool UHoldComponent_B::TryPickup()
 		return false;
 	}
 
-	Pickup(NearestItem);
+	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(NearestItem);
+	if (Interface->Execute_CanBeHeld(NearestItem))
+		Pickup(NearestItem);
+
 	return true;
 }
 
 void UHoldComponent_B::Pickup(AActor* Item)
 {
-	OwningCharacter->SetState(EState::EHolding);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
 		Interface->Execute_PickedUp(Item, OwningCharacter);
@@ -145,26 +135,10 @@ void UHoldComponent_B::Pickup(AActor* Item)
 		Item->AddActorLocalOffset(Offset);
 		Item->SetActorRelativeRotation(Cast<AItem_B>(Item)->GetHoldRotation());
 	}
+	OwningCharacter->SetState(EState::EHolding);
 }
 
-void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor == OwningCharacter) return;
-	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
-	if (!Interface || !Interface->Execute_CanBeHeld(OtherActor))
-		return;
-}
-
-void UHoldComponent_B::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex)
-{
-	if (OtherActor == OwningCharacter) return;
-	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(OtherActor);
-	if (!Interface)
-		return;
-
-}
-
-bool UHoldComponent_B::IsHolding()
+bool UHoldComponent_B::IsHolding() const
 {
 	return (HoldingItem ? true : false);
 }
@@ -183,9 +157,8 @@ void UHoldComponent_B::Drop()
 {
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(GetHoldingItem());
 	if (Interface)
-	{
 		Interface->Execute_Dropped(GetHoldingItem());
-	}
+
 	SetHoldingItem(nullptr);
 	if (IsValid(OwningCharacter))
 		OwningCharacter->SetState(EState::EWalking);

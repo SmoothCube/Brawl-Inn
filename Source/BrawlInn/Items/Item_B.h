@@ -52,6 +52,14 @@ protected:
 
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
+public:
+	float GetMovementSpeedWhenHeld_Implementation() const override;
+
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+		float MovementSpeedWhenHeld = 600.f;
+
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
 		float Charge1ThrowStrength = 1000.f;
 
@@ -75,6 +83,8 @@ protected:
 	virtual void OnItemFracture();
 
 	bool bIsFractured = false;
+
+	bool bIsThrown = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Juice|Destroy")
 		UNiagaraSystem* PS_OnDestroy;

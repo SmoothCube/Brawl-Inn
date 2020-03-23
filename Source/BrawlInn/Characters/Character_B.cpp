@@ -7,7 +7,6 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstance.h"
 #include "Materials/Material.h"
 #include "Sound/SoundCue.h"
@@ -141,6 +140,11 @@ bool ACharacter_B::GetCanMove()
 	return bCanMove;
 }
 
+void ACharacter_B::SetGameCamera(AGameCamera_B* Camera)
+{
+	GameCamera = Camera;
+}
+
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
 	if (bIsInvulnerable)
@@ -176,7 +180,7 @@ void ACharacter_B::StandUp()
 	SetActorLocation(FindMeshGroundLocation());
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-	
+
 	if (IsValid(GetMesh()))
 	{
 		GetMesh()->SetSimulatePhysics(false);
@@ -189,10 +193,10 @@ void ACharacter_B::StandUp()
 	}
 	else
 	{
-		BError("Mesh invalid for character %s", *GetNameSafe(this)); 
+		BError("Mesh invalid for character %s", *GetNameSafe(this));
 	}
 
-	if(IsValid(GetMovementComponent()))
+	if (IsValid(GetMovementComponent()))
 		GetMovementComponent()->StopMovementImmediately();
 
 	SetCanMove(true);
@@ -201,7 +205,7 @@ void ACharacter_B::StandUp()
 		PunchComponent->SetCanDash(true);
 		PunchComponent->SetCanPunch(true);
 	}
-	
+
 	SetState(EState::EWalking);
 	StunAmount = 0;
 }
@@ -325,6 +329,12 @@ float ACharacter_B::GetThrowStrength_Implementation(EChargeLevel level) const
 		return 0;
 	}
 }
+
+float ACharacter_B::GetMovementSpeedWhenHeld_Implementation() const
+{
+	return MovementSpeedWhenHeld;
+}
+
 void ACharacter_B::AddStun(const int Strength)
 {
 	if (StunAmount == PunchesToStun - 1)
@@ -337,13 +347,13 @@ void ACharacter_B::AddStun(const int Strength)
 
 void ACharacter_B::SetSpecialMaterial(UMaterialInstance* Material)
 {
-	if(Material)
+	if (Material)
 		GetMesh()->SetMaterial(SpecialMaterialIndex, Material);
 }
 
 void ACharacter_B::RemoveSpecialMaterial()
 {
-	if(InvisibleMat)
+	if (InvisibleMat)
 		GetMesh()->SetMaterial(SpecialMaterialIndex, InvisibleMat);
 }
 
@@ -389,7 +399,7 @@ void ACharacter_B::RemoveShield()
 
 bool ACharacter_B::HasShield() const
 {
-	return bHasShield; 
+	return bHasShield;
 }
 
 void ACharacter_B::SetState(EState s)
@@ -411,7 +421,9 @@ void ACharacter_B::SetState(EState s)
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		break;
 	case EState::EHolding:
-		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;
+		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
+		if (Interface)
+			GetCharacterMovement()->MaxWalkSpeed = Interface->Execute_GetMovementSpeedWhenHeld(HoldComponent->GetHoldingItem());
 		break;
 	}
 }
@@ -473,7 +485,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 			HurtSound,
 			GetActorLocation(),
 			Volume
-		);
+			);
 	}
 	return DamageAmount;
 }
@@ -566,7 +578,7 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 			GetActorLocation(),
 			volume,
 			SoundPitch
-		);
+			);
 	}
 }
 

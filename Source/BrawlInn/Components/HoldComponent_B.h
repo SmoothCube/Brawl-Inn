@@ -28,23 +28,15 @@ public:
 protected:
 	void Pickup(AActor* Item);
 
-	UFUNCTION()
-		void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float PickupAngle = 60.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float PickupRange = 200.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float InnerPickupRange = 25.f;
 
 	// ********** Holding **********
 public:
-	bool IsHolding();
+	bool IsHolding() const;
 
 	AActor* GetHoldingItem() const;
 

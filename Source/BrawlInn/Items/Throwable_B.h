@@ -49,7 +49,7 @@ protected:
 	// ********** Destroy/Fracture **********
 
 	UFUNCTION()
-		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
+		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection); 
 
 	void BeginDespawn();
 
