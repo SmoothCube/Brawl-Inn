@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameInstance_B.h"
+
+#include "DataTable_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Sound/SoundBase.h"
@@ -8,6 +10,13 @@
 void UGameInstance_B::Init()
 {
 	Super::Init();
+
+	UDataTable_B* DataTable = NewObject<UDataTable_B>();
+	DataTable->LoadCSVFile(FStringValues::StaticStruct(), "MapNames.csv");
+	GameMap = DataTable->GetRow<FStringValues>("GameMap")->Value;
+	MenuMap = DataTable->GetRow<FStringValues>("MenuMap")->Value;
+	MenuMapToStream = DataTable->GetRow<FStringValues>("MenuMapToStream")->Value;
+	DataTable->ConditionalBeginDestroy();
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)

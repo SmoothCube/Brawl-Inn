@@ -31,7 +31,7 @@ public:
 		FTransform GetCameraSwapTransform() const;
 
 protected:
-	FTransform CameraSwapTransform = FTransform(FRotator(-35.667469f, 5.636588f ,-0.000007f), FVector(-302.956f, 880.419f, 657.871f));
+	FTransform CameraSwapTransform = FTransform(FRotator(-35.667469f, 5.636588f, -0.000007f), FVector(-302.956f, 880.419f, 657.871f));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
 		TSubclassOf<UCameraShake> ImpactCameraShake;
@@ -45,9 +45,9 @@ public:
 	float GetSfxVolume() const;
 
 	void SetMasterVolume(float Value);
-	
+
 	void SetMusicVolume(float Value);
-	
+
 	void SetSfxVolume(float Value);
 
 protected:
@@ -93,12 +93,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 		bool bGameIsScoreBased = true;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+		FString GameMap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+		FString MenuMap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+		FString MenuMapToStream;
+
 	// ********** Editor Only Settings **********
 public:
 	bool IgnoreCountdown() const;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
-	bool bIgnoreCountdown = true;
+		bool bIgnoreCountdown = true;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
 		bool bMuteMusic = true;
