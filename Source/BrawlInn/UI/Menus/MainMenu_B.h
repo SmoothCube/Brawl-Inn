@@ -19,18 +19,14 @@ class BRAWLINN_API UMainMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
-	void MenuTick();
-
 protected:
 	// ********** UUserWidget **********
 
 	void NativeConstruct() override;
 
-	// ********** Button Clicks **********
-	UFUNCTION()
-		void PlayButtonClicked();
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	// ********** Button Clicks **********
 	UFUNCTION()
 		void SettingsButtonClicked();
 

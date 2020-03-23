@@ -25,7 +25,8 @@ void AReadyTrigger_B::BeginPlay()
 	Super::BeginPlay();
 
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	OnReadyOverlapChange.AddUObject(GameMode, &AMenuGameMode_B::UpdateNumberOfReadyPlayers);
+	GameMode->PlayersActiveUpdated.BindUObject(this, &AReadyTrigger_B::ClearReadyTimer);
+	OnReadyOverlapChange.AddUObject(GameMode, &AMenuGameMode_B::UpdateCharacterSelectionOverlay);
 }
 
 void AReadyTrigger_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -50,6 +51,11 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 	}
 }
 
+void AReadyTrigger_B::ClearReadyTimer()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TH_StartTimer);
+}
+
 void AReadyTrigger_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(OtherActor);
@@ -62,7 +68,7 @@ void AReadyTrigger_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 		OnReadyOverlapChange.Broadcast();
 
-		GetWorld()->GetTimerManager().ClearTimer(TH_StartTimer);
+		ClearReadyTimer();
 	}
 }
 
@@ -72,8 +78,8 @@ void AReadyTrigger_B::PrepareStartGame()
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	for(auto PlayerInfo : PlayerInfos)
-	{	
+	for (auto PlayerInfo : PlayerInfos)
+	{
 		APlayerController* Controller = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID);
 		Controller->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
 	}
