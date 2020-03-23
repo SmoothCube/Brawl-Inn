@@ -56,7 +56,7 @@ protected:
 
 	// ********** Widgets **********
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
 		UButton_B* PlayButton;
 
 	UPROPERTY(meta = (BindWidget))

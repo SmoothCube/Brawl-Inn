@@ -16,14 +16,15 @@ class BRAWLINN_API UVictoryScreenWidget_B : public UUserWidget
 	GENERATED_BODY()
 protected:
 
-	virtual bool Initialize() override;
-
 	virtual void NativeConstruct() override;
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION()
 		void ContinueButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+		void EnableContinueButton();
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* PlayerWon;
