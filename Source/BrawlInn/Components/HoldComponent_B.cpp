@@ -3,7 +3,6 @@
 #include "HoldComponent_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
-#include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Items/Useable_B.h"
@@ -17,17 +16,18 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 void UHoldComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	SetCollisionProfileName("Pickup-Trigger");
-	
+
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
 
 bool UHoldComponent_B::TryPickup()
 {
-	if (!OwningCharacter || OwningCharacter->GetState() != EState::EWalking) return false;
-	if (OwningCharacter->PunchComponent->GetIsPunching()) return false;
-	BWarn("Trying Pickup!");
+	check(IsValid(OwningCharacter));
+
+	if (OwningCharacter->GetState() != EState::EWalking || OwningCharacter->PunchComponent->GetIsPunching()) return false;
+
 	TArray<AActor*> OverlappingThrowables;
 	GetOverlappingActors(OverlappingThrowables, UThrowableInterface_B::StaticClass());
 	OverlappingThrowables.Remove(OwningCharacter);
@@ -49,9 +49,7 @@ bool UHoldComponent_B::TryPickup()
 			continue;
 
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
-		if (!Interface) continue;
-
-		if (Interface->Execute_IsHeld(Item)) continue; //Had a crash here before adding cleanup
+		if (!Interface || Interface->Execute_IsHeld(Item)) continue;
 
 		FVector ItemLocation = Item->GetActorLocation();
 		ItemLocation.Z = 0;
@@ -62,11 +60,12 @@ bool UHoldComponent_B::TryPickup()
 		if (AngleA <= PickupAngle)
 			ThrowableItemsInCone.Add(Item);
 	}
-	AActor* NearestItem;
+	AActor* NearestItem = nullptr;
 
 	switch (ThrowableItemsInCone.Num())
 	{
 	case 0:
+		// Zero items in cone, picking up a item in the sphere instead.
 		OverlappingThrowables.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
 				const float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
@@ -76,18 +75,22 @@ bool UHoldComponent_B::TryPickup()
 		NearestItem = OverlappingThrowables[0];
 		break;
 	case 1:
+		// One item in the cone, picking it up.
 		NearestItem = ThrowableItemsInCone[0]; //crashed?
 		break;
 	default:
+		// Two or more item in the cone, sorting them and picks up the closest one.
 		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
 				const float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
 				const float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
-		NearestItem = ThrowableItemsInCone[0];
+		if (ThrowableItemsInCone.IsValidIndex(0))
+			NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
+
 	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);
 	if (Character)
 	{
@@ -101,9 +104,11 @@ bool UHoldComponent_B::TryPickup()
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(NearestItem);
 	if (Interface->Execute_CanBeHeld(NearestItem))
+	{
 		Pickup(NearestItem);
-
-	return true;
+		return true;
+	}
+	return false;
 }
 
 void UHoldComponent_B::Pickup(AActor* Item)
@@ -125,16 +130,9 @@ void UHoldComponent_B::Pickup(AActor* Item)
 
 	ACharacter_B* Character = Cast<ACharacter_B>(Item);
 
-	if (Character)
-	{
-		Character->AddActorLocalOffset(FVector(0, 0, 75));
-		Character->SetActorRelativeRotation(Character->GetHoldRotation());
-	}
-	else
-	{
-		Item->AddActorLocalOffset(Offset);
-		Item->SetActorRelativeRotation(Cast<AItem_B>(Item)->GetHoldRotation());
-	}
+	Item->AddActorLocalOffset(Character ? FVector(0, 0, 75) : Offset);
+	Item->SetActorRelativeRotation(Character ? Character->GetHoldRotation() : Cast<AItem_B>(Item)->GetHoldRotation());
+
 	OwningCharacter->SetState(EState::EHolding);
 }
 
