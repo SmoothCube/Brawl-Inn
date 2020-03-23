@@ -145,6 +145,11 @@ bool ACharacter_B::GetCanMove()
 	return bCanMove;
 }
 
+void ACharacter_B::SetGameCamera(AGameCamera_B* Camera)
+{
+	GameCamera = Camera;
+}
+
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
 	if (!PunchComponent || PunchComponent->GetIsPunching() || bIsInvulnerable)
