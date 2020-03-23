@@ -95,12 +95,6 @@ protected:
 
 	void SetLastHitBy(AController* EventInstigator);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
-		UTexture2D* ColoredHealthIcon = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
-		UTexture2D* GreyHealthIcon = nullptr;
-
 	UPROPERTY(EditAnywhere, Category = "Variables|Info")
 		float RespawnDelay = 1.f;
 
