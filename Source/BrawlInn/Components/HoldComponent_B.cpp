@@ -117,7 +117,6 @@ bool UHoldComponent_B::TryPickup()
 
 void UHoldComponent_B::Pickup(AActor* Item)
 {
-	OwningCharacter->SetState(EState::EHolding);
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
 	if (Interface)
 		Interface->Execute_PickedUp(Item, OwningCharacter);
@@ -145,6 +144,7 @@ void UHoldComponent_B::Pickup(AActor* Item)
 		Item->AddActorLocalOffset(Offset);
 		Item->SetActorRelativeRotation(Cast<AItem_B>(Item)->GetHoldRotation());
 	}
+	OwningCharacter->SetState(EState::EHolding);
 }
 
 void UHoldComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

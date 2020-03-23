@@ -76,6 +76,11 @@ float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
 	}
 }
 
+float AItem_B::GetMovementSpeedWhenHeld_Implementation() const
+{
+	return MovementSpeedWhenHeld;
+}
+
 FOnFracture& AItem_B::OnFracture()
 {
 	return OnFracture_Delegate;
