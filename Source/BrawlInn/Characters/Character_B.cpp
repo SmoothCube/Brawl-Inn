@@ -8,8 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInterface.h"
-#include "Materials/Material.h"
 #include "Materials/MaterialInstance.h"
+#include "Materials/Material.h"
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
@@ -136,7 +136,6 @@ void ACharacter_B::HandleMovement(float DeltaTime)
 
 void ACharacter_B::SetCanMove(bool Value)
 {
-	BWarn("Setting can move to %s", Value ? TEXT("True") : TEXT("False"))
 	bCanMove = Value;
 }
 
@@ -147,16 +146,14 @@ bool ACharacter_B::GetCanMove()
 
 void ACharacter_B::CheckFall(FVector MeshForce)
 {
-	if (!PunchComponent || PunchComponent->GetIsPunching() || bIsInvulnerable)
+
+	if (bIsInvulnerable)
 		return;
 	Fall(MeshForce, FallRecoveryTime);
 }
 
 void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
 {
-//	if (GetCharacterMovement()->IsFalling())	//Had to remove this but should probably be here? idk does this even work properly
-//		return;									//yes i know i wrote it
-
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
 
@@ -182,13 +179,6 @@ void ACharacter_B::StandUp()
 
 	SetActorLocation(FindMeshGroundLocation());
 
-	//if (GetCharacterMovement()->IsFalling() )// && !(GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
-	//{
-	//	BWarn("Character is falling! Cant stand up!");
-	//	return;
-	//}
-
-
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 	
 	if (IsValid(GetMesh()))
@@ -203,12 +193,19 @@ void ACharacter_B::StandUp()
 	}
 	else
 	{
-		BError("Mesh invalid for character %s", *GetNameSafe(this)); //This was the crash we thought was below
+		BError("Mesh invalid for character %s", *GetNameSafe(this)); 
 	}
 
 	if(IsValid(GetMovementComponent()))
-		GetMovementComponent()->StopMovementImmediately();	//CRASH HERE -E
+		GetMovementComponent()->StopMovementImmediately();
 
+	SetCanMove(true);
+	if (PunchComponent)
+	{
+		PunchComponent->SetCanDash(true);
+		PunchComponent->SetCanPunch(true);
+	}
+	
 	SetState(EState::EWalking);
 	StunAmount = 0;
 }
@@ -221,10 +218,8 @@ FVector ACharacter_B::FindMeshLocation() const
 
 	if (bDidHit)
 	{
-		//	BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()));
 		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-	//		BWarn("Did not hit");
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -237,11 +232,9 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 
 	if (bDidHit)
 	{
-		//BWarn("Hit Actor: %s, Component: %s", *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()))
 		return (Hit.Location - RelativeMeshTransform.GetLocation());
 	}
-	//	else
-		//	BWarn("Did not hit");
+
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
@@ -538,20 +531,26 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	switch (ChargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1:
+		BWarn("Setting Charge 1: character %s", *GetNameSafe(this));
+
 		ShouldPlaySound = false;
 		SoundPitch = 0.8f;
 		break;
 	case EChargeLevel::EChargeLevel2:
+		BWarn("Setting Charge 2: character %s", *GetNameSafe(this));
+
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
 		SoundPitch = 1.0f;
 		break;
 	case EChargeLevel::EChargeLevel3:
+		BWarn("Setting Charge 3: character %s", *GetNameSafe(this));
 		GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
 		SoundPitch = 1.2f;
 		break;
 	default:
+		BWarn("Setting No Charge: character %s", *GetNameSafe(this));
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		ShouldPlaySound = false;
 		break;

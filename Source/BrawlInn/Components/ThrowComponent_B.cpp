@@ -157,13 +157,7 @@ void UThrowComponent_B::SetIsDrinkingFalse()
 void UThrowComponent_B::StopDrinking()
 {
 	BWarn("StopDrinking!");
-	OwningCharacter->bIsDrinking = false;
-	OwningCharacter->SetCanMove(true);
-	if (OwningCharacter->PunchComponent)
-	{
-		OwningCharacter->PunchComponent->SetCanPunch(true);
-		OwningCharacter->PunchComponent->SetCanDash(true);
-	}
+	OwningCharacter->MakeInvulnerable(-1.f, false);
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
