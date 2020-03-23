@@ -84,6 +84,8 @@ protected:
 
 	bool bIsFractured = false;
 
+	bool bIsThrown = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Juice|Destroy")
 		UNiagaraSystem* PS_OnDestroy;
 

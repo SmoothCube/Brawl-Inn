@@ -102,6 +102,8 @@ void AThrowable_B::Use_Implementation()
 	{
 		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
 	}
+
+	bIsThrown = true;
 }
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)

@@ -11,7 +11,6 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "System/GameModes/GameMode_B.h"
-#include "System/GameInstance_B.h"
 #include "Items/Useable_B.h"
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
@@ -62,7 +61,6 @@ bool UThrowComponent_B::TryStartCharge()
 		BWarn("Wrong Player State");
 		return false;
 	}
-	
 
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
 	if (Useable)
@@ -124,7 +122,7 @@ void UThrowComponent_B::Throw()
 	if (OwningCharacter->GetChargeParticle())
 		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 	else
-		BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
+		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
 
 	OwningCharacter->bIsCharging = false;
 	bIsThrowing = false;
