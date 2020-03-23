@@ -22,7 +22,6 @@ protected:
 
 	void OnUnPossess() override;
 
-
 	// ********** Character Selection **********
 public:
 	ASelectionPawn_B* GetSelectionPawn();

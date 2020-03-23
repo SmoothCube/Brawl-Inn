@@ -20,7 +20,9 @@ void UMainMenu_B::NativeConstruct()
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	PlayButton->OnClicked.AddDynamic(this, &UMainMenu_B::PlayButtonClicked);
+	check(IsValid(GameMode));
+	
+	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::PlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
 	BackFromSettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
@@ -52,20 +54,15 @@ void UMainMenu_B::NativeConstruct()
 	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
-void UMainMenu_B::MenuTick()
+void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	for (auto Element : UIElementsWithInterface)
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	for (UWidget* Element : UIElementsWithInterface)
 	{
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
-		{
 			IUIElementsInterface_B::Execute_Tick(Element);
-		}
 	}
-}
-
-void UMainMenu_B::PlayButtonClicked()
-{
-	GameMode->PlayButtonClicked();
 }
 
 void UMainMenu_B::SettingsButtonClicked()

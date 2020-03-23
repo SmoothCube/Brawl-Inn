@@ -7,10 +7,12 @@
 #include "System/Structs/CharacterVariants.h"
 #include "MenuGameMode_B.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStart);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReady);
+
+DECLARE_DELEGATE(FPlayersActiveUpdated);
 
 class ACameraActor;
-class UCharacterSelection_B;
+class UCharacterSelectionOverlay_B;
 class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
@@ -21,14 +23,12 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 {
 	GENERATED_BODY()
 
-		// ********** AActor **********
 protected:
-	virtual void BeginPlay() override;
+
+	AMenuGameMode_B();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void PostLevelLoad();
-
-	virtual void Tick(float DeltaTime) override;
+		void PostLevelLoad();
 
 	// ********** MainMenu **********
 
@@ -47,9 +47,7 @@ protected:
 	// ********** Ready up **********
 public:
 
-	void UpdateNumberOfActivePlayers();
-
-	void UpdateNumberOfReadyPlayers();
+	void UpdateCharacterSelectionOverlay();
 
 	int GetPlayersActive() const;
 
@@ -59,19 +57,18 @@ public:
 
 	void SetPlayersReady(int Value);
 
-	UFUNCTION(BlueprintNativeEvent)
-	void PlayButtonClicked();
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayButtonClicked();
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnGameStart PrepareGameStart_Delegate;
-	
+		FOnReady PrepareGameStart_Delegate;
+
+	FPlayersActiveUpdated PlayersActiveUpdated;
+
 protected:
-	int PlayersActive = 0;
+	unsigned int PlayersActive = 0;
 
-	int PlayersReady = 0;
-
-	UPROPERTY(EditDefaultsonly, BlueprintReadOnly, Category = "Variables|ReadyUp")
-		FName PlayMap = "Graybox_v6";
+	unsigned int PlayersReady = 0;
 
 	// ********** CharacterSelection **********
 public:
@@ -79,7 +76,7 @@ public:
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 
 	void UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected);
-	
+
 	void UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* SelectionPawn, int ID);
 
 	void HoverLeft(AMenuPlayerController_B* PlayerController);
@@ -90,10 +87,10 @@ protected:
 	void UpdateOtherSelections();
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<UCharacterSelection_B> BP_CharacterSelectionOverlay;
+		TSubclassOf<UCharacterSelectionOverlay_B> BP_CharacterSelectionOverlay;
 
-	UPROPERTY()
-		UCharacterSelection_B* CharacterSelectionWidget = nullptr;
+	UPROPERTY(BlueprintReadOnly)
+		UCharacterSelectionOverlay_B* CharacterSelectionOverlay = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
 		TSubclassOf<ASelectionPawn_B> BP_SelectionPawn;
@@ -106,7 +103,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
 		TArray<UPaperSprite*> SelectionIndicators;
-	
+
 	UPROPERTY()
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
 
@@ -115,7 +112,4 @@ protected:
 
 	TArray<FTransform> CharacterStartTransforms;
 
-	// ********** Misc. **********
-
-	bool bIsQuitting = false;
 };

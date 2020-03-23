@@ -18,7 +18,8 @@ class BRAWLINN_API AReadyTrigger_B : public ATriggerBox
 
 public:
 		AReadyTrigger_B();
-
+		
+	void ClearReadyTimer();
 protected:
 
 	FOnOverlapChange OnReadyOverlapChange;
