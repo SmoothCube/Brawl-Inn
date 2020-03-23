@@ -10,8 +10,9 @@
 
 #include "BrawlInn.h"
 #include "System/DataTable_B.h"
-#include "Characters/Character_B.h"
 #include "System/GameInstance_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "Characters/Character_B.h"
 
 UPunchComponent_B::UPunchComponent_B()
 {
@@ -124,7 +125,7 @@ void UPunchComponent_B::Dash()
 	OwningCharacter->MakeInvulnerable(0.3f, false);
 	VelocityBeforeDash = OwningCharacter->GetCharacterMovement()->Velocity;
 
-	const FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
+	FVector NormInput = OwningCharacter->InputVector.GetSafeNormal();
 	if (NormInput.IsNearlyZero())
 	{
 		//think setting velocity is more predictable and therefore better than adding force here.
@@ -132,6 +133,7 @@ void UPunchComponent_B::Dash()
 	}
 	else
 	{
+		NormInput = OwningCharacter->GameCamera->GetActorForwardVector().ToOrientationRotator().RotateVector(NormInput);
 		OwningCharacter->GetCharacterMovement()->Velocity = FVector(NormInput * DashSpeed);
 		OwningCharacter->SetActorRotation(OwningCharacter->InputVector.Rotation());
 	}
