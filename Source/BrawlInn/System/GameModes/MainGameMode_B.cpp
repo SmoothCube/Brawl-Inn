@@ -13,15 +13,18 @@
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
-#include "System/Camera/GameCamera_B.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
+#include "System/Structs/ScoreLookupTable.h"
+#include "System/DataTable_B.h"
 #include "UI/Menus/PauseMenu_B.h"
 #include "UI/Game/VictoryScreenWidget_B.h"
 #include "UI/Game/GameOverlay_B.h"
+#include "Items/LeaderFollower_B.h"
 
 AMainGameMode_B::AMainGameMode_B()
 {
@@ -36,7 +39,17 @@ void AMainGameMode_B::BeginPlay()
 	Super::BeginPlay();
 
 	MainMusicComponent->Stop();
+	
+	//find and cache score values
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
 
+	if (GameInstance->ShouldUseSpreadSheets())
+	{
+		UDataTable_B* Table = NewObject<UDataTable_B>();
+		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
+		AgainstLeaderMultiplier = Table->GetRow<FScoreTable>("AgainstLeaderMultiplier")->Value;
+	}
 	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
@@ -134,16 +147,14 @@ void AMainGameMode_B::StartGame()
 		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 	}
 
+	GetWorld()->GetTimerManager().SetTimer(StartGameHandle, this, &AMainGameMode_B::StartMultiplyingScores,TimeBeforeMultiplyScoreAgainstLeader, false);
+
 	EnableControllerInputs();
 
 	if (GameInstance && Birds)
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
 	}
-	//if (GameInstance && River)
-	//{
-	//	UGameplayStatics::PlaySound2D(GetWorld(), River, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	//}
 
 	if (GameInstance && MainMusicComponent)
 	{
@@ -151,17 +162,14 @@ void AMainGameMode_B::StartGame()
 		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
 		MainMusicComponent->Play();
 	}
+
+	
 }
 
 void AMainGameMode_B::EndGame()
 {
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
-	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
-		{
-			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-		});
-	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(TempPlayerControllers[0])), BP_VictoryScreen);
+	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(GetLeadingPlayerController())), BP_VictoryScreen);
 	VictoryScreen->AddToViewport();
 }
 
@@ -231,4 +239,31 @@ void AMainGameMode_B::ResetMusic()
 		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
 		MainMusicComponent->Play();
 	}
+}
+
+AGamePlayerController_B* AMainGameMode_B::GetLeadingPlayerController()
+{
+	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
+	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
+	{
+		return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+	});
+	if (TempPlayerControllers.IsValidIndex(0) && TempPlayerControllers[0])
+		return TempPlayerControllers[0];
+	else
+		return nullptr;
+}
+
+void AMainGameMode_B::StartMultiplyingScores()
+{
+	BWarn("Starting leader multiplier");
+	bMultiplyScoresAgainstLeader = true;
+
+	if (!GetWorld()->SpawnActor<ALeaderFollower_B>(BP_LeaderFollower, FTransform()))
+		BError("Spawning LeaderFollower Failed!");
+}
+
+bool AMainGameMode_B::ShouldUseScoreMultiplier()
+{
+	return bMultiplyScoresAgainstLeader;
 }
