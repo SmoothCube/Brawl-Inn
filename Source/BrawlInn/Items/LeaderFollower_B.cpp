@@ -49,8 +49,9 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float Height = GetBobbingHeight(GetGameTimeSinceCreation());
 	if(LeadingPlayerController)
-		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset, LerpAlpha));
+		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset + FVector(0.f,0.f, Height +BobAmplitude), LerpAlpha));
 }
 
 void ALeaderFollower_B::ScoreUpdated(const FScoreValues ScoreValues)
@@ -65,19 +66,11 @@ void ALeaderFollower_B::ScoreUpdated(const FScoreValues ScoreValues)
 			{
 				LeadingPlayerController = FoundLeadingPlayerController;
 			}
-			else
-			{
-				BError("Leading Controller Has No Pawn!");
-			}
-		}
-		else
-		{
-			BError("Found Leader invalid");
 		}
 	}
-	else
-	{
-		BError("GameMode Invalid or Shouldnt use score multiplier");
-	}
+}
 
+float ALeaderFollower_B::GetBobbingHeight(float Time)
+{
+	return 	BobAmplitude * FMath::Sin(Time * BobFrequency);
 }

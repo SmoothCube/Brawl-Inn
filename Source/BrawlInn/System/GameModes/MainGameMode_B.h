@@ -124,7 +124,7 @@ private:
 	FTimerHandle TH_CountdownTimer;
 
 	UPROPERTY(EditDefaultsOnly)
-	int TimeBeforeMultiplyScoreAgainstLeader = 120;
+	int TimeBeforeMultiplyScoreAgainstLeader = 2;
 
 	FTimerHandle TH_MultiplyScoresAgainstLeaderTimer;
 

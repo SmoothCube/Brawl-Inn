@@ -35,10 +35,18 @@ protected:
 	AGamePlayerController_B* LeadingPlayerController;
 
 	UPROPERTY(EditAnywhere)
-	float LerpAlpha = 0.3;
+	float LerpAlpha = 0.4;
 
 	UPROPERTY(EditAnywhere)
-	FVector Offset = FVector(0, 0, 110);
+	FVector Offset = FVector(0, 0, 135);
 public:	
+	
+	// ********** Bobbing **********
+	float GetBobbingHeight(float Time);
 
+	UPROPERTY(EditAnywhere)
+	float BobFrequency = 5.f;
+
+	UPROPERTY(EditAnywhere)
+	float BobAmplitude = 25.f;
 };
