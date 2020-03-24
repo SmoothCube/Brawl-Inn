@@ -469,8 +469,6 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		bool const bMassIndependentImpulse = !DmgTypeCDO->bScaleMomentumByMass;
 
 		CheckFall(ImpulseDir * ImpulseScale);
-		//GetMesh()->AddImpulse(ImpulseDir * ImpulseScale, ForceSocketName, bMassIndependentImpulse);
-		//ApplyDamageMomentum(DamageAmount, DamageEvent, nullptr, DamageCauser);
 	}
 
 	if (HurtSound && !DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))

@@ -1,4 +1,5 @@
 ﻿,Value,Comment
+AgainstLeaderMultiplier,2,Hvor mye score-verdier blir ganget med hvis spilleren angrepet leder
 Fall,20,
 FellOutOfWorld,100,Er negativ hvis man falt ut selv
 Throwable,50,

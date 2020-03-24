@@ -15,6 +15,7 @@ class UGameOverlay_B;
 class AGamePlayerController_B;
 class ACameraActor;
 class UAudioComponent;
+class ALeaderFollower_B;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
@@ -118,7 +119,30 @@ private:
 	FTimerHandle StartGameHandle2;
 
 	UPROPERTY(EditDefaultsOnly)
-		int TimeRemaining = 300;
+	int TimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	int TimeBeforeMultiplyScoreAgainstLeader = 120;
+
+	FTimerHandle TH_MultiplyScoresAgainstLeaderTimer;
+
+	
+	// ********** Leader **********
+public:
+	AGamePlayerController_B* GetLeadingPlayerController();
+
+	void StartMultiplyingScores();
+
+	bool ShouldUseScoreMultiplier();
+protected:
+	bool bMultiplyScoresAgainstLeader = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AgainstLeaderMultiplier = 2.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ALeaderFollower_B> BP_LeaderFollower;
 };
+

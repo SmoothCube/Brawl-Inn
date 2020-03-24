@@ -160,7 +160,6 @@ void APlayerCharacter_B::Die()
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
-	BLog("DIE");
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
 	PlayerController->TryRespawn(RespawnDelay);
@@ -271,7 +270,14 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (EventInstigator == PlayerController)
 		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-
+	float Score = DamageAmount;
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode && GameMode->ShouldUseScoreMultiplier())
+	{
+		if (PlayerController == GameMode->GetLeadingPlayerController())
+			Score *= 2;
+	}
+	
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		if (LastHitBy) // Hit by someone before falling out of the world!
@@ -279,12 +285,12 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
 			if (OtherPlayerController)
 			{
-				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(Score);
 			}
 		}
 		else
 		{
-			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-DamageAmount);
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-Score);
 		}
 	}
 	else
@@ -292,7 +298,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
 		if (OtherPlayerController)
 		{
-			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(DamageAmount);
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(Score);
 		}
 	}
 
@@ -345,7 +351,7 @@ void APlayerCharacter_B::AddStun(const int Strength)
 	if (GameInstance)
 		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 
-	switch (StunAmount)	//slem gonza	
+	switch (StunAmount)
 	{
 	case 0:
 		break;
