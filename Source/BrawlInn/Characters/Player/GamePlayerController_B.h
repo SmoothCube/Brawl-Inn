@@ -89,7 +89,7 @@ protected:
 public:
 	void TryRespawn(const float ReSpawnDelay);
 
-	void SetHealthWidget(UColoredTextBlock_B* Widget);
+	void SetScoreTextBlock(UColoredTextBlock_B* TextBlock);
 protected:
 
 	UPROPERTY()

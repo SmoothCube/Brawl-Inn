@@ -295,20 +295,17 @@ void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
 		GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &AGamePlayerController_B::Respawn, ReSpawnDelay, false);
 }
 
-void AGamePlayerController_B::SetHealthWidget(UColoredTextBlock_B* Widget)
+void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 {
-	ScoreTextBlock = Widget;
+	ScoreTextBlock = TextBlock;
 	UScoreSubSystem_B* ScoreSubSystem = GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
-	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(Widget))
-	{
-		ScoreSubSystem->OnScoreValuesChanged.AddUObject(Widget, &UColoredTextBlock_B::UpdateScore);
-	}
+	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(TextBlock))
+		ScoreSubSystem->OnScoreValuesChanged.AddUObject(TextBlock, &UColoredTextBlock_B::UpdateScore);
 }
 
 void AGamePlayerController_B::Debug_Spawn() const
 {
 #if WITH_EDITOR
-	BScreen("Editor");
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());

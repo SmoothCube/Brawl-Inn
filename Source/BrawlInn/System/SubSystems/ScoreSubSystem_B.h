@@ -8,27 +8,27 @@
 #include "ScoreSubSystem_B.generated.h"
 
 DECLARE_EVENT_OneParam(UScoreSubSystem_B, FOnScoreValuesChanged, FScoreValues);
+DECLARE_EVENT(UScoreSubSystem_B, OnScoreValuesChanged_NoParam);
 
 UCLASS()
 class BRAWLINN_API UScoreSubSystem_B : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
-private:
-	/** Implement this for initialization of instances of the system */
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
-	/** Implement this for deinitialization of instances of the system */
-	virtual void Deinitialize() override;
 
 public:
 	void AddScore(int Score);
-	
+
 	void ResetScoreValues();
-	
+
 	FScoreValues GetScoreValues() const;
 
 	FOnScoreValuesChanged OnScoreValuesChanged;
+	OnScoreValuesChanged_NoParam OnScoreValuesChanged_NoParam;
 private:
 
 	FScoreValues ScoreValues;
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+		float LastScoreValueAdded = 0.f;
 };

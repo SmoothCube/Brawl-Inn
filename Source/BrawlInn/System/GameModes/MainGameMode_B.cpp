@@ -5,7 +5,6 @@
 #include "Engine/TriggerBox.h"
 #include "Components/ShapeComponent.h"
 #include "Components/AudioComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -13,7 +12,6 @@
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "System/Camera/GameCamera_B.h"
@@ -39,7 +37,7 @@ void AMainGameMode_B::BeginPlay()
 	Super::BeginPlay();
 
 	MainMusicComponent->Stop();
-	
+
 	//find and cache score values
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
@@ -64,6 +62,8 @@ void AMainGameMode_B::BeginPlay()
 	{
 		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
+
+		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged_NoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
 
@@ -95,9 +95,9 @@ void AMainGameMode_B::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
 	TrackingBox = Cast<ATriggerBox>(Actors[0]);
 	if (TrackingBox)
-	{
 		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AMainGameMode_B::OnTrackingBoxEndOverlap);
-	}
+
+	
 }
 
 void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -109,17 +109,14 @@ void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AMainGameMode_B::PreStartGame()
 {
 	if (GameInstance && Countdown)
-	{
 		UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f);
-	}
 
 	GetWorld()->GetTimerManager().SetTimer(CountDownHandle, [&]()
-		{
-			if (Overlay)
-			{
-				Overlay->UpdateTimerText(Timer--);
-			}
-		}, 1, true, 0);
+	{
+		if (Overlay)
+			Overlay->UpdateTimerText(Timer--);
+		
+	}, 1, true, 0);
 
 	GetWorld()->GetTimerManager().SetTimer(StartGameHandle2, [&]()
 		{
@@ -130,31 +127,29 @@ void AMainGameMode_B::PreStartGame()
 
 void AMainGameMode_B::UpdateClock()
 {
-	if (Overlay)
-	{
-		Overlay->UpdateTimerText(--TimeRemaining);
-		if (TimeRemaining < 0)
-			OnGameOver.Broadcast();
-	}
+	if (!Overlay)
+		return;
+	
+	Overlay->UpdateTimerText(--TimeRemaining);
+	if (TimeRemaining < 0)
+		OnGameOver.Broadcast();
 }
 
 void AMainGameMode_B::StartGame()
 {
 	OnGameStart.Broadcast();
-	
-	if (GameInstance->GameIsScoreBased())
-	{
-		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
-	}
 
-	GetWorld()->GetTimerManager().SetTimer(StartGameHandle, this, &AMainGameMode_B::StartMultiplyingScores,TimeBeforeMultiplyScoreAgainstLeader, false);
+	if (GameInstance->GameIsScoreBased())
+		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
+
+	GetWorld()->GetTimerManager().SetTimer(StartGameHandle, this, &AMainGameMode_B::StartMultiplyingScores, TimeBeforeMultiplyScoreAgainstLeader, false);
 
 	EnableControllerInputs();
 
 	if (GameInstance && Birds)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), Birds, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f, FMath::FRandRange(0, 100));
-	}
+		UGameplayStatics::PlaySound2D(GetWorld(), Birds,
+			0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f,
+			FMath::FRandRange(0, 100));
 
 	if (GameInstance && MainMusicComponent)
 	{
@@ -163,7 +158,6 @@ void AMainGameMode_B::StartGame()
 		MainMusicComponent->Play();
 	}
 
-	
 }
 
 void AMainGameMode_B::EndGame()
@@ -179,6 +173,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 
 	if (!IsValid(PauseMenuWidget))
 		return;
+	
 	PauseMenuWidget->MenuTick();
 }
 
@@ -205,19 +200,24 @@ void AMainGameMode_B::ResumeGame()
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
+void AMainGameMode_B::CallOnAnyScoreChange() const
+{
+	OnAnyScoreChange.Broadcast();
+}
+
 void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	
+
 	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
 	if (Character)
 	{
 		//Checks to see if the player is still overlapping. Same method as in DragArea
 		TArray<AActor*> OverlappingActors;
-		if(TrackingBox)
+		if (TrackingBox)
 			TrackingBox->GetOverlappingActors(OverlappingActors);
 		if (OverlappingActors.Find(Character) == INDEX_NONE)
 		{
-			if(!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive())	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
+			if (!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive())	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
 				Character->Die();
 		}
 	}
@@ -245,13 +245,12 @@ AGamePlayerController_B* AMainGameMode_B::GetLeadingPlayerController()
 {
 	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
 	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
-	{
-		return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-	});
+		{
+			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+		});
 	if (TempPlayerControllers.IsValidIndex(0) && TempPlayerControllers[0])
 		return TempPlayerControllers[0];
-	else
-		return nullptr;
+	return nullptr;
 }
 
 void AMainGameMode_B::StartMultiplyingScores()
@@ -263,7 +262,7 @@ void AMainGameMode_B::StartMultiplyingScores()
 		BError("Spawning LeaderFollower Failed!");
 }
 
-bool AMainGameMode_B::ShouldUseScoreMultiplier()
+bool AMainGameMode_B::ShouldUseScoreMultiplier() const
 {
 	return bMultiplyScoresAgainstLeader;
 }

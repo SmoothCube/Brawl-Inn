@@ -20,6 +20,7 @@ public:
 	ALeaderFollower_B();
 	// ********** Overrides **********
 	virtual void BeginPlay() override;
+	
 	virtual void Tick(float DeltaTime) override;
 
 
@@ -30,7 +31,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 	
-	void ScoreUpdated(const FScoreValues ScoreValues);
+	void ScoreUpdated();
 
 	AGamePlayerController_B* LeadingPlayerController;
 

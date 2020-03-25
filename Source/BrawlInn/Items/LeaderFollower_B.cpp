@@ -32,16 +32,9 @@ void ALeaderFollower_B::BeginPlay()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		for (auto& PlayerController : GameMode->PlayerControllers)
-		{
-			UScoreSubSystem_B* ScoreSubSystem = PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
-			if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(this))
-			{
-				ScoreSubSystem->OnScoreValuesChanged.AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
-			}
-		}
+		GameMode->OnAnyScoreChange.AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
 	}
-	ScoreUpdated(FScoreValues());
+	ScoreUpdated();
 }
 
 // Called every frame
@@ -49,12 +42,12 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float Height = GetBobbingHeight(GetGameTimeSinceCreation());
-	if(LeadingPlayerController)
-		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset + FVector(0.f,0.f, Height +BobAmplitude), LerpAlpha));
+	const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
+	if (LeadingPlayerController)
+		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset + FVector(0.f, 0.f, Height + BobAmplitude), LerpAlpha));
 }
 
-void ALeaderFollower_B::ScoreUpdated(const FScoreValues ScoreValues)
+void ALeaderFollower_B::ScoreUpdated()
 {
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())

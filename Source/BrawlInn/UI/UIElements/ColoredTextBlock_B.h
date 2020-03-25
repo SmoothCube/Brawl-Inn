@@ -7,6 +7,8 @@
 #include "System/Structs/ScoreValues.h"
 #include "ColoredTextBlock_B.generated.h"
 
+class AGamePlayerController_B;
+
 UCLASS()
 class BRAWLINN_API UColoredTextBlock_B : public UTextBlock
 {
@@ -15,4 +17,7 @@ class BRAWLINN_API UColoredTextBlock_B : public UTextBlock
 public:
 	void UpdateScore(FScoreValues ScoreValues);
 	void SetTextColor(FLinearColor Color);
+
+	UPROPERTY()
+	AGamePlayerController_B* OwningPlayer = nullptr;
 };

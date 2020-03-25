@@ -4,18 +4,12 @@
 
 #include "BrawlInn.h"
 
-void UScoreSubSystem_B::Initialize(FSubsystemCollectionBase& Collection)
-{
-}
-
-void UScoreSubSystem_B::Deinitialize()
-{
-}
-
 void UScoreSubSystem_B::AddScore(int Score)
 {
+	LastScoreValueAdded = Score;
 	ScoreValues.Score += Score;
 	OnScoreValuesChanged.Broadcast(ScoreValues);
+	OnScoreValuesChanged_NoParam.Broadcast();
 }
 
 void UScoreSubSystem_B::ResetScoreValues()

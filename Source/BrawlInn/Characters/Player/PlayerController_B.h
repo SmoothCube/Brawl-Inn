@@ -110,6 +110,8 @@ public:
 	void SetPlayerInfo(const FPlayerInfo& Info);
 	
 protected:
+
+	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Variables")

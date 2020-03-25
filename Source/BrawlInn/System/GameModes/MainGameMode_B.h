@@ -20,6 +20,7 @@ class ALeaderFollower_B;
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameOver);
 DECLARE_EVENT(AMainGameMode_B, FGameStart);
+DECLARE_EVENT(AMainGameMode_B, FOnAnyScoreChange);
 
 UCLASS()
 class BRAWLINN_API AMainGameMode_B : public AGameMode_B
@@ -58,6 +59,12 @@ public:
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
 	FGameStart OnGameStart;
+
+	// ********** Score	 **********
+
+	FOnAnyScoreChange OnAnyScoreChange;
+
+	void CallOnAnyScoreChange() const;
 	
 	// ********** Tracking **********
 	UFUNCTION()
@@ -135,7 +142,7 @@ public:
 
 	void StartMultiplyingScores();
 
-	bool ShouldUseScoreMultiplier();
+	bool ShouldUseScoreMultiplier() const;
 protected:
 	bool bMultiplyScoresAgainstLeader = false;
 

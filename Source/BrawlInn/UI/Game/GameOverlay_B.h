@@ -6,9 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "GameOverlay_B.generated.h"
 
-class UGameInstance_B;
+class AGamePlayerController_B;
+class AMainGameMode_B;
 class UColoredTextBlock_B;
 class UTextBlock;
+class UVerticalBox;
 
 UCLASS()
 class BRAWLINN_API UGameOverlay_B : public UUserWidget
@@ -18,6 +20,9 @@ class BRAWLINN_API UGameOverlay_B : public UUserWidget
 protected:
 
 	virtual void NativeOnInitialized() override;
+
+	UPROPERTY(meta = (BindWidget))
+		UVerticalBox* ScoreBox;
 
 	UPROPERTY(meta = (BindWidget))
 		UColoredTextBlock_B* P1;
@@ -32,7 +37,14 @@ protected:
 		UColoredTextBlock_B* P4;
 
 	UPROPERTY()
-		UGameInstance_B* GameInstance = nullptr;
+		AMainGameMode_B* GameMode = nullptr;
+
+	// ********** Score **********
+
+	void UpdateScoreList();
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<UColoredTextBlock_B*> ScoreArray;
 
 
 	// ********** Timer **********
