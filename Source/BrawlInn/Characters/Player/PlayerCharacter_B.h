@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "Characters/Character_B.h"
 #include "Characters/Player/PlayerInfo.h"
+#include "System/Structs/ScoreValues.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UScoreText_B;
+class UUserWidget;
+class UWidgetComponent;
+class UNiagaraSystem;
 class AController;
 class UGameInstance_B;
 class UDataTable_B;
@@ -38,7 +43,7 @@ public:
 	UNiagaraComponent* GetChiliBrewParticle() const;
 
 	USoundCue* GetChiliBrewSound() const;
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
@@ -46,7 +51,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_ChiliBrew = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* ChiliBrewSound = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
@@ -90,13 +95,38 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
 		float HoldTimeDecreasePerButtonMash = 0.05f;
 
-	// ********** Damage **********
+	// ********** Score **********
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	void SetLastHitBy(AController* EventInstigator);
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Info")
+	void DisplayScoreVisuals(FScoreValues ScoreValues);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ScoreParticleTimerStart();
+
+	UFUNCTION(BlueprintCallable)
+		void OnScoreParticleTimerUpdate(float Value);
+
+	UFUNCTION(BlueprintCallable)
+		void OnScoreParticleTimerFinished();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score|Visuals")
+		UNiagaraSystem* ScoreParticle = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score|Audio")
+		USoundCue* ScoreSound = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score|Visuals")
+		TSubclassOf<UScoreText_B> BP_ScoreTextWidget = nullptr;
+
+	UScoreText_B* ScoreTextWidget = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UWidgetComponent* ScoreTextWidgetComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Score")
 		float RespawnDelay = 1.f;
 
 	FTimerHandle LastHitByTimer_TH;

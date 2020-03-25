@@ -4,7 +4,7 @@
 
 #include "BrawlInn.h"
 
-void UScoreSubSystem_B::AddScore(int Score)
+void UScoreSubSystem_B::AddScore(const int Score)
 {
 	LastScoreValueAdded = Score;
 	ScoreValues.Score += Score;
