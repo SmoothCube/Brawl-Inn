@@ -274,7 +274,9 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		if (PlayerController == GameMode->GetLeadingPlayerController())
+		auto LeadingControllers = GameMode->GetLeadingPlayerController();
+
+		if ((LeadingControllers.Num() == 1) && (PlayerController == LeadingControllers[0]))
 			Score *= 2;
 	}
 	

@@ -13,7 +13,6 @@
 #include "System/SubSystems/ScoreSubSystem_B.h"
 
 
-// Sets default values
 ALeaderFollower_B::ALeaderFollower_B()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -25,7 +24,6 @@ ALeaderFollower_B::ALeaderFollower_B()
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-// Called when the game starts or when spawned
 void ALeaderFollower_B::BeginPlay()
 {
 	Super::BeginPlay();
@@ -44,13 +42,12 @@ void ALeaderFollower_B::BeginPlay()
 	ScoreUpdated(FScoreValues());
 }
 
-// Called every frame
 void ALeaderFollower_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	float Height = GetBobbingHeight(GetGameTimeSinceCreation());
-	if(LeadingPlayerController)
+	if(LeadingPlayerController && IsValid(LeadingPlayerController->GetPawn()))
 		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset + FVector(0.f,0.f, Height +BobAmplitude), LerpAlpha));
 }
 
@@ -59,13 +56,19 @@ void ALeaderFollower_B::ScoreUpdated(const FScoreValues ScoreValues)
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		AGamePlayerController_B* FoundLeadingPlayerController = GameMode->GetLeadingPlayerController();
-		if (FoundLeadingPlayerController)
+		auto FoundLeadingPlayerController = GameMode->GetLeadingPlayerController();
+
+		if (FoundLeadingPlayerController.Num() == 1)
 		{
-			if (FoundLeadingPlayerController->GetPawn())
+			if (FoundLeadingPlayerController[0]->GetPawn())
 			{
-				LeadingPlayerController = FoundLeadingPlayerController;
+				Mesh->SetHiddenInGame(false);
+				LeadingPlayerController = FoundLeadingPlayerController[0];
 			}
+		}
+		else
+		{
+			Mesh->SetHiddenInGame(true);
 		}
 	}
 }

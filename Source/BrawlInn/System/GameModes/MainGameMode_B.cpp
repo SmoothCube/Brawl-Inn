@@ -162,17 +162,20 @@ void AMainGameMode_B::StartGame()
 		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
 		MainMusicComponent->Play();
 	}
-
-	
 }
 
 void AMainGameMode_B::EndGame()
 {
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(GetLeadingPlayerController())), BP_VictoryScreen);
-	VictoryScreen->AddToViewport();
-}
+	auto LeadingControllers = GetLeadingPlayerController();
+	BWarn("Number of leaders: %d", LeadingControllers.Num());
 
+	if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
+	{
+		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(LeadingControllers[0])), BP_VictoryScreen);
+		VictoryScreen->AddToViewport();
+	}
+}
 void AMainGameMode_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -241,22 +244,37 @@ void AMainGameMode_B::ResetMusic()
 	}
 }
 
-AGamePlayerController_B* AMainGameMode_B::GetLeadingPlayerController()
+TArray<AGamePlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
 {
 	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
 	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
 	{
 		return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 	});
-	if (TempPlayerControllers.IsValidIndex(0) && TempPlayerControllers[0])
-		return TempPlayerControllers[0];
-	else
-		return nullptr;
+	if (!TempPlayerControllers.IsValidIndex(0) || !TempPlayerControllers[0])
+	{
+		BError("Invalid Leader!");  return {};
+	}
+
+	TArray<AGamePlayerController_B*> ControllersToRemove;
+	int HighestScore = TempPlayerControllers[0]->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+	for (int i = 1; i < TempPlayerControllers.Num(); i++)
+	{
+		if (TempPlayerControllers[i]->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score != HighestScore)
+		{
+			ControllersToRemove.Add(TempPlayerControllers[i]);
+		}
+	}
+	for (auto c : ControllersToRemove)
+	{
+		TempPlayerControllers.Remove(c);
+	}
+
+	return TempPlayerControllers;
 }
 
 void AMainGameMode_B::StartMultiplyingScores()
 {
-	BWarn("Starting leader multiplier");
 	bMultiplyScoresAgainstLeader = true;
 
 	if (!GetWorld()->SpawnActor<ALeaderFollower_B>(BP_LeaderFollower, FTransform()))

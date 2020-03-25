@@ -24,16 +24,17 @@ public:
 
 
 	// ********** Components **********
-
-
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 	
+	// ********** Find Leader **********
 	void ScoreUpdated(const FScoreValues ScoreValues);
 
 	AGamePlayerController_B* LeadingPlayerController;
+	
 
+	// ********** Positioning **********
 	UPROPERTY(EditAnywhere)
 	float LerpAlpha = 0.4;
 
