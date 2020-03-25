@@ -536,26 +536,20 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	switch (ChargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1:
-		BWarn("Setting Charge 1: character %s", *GetNameSafe(this));
-
 		ShouldPlaySound = false;
 		SoundPitch = 0.8f;
 		break;
 	case EChargeLevel::EChargeLevel2:
-		BWarn("Setting Charge 2: character %s", *GetNameSafe(this));
-
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
 		SoundPitch = 1.0f;
 		break;
 	case EChargeLevel::EChargeLevel3:
-		BWarn("Setting Charge 3: character %s", *GetNameSafe(this));
 		GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
 		SoundPitch = 1.2f;
 		break;
 	default:
-		BWarn("Setting No Charge: character %s", *GetNameSafe(this));
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 		ShouldPlaySound = false;
 		break;
