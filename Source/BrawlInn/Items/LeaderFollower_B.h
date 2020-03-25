@@ -25,8 +25,6 @@ public:
 
 
 	// ********** Components **********
-
-
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
@@ -34,7 +32,9 @@ protected:
 	void ScoreUpdated();
 
 	AGamePlayerController_B* LeadingPlayerController;
+	
 
+	// ********** Positioning **********
 	UPROPERTY(EditAnywhere)
 	float LerpAlpha = 0.4;
 

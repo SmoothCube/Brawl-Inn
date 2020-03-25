@@ -138,7 +138,7 @@ private:
 	
 	// ********** Leader **********
 public:
-	AGamePlayerController_B* GetLeadingPlayerController();
+	TArray<AGamePlayerController_B*> GetLeadingPlayerController();
 
 	void StartMultiplyingScores();
 

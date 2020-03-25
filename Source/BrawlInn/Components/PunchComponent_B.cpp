@@ -167,8 +167,7 @@ void UPunchComponent_B::PunchEnd()
 	OwningCharacter->SetIsCharging(false);
 	OwningCharacter->SetChargeLevel(EChargeLevel::ENotCharging);
 
-	if (!GetIsPunching()) { BWarn("Not Punching!"); return; }
-	BWarn("PunchEnd: Character: %s", *GetNameSafe(OwningCharacter));
+	if (!GetIsPunching()) {return; }
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningCharacter->NormalMaxWalkSpeed;
@@ -245,17 +244,14 @@ void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* Player
 		switch (PlayerThatPunched->GetChargeLevel())
 		{
 		case EChargeLevel::EChargeLevel1:
-			BWarn("Getting Punched with charge 1: character %s", *GetNameSafe(OwningCharacter));
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength);
 			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection * PlayerThatPunched->PunchComponent->Level1PunchPushStrength);
 			break;
 		case EChargeLevel::EChargeLevel2:
-			BWarn("Getting Punched with charge 2: character %s", *GetNameSafe(OwningCharacter));
 			OwningCharacter->AddStun(PlayerThatPunched->StunStrength * 2);
 			OwningCharacter->GetCharacterMovement()->AddImpulse(PunchDirection * PlayerThatPunched->PunchComponent->Level2PunchPushStrength);
 			break;
 		case EChargeLevel::EChargeLevel3:
-			BWarn("Getting Punched with charge 3: character %s", *GetNameSafe(OwningCharacter));
 			OwningCharacter->CheckFall(InPunchStrength);
 			return;
 		default:
