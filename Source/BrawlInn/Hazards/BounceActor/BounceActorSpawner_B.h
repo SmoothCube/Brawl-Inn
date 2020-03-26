@@ -24,6 +24,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables")
 		TSubclassOf<ABounceActor_B> ActorToSpawn;
 
-	UPROPERTY(EditAnywhere, Category = "Audio")
+	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* SpawnCue;
 };

@@ -33,7 +33,7 @@ ARespawnPawn_B::ARespawnPawn_B()
 void ARespawnPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilThrow);
+	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::StartThrow, TimeBeforeCanThrow);
 
 	GameCamera = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
 
@@ -64,12 +64,21 @@ void ARespawnPawn_B::PossessedBy(AController* NewController)
 	}
 }
 
+void ARespawnPawn_B::StartThrow()
+{
+	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::ThrowBarrel, TimeUntilAutoThrow);
+	bThrowHasStarted = true;
+}
+
 void ARespawnPawn_B::ThrowBarrel()
 {
+	if (!bThrowHasStarted)
+		return;
+	
 	if (!bBarrelIsThrown)
 	{
 		ABounceActorSpawner_B* BarrelSpawner = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
-		if (!BarrelSpawner) return;
+		check(IsValid(BarrelSpawner));
 
 		Barrel = BarrelSpawner->SpawnBounceActor(GetActorLocation());
 
@@ -83,17 +92,22 @@ void ARespawnPawn_B::ThrowBarrel()
 				GameMode->AddCameraFocusPoint(Barrel);
 				GameMode->RemoveCameraFocusPoint(this);
 			}
+			bBarrelIsThrown = true;
+			GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::SetCanBreakBarrel, TimeBeforeCanBreakBarrel);
 		}
-		bBarrelIsThrown = true;
-		GetWorld()->GetTimerManager().ClearTimer(TH_ThrowTimer);
 	}
-	else if (Barrel)
+	else if (bCanBreakBarrel && Barrel)
 	{
 		Barrel->BreakBarrel();
 	}
 }
 
-void ARespawnPawn_B::SetInputVectorX(float X)
+void ARespawnPawn_B::SetCanBreakBarrel()
+{
+	bCanBreakBarrel = true;
+}
+
+void ARespawnPawn_B::SetInputVectorX(const float X)
 {
 	if (!bBarrelIsThrown)
 	{
@@ -104,7 +118,7 @@ void ARespawnPawn_B::SetInputVectorX(float X)
 	}
 }
 
-void ARespawnPawn_B::SetInputVectorY(float Y)
+void ARespawnPawn_B::SetInputVectorY(const float Y)
 {
 	if (!bBarrelIsThrown)
 	{

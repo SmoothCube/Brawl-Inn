@@ -7,7 +7,6 @@
 #include "Sound/SoundCue.h"
 #include "DestructibleComponent.h"
 
-#include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 
@@ -24,17 +23,17 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 
 	if (SpawnCue)
 	{
-		float volume = 1.f;
+		float Volume = 1.f;
 		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
 		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			SpawnCue,
 			GetActorLocation(),
-			volume
+			Volume
 		);
 	}
 
