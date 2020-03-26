@@ -369,6 +369,7 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 
 void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
+	BWarn("Setting Charge Level to %d!", (int)chargeLevel);
 	Super::SetChargeLevel(chargeLevel);
 	float VibrationStrength = 0.f;
 	switch (chargeLevel)

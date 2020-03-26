@@ -11,6 +11,6 @@ void UChargeLevel1_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 {
 	Super::Notify(MeshComp, Animation);
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
-	if (Player)
+	if (Player && Player->IsCharging())
 		Player->SetChargeLevel(EChargeLevel::EChargeLevel1);
 }

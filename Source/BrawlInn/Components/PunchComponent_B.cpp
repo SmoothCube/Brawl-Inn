@@ -51,7 +51,7 @@ void UPunchComponent_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void UPunchComponent_B::PunchStart()
 {
 	if (!OwningCharacter) { BError("%s No OwningCharacter found for PunchComponent!", *GetNameSafe(this)); return; }
-	OwningCharacter->bIsCharging = false;
+	OwningCharacter->SetIsCharging(false);
 	SetIsPunching(true);
 	OwningCharacter->MakeVulnerable();
 

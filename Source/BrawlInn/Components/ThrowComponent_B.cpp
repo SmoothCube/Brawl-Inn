@@ -71,7 +71,7 @@ bool UThrowComponent_B::TryStartCharge()
 	}
 	else if (OwningCharacter->GetChargeParticle())
 	{
-		OwningCharacter->bIsCharging = true;
+		OwningCharacter->SetIsCharging(true);
 		OwningCharacter->GetChargeParticle()->Activate();
 	}
 
@@ -80,12 +80,15 @@ bool UThrowComponent_B::TryStartCharge()
 
 void UThrowComponent_B::StartThrow()
 {
+
+	BWarn("Starting Throw!");
+
 	if(HoldComponent)
 		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
 			return;
-	if (OwningCharacter->bIsCharging)
+	if (OwningCharacter->IsCharging())
 	{
-		OwningCharacter->bIsCharging = false;
+		OwningCharacter->SetIsCharging(false);
 		if (OwningCharacter && OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
@@ -124,7 +127,7 @@ void UThrowComponent_B::Throw()
 	else
 		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
 
-	OwningCharacter->bIsCharging = false;
+	OwningCharacter->SetIsCharging(false);
 	bIsThrowing = false;
 }
 
