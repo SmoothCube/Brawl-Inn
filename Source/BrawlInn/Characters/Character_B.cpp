@@ -149,10 +149,10 @@ void ACharacter_B::CheckFall(FVector MeshForce)
 {
 	if (bIsInvulnerable)
 		return;
-	Fall(MeshForce, FallRecoveryTime);
+	Fall(MeshForce, FallRecoveryTime, true);
 }
 
-void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime)
+void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 {
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
@@ -268,7 +268,7 @@ void ACharacter_B::Dropped_Implementation()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-	Fall(FVector::ZeroVector, FallRecoveryTime);
+	Fall(FVector::ZeroVector, FallRecoveryTime, true);
 	//	GetMesh()->SetSimulatePhysics(true); //should be unnecceCharacterMeshsary
 	HoldingCharacter = nullptr;
 	SetActorRotation(FRotator(0, 0, 0));
@@ -289,7 +289,7 @@ void ACharacter_B::Use_Implementation()
 		{
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
 		}
-		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime);
+		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime, true);
 		HoldingCharacter = nullptr;
 	}
 
@@ -436,7 +436,7 @@ EState ACharacter_B::GetState() const
 
 void ACharacter_B::Die()
 {
-	Fall();
+	Fall(FVector::ZeroVector, -1, false);
 	bIsAlive = false;
 }
 

@@ -90,7 +90,7 @@ protected:
 public:
 	void CheckFall(FVector MeshForce);
 protected:
-	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1, bool bPlaySound = true);
 
 	virtual void StandUp();
 

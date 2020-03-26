@@ -176,16 +176,16 @@ void APlayerCharacter_B::Die()
 	PlayerController->UnPossess();
 }
 
-void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime)
+void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 {
-	Super::Fall(MeshForce, RecoveryTime);
+	Super::Fall(MeshForce, RecoveryTime, true);
 	bCanBeHeld = true;
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 	if (IsValid(DirectionIndicatorPlane))
 		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
 
-	if (IsValid(HighShatterSound))
+	if (IsValid(HighShatterSound) && bPlaySound)
 	{
 		float Volume = 1.f;
 		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
