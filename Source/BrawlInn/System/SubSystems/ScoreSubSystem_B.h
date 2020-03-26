@@ -28,7 +28,4 @@ private:
 
 	FScoreValues ScoreValues;
 
-protected:
-	UPROPERTY(BlueprintReadOnly)
-		float LastScoreValueAdded = 0.f;
 };

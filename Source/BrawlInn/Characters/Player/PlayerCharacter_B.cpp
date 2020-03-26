@@ -336,9 +336,9 @@ void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
 
 void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 {
-	if (ScoreValues.Score <= 0)
+	if (ScoreValues.LastScoreAdded <= 0)
 		return;
-	
+
 	check(IsValid(GameInstance));
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ScoreParticle, GetActorLocation());
@@ -348,7 +348,7 @@ void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), Volume, Pitch);
 
-	ScoreTextWidget->DisplayScore(ScoreValues.Score);
+	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded);
 
 	ScoreParticleTimerStart();
 }
@@ -423,12 +423,24 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 	if (!PlayerController)
 		return;
 
-	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.AddUObject(this, &APlayerCharacter_B::DisplayScoreVisuals);
+	DisplayScoreVisualsHandle = PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.AddUObject(this, &APlayerCharacter_B::DisplayScoreVisuals);
 
 	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
 		{
 			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
 		});
+
+}
+
+void APlayerCharacter_B::UnPossessed()
+{
+	AGamePlayerController_B* OldController = Cast<AGamePlayerController_B>(Controller);
+	if (OldController)
+	{
+		OldController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.Remove(DisplayScoreVisualsHandle);
+	}
+
+	Super::UnPossessed();
 
 }
 

@@ -6,7 +6,7 @@
 
 void UScoreSubSystem_B::AddScore(const int Score)
 {
-	LastScoreValueAdded = Score;
+	ScoreValues.LastScoreAdded = Score;
 	ScoreValues.Score += Score;
 	OnScoreValuesChanged.Broadcast(ScoreValues);
 	OnScoreValuesChanged_NoParam.Broadcast();

@@ -9,4 +9,7 @@ struct FScoreValues {
 public:
 	UPROPERTY(EditAnywhere)
 		int Score = 0;
+
+	UPROPERTY(EditAnywhere)
+		int LastScoreAdded = 0;
 };
