@@ -13,6 +13,7 @@ class UGameInstance_B;
 class UWidgetSwitcher;
 class UButton_B;
 class AMenuGameMode_B;
+class UVideoSettingsWidget_B;
 
 UCLASS()
 class BRAWLINN_API UMainMenu_B : public UUserWidget
@@ -39,20 +40,24 @@ protected:
 	UFUNCTION()
 		void BackFromSettingsButtonClicked();
 
+	UFUNCTION()
+		void VideoSettingsBackButtonClicked();
+
 	// ********** Sliders **********
 
 	UFUNCTION()
-	void OnSfxValueChanged(float Value);
+		void OnSfxValueChanged(float Value);
 
 	UFUNCTION()
-	void OnMasterValueChanged(float Value);
+		void OnMasterValueChanged(float Value);
 
 	UFUNCTION()
-	void OnMusicValueChanged(float Value);
+		void OnMusicValueChanged(float Value);
+
 
 	// ********** Widgets **********
 
-	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UButton_B* PlayButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -70,12 +75,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UWidgetSwitcher* WidgetSwitcher;
 
+	UPROPERTY(meta = (BindWidget))
+		UVideoSettingsWidget_B* VideoSettingsWidget;
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		USlider_B* MasterSlider;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		USlider_B* MusicSlider;
-	
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		USlider_B* SfxSlider;
 
@@ -84,7 +92,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UTextBlock* MasterValueText;
-	
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UTextBlock* MusicValueText;
 	// ********** Misc. **********

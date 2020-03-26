@@ -12,6 +12,7 @@
 #include "System/GameModes/MenuGameMode_B.h"
 #include "TextBlock.h"
 #include "UI/Buttons/Button_B.h"
+#include "UI/Widgets/VideoSettingsWidget_B.h"
 
 void UMainMenu_B::NativeConstruct()
 {
@@ -27,6 +28,8 @@ void UMainMenu_B::NativeConstruct()
 	BackFromSettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
+
+	VideoSettingsWidget->BackButton->OnClicked.AddDynamic(this, &UMainMenu_B::VideoSettingsBackButtonClicked);
 
 	UIElementsWithInterface.Add(PlayButton);
 	UIElementsWithInterface.Add(SettingsButton);
@@ -76,7 +79,11 @@ void UMainMenu_B::SettingsButtonClicked()
 
 void UMainMenu_B::CreditsButtonClicked()
 {
-	BScreen("Credits: SmoothCube");
+	WidgetSwitcher->SetActiveWidgetIndex(2);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(VideoSettingsWidget->ApplyButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
 void UMainMenu_B::QuitButtonClicked()
@@ -117,4 +124,13 @@ void UMainMenu_B::OnMusicValueChanged(const float Value)
 
 	MusicValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
 
+}
+
+void UMainMenu_B::VideoSettingsBackButtonClicked()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(0);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(CreditsButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
 }

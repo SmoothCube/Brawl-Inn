@@ -70,7 +70,7 @@ protected:
 public:
 	virtual void Die() override;
 protected:
-	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1) override;
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1, bool bPlaySound = true) override;
 
 	virtual void StandUp() override;
 
