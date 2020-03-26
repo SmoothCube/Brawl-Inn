@@ -238,6 +238,7 @@ bool AGamePlayerController_B::TryEndPunchCharge()
 		PlayerCharacter->IsCharging())
 	{
 		PlayerCharacter->PunchComponent->SetIsPunching(true);
+		PlayerCharacter->PunchComponent->SetCanPunch(false);
 		PlayerCharacter->SetIsCharging(false);
 		return true;
 	}
@@ -253,7 +254,6 @@ bool AGamePlayerController_B::TryPunch()
 		PlayerCharacter->PunchComponent->GetCanPunch()
 		)
 	{
-		BWarn("Trying punch!");
 		PlayerCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);
 		PlayerCharacter->PunchComponent->SetIsPunching(true);
 		PlayerCharacter->PunchComponent->SetCanPunch(false);
