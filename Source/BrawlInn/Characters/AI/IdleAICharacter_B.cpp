@@ -2,7 +2,7 @@
 
 #include "IdleAICharacter_B.h"
 
-
+#include "SkeletalMeshMerge.h"
 #include "AI/AIDropPoint_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,7 +15,6 @@
 void AIdleAICharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
-
 	StartLocation = GetActorLocation();
 
 	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
