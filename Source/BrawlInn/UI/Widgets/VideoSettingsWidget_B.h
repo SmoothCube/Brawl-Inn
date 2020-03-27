@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "VideoSettingsWidget_B.generated.h"
 
-class UComboBoxString;
+class UComboBoxString_B;
 class UButton_B;
 
 UCLASS()
@@ -29,18 +29,18 @@ protected:
 		void OnApplyButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
-		UComboBoxString* FullscreenModeBox;
-
-	UPROPERTY(meta = (BindWidget))
-		UComboBoxString* ScreenResolutionBox;
+		UComboBoxString_B* FullscreenModeBox;
 
 public:
 	UPROPERTY(meta = (BindWidget))
-		UButton_B* ApplyButton;
+		UComboBoxString_B* ScreenResolutionBox;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton_B* BackButton;
+		UButton_B* ApplyButton;
 
 protected:
 	TMap<FString, FIntPoint> ScreenResolutions;
+
+	UPROPERTY()
+		TArray<UWidget*> UIElementsWithInterface;
 };
