@@ -15,5 +15,4 @@ void UPlayerThrow_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
 	if (Player)
 		Player->ThrowComponent->Throw();
-	BWarn("Notify Throw!");
 }

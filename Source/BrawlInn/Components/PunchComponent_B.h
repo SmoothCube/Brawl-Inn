@@ -143,8 +143,11 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Dash", meta = (ToolTip = "The percentage of a player's velocity that another character will be pushed with if this player dashes through them"))
-	float DashPushPercentage = 0.5f;
-	
+	float DashPushStrength = 100000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Dash", meta = (ToolTip = "The angle this player pushes others upwards when  dashing through them"))
+	float DashPushUpwardsAngle = 15.f;
+
 	bool GetCanDash();
 
 	void SetCanDash(bool Value);

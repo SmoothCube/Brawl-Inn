@@ -80,9 +80,6 @@ bool UThrowComponent_B::TryStartCharge()
 
 void UThrowComponent_B::StartThrow()
 {
-
-	BWarn("Starting Throw!");
-
 	if(HoldComponent)
 		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
 			return;
