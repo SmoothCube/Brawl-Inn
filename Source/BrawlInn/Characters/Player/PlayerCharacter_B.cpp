@@ -13,6 +13,8 @@
 #include "TimerManager.h"
 #include "WidgetComponent.h"
 
+#include "DrawDebugHelpers.h"
+
 #include "BrawlInn.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HoldComponent_B.h"
@@ -247,7 +249,7 @@ void APlayerCharacter_B::BreakFree()
 		AddActorLocalOffset(HoldingCharacter->GetActorForwardVector() * 100);
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
 		HoldingCharacter->SetState(EState::EWalking);
-		HoldingCharacter->SetIsCharging(false); //TODO set charge level? 
+		HoldingCharacter->SetIsCharging(false);
 		HoldingCharacter->AddStun(PunchesToStun - 1);
 		HoldingCharacter = nullptr;
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -369,7 +371,6 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 
 void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
-	BWarn("Setting Charge Level to %d!", (int)chargeLevel);
 	Super::SetChargeLevel(chargeLevel);
 	float VibrationStrength = 0.f;
 	switch (chargeLevel)
@@ -461,7 +462,15 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	{
 		if (GetState() == EState::EPoweredUp)
 		{
-			OtherCharacter->GetCharacterMovement()->Velocity = (OtherCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * OtherCharacter->PowerupPushStrength;
+
+			FVector Direction = ((OtherCharacter->GetActorLocation()) - GetActorLocation());
+			Direction.Z = 0;
+			Direction.Normalize();
+			Direction = Direction.RotateAngleAxis(PowerupUpwardsAngle, FVector::CrossProduct(Direction, FVector(0, 0, 1.f)).GetSafeNormal());
+
+			Direction *= OtherCharacter->PowerupPushStrength;
+			DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Direction,FColor::Red, true, 3.f);
+			OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
 
 			DamageAmount = PowerupKnockdownScoreAmount;
 		}

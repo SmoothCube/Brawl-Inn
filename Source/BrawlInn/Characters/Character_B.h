@@ -259,7 +259,7 @@ public:
 protected:
 	bool bHasShield = false;
 
-	UPROPERTY(EditAnywhere, Category = "Visuals")
+	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
 		UMaterialInstance* ShieldMat;
 
 	// ********** States **********
@@ -303,7 +303,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HurtSound;
+public:
+	// ********** Powerup **********
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Powerup", meta = (Tooltip = "The strength of which this character will be knocked back when hit by a powered up player"))
+		float PowerupPushStrength = 8000.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Powerup", meta = (Tooltip = "The upwards angle of the powerup knockback"))
+		float PowerupUpwardsAngle = 45.f;
+protected:
 	// ********** Misc. **********
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
@@ -321,7 +328,5 @@ public:
 protected:
 
 	bool bIsAlive = true;
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The strength og which this character will be knocked back when hit by a powered up player"))
-	float PowerupPushStrength = 8000.f;
+
 };
