@@ -13,8 +13,6 @@
 #include "TimerManager.h"
 #include "WidgetComponent.h"
 
-#include "DrawDebugHelpers.h"
-
 #include "BrawlInn.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HoldComponent_B.h"
@@ -469,7 +467,6 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 			Direction = Direction.RotateAngleAxis(PowerupUpwardsAngle, FVector::CrossProduct(Direction, FVector(0, 0, 1.f)).GetSafeNormal());
 
 			Direction *= OtherCharacter->PowerupPushStrength;
-			DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Direction,FColor::Red, true, 3.f);
 			OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
 
 			DamageAmount = PowerupKnockdownScoreAmount;
