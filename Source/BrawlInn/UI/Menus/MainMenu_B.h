@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu_B.generated.h"
 
+class USettingsWidget_B;
 class UTextBlock;
 class IUIElementsInterface_B;
 class USlider_B;
@@ -43,17 +44,6 @@ protected:
 	UFUNCTION()
 		void VideoSettingsBackButtonClicked();
 
-	// ********** Sliders **********
-
-	UFUNCTION()
-		void OnSfxValueChanged(float Value);
-
-	UFUNCTION()
-		void OnMasterValueChanged(float Value);
-
-	UFUNCTION()
-		void OnMusicValueChanged(float Value);
-
 
 	// ********** Widgets **********
 
@@ -70,31 +60,12 @@ protected:
 		UButton_B* QuitButton;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton_B* BackFromSettingsButton;
-
-	UPROPERTY(meta = (BindWidget))
 		UWidgetSwitcher* WidgetSwitcher;
 
 	UPROPERTY(meta = (BindWidget))
-		UVideoSettingsWidget_B* VideoSettingsWidget;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		USlider_B* MasterSlider;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		USlider_B* MusicSlider;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		USlider_B* SfxSlider;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* SfxValueText;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* MasterValueText;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* MusicValueText;
+		USettingsWidget_B* SettingsWidget;
+	
+	
 	// ********** Misc. **********
 
 	UPROPERTY()
@@ -103,5 +74,6 @@ protected:
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
 
+	UPROPERTY()
 	TArray<UWidget*> UIElementsWithInterface;
 };
