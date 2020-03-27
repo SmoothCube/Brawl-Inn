@@ -232,6 +232,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 
 	FVector ThrowDirection = TargetLocation - PlayerLocation;
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
+
 	return true;
 }
 

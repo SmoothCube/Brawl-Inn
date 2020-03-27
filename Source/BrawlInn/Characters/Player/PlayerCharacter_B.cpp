@@ -272,7 +272,11 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
 		const float Trauma = DamageAmount / 100;
 		if (PlayerController)
+		{
+			float Trauma = (float)StunAmount/(float)PunchesToStun;
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
+			BWarn("Vibrating %s's controller!", *GetNameSafe(this));
+		}
 	}
 
 	if (EventInstigator == PlayerController)
@@ -420,10 +424,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 	if (!PlayerController)
 		return;
-
 	DisplayScoreVisualsHandle = PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.AddUObject(this, &APlayerCharacter_B::DisplayScoreVisuals);
-	//PunchComponent->OnPunchHit_D.AddUFunction(PlayerController, FName("PlayControllerVibration"), 1.0f, 0.3f, true, true, true, true);
-
 }
 
 void APlayerCharacter_B::UnPossessed()
