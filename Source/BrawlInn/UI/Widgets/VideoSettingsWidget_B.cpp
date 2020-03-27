@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "VideoSettingsWidget_B.h"
 
 #include "BrawlInn.h"
-#include "Components/ComboBoxString.h"
+#include "UI/UIElements/ComboBoxString_B.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -62,13 +61,19 @@ void UVideoSettingsWidget_B::NativeOnInitialized()
 	// Apply button
 
 	ApplyButton->OnClicked.AddDynamic(this, &UVideoSettingsWidget_B::OnApplyButtonClicked);
-	
+
+	UIElementsWithInterface.Add(ApplyButton);
+	UIElementsWithInterface.Add(FullscreenModeBox);
+	UIElementsWithInterface.Add(ScreenResolutionBox);
 }
 
 void UVideoSettingsWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	ApplyButton->Execute_Tick(ApplyButton);
-	BackButton->Execute_Tick(BackButton);
+	for (UWidget* Element : UIElementsWithInterface)
+	{
+		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
+			IUIElementsInterface_B::Execute_Tick(Element);
+	}
 }
 
 void UVideoSettingsWidget_B::OnScreenResolutionBoxSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)

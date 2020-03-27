@@ -289,6 +289,8 @@ void ACharacter_B::Use_Implementation()
 		{
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
 		}
+		GetCharacterMovement()->StopMovementImmediately();
+		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime, true);
 		HoldingCharacter = nullptr;
 	}

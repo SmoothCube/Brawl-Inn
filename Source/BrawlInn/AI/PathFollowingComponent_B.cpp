@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PathFollowingComponent_B.h"
 #include "BrawlInn.h"
-#include "DrawDebugHelpers.h"
+#include "PathFollowingComponent_B.h"
 #include "Characters/AI/AIController_B.h"
 #include "Characters/Character_B.h"
 
@@ -26,7 +25,6 @@ void UPathFollowingComponent_B::FollowPathSegment(float DeltaTime)
 	AAIController_B* Controller = Cast<AAIController_B>(GetOwner());
 	ACharacter_B* Character = Cast<ACharacter_B>(Controller->GetPawn());
 	Character->SetActorRotation(MoveSegmentDirection.ToOrientationRotator());
-	//DrawDebugLine(GetWorld(), Character->GetActorLocation(), Character->GetActorLocation() + (MoveSegmentDirection.GetSafeNormal() * 200.f), FColor::Red, false, DeltaTime);
 
 }
 

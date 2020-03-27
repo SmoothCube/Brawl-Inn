@@ -92,7 +92,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 	float HighestRotAdd = 15.f;
 
-
 	// ********** Tracking **********
 private:
 	void EndFocus(AActor* OtherActor);

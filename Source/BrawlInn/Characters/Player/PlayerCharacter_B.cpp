@@ -247,7 +247,7 @@ void APlayerCharacter_B::BreakFree()
 		AddActorLocalOffset(HoldingCharacter->GetActorForwardVector() * 100);
 		HoldingCharacter->HoldComponent->SetHoldingItem(nullptr);
 		HoldingCharacter->SetState(EState::EWalking);
-		HoldingCharacter->SetIsCharging(false); //TODO set charge level? 
+		HoldingCharacter->SetIsCharging(false);
 		HoldingCharacter->AddStun(PunchesToStun - 1);
 		HoldingCharacter = nullptr;
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -264,17 +264,19 @@ void APlayerCharacter_B::BreakFree()
 
 float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	BLog("%f", DamageAmount);
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
 
-	BLog("%s Taking Damage. Causer: %s", *GetNameSafe(PlayerController), *GetNameSafe(EventInstigator));
 	if (GameInstance)
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
 		const float Trauma = DamageAmount / 100;
 		if (PlayerController)
+		{
+			float Trauma = (float)StunAmount/(float)PunchesToStun;
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
+			BWarn("Vibrating %s's controller!", *GetNameSafe(this));
+		}
 	}
 
 	if (EventInstigator == PlayerController)
@@ -369,7 +371,6 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 
 void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
-	BWarn("Setting Charge Level to %d!", (int)chargeLevel);
 	Super::SetChargeLevel(chargeLevel);
 	float VibrationStrength = 0.f;
 	switch (chargeLevel)
@@ -423,14 +424,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 	if (!PlayerController)
 		return;
-
 	DisplayScoreVisualsHandle = PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.AddUObject(this, &APlayerCharacter_B::DisplayScoreVisuals);
-
-	PunchComponent->OnPunchHit_D.AddLambda([&]() //Keeps crashing here after compile -E
-		{
-			PlayerController->PlayControllerVibration(0.2f, 0.3f, true, true, true, true);
-		});
-
 }
 
 void APlayerCharacter_B::UnPossessed()
@@ -454,23 +448,34 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen)
 		return;
 
-	int DamageAmount = 5;
-
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
 	if (IsValid(Capsule))
 	{
+		int DamageAmount = 5;
+		FVector Direction = FVector::ZeroVector; 
 		if (GetState() == EState::EPoweredUp)
 		{
-			OtherCharacter->GetCharacterMovement()->Velocity = (OtherCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * OtherCharacter->PowerupPushStrength;
+			Direction = ((OtherCharacter->GetActorLocation()) - GetActorLocation());
+			Direction.Z = 0;
+			Direction.Normalize();
+			Direction = Direction.RotateAngleAxis(PowerupUpwardsAngle, FVector::CrossProduct(Direction, FVector(0, 0, 1.f)).GetSafeNormal());
+
+			Direction *= OtherCharacter->PowerupPushStrength;
 
 			DamageAmount = PowerupKnockdownScoreAmount;
 		}
 		else if (IsValid(PunchComponent) && PunchComponent->GetIsDashing() && !OtherCharacter->IsInvulnerable())
 		{
-			OtherCharacter->GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * (-PunchComponent->DashPushPercentage);
+			Direction = -GetCharacterMovement()->Velocity.GetSafeNormal();
+			Direction.Z = 0;
+			Direction.Normalize();
+			Direction = Direction.RotateAngleAxis(PunchComponent->DashPushUpwardsAngle, FVector::CrossProduct(Direction, FVector(0, 0, 1.f)).GetSafeNormal());
+
+			Direction *= PunchComponent->DashPushStrength;
 
 			DamageAmount = DashThroughScoreValue;
 		}
+		OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
 		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
 }

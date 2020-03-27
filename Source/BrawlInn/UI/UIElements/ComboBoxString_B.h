@@ -3,31 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/Button.h"
-#include "Styling/SlateBrush.h"
-#include "UI/UIElements/UIElementsInterface_B.h"
-#include "Button_B.generated.h"
+#include "Components/ComboBoxString.h"
+#include "UIElementsInterface_B.h"
+#include "ComboBoxString_B.generated.h"
+
 
 UCLASS()
-class BRAWLINN_API UButton_B : public UButton, public IUIElementsInterface_B
+class BRAWLINN_API UComboBoxString_B : public UComboBoxString, public IUIElementsInterface_B
 {
 	GENERATED_BODY()
-
-
-public:
+protected:
 
 	void Tick_Implementation() override;
-
+	
 	UPROPERTY(EditAnywhere)
 		FButtonStyle Selected;
 
 	UPROPERTY(EditAnywhere)
 		FButtonStyle Pressed;
-	
+
 	UPROPERTY(EditAnywhere)
 		FButtonStyle Unselected;
-
-	void ShouldUpdateStyle(bool bShouldUpdateStyleIn);
-protected:
-	bool bShouldUpdateStyle = true;
 };
