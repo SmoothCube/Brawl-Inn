@@ -52,6 +52,8 @@ protected:
 
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
+	virtual float GetPickupWeight_Implementation() const override;
+
 public:
 	float GetMovementSpeedWhenHeld_Implementation() const override;
 
@@ -71,6 +73,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Throw")
 		FRotator HoldRotation = FRotator(0, 0, 0);
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
+		float PickupWeight = 1.f;
+
 
 	// ********** Destroy/Fracture **********
 public:
@@ -99,7 +105,7 @@ protected:
 
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Damage")
 		TSubclassOf<UDamageType> BP_DamageType;
 
 	UPROPERTY()

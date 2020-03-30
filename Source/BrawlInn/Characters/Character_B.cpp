@@ -337,6 +337,11 @@ float ACharacter_B::GetMovementSpeedWhenHeld_Implementation() const
 	return MovementSpeedWhenHeld;
 }
 
+float ACharacter_B::GetPickupWeight_Implementation() const
+{
+	return PickupWeight;
+}
+
 void ACharacter_B::AddStun(const int Strength)
 {
 	if (StunAmount == PunchesToStun - 1)

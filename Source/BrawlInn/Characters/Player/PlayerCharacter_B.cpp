@@ -59,6 +59,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 
 	HoldOffset = FVector(0, 0, 500);
 	HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
+
+	PickupWeight = 4.f;
 }
 
 void APlayerCharacter_B::BeginPlay()

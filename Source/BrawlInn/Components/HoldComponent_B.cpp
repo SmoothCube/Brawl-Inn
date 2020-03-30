@@ -68,23 +68,29 @@ bool UHoldComponent_B::TryPickup()
 		// Zero items in cone, picking up a item in the sphere instead.
 		OverlappingThrowables.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
-				const float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
-				const float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
-				return DistanceA < DistanceB;
+				const IThrowableInterface_B* Interface1 = Cast<IThrowableInterface_B>(&LeftSide);
+				const IThrowableInterface_B* Interface2 = Cast<IThrowableInterface_B>(&LeftSide);
+
+				const float ValueA = Interface1->Execute_GetPickupWeight(&LeftSide);
+				const float ValueB = Interface2->Execute_GetPickupWeight(&LeftSide);
+				return ValueA > ValueB;
 			});
 		NearestItem = OverlappingThrowables[0];
 		break;
 	case 1:
 		// One item in the cone, picking it up.
-		NearestItem = ThrowableItemsInCone[0]; //crashed?
+		NearestItem = ThrowableItemsInCone[0];
 		break;
 	default:
-		// Two or more item in the cone, sorting them and picks up the closest one.
-		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)
+		// Two or more item in the cone, sorting them and picks up the highest value.
+		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)	//TODO Ooptimize?
 			{
-				const float DistanceA = FVector::Dist(PlayerLocation, LeftSide.GetActorLocation());
-				const float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
-				return DistanceA < DistanceB;
+				const IThrowableInterface_B* Interface1 = Cast<IThrowableInterface_B>(&LeftSide);
+				const IThrowableInterface_B* Interface2 = Cast<IThrowableInterface_B>(&LeftSide);
+
+				const float ValueA = Interface1->Execute_GetPickupWeight(&LeftSide);
+				const float ValueB = Interface2->Execute_GetPickupWeight(&LeftSide);
+				return ValueA > ValueB;
 			});
 		if (ThrowableItemsInCone.IsValidIndex(0))
 			NearestItem = ThrowableItemsInCone[0];

@@ -29,6 +29,8 @@ AUseable_B::AUseable_B()
 	DrinkMesh->SetRelativeLocation(FVector(2.3f, 36.5f, 38));
 	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	PickupWeight = 3.f;
 }
 
 void AUseable_B::BeginPlay()

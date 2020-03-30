@@ -121,6 +121,9 @@ public:
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
 	float GetMovementSpeedWhenHeld_Implementation() const override;
+
+	virtual float GetPickupWeight_Implementation() const override;
+
 	
 	UFUNCTION()
 		virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -133,6 +136,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
 		float TimeBeforeThrowCollision = 0.3f;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
+		float PickupWeight = 2.f;
 
 	bool bCanBeHeld = true;
 	FTimerHandle TH_FallCollisionTimer;
