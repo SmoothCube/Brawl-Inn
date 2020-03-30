@@ -40,8 +40,11 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	float Height = GetBobbingHeight(GetGameTimeSinceCreation());
-	if(LeadingPlayerController && IsValid(LeadingPlayerController->GetPawn()))
+	if (LeadingPlayerController && IsValid(LeadingPlayerController->GetPawn()))
+	{
 		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset + FVector(0.f,0.f, Height +BobAmplitude), LerpAlpha));
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), LeadingPlayerController->GetPawn()->GetActorRotation(), DeltaTime, LerpAlpha));
+	}
 }
 
 void ALeaderFollower_B::ScoreUpdated()
