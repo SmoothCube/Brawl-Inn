@@ -43,7 +43,7 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 	if (LeadingPlayerController && IsValid(LeadingPlayerController->GetPawn()))
 	{
 		SetActorLocation(FMath::Lerp(GetActorLocation(), LeadingPlayerController->GetPawn()->GetActorLocation() + Offset + FVector(0.f,0.f, Height +BobAmplitude), LerpAlpha));
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), LeadingPlayerController->GetPawn()->GetActorRotation(), DeltaTime, LerpAlpha));
+		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
 	}
 }
 

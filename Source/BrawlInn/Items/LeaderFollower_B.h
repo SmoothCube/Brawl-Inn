@@ -36,7 +36,7 @@ protected:
 
 	// ********** Positioning **********
 	UPROPERTY(EditAnywhere)
-	float LerpAlpha = 0.4;
+	float LerpAlpha = 0.7;
 
 	UPROPERTY(EditAnywhere)
 	FVector Offset = FVector(0, 0, 135);
@@ -46,8 +46,12 @@ public:
 	float GetBobbingHeight(float Time);
 
 	UPROPERTY(EditAnywhere)
-	float BobFrequency = 5.f;
+	float BobFrequency = 4.f;
 
 	UPROPERTY(EditAnywhere)
-	float BobAmplitude = 25.f;
+	float BobAmplitude = 10.f;
+
+	// ********** Misc **********
+	UPROPERTY(EditAnywhere)
+	float RotationSpeed = 0.88f;
 };
