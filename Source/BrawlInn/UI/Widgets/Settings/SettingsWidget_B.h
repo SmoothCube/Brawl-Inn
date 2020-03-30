@@ -25,21 +25,8 @@ protected:
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-
-	// ********** Button clicks **********
-
-	UFUNCTION()
-		void OnAudioButtonClicked();
-
-	UFUNCTION()
-		void OnVideoButtonClicked();
-
-	UFUNCTION()
-		void BackFromSettingsButtonClicked();
-
-	void FocusBackButton();
-protected:
 	// ********** Widgets **********
+	
 	UPROPERTY(meta = (BindWidget))
 		UWidgetSwitcher* SettingsSwitcher;
 
@@ -55,7 +42,23 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* VideoButton;
 
-public:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* BackButton;
+	
+	// ********** Functions **********
+	
+	void FocusBackButton();
+public:
+	UButton_B* GetBackButton() const;
+
+	// ********** Button presses **********
+protected:
+	UFUNCTION()
+		void OnAudioButtonClicked();
+
+	UFUNCTION()
+		void OnVideoButtonClicked();
+
+	UFUNCTION()
+		void BackFromSettingsButtonClicked();
 };

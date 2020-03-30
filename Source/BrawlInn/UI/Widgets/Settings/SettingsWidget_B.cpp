@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SettingsWidget_B.h"
 #include "WidgetSwitcher.h"
 
@@ -18,12 +17,11 @@ void USettingsWidget_B::NativeOnInitialized()
 	AudioButton->OnClicked.AddDynamic(this, &USettingsWidget_B::OnAudioButtonClicked);
 	VideoButton->OnClicked.AddDynamic(this, &USettingsWidget_B::OnVideoButtonClicked);
 
-	BackButton->SetAllNavigationRules(EUINavigationRule::Stop,NAME_None);
+	BackButton->SetAllNavigationRules(EUINavigationRule::Stop, NAME_None);
 	BackButton->SetNavigationRuleExplicit(EUINavigation::Up, AudioSettingsWidget->SfxSlider);
 
 	AudioButton->SetNavigationRuleExplicit(EUINavigation::Down, AudioSettingsWidget->MasterSlider);
 	AudioButton->ShouldUpdateStyle(false);
-
 }
 
 void USettingsWidget_B::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
@@ -62,6 +60,19 @@ void USettingsWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		FocusBackButton();
 }
 
+void USettingsWidget_B::FocusBackButton()
+{
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(BackButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+}
+
+UButton_B* USettingsWidget_B::GetBackButton() const
+{
+	return BackButton;
+}
+
+
 void USettingsWidget_B::BackFromSettingsButtonClicked()
 {
 	//WidgetSwitcher->SetActiveWidgetIndex(0);
@@ -81,7 +92,6 @@ void USettingsWidget_B::OnAudioButtonClicked()
 	BackButton->SetNavigationRuleExplicit(EUINavigation::Up, AudioSettingsWidget->SfxSlider);
 
 	FocusBackButton();
-
 }
 
 void USettingsWidget_B::OnVideoButtonClicked()
@@ -90,15 +100,8 @@ void USettingsWidget_B::OnVideoButtonClicked()
 	AudioButton->ShouldUpdateStyle(true);
 	VideoButton->ShouldUpdateStyle(false);
 
-	BackButton->SetNavigationRuleExplicit(EUINavigation::Right, VideoSettingsWidget->ApplyButton);
-	BackButton->SetNavigationRuleExplicit(EUINavigation::Up, VideoSettingsWidget->ScreenResolutionBox);
+	BackButton->SetNavigationRuleExplicit(EUINavigation::Right, VideoSettingsWidget->GetApplyButton());
+	BackButton->SetNavigationRuleExplicit(EUINavigation::Up, VideoSettingsWidget->GetScreenResolutionBox());
 
 	FocusBackButton();
-}
-
-void USettingsWidget_B::FocusBackButton()
-{
-	FInputModeGameAndUI InputMode;
-	InputMode.SetWidgetToFocus(BackButton->GetCachedWidget());
-	GetOwningPlayer()->SetInputMode(InputMode);
 }

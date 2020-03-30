@@ -7,12 +7,6 @@
 #include "ToMainMenuConfirmation_B.h"
 #include "UI/UIElements/Button_B.h"
 
-void UCharacterSelectionOverlay_B::UpdateNumberOfPlayersReady(int Value)
-{
-	if (NumberOfPlayersReady)
-		NumberOfPlayersReady->SetText(FText::FromString(FString::FormatAsNumber(Value)));
-}
-
 void UCharacterSelectionOverlay_B::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -20,7 +14,12 @@ void UCharacterSelectionOverlay_B::NativeOnInitialized()
 	FOnInputAction InputAction;
 	InputAction.BindDynamic(this, &UCharacterSelectionOverlay_B::OnSpecialRightPressed);
 	ListenForInputAction("SpecialRight", IE_Pressed, true, InputAction);
+}
 
+void UCharacterSelectionOverlay_B::UpdateNumberOfPlayersReady(int Value)
+{
+	if (NumberOfPlayersReady)
+		NumberOfPlayersReady->SetText(FText::FromString(FString::FormatAsNumber(Value)));
 }
 
 void UCharacterSelectionOverlay_B::OnSpecialRightPressed()
@@ -29,7 +28,6 @@ void UCharacterSelectionOverlay_B::OnSpecialRightPressed()
 
 	FInputModeUIOnly InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-	InputMode.SetWidgetToFocus(ToMainMenuConfirmation->NoButton->TakeWidget());
+	InputMode.SetWidgetToFocus(ToMainMenuConfirmation->GetNoButton()->TakeWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
-
 }

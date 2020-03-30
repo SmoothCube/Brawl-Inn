@@ -13,20 +13,24 @@ UCLASS()
 class BRAWLINN_API UCharacterSelectionOverlay_B : public UUserWidget
 {
 	GENERATED_BODY()
-
-public:
-	void UpdateNumberOfPlayersReady(int Value);
-
 protected:
-
+	// ********** UUserWidget **********
 	void NativeOnInitialized() override;
 
-	UFUNCTION()
-		void OnSpecialRightPressed();
+	// ********** Widgets **********
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* NumberOfPlayersReady;
 
 	UPROPERTY(meta = (BindWidget))
 		UToMainMenuConfirmation_B* ToMainMenuConfirmation;
+
+	// ********** Functions **********
+public:
+	void UpdateNumberOfPlayersReady(int Value);
+
+protected:
+	// ********** Button presses **********
+	UFUNCTION()
+		void OnSpecialRightPressed();
 };
