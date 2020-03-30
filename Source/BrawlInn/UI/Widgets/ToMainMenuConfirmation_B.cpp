@@ -3,7 +3,6 @@
 
 #include "ToMainMenuConfirmation_B.h"
 
-
 #include "Kismet/GameplayStatics.h"
 #include "UI/UIElements/Button_B.h"
 
@@ -23,15 +22,9 @@ void UToMainMenuConfirmation_B::NativeTick(const FGeometry& MyGeometry, float In
 	NoButton->Execute_Tick(NoButton);
 }
 
-void UToMainMenuConfirmation_B::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
+UButton_B* UToMainMenuConfirmation_B::GetNoButton() const
 {
-	Super::NativeOnAddedToFocusPath(InFocusEvent);
-	
-}
-
-void UToMainMenuConfirmation_B::NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent)
-{
-	Super::NativeOnRemovedFromFocusPath(InFocusEvent);
+	return NoButton;
 }
 
 void UToMainMenuConfirmation_B::OnYesButtonClicked()

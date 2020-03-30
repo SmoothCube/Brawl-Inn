@@ -15,9 +15,31 @@ class BRAWLINN_API UVideoSettingsWidget_B : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	// ********** UUserWidget**********
+
 	void NativeOnInitialized() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	// ********** Widgets **********
+	UPROPERTY(meta = (BindWidget))
+		UComboBoxString_B* FullscreenModeBox;
+
+	UPROPERTY(meta = (BindWidget))
+		UComboBoxString_B* ScreenResolutionBox;
+
+	UPROPERTY(meta = (BindWidget))
+		UButton_B* ApplyButton;
+
+public:
+	// ********** Functions **********
+
+	UButton_B* GetApplyButton() const;
+
+	UComboBoxString_B* GetScreenResolutionBox() const;
+
+protected:
+	// ********** Button presses **********
 
 	UFUNCTION()
 		void OnScreenResolutionBoxSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
@@ -28,17 +50,8 @@ protected:
 	UFUNCTION()
 		void OnApplyButtonClicked();
 
-	UPROPERTY(meta = (BindWidget))
-		UComboBoxString_B* FullscreenModeBox;
+	// ********** Misc. **********
 
-public:
-	UPROPERTY(meta = (BindWidget))
-		UComboBoxString_B* ScreenResolutionBox;
-
-	UPROPERTY(meta = (BindWidget))
-		UButton_B* ApplyButton;
-
-protected:
 	TMap<FString, FIntPoint> ScreenResolutions;
 
 	UPROPERTY()

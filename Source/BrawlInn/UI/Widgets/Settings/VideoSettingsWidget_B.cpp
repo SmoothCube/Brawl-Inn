@@ -76,6 +76,16 @@ void UVideoSettingsWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 	}
 }
 
+UButton_B* UVideoSettingsWidget_B::GetApplyButton() const
+{
+	return ApplyButton;
+}
+
+UComboBoxString_B* UVideoSettingsWidget_B::GetScreenResolutionBox() const
+{
+	return  ScreenResolutionBox;
+}
+
 void UVideoSettingsWidget_B::OnScreenResolutionBoxSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	FString LeftString;

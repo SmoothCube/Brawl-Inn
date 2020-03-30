@@ -13,20 +13,24 @@ class BRAWLINN_API UToMainMenuConfirmation_B : public UUserWidget
 {
 	GENERATED_BODY()
 protected:
-
+	// ********** UUserWidget **********
 	void NativeOnInitialized() override;
+	
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent) override;
-	void NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent) override;
-
-public:
+	// ********** Widgets **********
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* YesButton;
 	
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* NoButton;
 
+public:
+	// ********** Functions **********
+	UButton_B* GetNoButton() const;
+
+protected:
+	// ********** Buttons presses **********
 	UFUNCTION()
 		void OnYesButtonClicked();
 

@@ -24,16 +24,14 @@ void UMainMenu_B::NativeConstruct()
 	
 	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::PlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
-	SettingsWidget->BackButton->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
+	SettingsWidget->GetBackButton()->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
-
 
 	UIElementsWithInterface.Add(PlayButton);
 	UIElementsWithInterface.Add(SettingsButton);
 	UIElementsWithInterface.Add(CreditsButton);
 	UIElementsWithInterface.Add(QuitButton);
-
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(PlayButton->GetCachedWidget());
@@ -56,7 +54,7 @@ void UMainMenu_B::SettingsButtonClicked()
 	WidgetSwitcher->SetActiveWidgetIndex(1);
 	
 	FInputModeGameAndUI InputMode;
-	InputMode.SetWidgetToFocus(SettingsWidget->BackButton->GetCachedWidget());
+	InputMode.SetWidgetToFocus(SettingsWidget->GetBackButton()->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
