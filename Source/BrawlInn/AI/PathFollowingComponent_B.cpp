@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BrawlInn.h"
 #include "PathFollowingComponent_B.h"
+#include "BrawlInn.h"
 #include "Characters/AI/AIController_B.h"
 #include "Characters/Character_B.h"
 
