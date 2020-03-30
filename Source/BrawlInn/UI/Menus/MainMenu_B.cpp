@@ -6,6 +6,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "BrawlInn.h"
+#include "ConfigCacheIni.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 #include "UI/Buttons/Button_B.h"
@@ -20,7 +21,6 @@ void UMainMenu_B::NativeConstruct()
 
 	check(IsValid(GameMode));
 	check(IsValid(GameInstance));
-
 	
 	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::PlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
@@ -77,15 +77,11 @@ void UMainMenu_B::BackFromSettingsButtonClicked()
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(SettingsButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
-}
 
-
-
-void UMainMenu_B::VideoSettingsBackButtonClicked()
-{
-	WidgetSwitcher->SetActiveWidgetIndex(0);
-
-	FInputModeGameAndUI InputMode;
-	InputMode.SetWidgetToFocus(CreditsButton->GetCachedWidget());
-	GetOwningPlayer()->SetInputMode(InputMode);
+	check(IsValid(GameInstance));
+	
+	GConfig->SetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), GameInstance->GetMasterVolume(), GGameIni);
+	GConfig->SetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), GameInstance->GetMusicVolume(), GGameIni);
+	GConfig->SetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), GameInstance->GetSfxVolume(), GGameIni);
+	GConfig->Flush(false, GGameIni);
 }

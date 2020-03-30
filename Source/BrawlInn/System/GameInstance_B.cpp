@@ -2,7 +2,9 @@
 
 #include "GameInstance_B.h"
 
+#include "ConfigCacheIni.h"
 #include "DataTable_B.h"
+#include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Sound/SoundBase.h"
@@ -17,6 +19,12 @@ void UGameInstance_B::Init()
 	MenuMap = DataTable->GetRow<FStringValues>("MenuMap")->Value;
 	MenuMapToStream = DataTable->GetRow<FStringValues>("MenuMapToStream")->Value;
 	DataTable->ConditionalBeginDestroy();
+
+	
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), MasterVolume, GGameIni);
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicVolume, GGameIni);
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxVolume, GGameIni);
+	
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)

@@ -41,10 +41,6 @@ protected:
 	UFUNCTION()
 		void BackFromSettingsButtonClicked();
 
-	UFUNCTION()
-		void VideoSettingsBackButtonClicked();
-
-
 	// ********** Widgets **********
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
