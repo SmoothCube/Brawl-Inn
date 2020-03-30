@@ -387,7 +387,8 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 		VibrationStrength = 1.f;
 		break;
 	}
-	PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true);
+	if(PlayerController)
+		PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true); //CRASH HERE
 }
 
 void APlayerCharacter_B::AddStun(const int Strength)
