@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ComboBoxString.h"
-#include "UIElementsInterface_B.h"
+#include "System/Interfaces/UIElementsInterface_B.h"
 #include "ComboBoxString_B.generated.h"
 
 

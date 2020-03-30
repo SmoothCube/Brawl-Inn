@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AudioSettingsWidget_B.h"
-#include "System/GameInstance_B.h"
 #include "TextBlock.h"
 
-#include "UI/Buttons/Button_B.h"
 #include "SettingsWidget_B.h"
+#include "System/GameInstance_B.h"
+#include "UI/UIElements/Button_B.h"
 #include "UI/UIElements/Slider_B.h"
 
 void UAudioSettingsWidget_B::NativeOnInitialized()

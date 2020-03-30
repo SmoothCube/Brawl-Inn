@@ -2,12 +2,12 @@
 
 #include "VideoSettingsWidget_B.h"
 
-#include "BrawlInn.h"
-#include "UI/UIElements/ComboBoxString_B.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "UI/Buttons/Button_B.h"
+
+#include "UI/UIElements/Button_B.h"
+#include "UI/UIElements/ComboBoxString_B.h"
 
 void UVideoSettingsWidget_B::NativeOnInitialized()
 {

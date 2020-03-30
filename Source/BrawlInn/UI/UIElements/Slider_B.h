@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/Slider.h"
-#include "UI/UIElements/UIElementsInterface_B.h"
+#include "System/Interfaces/UIElementsInterface_B.h"
 #include "Slider_B.generated.h"
 
 UCLASS()

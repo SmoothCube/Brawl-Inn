@@ -2,13 +2,13 @@
 
 
 #include "PauseMenu_B.h"
-#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
-#include "UI/Buttons/Button_B.h"
-#include "System/GameModes/MainGameMode_B.h"
 #include "BrawlInn.h"
 #include "System/DataTable_B.h"
+#include "System/GameModes/MainGameMode_B.h"
+#include "UI/UIElements/Button_B.h"
 
 void UPauseMenu_B::NativeConstruct()
 {

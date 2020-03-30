@@ -2,9 +2,8 @@
 
 #include "VictoryScreenWidget_B.h"
 #include "Components/TextBlock.h"
-#include "UI/Buttons/Button_B.h"
+#include "UI/UIElements/Button_B.h"
 #include "Kismet/GameplayStatics.h"
-#include "Characters/Player/PlayerController_B.h"
 #include "System/DataTable_B.h"
 
 void UVictoryScreenWidget_B::NativeConstruct()
