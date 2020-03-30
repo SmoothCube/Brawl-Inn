@@ -23,9 +23,7 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 {
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	GameCamera->SetActorRotation(FRotator(0, -65, 0));
-
-	CharacterSelectionOverlay = CreateWidget<UCharacterSelectionOverlay_B>(GetWorld(), BP_CharacterSelectionOverlay);
-
+	
 	for (auto Controller : PlayerControllers)
 		MenuPlayerControllers.Add(Cast<AMenuPlayerController_B>(Controller));
 

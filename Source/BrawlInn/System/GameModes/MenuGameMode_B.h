@@ -91,7 +91,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<UCharacterSelectionOverlay_B> BP_CharacterSelectionOverlay;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 		UCharacterSelectionOverlay_B* CharacterSelectionOverlay = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
