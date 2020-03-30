@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterSelectionOverlay_B.generated.h"
 
+class UToMainMenuConfirmation_B;
 class UTextBlock;
 
 UCLASS()
@@ -18,6 +19,14 @@ public:
 
 protected:
 
+	void NativeOnInitialized() override;
+
+	UFUNCTION()
+		void OnSpecialRightPressed();
+
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* NumberOfPlayersReady;
+
+	UPROPERTY(meta = (BindWidget))
+		UToMainMenuConfirmation_B* ToMainMenuConfirmation;
 };
