@@ -11,7 +11,7 @@
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/SelectionPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
-#include "UI/Menus/MainMenu_B.h"
+#include "UI/Widgets/MainMenu_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
 AMenuGameMode_B::AMenuGameMode_B()

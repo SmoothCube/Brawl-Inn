@@ -19,9 +19,9 @@
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "System/Structs/ScoreLookupTable.h"
 #include "System/DataTable_B.h"
-#include "UI/Menus/PauseMenu_B.h"
-#include "UI/Game/VictoryScreenWidget_B.h"
-#include "UI/Game/GameOverlay_B.h"
+#include "UI/Widgets/PauseMenu_B.h"
+#include "UI/Widgets/VictoryScreenWidget_B.h"
+#include "UI/Widgets/GameOverlay_B.h"
 #include "Items/LeaderFollower_B.h"
 
 AMainGameMode_B::AMainGameMode_B()

@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/Button.h"
-#include "Styling/SlateBrush.h"
-#include "UI/UIElements/UIElementsInterface_B.h"
+#include "System/Interfaces/UIElementsInterface_B.h"
 #include "Button_B.generated.h"
 
 UCLASS()

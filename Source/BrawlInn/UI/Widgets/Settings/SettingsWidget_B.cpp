@@ -2,14 +2,14 @@
 
 
 #include "SettingsWidget_B.h"
+#include "WidgetSwitcher.h"
 
 #include "AudioSettingsWidget_B.h"
 #include "BrawlInn.h"
-#include "UI/Buttons/Button_B.h"
+#include "UI/UIElements/Button_B.h"
 #include "UI/UIElements/ComboBoxString_B.h"
 #include "UI/UIElements/Slider_B.h"
 #include "VideoSettingsWidget_B.h"
-#include "WidgetSwitcher.h"
 
 void USettingsWidget_B::NativeOnInitialized()
 {

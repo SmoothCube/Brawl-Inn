@@ -9,8 +9,8 @@
 #include "ConfigCacheIni.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
-#include "UI/Buttons/Button_B.h"
-#include "UI/Widgets/SettingsWidget_B.h"
+#include "UI/UIElements//Button_B.h"
+#include "UI/Widgets/Settings/SettingsWidget_B.h"
 
 void UMainMenu_B::NativeConstruct()
 {
