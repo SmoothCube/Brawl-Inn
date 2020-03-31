@@ -41,6 +41,7 @@ void AGameCamera_B::BeginPlay()
 
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "CameraFocus", ActorsToTrack);
 
+
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
 	TrackingBox = Cast<ATriggerBox>(Actors[0]);

@@ -61,6 +61,8 @@ void UMainMenu_B::SettingsButtonClicked()
 void UMainMenu_B::CreditsButtonClicked()
 {
 	BScreen("Credits");
+
+
 }
 
 void UMainMenu_B::QuitButtonClicked()
