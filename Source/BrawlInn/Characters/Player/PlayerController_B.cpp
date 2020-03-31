@@ -4,11 +4,9 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "BrawlInn.h"
-#include "System/GameModes/MenuGameMode_B.h"
-
 APlayerController_B::APlayerController_B()
 {
+
 }
 
 void APlayerController_B::BeginPlay()

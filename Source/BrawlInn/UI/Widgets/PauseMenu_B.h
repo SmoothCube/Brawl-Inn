@@ -13,30 +13,34 @@ class BRAWLINN_API UPauseMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
 
+	// ********** UUserWidget **********
+protected:
+	void NativeOnInitialized() override;
+	
+	void NativeConstruct() override;
+public:
+	void RemoveFromParent() override;
+protected:
+	// ********** Widgets **********
+
+	UPROPERTY(meta = (BindWidget))
+		UButton_B* ContinueButton;
+	
+	UPROPERTY(meta = (BindWidget))
+		UButton_B* ExitButton;
+
+	// ********** Functions **********
 public:
 
 	void MenuTick();
 
-	UPROPERTY(meta = (BindWidget))
-		UButton_B* ContinueButton;
 protected:
-	// ** Overridden Functions **
+	// ********** Button clicks **********
 
-	virtual void NativeConstruct() override;
-
-	// ** Delegates **
 	UFUNCTION()
 		void ContinueButtonClicked();
 
 	UFUNCTION()
 		void ExitButtonClicked();
 
-
-
-	UPROPERTY(meta = (BindWidget))
-		UButton_B* ExitButton;
-
-private:
-
-	TArray<UButton_B*> Buttons;
 };

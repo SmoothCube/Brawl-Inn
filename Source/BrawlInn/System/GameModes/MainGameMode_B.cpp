@@ -1,31 +1,35 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MainGameMode_B.h"
-#include "Engine/World.h"
-#include "Engine/TriggerBox.h"
-#include "Components/ShapeComponent.h"
-#include "Components/AudioComponent.h"
 #include "Camera/CameraActor.h"
+#include "Components/AudioComponent.h"
+#include "Components/ShapeComponent.h"
+#include "Engine/TriggerBox.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Sound/SoundCue.h"
 #include "Math/UnrealMathUtility.h"
+#include "Sound/SoundCue.h"
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
+#include "Items/LeaderFollower_B.h"
 #include "System/Camera/GameCamera_B.h"
-#include "System/GameInstance_B.h"
-#include "System/SubSystems/ScoreSubSystem_B.h"
-#include "System/Structs/ScoreLookupTable.h"
 #include "System/DataTable_B.h"
+#include "System/GameInstance_B.h"
+#include "System/Structs/ScoreLookupTable.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
+#include "UI/Widgets/GameOverlay_B.h"
 #include "UI/Widgets/PauseMenu_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
-#include "UI/Widgets/GameOverlay_B.h"
-#include "Items/LeaderFollower_B.h"
 
 AMainGameMode_B::AMainGameMode_B()
 {
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+	bAllowTickBeforeBeginPlay = false;
+	
 	MainMusicComponent = CreateDefaultSubobject<UAudioComponent>("MainMusicComponent");
 	SetRootComponent(MainMusicComponent);
 	if (!MainMusicComponent)
@@ -176,8 +180,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!IsValid(PauseMenuWidget))
-		return;
+	check(IsValid(PauseMenuWidget));
 	
 	PauseMenuWidget->MenuTick();
 }
@@ -187,21 +190,14 @@ void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 	PlayerControllerThatPaused = ControllerThatPaused;
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
 	PauseMenuWidget->AddToViewport();
-	const FInputModeUIOnly InputMode;
-	ControllerThatPaused->SetInputMode(InputMode);
-	SetTickableWhenPaused(true);
+	SetActorTickEnabled(true);
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
 void AMainGameMode_B::ResumeGame()
 {
-	PauseMenuWidget->RemoveFromViewport();
-	if (PlayerControllerThatPaused)
-	{
-		const FInputModeGameOnly InputMode;
-		PlayerControllerThatPaused->SetInputMode(InputMode);
-	}
-	SetTickableWhenPaused(true);
+	SetActorTickEnabled(false);
+	PauseMenuWidget->RemoveFromParent();
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 

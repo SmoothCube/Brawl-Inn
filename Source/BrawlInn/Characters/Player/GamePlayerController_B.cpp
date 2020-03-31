@@ -20,6 +20,8 @@
 void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
+	MainGameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+
 }
 
 void AGamePlayerController_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -182,9 +184,8 @@ void AGamePlayerController_B::LeftStickYAxis(const float Value)
 
 void AGamePlayerController_B::TryPauseGame()
 {
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->PauseGame(this);
+	check(IsValid(MainGameMode));
+		MainGameMode->PauseGame(this);
 }
 
 bool AGamePlayerController_B::TryBreakFree()
@@ -284,9 +285,8 @@ void AGamePlayerController_B::TryPickup()
 
 void AGamePlayerController_B::Respawn() const
 {
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
+	check(IsValid(MainGameMode))
+		MainGameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
 }
 
 void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
@@ -306,17 +306,16 @@ void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 void AGamePlayerController_B::Debug_Spawn() const
 {
 #if WITH_EDITOR
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
+	check(IsValid(MainGameMode))
+		MainGameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
 #endif
 }
 
 void AGamePlayerController_B::Debug_DeSpawn()
 {
 #if WITH_EDITOR
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->DespawnCharacter_D.Broadcast(this);
+	check(IsValid(MainGameMode))
+
+		MainGameMode->DespawnCharacter_D.Broadcast(this);
 #endif
 }

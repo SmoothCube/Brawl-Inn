@@ -54,6 +54,8 @@ protected:
 
 public:
 	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
+
+	UFUNCTION(BlueprintCallable)
 	void ResumeGame();
 
 	FPlayerWin OnPlayerWin;

@@ -6,8 +6,9 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "GamePlayerController_B.generated.h"
 
+class AMainGameMode_B;
 class ARespawnPawn_B;
-class UColoredTextBlock_B;;
+class UColoredTextBlock_B;
 
 UCLASS()
 class BRAWLINN_API AGamePlayerController_B : public APlayerController_B
@@ -95,6 +96,8 @@ protected:
 	UPROPERTY()
 		UColoredTextBlock_B* ScoreTextBlock = nullptr;
 
+	UPROPERTY(BlueprintReadOnly)
+	AMainGameMode_B* MainGameMode = nullptr;
 
 	// ********** EditorOnly **********
 	void Debug_Spawn() const;
