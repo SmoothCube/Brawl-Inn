@@ -88,7 +88,7 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 	FVector sum = FVector::ZeroVector;
 
 	TArray<AActor*> ActorsToRemove;
-	for (int i=0; i< scene.Planes.Num(); i++)
+	for (int i=0; i< scene.Planes.Num()-1; i++)
 	{
 		auto& p = scene.Planes[i];
 		float DistOutside = 0;
@@ -100,23 +100,26 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 		FVector DirVec = FVector::ZeroVector;
 		switch (i)
 		{
-		case 0:		DirVec = FVector(0, 1, 0);
+		case 0:		
+			DirVec = Camera->GetRightVector();
 			break;
-		case 1:		DirVec = FVector(0, -1, 0);
+		case 1:		
+			DirVec = -Camera->GetRightVector();
 			break;
-		case 2:		DirVec = FVector(-1, 0, 0);
+		case 2:		
+			DirVec = -Camera->GetUpVector();
 			break;
-		case 3:		DirVec = FVector(1, 0, 0);
+		case 3:		
+			DirVec = Camera->GetUpVector();
 			break;
 		}
-
+		BWarn("i: %d, DirVec: %s", i, *DirVec.ToString());
 		for (auto& a : ActorsToTrack)
 		{
 			if (!IsValid(a)) { ActorsToRemove.Add(a); continue;}
 
 			//find player position with border
-			FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
-			BorderVector.Z = 0;
+			FVector BorderVector = DirVec.GetSafeNormal() * BorderWidth;
 			FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
@@ -137,6 +140,7 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 		}
 		sum -= DistVec * CameraMoveSpeed;
 	}
+	BWarn("sum: %s", *sum.ToString());
 
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
