@@ -33,7 +33,7 @@ protected:
 
 	// ********** Components **********
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAudioComponent* MainMusicComponent;
+		UAudioComponent* MainMusicComponent;
 
 
 	// ** Overridden functions **
@@ -44,10 +44,18 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
-	// ********** Game States **********
-	void PreStartGame();
+
+	// ********** PreGame **********
+	
+	void PreGame();
+	
+	void PregameCountdown();
+
+	void PregameCountdownClock();
+
 	void UpdateClock();
 
+	// ********** Game States **********
 	void StartGame();
 
 	void EndGame();
@@ -56,7 +64,7 @@ public:
 	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
 
 	UFUNCTION(BlueprintCallable)
-	void ResumeGame();
+		void ResumeGame();
 
 	FPlayerWin OnPlayerWin;
 	FGameOver OnGameOver;
@@ -67,14 +75,14 @@ public:
 	FOnAnyScoreChange OnAnyScoreChange;
 
 	void CallOnAnyScoreChange() const;
-	
+
 	// ********** Tracking **********
 	UFUNCTION()
-	void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
 
 	UPROPERTY()
-	ATriggerBox* TrackingBox = nullptr;
+		ATriggerBox* TrackingBox = nullptr;
 
 protected:
 
@@ -100,7 +108,7 @@ private:
 	// ********** Sound **********
 public:
 	void SetMusic(USoundCue* NewMusic);
-	
+
 	void ResetMusic();
 protected:
 	UPROPERTY(BlueprintReadWrite)
@@ -128,16 +136,16 @@ private:
 	FTimerHandle StartGameHandle2;
 
 	UPROPERTY(EditDefaultsOnly)
-	int TimeRemaining = 300;
+		int TimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;
 
 	UPROPERTY(EditDefaultsOnly)
-	int TimeBeforeMultiplyScoreAgainstLeader = 2;
+		int TimeBeforeMultiplyScoreAgainstLeader = 2;
 
 	FTimerHandle TH_MultiplyScoresAgainstLeaderTimer;
 
-	
+
 	// ********** Leader **********
 public:
 	TArray<AGamePlayerController_B*> GetLeadingPlayerController();
@@ -149,9 +157,9 @@ protected:
 	bool bMultiplyScoresAgainstLeader = false;
 
 	UPROPERTY(EditDefaultsOnly)
-	float AgainstLeaderMultiplier = 2.f;
+		float AgainstLeaderMultiplier = 2.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ALeaderFollower_B> BP_LeaderFollower;
+		TSubclassOf<ALeaderFollower_B> BP_LeaderFollower;
 };
 

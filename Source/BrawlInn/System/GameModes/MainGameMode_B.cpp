@@ -17,6 +17,7 @@
 #include "Items/LeaderFollower_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/DataTable_B.h"
+#include "System/Utils.h"
 #include "System/GameInstance_B.h"
 #include "System/Structs/ScoreLookupTable.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
@@ -29,7 +30,7 @@ AMainGameMode_B::AMainGameMode_B()
 	PrimaryActorTick.bTickEvenWhenPaused = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	bAllowTickBeforeBeginPlay = false;
-	
+
 	MainMusicComponent = CreateDefaultSubobject<UAudioComponent>("MainMusicComponent");
 	SetRootComponent(MainMusicComponent);
 	if (!MainMusicComponent)
@@ -44,13 +45,14 @@ void AMainGameMode_B::BeginPlay()
 
 	//find and cache score values
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
-	if (!GameInstance) { BError("%s can't find the GameInstance_B! ABORT", *GetNameSafe(this)); return; }
+	checkf(IsValid(GameInstance), TEXT("%s can't find the GameInstance_B! ABORT"), *GetNameSafe(this));
 
 	if (GameInstance->ShouldUseSpreadSheets())
 	{
 		UDataTable_B* Table = NewObject<UDataTable_B>();
 		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
 		AgainstLeaderMultiplier = Table->GetRow<FScoreTable>("AgainstLeaderMultiplier")->Value;
+		Table->ConditionalBeginDestroy();
 	}
 	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
@@ -74,26 +76,6 @@ void AMainGameMode_B::BeginPlay()
 	}
 	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
 
-	///Countdown
-	if (!GameInstance->IgnoreCountdown())
-	{
-		DisableControllerInputs();
-
-		UpdateViewTargets(FromCharacterSelectionCamera);
-
-		GetWorld()->GetTimerManager().SetTimer(SwapCameraHandle, [&]()
-			{
-				UpdateViewTargets(nullptr, 2, true);
-				GetWorld()->GetTimerManager().SetTimer(StartGameHandle, [&]()
-					{
-						PreStartGame();
-					}, 0.1f, false, 2);
-			}, 0.1f, false, 1);
-	}
-	else
-	{
-		StartGame();
-	}
 
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
@@ -101,7 +83,11 @@ void AMainGameMode_B::BeginPlay()
 	if (TrackingBox)
 		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AMainGameMode_B::OnTrackingBoxEndOverlap);
 
-	
+	// Game is ready to start! Starting!
+	if (!GameInstance->IgnoreCountdown())
+		PreGame();
+	else
+		StartGame();
 }
 
 void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -110,30 +96,47 @@ void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
-void AMainGameMode_B::PreStartGame()
+void AMainGameMode_B::PreGame()
 {
-	if (GameInstance && Countdown)
-		UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f);
+	DisableControllerInputs();
 
-	GetWorld()->GetTimerManager().SetTimer(CountDownHandle, [&]()
-	{
-		if (Overlay)
-			Overlay->UpdateTimerText(Timer--);
-		
-	}, 1, true, 0);
+	UpdateViewTargets(FromCharacterSelectionCamera);
 
-	GetWorld()->GetTimerManager().SetTimer(StartGameHandle2, [&]()
+	//Swap camera after 1 second
+	BI::Delay(this, 1, [&]()
 		{
-			GetWorld()->GetTimerManager().ClearTimer(CountDownHandle);
-			StartGame();
-		}, 0.1f, false, Countdown->GetDuration());
+			UpdateViewTargets(nullptr, 1, true);
+
+			//Start countdown after 1 second this because it takes one second for the PregameCountdownClock begins.
+			BI::Delay(this, 1, [&]() { PregameCountdown(); });
+
+			BI::Repeat(this, 1, 4, [&]() { PregameCountdownClock(); });
+		});
+}
+
+void AMainGameMode_B::PregameCountdown()
+{
+	check(IsValid(GameInstance) && IsValid(Countdown));
+
+	UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f);
+
+	// Start game when sound is finished
+	BI::Delay(this, Countdown->GetDuration(), [&]() {StartGame(); });
+}
+
+
+void AMainGameMode_B::PregameCountdownClock()
+{
+	check(IsValid(Overlay));
+
+	Overlay->UpdateTimerText(Timer--);
 }
 
 void AMainGameMode_B::UpdateClock()
 {
 	if (!Overlay)
 		return;
-	
+
 	Overlay->UpdateTimerText(--TimeRemaining);
 	if (TimeRemaining < 0)
 		OnGameOver.Broadcast();
@@ -143,8 +146,7 @@ void AMainGameMode_B::StartGame()
 {
 	OnGameStart.Broadcast();
 
-	if (GameInstance->GameIsScoreBased())
-		GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
+	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
 	GetWorld()->GetTimerManager().SetTimer(StartGameHandle, this, &AMainGameMode_B::StartMultiplyingScores, TimeBeforeMultiplyScoreAgainstLeader, false);
 
@@ -181,7 +183,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	check(IsValid(PauseMenuWidget));
-	
+
 	PauseMenuWidget->MenuTick();
 }
 
@@ -246,9 +248,9 @@ TArray<AGamePlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
 {
 	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
 	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
-	{
-		return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-	});
+		{
+			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+		});
 	if (!TempPlayerControllers.IsValidIndex(0) || !TempPlayerControllers[0])
 	{
 		BError("Invalid Leader!");  return {};
