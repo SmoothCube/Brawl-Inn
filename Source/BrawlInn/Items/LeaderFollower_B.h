@@ -39,7 +39,7 @@ protected:
 	float LerpAlpha = 0.7;
 
 	UPROPERTY(EditAnywhere)
-	FVector Offset = FVector(0, 0, 135);
+	FVector Offset = FVector(25, 0, 135);
 public:	
 	
 	// ********** Bobbing **********

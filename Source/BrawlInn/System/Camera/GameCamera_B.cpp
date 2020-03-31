@@ -113,7 +113,6 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 			DirVec = Camera->GetUpVector();
 			break;
 		}
-		BWarn("i: %d, DirVec: %s", i, *DirVec.ToString());
 		for (auto& a : ActorsToTrack)
 		{
 			if (!IsValid(a)) { ActorsToRemove.Add(a); continue;}
@@ -140,7 +139,6 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 		}
 		sum -= DistVec * CameraMoveSpeed;
 	}
-	BWarn("sum: %s", *sum.ToString());
 
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
