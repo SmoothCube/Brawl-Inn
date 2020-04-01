@@ -18,7 +18,6 @@ class UAudioComponent;
 class ALeaderFollower_B;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
-DECLARE_EVENT(AMainGameMode_B, FGameOver);
 DECLARE_EVENT(AMainGameMode_B, FGameStart);
 DECLARE_EVENT(AMainGameMode_B, FOnAnyScoreChange);
 
@@ -67,7 +66,6 @@ public:
 		void ResumeGame();
 
 	FPlayerWin OnPlayerWin;
-	FGameOver OnGameOver;
 	FGameStart OnGameStart;
 
 	// ********** Score	 **********
@@ -128,15 +126,12 @@ private:
 
 	// ********** Timer **********
 
-	FTimerHandle SwapCameraHandle;
 	FTimerHandle StartGameHandle;
-	int Timer = 3;
 
-	FTimerHandle CountDownHandle;
-	FTimerHandle StartGameHandle2;
+	int PreGameCountdownTimer = 3;
 
-	UPROPERTY(EditDefaultsOnly)
-		int TimeRemaining = 300;
+	UPROPERTY(EditDefaultsOnly, Category = "Variables|Countdown")
+		int GameTimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;
 

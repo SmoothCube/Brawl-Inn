@@ -60,7 +60,7 @@ void AMainGameMode_B::BeginPlay()
 
 	/// Create overlay
 	Overlay = CreateWidget<UGameOverlay_B>(GetWorld(), BP_GameOverlay);
-	Overlay->UpdateTimerText(TimeRemaining);
+	Overlay->UpdateTimerText(GameTimeRemaining);
 	Overlay->AddToViewport();
 
 	/// Spawns characters for the players
@@ -74,8 +74,6 @@ void AMainGameMode_B::BeginPlay()
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
 
 	}
-	OnGameOver.AddUObject(this, &AMainGameMode_B::EndGame);
-
 
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
@@ -129,7 +127,7 @@ void AMainGameMode_B::PregameCountdownClock()
 {
 	check(IsValid(Overlay));
 
-	Overlay->UpdateTimerText(Timer--);
+	Overlay->UpdateTimerText(PreGameCountdownTimer--);
 }
 
 void AMainGameMode_B::UpdateClock()
@@ -137,9 +135,9 @@ void AMainGameMode_B::UpdateClock()
 	if (!Overlay)
 		return;
 
-	Overlay->UpdateTimerText(--TimeRemaining);
-	if (TimeRemaining < 0)
-		OnGameOver.Broadcast();
+	Overlay->UpdateTimerText(--GameTimeRemaining);
+	if (GameTimeRemaining < 0)
+		EndGame();
 }
 
 void AMainGameMode_B::StartGame()
@@ -169,14 +167,15 @@ void AMainGameMode_B::StartGame()
 void AMainGameMode_B::EndGame()
 {
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
+	
 	auto LeadingControllers = GetLeadingPlayerController();
 	BWarn("Number of leaders: %d", LeadingControllers.Num());
 
-	if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
+	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
 	{
 		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(LeadingControllers[0])), BP_VictoryScreen);
 		VictoryScreen->AddToViewport();
-	}
+	}*/
 }
 void AMainGameMode_B::Tick(float DeltaTime)
 {
