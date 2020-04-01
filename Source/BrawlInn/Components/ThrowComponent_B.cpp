@@ -25,10 +25,12 @@ void UThrowComponent_B::BeginPlay()
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-	GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-	GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-
+	if (GameMode)
+	{
+		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+	}
 	HoldComponent = OwningCharacter->HoldComponent;
 }
 
@@ -67,7 +69,7 @@ bool UThrowComponent_B::TryStartCharge()
 	{
 		StartDrinking();
 
-		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::FinishDrinking,Useable->GetUseTime());
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer, this, &UThrowComponent_B::FinishDrinking, Useable->GetUseTime());
 	}
 	else if (OwningCharacter->GetChargeParticle())
 	{
@@ -80,7 +82,7 @@ bool UThrowComponent_B::TryStartCharge()
 
 void UThrowComponent_B::StartThrow()
 {
-	if(HoldComponent)
+	if (HoldComponent)
 		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
 			return;
 	if (OwningCharacter->IsCharging())

@@ -19,7 +19,6 @@
 
 void AGameMode_B::BeginPlay()
 {
-	Super::BeginPlay();
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
@@ -34,6 +33,8 @@ void AGameMode_B::BeginPlay()
 	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
 
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
+
+	Super::BeginPlay();
 }
 
 void AGameMode_B::DisableControllerInputs()

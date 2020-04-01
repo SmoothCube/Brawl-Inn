@@ -39,8 +39,11 @@ AMainGameMode_B::AMainGameMode_B()
 
 void AMainGameMode_B::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
+}
 
+void AMainGameMode_B::PostLevelLoad()
+{
 	MainMusicComponent->Stop();
 
 	//find and cache score values
@@ -171,6 +174,8 @@ void AMainGameMode_B::EndGame()
 	auto LeadingControllers = GetLeadingPlayerController();
 	BWarn("Number of leaders: %d", LeadingControllers.Num());
 
+	//TODO EndGame needs to be implemented.
+	
 	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
 	{
 		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(LeadingControllers[0])), BP_VictoryScreen);

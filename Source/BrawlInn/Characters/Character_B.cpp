@@ -71,7 +71,12 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-	GameCamera = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
+
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameCamera = GameMode->GetGameCamera();
+	}
 }
 
 void ACharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -490,7 +495,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 			HurtSound,
 			GetActorLocation(),
 			Volume
-			);
+		);
 	}
 	return DamageAmount;
 }
@@ -577,7 +582,7 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 			GetActorLocation(),
 			volume,
 			SoundPitch
-			);
+		);
 	}
 }
 
