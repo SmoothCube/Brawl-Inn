@@ -120,12 +120,6 @@ bool UGameInstance_B::ShouldUseSpreadSheets() const
 	return bShouldUseSpreadSheets;
 }
 
-bool UGameInstance_B::GameIsScoreBased() const
-{
-	return bGameIsScoreBased;
-}
-
-
 bool UGameInstance_B::IgnoreCountdown() const
 {
 #if WITH_EDITOR

@@ -85,13 +85,9 @@ protected:
 public:
 
 	bool ShouldUseSpreadSheets() const;
-	bool GameIsScoreBased() const;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 		bool bShouldUseSpreadSheets = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
-		bool bGameIsScoreBased = true;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 		FString GameMap;
