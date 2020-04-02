@@ -27,9 +27,12 @@ UMergeMeshComponent_B::UMergeMeshComponent_B(const FObjectInitializer& ObjectIni
 void UMergeMeshComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-    if (!Skeleton) { BError("No Skeleton Selected!"); return;}
-	// ...
+bool UMergeMeshComponent_B::CreateRandomMesh()
+{
+    if (!Skeleton) { BError("No Skeleton Selected!"); return false; }
+    // ...
     FSkeletalMeshMergeParams params;
     params.Skeleton = Skeleton;
 
@@ -39,25 +42,19 @@ void UMergeMeshComponent_B::BeginPlay()
     USkeletalMesh* MergedMesh = MergeMeshes(params);
 
     if (!IsValid(MergedMesh))
-        return;
-    
+        return false;
+
     ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
     if (Character)
     {
         Character->GetMesh()->SetSkeletalMesh(MergedMesh);
         if (PhysicsAsset)
         {
-            BWarn("Setting PhysicsAsset!");
             Character->GetMesh()->SetPhysicsAsset(PhysicsAsset);
         }
-        else
-        {
-            BWarn("PhysicsAsset invalid!");
-
-        }
+        return true;
     }
-	
-
+    return false;
 }
 
 

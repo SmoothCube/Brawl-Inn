@@ -32,6 +32,9 @@ void AIdleAICharacter_B::BeginPlay()
 		RespawnLocation = OutActors[0]->GetActorLocation() + FVector(0, 0, 150);
 	else
 		RespawnLocation = StartLocation;
+
+	MergeMeshComponent->CreateRandomMesh();
+	MergeMeshComponent->DestroyComponent();
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
