@@ -12,6 +12,8 @@
 class USkeletalMesh;
 class UPhysicsAsset;
 class USkeleton;
+class UTexture2D;
+class UMaterialInstanceDynamic;
 
 struct FSkelMeshMergeUVTransforms;
 struct FSkelMeshMergeSectionMapping;
@@ -104,6 +106,18 @@ struct BRAWLINN_API FMeshCategory
     TArray<USkeletalMesh*> Meshes;
 };
 
+USTRUCT()
+struct BRAWLINN_API FTextureCategory
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere)
+    FName ParameterName;
+
+    UPROPERTY(EditAnywhere)
+    TArray<UTexture2D*> Textures;
+};
+
 UCLASS()
 class BRAWLINN_API UMergeMeshComponent_B : public UActorComponent
 {
@@ -132,7 +146,9 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Mesh Merge", meta = (UnsafeDuringActorConstruction = "true"))
     USkeletalMesh* MergeMeshes(const FSkeletalMeshMergeParams& Params);
 
-    void AddRandomInArray(FSkeletalMeshMergeParams& params, TArray<USkeletalMesh*> array);
+    void AddRandomMeshFromCategory(FSkeletalMeshMergeParams& params, FMeshCategory MeshCategory);
+
+    void AddRandomTextureFromCategory(UMaterialInstanceDynamic* Material, FTextureCategory TextureCategory);
     
     UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
     USkeleton* Skeleton;
@@ -140,8 +156,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
     UPhysicsAsset* PhysicsAsset;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
+    UMaterial* BaseMaterial;
+
     UPROPERTY(EditAnywhere, Category = "Variables | Modular Mesh Pieces")
     TArray<FMeshCategory> MeshCategories;
 
+    UPROPERTY(EditAnywhere, Category = "Variables | Modular Mesh Pieces")
+    TArray<FTextureCategory> TextureCategories;
 
 };
