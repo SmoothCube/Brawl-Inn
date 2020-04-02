@@ -37,11 +37,6 @@ AMainGameMode_B::AMainGameMode_B()
 		BError("MusicComponet Not created properly!");
 }
 
-void AMainGameMode_B::BeginPlay()
-{
-	Super::BeginPlay();	
-}
-
 void AMainGameMode_B::PostLevelLoad()
 {
 	MainMusicComponent->Stop();
@@ -125,7 +120,6 @@ void AMainGameMode_B::PregameCountdown()
 	BI::Delay(this, Countdown->GetDuration(), [&]() {StartGame(); });
 }
 
-
 void AMainGameMode_B::PregameCountdownClock()
 {
 	check(IsValid(Overlay));
@@ -164,7 +158,6 @@ void AMainGameMode_B::StartGame()
 		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
 		MainMusicComponent->Play();
 	}
-
 }
 
 void AMainGameMode_B::EndGame()
@@ -175,6 +168,8 @@ void AMainGameMode_B::EndGame()
 	BWarn("Number of leaders: %d", LeadingControllers.Num());
 
 	//TODO EndGame needs to be implemented.
+
+	UGameplayStatics::OpenLevel(GetWorld(), "VictoryMapStreamed");
 	
 	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
 	{

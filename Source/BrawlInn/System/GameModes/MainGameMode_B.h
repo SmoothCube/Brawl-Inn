@@ -34,13 +34,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UAudioComponent* MainMusicComponent;
 
+	UFUNCTION(BlueprintCallable)
+		void PostLevelLoad();
 
 	// ** Overridden functions **
 
-	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable)
-		void PostLevelLoad();
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
