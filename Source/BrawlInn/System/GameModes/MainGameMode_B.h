@@ -75,7 +75,8 @@ public:
 	FGameStart OnGameStart;
 
 	// ********** Score	 **********
-
+	void SortPlayerControllersByScore(TArray<AGamePlayerController_B*>& TempPlayerControllers);
+	
 	FOnAnyScoreChange OnAnyScoreChange;
 
 	void CallOnAnyScoreChange() const;

@@ -24,8 +24,5 @@ protected:
 	// ********** Misc. **********
 
 	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
-	TSubclassOf<ACameraActor> IntroCamera_BP;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
 		TSubclassOf<ACameraActor> VictoryCamera_BP;
 };
