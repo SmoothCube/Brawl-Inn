@@ -10,14 +10,20 @@
 
 #include "AIController_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/MergeMeshComponent_B.h"
 #include "Hazards/Bar_B.h"
+
+AIdleAICharacter_B::AIdleAICharacter_B()
+{
+	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");
+}
 
 void AIdleAICharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StartLocation = GetActorLocation();
 
+	StartLocation = GetActorLocation();
 	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	bCanMove = false;
 	TArray<AActor*> OutActors;
