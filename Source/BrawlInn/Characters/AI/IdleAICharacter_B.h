@@ -27,6 +27,13 @@ protected:
 	// ********** Components **********
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UMergeMeshComponent_B* MergeMeshComponent;
+
+	// ********** Randomizing **********
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MinScaleValue = 0.8f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MaxScaleValue = 0.95f;
 		
 	// ********** ACharacter_B **********
 
