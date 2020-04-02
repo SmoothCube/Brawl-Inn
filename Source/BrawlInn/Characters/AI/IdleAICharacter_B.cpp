@@ -36,11 +36,9 @@ void AIdleAICharacter_B::BeginPlay()
 	MergeMeshComponent->CreateRandomMesh();
 	MergeMeshComponent->DestroyComponent();
 
-	SetActorScale3D({ 
-		FMath::FRandRange(MinScaleValue, MaxScaleValue),
-		FMath::FRandRange(MinScaleValue, MaxScaleValue), 
-		FMath::FRandRange(MinScaleValue, MaxScaleValue) }
-	);
+	float Height = FMath::FRandRange(MinScaleValue, MaxScaleValue);
+	float Width = FMath::FRandRange(MinScaleValue, MaxScaleValue);
+	SetActorScale3D({ Width,  Width, Height });
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)

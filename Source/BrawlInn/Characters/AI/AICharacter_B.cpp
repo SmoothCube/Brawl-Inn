@@ -6,6 +6,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "Engine/World.h"
 
+#include "Components/MergeMeshComponent_B.h"
 #include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
 
@@ -18,7 +19,8 @@ AAICharacter_B::AAICharacter_B()
 	PawnSensingComponent->bSeePawns = false;
 	PawnSensingComponent->SightRadius = 0;
 	PawnSensingComponent->SetPeripheralVisionAngle(0);
-	
+
+	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");
 }
 
 void AAICharacter_B::BeginPlay()
@@ -29,6 +31,13 @@ void AAICharacter_B::BeginPlay()
 	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
 	if (Bar)
 		Bar->OnDeliverStart().AddUObject(this, &AAICharacter_B::Deliver);
+
+	MergeMeshComponent->CreateRandomMesh();
+	MergeMeshComponent->DestroyComponent();
+
+	float Height = FMath::FRandRange(MinScaleValue, MaxScaleValue);
+	float Width = FMath::FRandRange(MinScaleValue, MaxScaleValue);
+	SetActorScale3D({ Width, Width, Height});
 }
 
 void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)

@@ -29,11 +29,11 @@ protected:
 	UMergeMeshComponent_B* MergeMeshComponent;
 
 	// ********** Randomizing **********
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float MinScaleValue = 0.8f;
+	UPROPERTY(EditDefaultsOnly)
+	float MinScaleValue = 0.7f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float MaxScaleValue = 0.95f;
+	UPROPERTY(EditDefaultsOnly)
+	float MaxScaleValue = 1.05f;
 		
 	// ********** ACharacter_B **********
 

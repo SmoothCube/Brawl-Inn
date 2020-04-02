@@ -34,7 +34,22 @@ void UMergeMeshComponent_B::BeginPlay()
 
 bool UMergeMeshComponent_B::CreateRandomMesh()
 {
-    if (!Skeleton) { BError("No Skeleton Selected!"); return false; }
+    if (!Skeleton) 
+    { 
+        ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
+
+        if (Character)
+        {
+            BError("No Skeleton Selected for character %s!", *GetNameSafe(Character)); 
+
+        }
+        else
+        {
+            BError("No Skeleton Selected! Owning character invalid!");
+        }
+        return false;
+
+    }
     // ... MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
 
     FSkeletalMeshMergeParams params;
