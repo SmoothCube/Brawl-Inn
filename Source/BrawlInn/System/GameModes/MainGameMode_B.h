@@ -38,6 +38,7 @@ protected:
 
 	// ** Overridden functions **
 
+	void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
