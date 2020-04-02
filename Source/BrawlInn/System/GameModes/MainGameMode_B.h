@@ -34,8 +34,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UAudioComponent* MainMusicComponent;
 
-	UFUNCTION(BlueprintCallable)
-		void PostLevelLoad();
+		void PostLevelLoad() override;
 
 	// ** Overridden functions **
 
@@ -53,7 +52,12 @@ protected:
 
 	void PregameCountdownClock();
 
+
+	// ********** Game **********
 	void UpdateClock();
+
+	// ********** PostGame **********
+
 
 	// ********** Game States **********
 	void StartGame();

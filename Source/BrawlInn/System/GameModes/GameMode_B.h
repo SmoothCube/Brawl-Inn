@@ -33,6 +33,9 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
+		virtual void PostLevelLoad();
+
+	UFUNCTION(BlueprintCallable)
 
 		void DisableControllerInputs();
 
@@ -82,6 +85,7 @@ public:
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
 
 	AGameCamera_B* GetGameCamera() const;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
 

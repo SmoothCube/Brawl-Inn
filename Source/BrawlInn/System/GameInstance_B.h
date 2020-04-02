@@ -89,14 +89,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
 		bool bShouldUseSpreadSheets = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+	// ********** Maps **********
+
+public:
+
+	const FString& GetGameMapName() const;
+	
+	const FString& GetMenuMapName() const;
+	
+	const FString& GetVictoryMapName() const;
+	
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Maps")
 		FString GameMap;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Maps")
 		FString MenuMap;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
-		FString MenuMapToStream;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Maps")
+		FString VictoryMap;
 
 	// ********** Editor Only Settings **********
 public:

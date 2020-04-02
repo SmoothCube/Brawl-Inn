@@ -169,7 +169,7 @@ void AMainGameMode_B::EndGame()
 
 	//TODO EndGame needs to be implemented.
 
-	UGameplayStatics::OpenLevel(GetWorld(), "VictoryMapStreamed");
+	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName());
 	
 	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
 	{
