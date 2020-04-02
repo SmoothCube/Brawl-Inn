@@ -8,11 +8,13 @@
 
 class AAIDropPoint_B;
 class ABar_B;
+class UMergeMeshComponent_B;
 UCLASS()
 class BRAWLINN_API AIdleAICharacter_B : public ACharacter_B
 {
 	GENERATED_BODY()
 
+	AIdleAICharacter_B();
 protected:
 	// ********** AActor **********
 	void BeginPlay() override;
@@ -22,6 +24,10 @@ protected:
 	void FellOutOfWorld(const UDamageType& dmgType) override;
 	void Respawn();
 
+	// ********** Components **********
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UMergeMeshComponent_B* MergeMeshComponent;
+		
 	// ********** ACharacter_B **********
 
 	void Die() override;
