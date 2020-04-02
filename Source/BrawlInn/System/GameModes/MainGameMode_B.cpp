@@ -37,9 +37,15 @@ AMainGameMode_B::AMainGameMode_B()
 		BError("MusicComponet Not created properly!");
 }
 
+void AMainGameMode_B::BeginPlay()
+{
+	Super::BeginPlay();
+	MainMusicComponent->Stop();
+}
+
 void AMainGameMode_B::PostLevelLoad()
 {
-	MainMusicComponent->Stop();
+
 
 	//find and cache score values
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
@@ -85,6 +91,7 @@ void AMainGameMode_B::PostLevelLoad()
 	else
 		StartGame();
 }
+
 
 void AMainGameMode_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -169,7 +176,7 @@ void AMainGameMode_B::EndGame()
 
 	//TODO EndGame needs to be implemented.
 
-	UGameplayStatics::OpenLevel(GetWorld(), "VictoryMapStreamed");
+	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName());
 	
 	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
 	{

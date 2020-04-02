@@ -4,13 +4,17 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "LevelSequencePlayer.h"
+#include "LevelSequence.h"
 #include "PaperSpriteComponent.h"
+#include "Camera/CameraActor.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/MenuPlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/SelectionPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
+#include "System/GameInstance_B.h"
 #include "UI/Widgets/MainMenu_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
@@ -19,14 +23,25 @@ AMenuGameMode_B::AMenuGameMode_B()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AMenuGameMode_B::PostLevelLoad_Implementation()
+void AMenuGameMode_B::PostLevelLoad()
 {
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	GameCamera->SetActorRotation(FRotator(0, -65, 0));
-	
+	ACameraActor* IntroCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), IntroCamera_BP));
+	UpdateViewTargets(IntroCamera);
+
+	PrepareGameStart_Delegate.AddDynamic(this, &AMenuGameMode_B::PrepareGameStart);
+
 	for (auto Controller : PlayerControllers)
 		MenuPlayerControllers.Add(Cast<AMenuPlayerController_B>(Controller));
 
+	PrepareCharacterSelection();
+
+	ShowMainMenu();
+}
+
+void AMenuGameMode_B::PrepareCharacterSelection()
+{
 	TArray<AActor*> SelectionCharacters;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), APlayerCharacter_B::StaticClass(), FName("Selection"), SelectionCharacters);
 
@@ -65,10 +80,6 @@ void AMenuGameMode_B::PostLevelLoad_Implementation()
 
 		MenuPlayerControllers[i]->SetCharacterVariantIndex(i);
 	}
-
-	UpdateViewTargets();
-
-	ShowMainMenu();
 }
 
 void AMenuGameMode_B::ShowMainMenu()
@@ -122,6 +133,59 @@ void AMenuGameMode_B::SetPlayersReady(const int Value)
 {
 	PlayersReady = Value;
 }
+
+void AMenuGameMode_B::OnMenuPlayButtonClicked()
+{
+	DisableControllerInputs();
+	HideMainMenu();
+
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bPauseAtEnd = true;
+	ALevelSequenceActor* OutActor;
+
+	ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), IntroLevelSequence, Settings, OutActor);
+	Player->Play();
+	Player->OnPause.AddDynamic(this, &AMenuGameMode_B::OnIntroLevelSequencePaused);
+}
+
+void AMenuGameMode_B::PrepareGameStart()
+{
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bPauseAtEnd = true;
+	ALevelSequenceActor* OutActor;
+
+	checkf(ToGameLevelSequence, TEXT("ToGameLevelSequence is not set! Make sure to set it in the blueprint"));
+	ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), ToGameLevelSequence, Settings, OutActor);
+	
+	Player->Play();
+	Player->OnPause.AddDynamic(this, &AMenuGameMode_B::OnToGameLevelSequencePaused);
+	
+}
+
+void AMenuGameMode_B::OnToGameLevelSequencePaused()
+{
+	ACameraActor* SequenceCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
+	check(IsValid(SequenceCamera));
+	check(IsValid(GameInstance));
+	
+	GameInstance->SetCameraSwapTransform(SequenceCamera->GetActorTransform());
+	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetGameMapName());
+}
+
+void AMenuGameMode_B::OnIntroLevelSequencePaused()
+{
+	ACameraActor* SequenceCamera =  Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
+	check(IsValid(SequenceCamera));
+	UpdateViewTargets(SequenceCamera, 1, true);
+
+	EnableControllerInputs();
+
+	CharacterSelectionOverlay = CreateWidget<UCharacterSelectionOverlay_B>(GetWorld(), BP_CharacterSelectionOverlay);
+	check(IsValid(CharacterSelectionOverlay));
+	CharacterSelectionOverlay->AddToViewport();
+	
+}
+
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
 {

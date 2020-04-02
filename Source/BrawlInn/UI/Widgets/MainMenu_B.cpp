@@ -22,7 +22,7 @@ void UMainMenu_B::NativeConstruct()
 	check(IsValid(GameMode));
 	check(IsValid(GameInstance));
 	
-	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::PlayButtonClicked);
+	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::OnMenuPlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
 	SettingsWidget->GetBackButton()->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);

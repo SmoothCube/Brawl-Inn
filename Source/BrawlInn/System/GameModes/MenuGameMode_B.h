@@ -7,6 +7,7 @@
 #include "System/Structs/CharacterVariants.h"
 #include "MenuGameMode_B.generated.h"
 
+class ULevelSequence;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReady);
 
 DECLARE_DELEGATE(FPlayersActiveUpdated);
@@ -25,9 +26,9 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 protected:
 
 	AMenuGameMode_B();
+	void PrepareCharacterSelection();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-		void PostLevelLoad();
+	void PostLevelLoad() override;
 
 	// ********** MainMenu **********
 
@@ -36,19 +37,36 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void HideMainMenu();
-	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
 		TSubclassOf<UMainMenu_B> BP_MainMenu;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
+		TSubclassOf<ACameraActor> IntroCamera_BP;
 
 	UPROPERTY()
 		UMainMenu_B* MainMenuWidget = nullptr;
+
+	// ********** Level Sequences **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Level Sequence")
+		ULevelSequence* IntroLevelSequence;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Level Sequence")
+		ULevelSequence* ToGameLevelSequence;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Level Sequence")
+		TSubclassOf<ACameraActor> SequenceCamera_BP;
+
+	UFUNCTION()
+		void OnIntroLevelSequencePaused();
+
 
 	// ********** Ready up **********
 public:
 
 	void UpdateCharacterSelectionOverlay();
-	
+
 	int GetPlayersActive() const;
 
 	void SetPlayersActive(int Value);
@@ -57,8 +75,14 @@ public:
 
 	void SetPlayersReady(int Value);
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayButtonClicked();
+	UFUNCTION()
+		void OnMenuPlayButtonClicked();
+
+	UFUNCTION()
+		void PrepareGameStart();
+
+	UFUNCTION()
+		void OnToGameLevelSequencePaused();
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 		FOnReady PrepareGameStart_Delegate;
@@ -84,11 +108,11 @@ public:
 	void HoverRight(AMenuPlayerController_B* PlayerController);
 
 	UCharacterSelectionOverlay_B* GetCharacterSelectionOverlay() const;
-	
+
 protected:
 	void UpdateOtherSelections();
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Character Selection")
 		TSubclassOf<UCharacterSelectionOverlay_B> BP_CharacterSelectionOverlay;
 
 	UPROPERTY(BlueprintReadWrite)

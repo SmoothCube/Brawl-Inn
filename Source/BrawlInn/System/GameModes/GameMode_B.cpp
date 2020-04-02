@@ -37,6 +37,10 @@ void AGameMode_B::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AGameMode_B::PostLevelLoad()
+{
+}
+
 void AGameMode_B::DisableControllerInputs()
 {
 	for (auto Controller : PlayerControllers)

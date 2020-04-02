@@ -17,7 +17,7 @@ void UGameInstance_B::Init()
 	DataTable->LoadCSVFile(FStringValues::StaticStruct(), "MapNames.csv");
 	GameMap = DataTable->GetRow<FStringValues>("GameMap")->Value;
 	MenuMap = DataTable->GetRow<FStringValues>("MenuMap")->Value;
-	MenuMapToStream = DataTable->GetRow<FStringValues>("MenuMapToStream")->Value;
+	VictoryMap = DataTable->GetRow<FStringValues>("VictoryMap")->Value;
 	DataTable->ConditionalBeginDestroy();
 
 	
@@ -118,6 +118,21 @@ void UGameInstance_B::SetPlayerInfos(TArray<FPlayerInfo> NewPlayerInfos)
 bool UGameInstance_B::ShouldUseSpreadSheets() const
 {
 	return bShouldUseSpreadSheets;
+}
+
+const FString& UGameInstance_B::GetGameMapName() const
+{
+	return GameMap;
+}
+
+const FString& UGameInstance_B::GetMenuMapName() const
+{
+	return MenuMap;
+}
+
+const FString& UGameInstance_B::GetVictoryMapName() const
+{
+	return VictoryMap;
 }
 
 bool UGameInstance_B::IgnoreCountdown() const

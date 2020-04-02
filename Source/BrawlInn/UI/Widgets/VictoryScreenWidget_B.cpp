@@ -4,7 +4,7 @@
 #include "Components/TextBlock.h"
 #include "UI/UIElements/Button_B.h"
 #include "Kismet/GameplayStatics.h"
-#include "System/DataTable_B.h"
+#include "System/GameInstance_B.h"
 
 void UVictoryScreenWidget_B::NativeConstruct()
 {
@@ -22,11 +22,9 @@ void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 
 void UVictoryScreenWidget_B::ContinueButtonClicked()
 {
-	UDataTable_B* DataTable = NewObject<UDataTable_B>();
-	DataTable->LoadCSVFile(FStringValues::StaticStruct(), "MapNames.csv");
-	const FName LevelName = *DataTable->GetRow<FStringValues>("MenuMap")->Value;
-	DataTable->ConditionalBeginDestroy();
-	UGameplayStatics::OpenLevel(GetWorld(), LevelName);
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	check(IsValid(GameInstance));
+	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName());
 }
 
 void UVictoryScreenWidget_B::EnableContinueButton()
