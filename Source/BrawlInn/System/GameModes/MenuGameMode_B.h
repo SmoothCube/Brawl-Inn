@@ -7,11 +7,9 @@
 #include "System/Structs/CharacterVariants.h"
 #include "MenuGameMode_B.generated.h"
 
-class ULevelSequence;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReady);
-
 DECLARE_DELEGATE(FPlayersActiveUpdated);
 
+class ULevelSequence;
 class UCharacterSelectionOverlay_B;
 class UMainMenu_B;
 class APlayerCharacter_B;
@@ -83,9 +81,6 @@ public:
 
 	UFUNCTION()
 		void OnToGameLevelSequencePaused();
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnReady PrepareGameStart_Delegate;
 
 	FPlayersActiveUpdated PlayersActiveUpdated;
 

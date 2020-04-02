@@ -8,7 +8,7 @@
 
 #include "Characters/Player/MenuPlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
-#include "SubSystems/ScoreSubSystem_B.h"
+#include "System/Utils.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
@@ -16,15 +16,18 @@
 AReadyTrigger_B::AReadyTrigger_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	OnActorBeginOverlap.AddDynamic(this, &AReadyTrigger_B::OnBeginOverlap);
-	OnActorEndOverlap.AddDynamic(this, &AReadyTrigger_B::OnEndOverlap);
+	
 }
 
 void AReadyTrigger_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OnActorBeginOverlap.AddDynamic(this, &AReadyTrigger_B::OnBeginOverlap);
+	OnActorEndOverlap.AddDynamic(this, &AReadyTrigger_B::OnEndOverlap);
+	
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	check(GameMode);
 	GameMode->PlayersActiveUpdated.BindUObject(this, &AReadyTrigger_B::ClearReadyTimer);
 }
 
@@ -32,13 +35,15 @@ void AReadyTrigger_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(TH_StartTimer);
 }
 
 void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(OtherActor);
-	if (PlayerCharacter && GameMode)
+	check(IsValid(GameMode));
+
+	if (PlayerCharacter)
 	{
 		GameMode->SetPlayersReady(GameMode->GetPlayersReady() + 1);
 
@@ -47,7 +52,7 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 		GameMode->UpdateCharacterSelectionOverlay();
 
 		if (GameMode->GetPlayersReady() >= GameMode->GetPlayersActive())
-			GetWorld()->GetTimerManager().SetTimer(TH_StartTimer, this, &AReadyTrigger_B::PrepareStartGame, 3.f, false);
+			TH_StartTimer = BI::Delay(this, 3, [&]() {PrepareStartGame(); });
 	}
 }
 
@@ -78,14 +83,8 @@ void AReadyTrigger_B::PrepareStartGame()
 	checkf(IsValid(GameMode), TEXT("GameMode is not valid. Can't start game!"));
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
-
-	for (auto PlayerInfo : PlayerInfos)
-	{
-		APlayerController* Controller = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID);
-		Controller->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
-	}
+	checkf(IsValid(GameInstance), TEXT("GameInstance is not valid. Can't start game!"));
 
 	GameInstance->SetPlayerInfos(PlayerInfos);
-
-	GameMode->PrepareGameStart_Delegate.Broadcast();
+	GameMode->PrepareGameStart();
 }

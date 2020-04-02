@@ -41,6 +41,7 @@ protected:
 	// ********** Misc. **********
 	void PrepareStartGame();
 
+protected:
 	TArray<FPlayerInfo> PlayerInfos;
 
 	UPROPERTY()

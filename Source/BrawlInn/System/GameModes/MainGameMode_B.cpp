@@ -7,6 +7,7 @@
 #include "Engine/TriggerBox.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Camera/CameraComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
@@ -45,8 +46,6 @@ void AMainGameMode_B::BeginPlay()
 
 void AMainGameMode_B::PostLevelLoad()
 {
-
-
 	//find and cache score values
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	checkf(IsValid(GameInstance), TEXT("%s can't find the GameInstance_B! ABORT"), *GetNameSafe(this));
@@ -73,10 +72,10 @@ void AMainGameMode_B::PostLevelLoad()
 		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
 
+		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged_NoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
-
 	}
 
 	TArray<AActor*> Actors;
@@ -170,14 +169,52 @@ void AMainGameMode_B::StartGame()
 void AMainGameMode_B::EndGame()
 {
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	
+
 	auto LeadingControllers = GetLeadingPlayerController();
 	BWarn("Number of leaders: %d", LeadingControllers.Num());
 
 	//TODO EndGame needs to be implemented.
 
-	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName());
+	ACameraActor* OutroCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(-2200.f, 480.f, 2200.f), FRotator(60, 0, 0));
+	check(IsValid(OutroCamera));
+
+	GameCamera->SetActorTickEnabled(false);
+	GameInstance->SetCameraSwapTransform(OutroCamera->GetActorTransform());
+
+	const float BlendTime = 3.f;
+
+	UpdateViewTargets(OutroCamera, BlendTime, true);
+	BI::Delay(this, BlendTime, [&]() {UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName()); });
+
+	auto TempPlayerControllers = PlayerControllers;
+	SortPlayerControllersByScore(TempPlayerControllers);
+
+	//void AMainGameMode_B::SortPlayerControllersByScore(TArray<AGamePlayerController_B*> & TempPlayerControllers)
+	//{
+	//	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
+	//		{
+	//			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+	//		});
+	//}
 	
+	TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
+	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
+		{
+			APlayerController* LeftController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Left.ID);
+			APlayerController* RightController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Right.ID);
+
+			 int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			 int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			if (LeftScore >= RightScore)
+				return true;
+			return false;
+		});
+
+//	for (auto Controller : TempPlayerControllers)
+//		PlayerInfos.Add(Controller->GetPlayerInfo());
+
+	GameInstance->SetPlayerInfos(PlayerInfos);
+
 	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
 	{
 		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(LeadingControllers[0])), BP_VictoryScreen);
@@ -250,20 +287,25 @@ void AMainGameMode_B::ResetMusic()
 	}
 }
 
-TArray<AGamePlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
+void AMainGameMode_B::SortPlayerControllersByScore(TArray<AGamePlayerController_B*>& TempPlayerControllers)
 {
-	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
 	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
 		{
 			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 		});
+}
+
+TArray<AGamePlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
+{
+	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
+	SortPlayerControllersByScore(TempPlayerControllers);
 	if (!TempPlayerControllers.IsValidIndex(0) || !TempPlayerControllers[0])
 	{
 		BError("Invalid Leader!");  return {};
 	}
 
 	TArray<AGamePlayerController_B*> ControllersToRemove;
-	int HighestScore = TempPlayerControllers[0]->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+	const int HighestScore = TempPlayerControllers[0]->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 	for (int i = 1; i < TempPlayerControllers.Num(); i++)
 	{
 		if (TempPlayerControllers[i]->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score != HighestScore)

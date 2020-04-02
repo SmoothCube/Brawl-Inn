@@ -30,8 +30,6 @@ void AMenuGameMode_B::PostLevelLoad()
 	ACameraActor* IntroCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), IntroCamera_BP));
 	UpdateViewTargets(IntroCamera);
 
-	PrepareGameStart_Delegate.AddDynamic(this, &AMenuGameMode_B::PrepareGameStart);
-
 	for (auto Controller : PlayerControllers)
 		MenuPlayerControllers.Add(Cast<AMenuPlayerController_B>(Controller));
 
