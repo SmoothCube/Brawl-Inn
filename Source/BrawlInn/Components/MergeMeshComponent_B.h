@@ -10,6 +10,9 @@
 
 
 class USkeletalMesh;
+class UPhysicsAsset;
+class USkeleton;
+
 struct FSkelMeshMergeUVTransforms;
 struct FSkelMeshMergeSectionMapping;
 /**
@@ -128,8 +131,12 @@ protected:
     USkeletalMesh* MergeMeshes(const FSkeletalMeshMergeParams& Params);
 
     void AddRandomInArray(FSkeletalMeshMergeParams& params, TArray<USkeletalMesh*> array);
+    
     UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
-        class USkeleton* Skeleton;
+    USkeleton* Skeleton;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
+    UPhysicsAsset* PhysicsAsset;
 
     UPROPERTY(EditAnywhere, Category = "Variables | Modular Mesh Pieces")
     TArray<FMeshCategory> MeshCategories;

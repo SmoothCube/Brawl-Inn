@@ -7,6 +7,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Engine/SkeletalMesh.h"
 #include "Animation/Skeleton.h"
+#include "PhysicsEngine/PhysicsAsset.h"
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
@@ -36,9 +37,27 @@ void UMergeMeshComponent_B::BeginPlay()
         AddRandomInArray(params, category.Meshes);
 
     USkeletalMesh* MergedMesh = MergeMeshes(params);
-    if(IsValid(MergedMesh))
-        Cast<ACharacter_B>(GetOwner())->GetMesh()->SetSkeletalMesh(MergedMesh);
+
+    if (!IsValid(MergedMesh))
+        return;
+    
+    ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
+    if (Character)
+    {
+        Character->GetMesh()->SetSkeletalMesh(MergedMesh);
+        if (PhysicsAsset)
+        {
+            BWarn("Setting PhysicsAsset!");
+            Character->GetMesh()->SetPhysicsAsset(PhysicsAsset);
+        }
+        else
+        {
+            BWarn("PhysicsAsset invalid!");
+
+        }
+    }
 	
+
 }
 
 
