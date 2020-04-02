@@ -8,6 +8,9 @@
 #include "Engine/SkeletalMesh.h"
 #include "Animation/Skeleton.h"
 #include "PhysicsEngine/PhysicsAsset.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/Material.h"
+
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
@@ -32,15 +35,16 @@ void UMergeMeshComponent_B::BeginPlay()
 bool UMergeMeshComponent_B::CreateRandomMesh()
 {
     if (!Skeleton) { BError("No Skeleton Selected!"); return false; }
-    // ...
+    // ... MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
+
     FSkeletalMeshMergeParams params;
     params.Skeleton = Skeleton;
 
     for (FMeshCategory& category : MeshCategories)
-        AddRandomInArray(params, category.Meshes);
+        AddRandomMeshFromCategory(params, category);
 
     USkeletalMesh* MergedMesh = MergeMeshes(params);
-
+    
     if (!IsValid(MergedMesh))
         return false;
 
@@ -48,6 +52,12 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
     if (Character)
     {
         Character->GetMesh()->SetSkeletalMesh(MergedMesh);
+
+        UMaterialInstanceDynamic* NewMaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+        for (FTextureCategory& category : TextureCategories)
+            AddRandomTextureFromCategory(NewMaterialInstance, category);
+        if (IsValid(NewMaterialInstance))
+            Character->GetMesh()->SetMaterial(0,NewMaterialInstance);
         if (PhysicsAsset)
         {
             Character->GetMesh()->SetPhysicsAsset(PhysicsAsset);
@@ -55,6 +65,36 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
         return true;
     }
     return false;
+
+
+}
+void UMergeMeshComponent_B::AddRandomMeshFromCategory(FSkeletalMeshMergeParams& params, FMeshCategory MeshCategory)
+{
+    //finds a random mesh in array;'
+
+    if (MeshCategory.Meshes.Num() == 0)
+        return;
+
+    int i = FMath::RandRange(0, MeshCategory.Meshes.Num() - 1);
+
+    if (!MeshCategory.Meshes.IsValidIndex(i) || !MeshCategory.Meshes[i])
+        return;
+
+    //Adds it to the parameter;
+    params.MeshesToMerge.Add(MeshCategory.Meshes[i]);
+}
+void UMergeMeshComponent_B::AddRandomTextureFromCategory(UMaterialInstanceDynamic* Material, FTextureCategory TextureCategory)
+{
+    //finds a random mesh in array;
+    if (TextureCategory.Textures.Num() == 0)
+        return;
+
+    int i = FMath::RandRange(0, TextureCategory.Textures.Num() - 1);
+
+    if (!TextureCategory.Textures.IsValidIndex(i) || !TextureCategory.Textures[i])
+        return;
+
+    Material->SetTextureParameterValue(TextureCategory.ParameterName, TextureCategory.Textures[i]);
 }
 
 
@@ -176,17 +216,4 @@ USkeletalMesh* UMergeMeshComponent_B::MergeMeshes(const FSkeletalMeshMergeParams
     return BaseMesh;
 }
 
-void UMergeMeshComponent_B::AddRandomInArray(FSkeletalMeshMergeParams& params, TArray<USkeletalMesh*> Array)
-{
-    //finds a random mesh in array;
-    if (Array.Num() == 0)
-        return;
 
-    int i = FMath::RandRange(0, Array.Num()-1);
-    
-    if (!Array.IsValidIndex(i) || !Array[i])
-        return;
-    
-    //Adds it to the parameter;
-    params.MeshesToMerge.Add(Array[i]);
-}
