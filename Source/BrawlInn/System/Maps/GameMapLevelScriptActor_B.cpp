@@ -21,5 +21,5 @@ void AGameMapLevelScriptActor_B::BeginPlay()
 	GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	checkf(GameMode, TEXT("Wrong GameMode in GameModeStreamed!"));
 	const FLatentActionInfo Info(0, 0, TEXT("PostLevelLoad"), GameMode);
-	UGameplayStatics::LoadStreamLevel(GetWorld(), GameMapName, true, false, Info);
+	UGameplayStatics::LoadStreamLevel(GetWorld(), GameMapName, true, true, Info);
 }

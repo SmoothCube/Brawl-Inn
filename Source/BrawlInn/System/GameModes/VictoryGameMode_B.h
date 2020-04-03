@@ -6,6 +6,7 @@
 #include "System/GameModes/GameMode_B.h"
 #include "VictoryGameMode_B.generated.h"
 
+class UVictoryScreenWidget_B;
 class ULevelSequencePlayer;
 class ULevelSequence;
 
@@ -33,12 +34,14 @@ protected:
 		ULevelSequencePlayer* FadeToBlackSequencePlayer;
 
 	UFUNCTION()
-	void OnFadeToBlackFinished();
-	
+		void OnFadeToBlackFinished();
+
 	// ********** Final Scores **********
 public:
 	void StartFadeToScore();
 
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<UVictoryScreenWidget_B> VictoryScreen_BP;
 
 	bool bFinalScoreVisible = false;
 

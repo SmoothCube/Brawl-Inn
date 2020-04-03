@@ -189,14 +189,6 @@ void AMainGameMode_B::EndGame()
 
 	auto TempPlayerControllers = PlayerControllers;
 	SortPlayerControllersByScore(TempPlayerControllers);
-
-	//void AMainGameMode_B::SortPlayerControllersByScore(TArray<AGamePlayerController_B*> & TempPlayerControllers)
-	//{
-	//	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
-	//		{
-	//			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-	//		});
-	//}
 	
 	TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
 	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
@@ -211,16 +203,7 @@ void AMainGameMode_B::EndGame()
 			return false;
 		});
 
-//	for (auto Controller : TempPlayerControllers)
-//		PlayerInfos.Add(Controller->GetPlayerInfo());
-
 	GameInstance->SetPlayerInfos(PlayerInfos);
-
-	/*if (LeadingControllers.IsValidIndex(0) && LeadingControllers[0])
-	{
-		UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), UGameplayStatics::GetPlayerControllerID(LeadingControllers[0])), BP_VictoryScreen);
-		VictoryScreen->AddToViewport();
-	}*/
 }
 void AMainGameMode_B::Tick(float DeltaTime)
 {

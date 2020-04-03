@@ -10,8 +10,6 @@ void UVictoryScreenWidget_B::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerWon->SetText(FText::FromString("Player " + FString::FormatAsNumber(UGameplayStatics::GetPlayerControllerID(GetOwningPlayer()) + 1) + " won!"));
-
 }
 
 void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -24,7 +22,7 @@ void UVictoryScreenWidget_B::ContinueButtonClicked()
 {
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	check(IsValid(GameInstance));
-	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName());
+	GameInstance->ReturnToMainMenu();
 }
 
 void UVictoryScreenWidget_B::EnableContinueButton()

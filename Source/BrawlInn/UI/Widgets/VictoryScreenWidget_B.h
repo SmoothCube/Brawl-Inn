@@ -26,9 +26,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void EnableContinueButton();
 
-	UPROPERTY(meta = (BindWidget))
-		UTextBlock* PlayerWon;
-
 public:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* ContinueButton;
