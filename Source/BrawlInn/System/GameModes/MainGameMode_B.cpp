@@ -168,6 +168,7 @@ void AMainGameMode_B::StartGame()
 
 void AMainGameMode_B::EndGame()
 {
+	bGameIsOver = true;
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
 
 	auto LeadingControllers = GetLeadingPlayerController();
@@ -263,7 +264,7 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 			TrackingBox->GetOverlappingActors(OverlappingActors);
 		if (OverlappingActors.Find(Character) == INDEX_NONE)
 		{
-			if (!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive())	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
+			if (!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive() && !bGameIsOver)	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
 				Character->Die();
 		}
 	}

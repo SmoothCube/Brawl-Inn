@@ -59,6 +59,7 @@ protected:
 
 	// ********** PostGame **********
 
+	bool bGameIsOver = false;
 
 	// ********** Game States **********
 	void StartGame();
