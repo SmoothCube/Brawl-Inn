@@ -7,6 +7,7 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameMode_B.generated.h"
 
+class APlayerController_B;
 class AGameCamera_B;
 class APlayerStart;
 class AGamePlayerController_B;
@@ -43,7 +44,7 @@ public:
 		void EnableControllerInputs();
 
 	UPROPERTY()
-		TArray<AGamePlayerController_B*> PlayerControllers;
+		TArray<APlayerController_B*> PlayerControllers;
 protected:
 
 	UPROPERTY(BlueprintReadWrite)

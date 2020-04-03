@@ -27,10 +27,11 @@ void UGameOverlay_B::NativeOnInitialized()
 
 	for (auto PlayerController : GameMode->PlayerControllers)
 	{
-		if (PlayerController)
+		AGamePlayerController_B* GamePlayerController = Cast<AGamePlayerController_B>(PlayerController);
+		if (GamePlayerController)
 		{
-			PlayerController->SetScoreTextBlock(ScoreArray[UGameplayStatics::GetPlayerControllerID(PlayerController)]);
-			ScoreArray[UGameplayStatics::GetPlayerControllerID(PlayerController)]->OwningPlayer = PlayerController;
+			GamePlayerController->SetScoreTextBlock(ScoreArray[UGameplayStatics::GetPlayerControllerID(GamePlayerController)]);
+			ScoreArray[UGameplayStatics::GetPlayerControllerID(GamePlayerController)]->OwningPlayer = GamePlayerController;
 		}
 	}
 }
