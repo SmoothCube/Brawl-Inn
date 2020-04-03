@@ -21,5 +21,5 @@ void AVictoryMapLevelScriptActor_B::BeginPlay()
 	GameMode = Cast<AVictoryGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	checkf(GameMode, TEXT("Wrong GameMode in VictoryMapStreamed!"));
 	const FLatentActionInfo Info(0, 0, TEXT("PostLevelLoad"), GameMode);
-	UGameplayStatics::LoadStreamLevel(GetWorld(), GameMapName, true, false, Info);
+	UGameplayStatics::LoadStreamLevel(GetWorld(), GameMapName, true, true, Info);
 }
