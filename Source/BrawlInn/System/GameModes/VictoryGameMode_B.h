@@ -6,6 +6,9 @@
 #include "System/GameModes/GameMode_B.h"
 #include "VictoryGameMode_B.generated.h"
 
+class ULevelSequencePlayer;
+class ULevelSequence;
+
 UCLASS()
 class BRAWLINN_API AVictoryGameMode_B : public AGameMode_B
 {
@@ -18,8 +21,26 @@ protected:
 	void BeginPlay() override;
 
 	// ********** AGameMode_B **********
-	
+
 	void PostLevelLoad() override;
+
+	// ********** Level Sequence **********
+
+	UPROPERTY(EditDefaultsOnly)
+		ULevelSequence* FadeToBlackSequence;
+
+	UPROPERTY()
+		ULevelSequencePlayer* FadeToBlackSequencePlayer;
+
+	UFUNCTION()
+	void OnFadeToBlackFinished();
+	
+	// ********** Final Scores **********
+public:
+	void StartFadeToScore();
+
+
+	bool bFinalScoreVisible = false;
 
 	// ********** Misc. **********
 

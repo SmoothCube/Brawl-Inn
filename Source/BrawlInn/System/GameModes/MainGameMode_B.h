@@ -76,7 +76,7 @@ public:
 	FGameStart OnGameStart;
 
 	// ********** Score	 **********
-	void SortPlayerControllersByScore(TArray<AGamePlayerController_B*>& TempPlayerControllers);
+	void SortPlayerControllersByScore(TArray<APlayerController_B*>& TempPlayerControllers);
 	
 	FOnAnyScoreChange OnAnyScoreChange;
 
@@ -151,7 +151,7 @@ private:
 
 	// ********** Leader **********
 public:
-	TArray<AGamePlayerController_B*> GetLeadingPlayerController();
+	TArray<APlayerController_B*> GetLeadingPlayerController();
 
 	void StartMultiplyingScores();
 

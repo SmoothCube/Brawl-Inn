@@ -80,7 +80,7 @@ void AGameMode_B::CreatePlayerControllers()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), OutActors);
 	for (const auto& Actor : OutActors)
-		PlayerControllers.Add(Cast<AGamePlayerController_B>(Actor));
+		PlayerControllers.Add(Cast<APlayerController_B>(Actor));
 }
 
 // ---------------- Spawn PlayerCharacter functions --------------------------

@@ -10,6 +10,8 @@
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "LevelSequence.h"
+#include "LevelSequencePlayer.h"
 
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
@@ -32,11 +34,11 @@ void AVictoryGameMode_B::BeginPlay()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Players", OutActors);
 
-	TArray<FName> Tags;
-	Tags.Add("First");
-	Tags.Add("Second");
-	Tags.Add("Third");
-	Tags.Add("Fourth");
+	TArray<FName> VictoryTags;
+	VictoryTags.Add("First");
+	VictoryTags.Add("Second");
+	VictoryTags.Add("Third");
+	VictoryTags.Add("Fourth");
 
 	//Finds the characters to keep and updates their Mesh Material.
 	TArray<AActor*> CharactersToKeep;
@@ -44,7 +46,7 @@ void AVictoryGameMode_B::BeginPlay()
 	{
 		const auto Character = OutActors.FindByPredicate([&](AActor* Actor)
 			{
-				return Actor->ActorHasTag(Tags[i]);
+				return Actor->ActorHasTag(VictoryTags[i]);
 			});
 		CharactersToKeep.Add(*Character);
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(*Character);
@@ -58,6 +60,16 @@ void AVictoryGameMode_B::BeginPlay()
 
 	for (auto Actor : OutActors)
 		Actor->Destroy();
+
+	checkf(IsValid(FadeToBlackSequence), TEXT("Remember to set FadeToBlackSequence in the blueprint!"));
+	ALevelSequenceActor* SequenceActor;
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bAutoPlay = false;
+	Settings.bPauseAtEnd = true;
+	FadeToBlackSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), FadeToBlackSequence, Settings, SequenceActor);
+	FadeToBlackSequencePlayer->OnFinished.AddDynamic(this, &AVictoryGameMode_B::OnFadeToBlackFinished);
+	check(IsValid(FadeToBlackSequencePlayer));
+
 }
 
 void AVictoryGameMode_B::PostLevelLoad()
@@ -67,4 +79,18 @@ void AVictoryGameMode_B::PostLevelLoad()
 	ACameraActor* VictoryCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), VictoryCamera_BP));
 
 	UpdateViewTargets(VictoryCamera, 3);
+}
+
+void AVictoryGameMode_B::StartFadeToScore()
+{
+	if (bFinalScoreVisible)
+		return;
+
+	FadeToBlackSequencePlayer->Play();
+	bFinalScoreVisible = true;
+}
+
+void AVictoryGameMode_B::OnFadeToBlackFinished()
+{
+	BScreen("Show UI here");
 }
