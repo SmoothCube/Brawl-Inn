@@ -8,6 +8,7 @@
 #include "LeaderFollower_B.generated.h"
 
 
+class APlayerController_B;
 class AGamePlayerController_B;
 class UStaticMeshComponent;
 UCLASS()
@@ -31,7 +32,7 @@ protected:
 	
 	void ScoreUpdated();
 
-	AGamePlayerController_B* LeadingPlayerController;
+	APlayerController_B* LeadingPlayerController;
 	
 
 	// ********** Positioning **********

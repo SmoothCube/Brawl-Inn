@@ -168,6 +168,7 @@ void AMainGameMode_B::StartGame()
 
 void AMainGameMode_B::EndGame()
 {
+	bGameIsOver = true;
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
 
 	auto LeadingControllers = GetLeadingPlayerController();
@@ -263,7 +264,7 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 			TrackingBox->GetOverlappingActors(OverlappingActors);
 		if (OverlappingActors.Find(Character) == INDEX_NONE)
 		{
-			if (!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive())	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
+			if (!(Character->GetState() == EState::EBeingHeld) && Character->IsAlive() && !bGameIsOver)	//this is an ugly fix. When a player is picked up, this is run and causes a lot of bugs otherwise.
 				Character->Die();
 		}
 	}
@@ -287,24 +288,24 @@ void AMainGameMode_B::ResetMusic()
 	}
 }
 
-void AMainGameMode_B::SortPlayerControllersByScore(TArray<AGamePlayerController_B*>& TempPlayerControllers)
+void AMainGameMode_B::SortPlayerControllersByScore(TArray<APlayerController_B*>& TempPlayerControllers)
 {
-	TempPlayerControllers.Sort([&](const AGamePlayerController_B& Left, const AGamePlayerController_B& Right)
+	TempPlayerControllers.Sort([&](const APlayerController_B& Left, const APlayerController_B& Right)
 		{
 			return Left.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score > Right.GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 		});
 }
 
-TArray<AGamePlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
+TArray<APlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
 {
-	TArray<AGamePlayerController_B*> TempPlayerControllers = PlayerControllers;
+	TArray<APlayerController_B*> TempPlayerControllers = PlayerControllers;
 	SortPlayerControllersByScore(TempPlayerControllers);
 	if (!TempPlayerControllers.IsValidIndex(0) || !TempPlayerControllers[0])
 	{
 		BError("Invalid Leader!");  return {};
 	}
 
-	TArray<AGamePlayerController_B*> ControllersToRemove;
+	TArray<APlayerController_B*> ControllersToRemove;
 	const int HighestScore = TempPlayerControllers[0]->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 	for (int i = 1; i < TempPlayerControllers.Num(); i++)
 	{
