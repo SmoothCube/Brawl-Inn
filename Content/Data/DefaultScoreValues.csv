@@ -1,11 +1,12 @@
 ﻿,Value,Comment
 AgainstLeaderMultiplier,2,Hvor mye score-verdier blir ganget med hvis spilleren angrepet leder
-Fall,20,
-FellOutOfWorld,100,Er negativ hvis man falt ut selv
-Throwable,50,
-Barrel,25,Dette er per spiller man treffer
+Knockout,30,
+ThrowingPlayerOutOfWorld,100,
+Throwable,30,
+Barrel,25,Dette er per spiller man treffer. Skal bli 10 når Knockout er implementert
 PunchLevel1ScoreValue,10,Level1/2/3 er basert på hvilken charge level punchen har
 PunchLevel2ScoreValue,20,Level1/2/3 er basert på hvilken charge level punchen har
 PunchLevel3ScoreValue,30,Level1/2/3 er basert på hvilken charge level punchen har
-PowerupKnockdown,25,Når du får en spiller til å falle med powerup
+PowerupKnockback,20,Når du får en spiller til å falle med powerup
 DashThroughScoreValue,5,Når du dasher gjennom en annen spiller
+Suicide,-50,

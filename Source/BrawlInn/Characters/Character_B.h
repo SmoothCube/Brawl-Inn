@@ -299,13 +299,16 @@ protected:
 		int FellOutOfWorldScoreAmount = 100;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+		int SuicideScoreAmount = -50;
+
+	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int FallScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
 		int StoolScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int PowerupKnockdownScoreAmount = 25;
+		int PowerupKnockbackScoreAmount = 25;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
 		USoundCue* HurtSound;

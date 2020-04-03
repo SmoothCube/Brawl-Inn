@@ -15,6 +15,7 @@
 
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
+#include "UI/Widgets/VictoryScreenWidget_B.h"
 
 void AVictoryGameMode_B::BeginPlay()
 {
@@ -74,7 +75,7 @@ void AVictoryGameMode_B::BeginPlay()
 
 void AVictoryGameMode_B::PostLevelLoad()
 {
-	checkf(IsValid(VictoryCamera_BP), TEXT("VictoryCamera_BP is not set! Make sure to set it in the blueprint!"));
+	checkf(IsValid(VictoryCamera_BP), TEXT("VictoryCamera_BP is not set! Make sure to set it in the Blueprint!"));
 
 	ACameraActor* VictoryCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), VictoryCamera_BP));
 
@@ -92,5 +93,7 @@ void AVictoryGameMode_B::StartFadeToScore()
 
 void AVictoryGameMode_B::OnFadeToBlackFinished()
 {
-	BScreen("Show UI here");
+	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(GetWorld(), VictoryScreen_BP);
+	checkf(VictoryScreen, TEXT("VictoryScreen_BP is not set! Make sure to set it in the Blueprint!"));
+	VictoryScreen->AddToViewport();
 }

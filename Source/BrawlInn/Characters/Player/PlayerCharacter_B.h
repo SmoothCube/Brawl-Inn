@@ -104,7 +104,7 @@ protected:
 	void DisplayScoreVisuals(FScoreValues ScoreValues);
 
 	FDelegateHandle DisplayScoreVisualsHandle;
-
+	
 	UFUNCTION(BlueprintImplementableEvent)
 		void ScoreParticleTimerStart();
 

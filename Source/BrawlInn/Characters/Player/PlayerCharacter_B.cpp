@@ -80,9 +80,10 @@ void APlayerCharacter_B::BeginPlay()
 	{
 		UDataTable_B* Table = NewObject<UDataTable_B>();
 		Table->LoadCSVFile(FScoreTable::StaticStruct(), "DefaultScoreValues.csv");
-		FallScoreAmount = Table->GetRow<FScoreTable>("Fall")->Value;
-		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("FellOutOfWorld")->Value;
-		PowerupKnockdownScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockdown")->Value;
+		FallScoreAmount = Table->GetRow<FScoreTable>("Knockout")->Value;
+		FellOutOfWorldScoreAmount = Table->GetRow<FScoreTable>("ThrowingPlayerOutOfWorld")->Value;
+		SuicideScoreAmount = Table->GetRow<FScoreTable>("Suicide")->Value;
+		PowerupKnockbackScoreAmount = Table->GetRow<FScoreTable>("PowerupKnockback")->Value;
 		DashThroughScoreValue = Table->GetRow<FScoreTable>("DashThroughScoreValue")->Value;
 	}
 
@@ -198,7 +199,7 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 			HighShatterSound,
 			GetActorLocation(),
 			Volume
-			);
+		);
 	}
 }
 
@@ -275,7 +276,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		if (PlayerController)
 		{
 			checkf(PunchesToStun != 0, TEXT("Division by zero!"));
-			const float Trauma = static_cast<float>(StunAmount)/static_cast<float>(PunchesToStun);
+			const float Trauma = static_cast<float>(StunAmount) / static_cast<float>(PunchesToStun);
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
 			BWarn("Vibrating %s's controller!", *GetNameSafe(this));
 		}
@@ -306,7 +307,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 		else
 		{
-			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(-Score);
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(SuicideScoreAmount);
 		}
 	}
 	else
@@ -387,7 +388,7 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 		VibrationStrength = 1.f;
 		break;
 	}
-	if(PlayerController)
+	if (PlayerController)
 		PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true); //CRASH HERE
 }
 
@@ -455,7 +456,7 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	if (IsValid(Capsule))
 	{
 		int DamageAmount = 5;
-		FVector Direction = FVector::ZeroVector; 
+		FVector Direction = FVector::ZeroVector;
 		if (GetState() == EState::EPoweredUp)
 		{
 			Direction = ((OtherCharacter->GetActorLocation()) - GetActorLocation());
@@ -465,7 +466,7 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 			Direction *= OtherCharacter->PowerupPushStrength;
 
-			DamageAmount = PowerupKnockdownScoreAmount;
+			DamageAmount = PowerupKnockbackScoreAmount;
 		}
 		else if (IsValid(PunchComponent) && PunchComponent->GetIsDashing() && !OtherCharacter->IsInvulnerable())
 		{
