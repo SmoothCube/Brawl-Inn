@@ -32,12 +32,11 @@ void AAICharacter_B::BeginPlay()
 	if (Bar)
 		Bar->OnDeliverStart().AddUObject(this, &AAICharacter_B::Deliver);
 
-	MergeMeshComponent->CreateRandomMesh();
-	MergeMeshComponent->DestroyComponent();
-
-	float Height = FMath::FRandRange(MinScaleValue, MaxScaleValue);
-	float Width = FMath::FRandRange(MinScaleValue, MaxScaleValue);
-	SetActorScale3D({ Width, Width, Height});
+	if (MergeMeshComponent && MergeMeshComponent->bRandomizeOnBeginPlay)
+	{
+		MergeMeshComponent->CreateRandomMesh();
+		MergeMeshComponent->DestroyComponent();
+	}
 }
 
 void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)

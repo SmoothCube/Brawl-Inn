@@ -33,12 +33,11 @@ void AIdleAICharacter_B::BeginPlay()
 	else
 		RespawnLocation = StartLocation;
 
-	MergeMeshComponent->CreateRandomMesh();
-	MergeMeshComponent->DestroyComponent();
-
-	float Height = FMath::FRandRange(MinScaleValue, MaxScaleValue);
-	float Width = FMath::FRandRange(MinScaleValue, MaxScaleValue);
-	SetActorScale3D({ Width,  Width, Height });
+	if (MergeMeshComponent && MergeMeshComponent->bRandomizeOnBeginPlay)
+	{
+		MergeMeshComponent->CreateRandomMesh();
+		MergeMeshComponent->DestroyComponent();
+	}
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)

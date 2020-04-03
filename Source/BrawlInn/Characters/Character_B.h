@@ -189,13 +189,7 @@ protected:
 	bool bIsCharging = false;
 
 	EChargeLevel ChargeLevel = EChargeLevel::ENotCharging;
-public:
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float ChargeTier2Percentage = 0.2;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float ChargeTier3Percentage = 0.9;
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
@@ -286,7 +280,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-		FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
+		FName ForceSocketName = "spine2_export_C_jnt";
 
 	UPROPERTY(VisibleAnywhere, Category = "Variables|Punch")
 		UNiagaraComponent* PS_Charge = nullptr;
@@ -312,10 +306,10 @@ protected:
 public:
 	// ********** Powerup **********
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Powerup", meta = (Tooltip = "The strength of which this character will be knocked back when hit by a powered up player"))
-		float PowerupPushStrength = 8000.f;
+		float PowerupPushStrength = 80000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Powerup", meta = (Tooltip = "The upwards angle of the powerup knockback"))
-		float PowerupUpwardsAngle = 45.f;
+		float PowerupUpwardsAngle = 15.f;
 protected:
 	// ********** Misc. **********
 

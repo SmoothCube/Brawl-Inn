@@ -139,16 +139,19 @@ protected:
 * Merges the given meshes into a single mesh.
 * @return The merged mesh (will be invalid if the merge failed).
 */
-    void ToMergeParams(const TArray<FSkelMeshMergeSectionMapping_BP>& InSectionMappings, TArray<FSkelMeshMergeSectionMapping>& OutSectionMappings);
-    
-    void ToMergeParams(const TArray<FSkelMeshMergeUVTransformMapping>& InUVTransformsPerMesh, TArray<FSkelMeshMergeUVTransforms>& OutUVTransformsPerMesh);
-
     UFUNCTION(BlueprintCallable, Category = "Mesh Merge", meta = (UnsafeDuringActorConstruction = "true"))
-    USkeletalMesh* MergeMeshes(const FSkeletalMeshMergeParams& Params);
+        USkeletalMesh* MergeMeshes(const FSkeletalMeshMergeParams& Params);
 
     void AddRandomMeshFromCategory(FSkeletalMeshMergeParams& params, FMeshCategory MeshCategory);
 
     void AddRandomTextureFromCategory(UMaterialInstanceDynamic* Material, FTextureCategory TextureCategory);
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+    void ToMergeParams(const TArray<FSkelMeshMergeSectionMapping_BP>& InSectionMappings, TArray<FSkelMeshMergeSectionMapping>& OutSectionMappings);
+    
+    void ToMergeParams(const TArray<FSkelMeshMergeUVTransformMapping>& InUVTransformsPerMesh, TArray<FSkelMeshMergeUVTransforms>& OutUVTransformsPerMesh);
+
     
     UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
     USkeleton* Skeleton;
@@ -164,5 +167,28 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Variables | Modular Mesh Pieces")
     TArray<FTextureCategory> TextureCategories;
+
+    // ********** Randomizing **********
+    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+        float MinHeight = 0.7f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+        float MaxHeight= 1.05f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+        float MinWidth = 0.7f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+        float MaxWidth = 1.05f;
+
+    // ********** Generation Time **********
+    UPROPERTY(EditAnywhere, Category = "Variables | Generation Time")
+    bool Generate = false;
+
+public:
+    UPROPERTY(EditAnywhere, Category = "Variables | Generation Time")
+    bool bRandomizeOnBeginPlay = true;
+
+
 
 };

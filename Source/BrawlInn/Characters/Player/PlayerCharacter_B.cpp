@@ -48,7 +48,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
-	ForceSocketName = "spine2_export_C_jnt";
 	PunchesToStun = 4;
 	bCanBeHeld = false;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);

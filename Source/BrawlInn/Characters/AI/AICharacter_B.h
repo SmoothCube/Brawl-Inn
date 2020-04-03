@@ -39,13 +39,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UMergeMeshComponent_B* MergeMeshComponent;
 
-	// ********** Randomizing **********
-	UPROPERTY(EditDefaultsOnly)
-		float MinScaleValue = 0.7f;
-
-	UPROPERTY(EditDefaultsOnly)
-		float MaxScaleValue = 1.05f;
-
 	// ********** Deliver **********
 public:
 	AItem_B* GetItemDelivered() const;

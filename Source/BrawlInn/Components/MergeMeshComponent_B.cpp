@@ -37,21 +37,18 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
     if (!Skeleton) 
     { 
         ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
-
         if (Character)
         {
-            BError("No Skeleton Selected for character %s!", *GetNameSafe(Character)); 
-
+            BError("No Skeleton Selected for character %s!", *GetNameSafe(Character));
         }
         else
         {
             BError("No Skeleton Selected! Owning character invalid!");
         }
         return false;
-
     }
-    // ... MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
 
+    //Randomize mesh
     FSkeletalMeshMergeParams params;
     params.Skeleton = Skeleton;
 
@@ -60,23 +57,31 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
 
     USkeletalMesh* MergedMesh = MergeMeshes(params);
     
-    if (!IsValid(MergedMesh))
-        return false;
+    if (!IsValid(MergedMesh)){ BError("Merged Mesh is invalid!"); return false; }
 
     ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
     if (Character)
     {
         Character->GetMesh()->SetSkeletalMesh(MergedMesh);
-
+        //Randomize textures
         UMaterialInstanceDynamic* NewMaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
         for (FTextureCategory& category : TextureCategories)
             AddRandomTextureFromCategory(NewMaterialInstance, category);
         if (IsValid(NewMaterialInstance))
             Character->GetMesh()->SetMaterial(0,NewMaterialInstance);
-        if (PhysicsAsset)
+        if (IsValid(PhysicsAsset))
         {
-            Character->GetMesh()->SetPhysicsAsset(PhysicsAsset);
+            if (GetWorld())
+                Character->GetMesh()->SetPhysicsAsset(PhysicsAsset);
+            else
+                BError("World is invalid!");
         }
+
+        //Randomize scale
+        float Height = FMath::FRandRange(MinHeight, MaxHeight);
+        float Width = FMath::FRandRange(MinWidth, MaxWidth);
+        Character->SetActorScale3D({ Width,  Width, Height });
+
         return true;
     }
     return false;
@@ -111,6 +116,16 @@ void UMergeMeshComponent_B::AddRandomTextureFromCategory(UMaterialInstanceDynami
 
     Material->SetTextureParameterValue(TextureCategory.ParameterName, TextureCategory.Textures[i]);
 }
+
+#if WITH_EDITOR     
+void UMergeMeshComponent_B::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+    if (Generate == false) { return; } //if anything else thatn Generate was edited
+
+    CreateRandomMesh();
+    Generate = false;
+}
+#endif
 
 
 void UMergeMeshComponent_B::ToMergeParams(const TArray<FSkelMeshMergeSectionMapping_BP>& InSectionMappings, TArray<FSkelMeshMergeSectionMapping>& OutSectionMappings)
