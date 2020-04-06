@@ -280,7 +280,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-		FName ForceSocketName = "spine2_export_C_jnt";
+		FName ForceSocketName = "spine5_export_C_jnt";
 
 	UPROPERTY(VisibleAnywhere, Category = "Variables|Punch")
 		UNiagaraComponent* PS_Charge = nullptr;

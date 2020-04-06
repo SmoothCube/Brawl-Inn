@@ -85,19 +85,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 3 punch"))
 	float Level3PunchStrength = 2000000.f;		
 
-private:
-
-protected:
 	bool bHasHit = false;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float PunchHitVelocityDamper = 0.3f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-	float BasePunchStrength = 150000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-	float PunchStrengthMultiplier = 135.f;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
 	float PunchWaitingTime = 0.5f;

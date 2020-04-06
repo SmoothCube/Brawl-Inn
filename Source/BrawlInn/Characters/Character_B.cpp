@@ -54,7 +54,7 @@ ACharacter_B::ACharacter_B()
 	PS_Stun->SetRelativeLocation(FVector(0.000000, -20.000000, 180.000000));
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
-	PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
+	//PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
 }
 
 void ACharacter_B::BeginPlay()
