@@ -17,7 +17,7 @@ void UHoldComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetCollisionProfileName("Pickup-Trigger");
+//	SetCollisionProfileName("Pickup-Trigger");
 
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 }
