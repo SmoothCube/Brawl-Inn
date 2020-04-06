@@ -140,7 +140,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Variables|Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
 		float PickupWeight = 2.f;
 
-	bool bCanBeHeld = true;
+	bool bCanBeHeld = false;
 	FTimerHandle TH_FallCollisionTimer;
 
 	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")

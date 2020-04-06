@@ -162,6 +162,8 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
 
+	bCanBeHeld = true;
+
 	SetState(EState::EFallen);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -181,6 +183,8 @@ void ACharacter_B::StandUp()
 {
 	if (!bIsAlive)
 		return;
+
+	bCanBeHeld = false;
 
 	SetActorLocation(FindMeshGroundLocation());
 

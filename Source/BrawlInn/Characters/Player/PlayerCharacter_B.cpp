@@ -49,7 +49,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
-	bCanBeHeld = false;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
 
 	Charge1ThrowStrength = 400000.f;
@@ -181,7 +180,7 @@ void APlayerCharacter_B::Die()
 void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 {
 	Super::Fall(MeshForce, RecoveryTime, true);
-	bCanBeHeld = true;
+
 	if (PlayerController)
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
 	if (IsValid(DirectionIndicatorPlane))
@@ -205,7 +204,6 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 void APlayerCharacter_B::StandUp()
 {
 	Super::StandUp();
-	bCanBeHeld = false;
 	if (DirectionIndicatorPlane)
 	{
 		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
