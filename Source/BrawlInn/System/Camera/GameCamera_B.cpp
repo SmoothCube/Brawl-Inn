@@ -41,7 +41,6 @@ void AGameCamera_B::BeginPlay()
 
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "CameraFocus", ActorsToTrack);
 
-
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
 	if (Actors.IsValidIndex(0))
@@ -174,8 +173,7 @@ void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 
 	CameraZoom += FurthestDist * CameraZoomSpeed;
 
-	if (CameraZoom < SmallestSpringArmLength)
-		CameraZoom = SmallestSpringArmLength;
+	CameraZoom = FMath::Clamp(CameraZoom, SmallestSpringArmLength, LargestSpringArmLength);
 
 	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, CameraZoom, LerpAlpha);
 }
@@ -186,12 +184,11 @@ void AGameCamera_B::SetSpringArmPitch()
 	float Length = SpringArm->TargetArmLength;
 
 	float NormalizedLength = (Length - SmallestSpringArmLength) / (LargestSpringArmLength - SmallestSpringArmLength);
-	float PitchSetter = 1 - (NormalizedLength * NormalizedLength);
-
-	FMath::Clamp(PitchSetter, 0.f, 1.f);
+	float PitchSetter = -(NormalizedLength* NormalizedLength) + 2*NormalizedLength;
+	PitchSetter = FMath::Clamp(PitchSetter, 0.f, 1.f); //PitchSetter should never be anything else, but keep this just to be sure
 
 	//map normalization to the value
-	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
+	float VariablePitch = (PitchSetter * (LowestRotAdd - HighestRotAdd)) + HighestRotAdd;
 
 	//set value
 	SpringArm->SetWorldRotation(FRotator(StartPitch + VariablePitch, SpringArm->GetComponentRotation().Yaw, SpringArm->GetComponentRotation().Roll));

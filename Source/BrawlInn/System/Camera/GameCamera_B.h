@@ -59,7 +59,7 @@ protected:
 		float LerpAlpha = 0.5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float CameraMoveSpeed = 0.05f;
+	float CameraMoveSpeed = 0.03f;
 
 	// ********** Zoom **********
 private:
@@ -67,16 +67,16 @@ private:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float SmallestSpringArmLength = 750.f;
+		float SmallestSpringArmLength = 1200.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float LargestSpringArmLength = 3000.f;
+		float LargestSpringArmLength = 4500.f;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		float BorderWidth = 1000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float CameraZoomSpeed = 0.1f;
+		float CameraZoomSpeed = 0.05f;
 private:
 	float CameraZoom = 0.f;
 
@@ -87,10 +87,10 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float LowestRotAdd = -0.f;
+	float LowestRotAdd = -5.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float HighestRotAdd = 15.f;
+	float HighestRotAdd = 20.f;
 
 	// ********** Tracking **********
 private:
