@@ -17,6 +17,7 @@ void UHoldComponent_B::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// The Idle NPC can't use this ProfileName so for now I have set everything up in the blueprints!
 //	SetCollisionProfileName("Pickup-Trigger");
 
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
