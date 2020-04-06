@@ -14,6 +14,7 @@ void UPlayerAnimInstance_B::NativeBeginPlay()
 	Super::NativeBeginPlay();
 
 	Owner = Cast<ACharacter_B>(TryGetPawnOwner());
+	RandomIdleStartTime = FMath::FRandRange(0.f, 1.5f);
 }
 
 bool UPlayerAnimInstance_B::IsReady() const

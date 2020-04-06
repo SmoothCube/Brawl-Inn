@@ -32,6 +32,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Direction = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RandomIdleStartTime = 0;
 	/// Action variables
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
