@@ -92,20 +92,20 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Camera")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		TSubclassOf<ACameraActor> BP_FromCharacterSelectionCamera;
 	// ********** UI **********
 
 	UPROPERTY()
 		ACameraActor* FromCharacterSelectionCamera = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UVictoryScreenWidget_B> BP_VictoryScreen;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|UserWidgets")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
 private:
 	UPROPERTY()
@@ -138,7 +138,7 @@ private:
 
 	int PreGameCountdownTimer = 3;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Countdown")
+	UPROPERTY(EditDefaultsOnly, Category = "Countdown")
 		int GameTimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;

@@ -50,10 +50,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 		TArray<APlayerStart*> Spawnpoints;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<TSubclassOf<APlayerCharacter_B>> BP_PlayerCharacters;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<ARespawnPawn_B> BP_RespawnPawn;
 
 	/// ----- Spawn Character functions/variables -----
@@ -87,7 +87,7 @@ public:
 
 	AGameCamera_B* GetGameCamera() const;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
 
 	void AddCameraFocusPoint(AActor* FocusActor);

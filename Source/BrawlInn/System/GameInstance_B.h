@@ -33,7 +33,7 @@ public:
 protected:
 	FTransform CameraSwapTransform = FTransform(FRotator(-35.667469f, 5.636588f, -0.000007f), FVector(-302.956f, 880.419f, 657.871f));
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		TSubclassOf<UCameraShake> ImpactCameraShake;
 
 	// ********** Sound **********
@@ -52,13 +52,13 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		float MasterVolume = 1.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		float MusicVolume = 1.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		float SfxVolume = 1.f;
 
 	// ********** PlayerInfo **********
@@ -77,7 +77,7 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Players")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Players")
 		TArray<FPlayerInfo> ActivePlayerInfos;
 
 	// ********** Settings **********
@@ -86,7 +86,7 @@ public:
 
 	bool ShouldUseSpreadSheets() const;
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 		bool bShouldUseSpreadSheets = false;
 
 	// ********** Maps **********
@@ -114,10 +114,10 @@ protected:
 public:
 	bool IgnoreCountdown() const;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
+	UPROPERTY(EditDefaultsOnly, Category = "Settings|EditorOnly")
 		bool bIgnoreCountdown = true;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Settings|EditorOnly")
+	UPROPERTY(EditDefaultsOnly, Category = "Settings|EditorOnly")
 		bool bMuteMusic = true;
 
 };

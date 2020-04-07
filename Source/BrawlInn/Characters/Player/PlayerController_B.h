@@ -114,7 +114,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere)
 		bool bVibrateControllers = false;
 
 	FPlayerInfo PlayerInfo;

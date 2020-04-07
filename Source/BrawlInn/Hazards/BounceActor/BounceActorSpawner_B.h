@@ -21,9 +21,9 @@ public:
 	ABounceActor_B* SpawnBounceActor(FVector TargetLocation);
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere)
 		TSubclassOf<ABounceActor_B> ActorToSpawn;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* SpawnCue;
 };

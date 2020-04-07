@@ -61,6 +61,6 @@ protected:
 
 	FTransform StartTransform;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly)
 		bool bShouldRespawn = false;
 };

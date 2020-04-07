@@ -113,16 +113,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 		UCharacterSelectionOverlay_B* CharacterSelectionOverlay = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TSubclassOf<ASelectionPawn_B> BP_SelectionPawn;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
+	UPROPERTY(EditDefaultsOnly, Category = "Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
 		FVector SelectionIndicatorOffsetLocation = FVector(0, 0, 250);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TArray<FCharacterVariants> CharacterVariants;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TArray<UPaperSprite*> SelectionIndicators;
 
 	UPROPERTY()

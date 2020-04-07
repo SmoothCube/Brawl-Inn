@@ -63,10 +63,10 @@ public:
 	// ********** AimAssist **********
 	bool AimAssist(FVector& TargetPlayerLocation);
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistAngle = 20.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistRange = 1000.f;
 
 	// ********** Misc. **********

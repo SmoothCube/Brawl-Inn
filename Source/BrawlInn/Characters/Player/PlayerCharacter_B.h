@@ -85,14 +85,14 @@ public:
 protected:
 	void BreakFree();
 
-	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The longest amount of time this character can be held"))
+	UPROPERTY(EditAnywhere, meta = (Tooltip = "The longest amount of time this character can be held"))
 		float MaxHoldTime = 3.f;
 
 	float CurrentHoldTime = 0.f;
 public:
 	float BreakFreeAnimationBlend = 0.f;
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
+	UPROPERTY(EditAnywhere, meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
 		float HoldTimeDecreasePerButtonMash = 0.05f;
 
 	// ********** Score **********
@@ -114,13 +114,13 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnScoreParticleTimerFinished();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score|Visuals")
+	UPROPERTY(EditDefaultsOnly, Category = "Score|Visuals")
 		UNiagaraSystem* ScoreParticle = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score|Audio")
+	UPROPERTY(EditDefaultsOnly, Category = "Score|Audio")
 		USoundCue* ScoreSound = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score|Visuals")
+	UPROPERTY(EditDefaultsOnly, Category = "Score|Visuals")
 		TSubclassOf<UScoreText_B> BP_ScoreTextWidget = nullptr;
 
 	UScoreText_B* ScoreTextWidget = nullptr;
@@ -128,19 +128,19 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UWidgetComponent* ScoreTextWidgetComponent = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Score")
+	UPROPERTY(EditAnywhere, Category = "Score")
 		float RespawnDelay = 1.f;
 
 	FTimerHandle LastHitByTimer_TH;
 
 	// ********** Shatter **********
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* LowShatterSound = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* MidShatterSound = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HighShatterSound = nullptr;
 
 
@@ -150,7 +150,7 @@ public:
 	virtual void SetChargeLevel(EChargeLevel chargeLevel) override;
 	virtual void AddStun(const int Strength = 1) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FPlayerInfo PlayerInfo;
 
 protected:

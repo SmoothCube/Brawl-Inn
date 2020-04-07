@@ -40,26 +40,26 @@ protected:
 	void GiveRandomTankard(AAICharacter_B* Waiter);
 	void RandomOrder();
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
+	UPROPERTY(EditAnywhere, Category = "Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Tankard")
+	UPROPERTY(EditDefaultsOnly, Category = "Tankard")
 		FName WaiterTag = "Waiter";
 
 	// ********** Stool **********
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
+	UPROPERTY(EditAnywhere, Category = "Stool")
 		TSubclassOf<AItem_B> BP_Stool;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
+	UPROPERTY(EditDefaultsOnly, Category = "Stool")
 		FName StoolReplacerTag = "StoolReplacer";
 
 	// ********** Box **********
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Box")
+	UPROPERTY(EditAnywhere, Category = "Box")
 		TSubclassOf<AItem_B> BP_Box;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Box")
+	UPROPERTY(EditDefaultsOnly, Category = "Box")
 		FName BoxReplacerTag = "BoxReplacer";
 
 
@@ -71,17 +71,17 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Audio")
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 		USoundCue* DrinkReadySound;
 
 	TArray<AIdleAICharacter_B*> Customers;
 
 	FTimerHandle TH_StartOrderTimer;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	UPROPERTY(EditDefaultsOnly, Category = "Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
 		float TimeUntilFirstDelivery = 2;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	UPROPERTY(EditDefaultsOnly, Category = "Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
 		float TimeUntilDelivery = 10;
 
 	// ********** Delivery **********

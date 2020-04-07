@@ -38,13 +38,13 @@ protected:
 
 	// ********** Location/Movement **********
 
-	UPROPERTY(BlueprintReadOnly, Category = "Variables|Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		FVector StartLocation;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Variables|Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		FVector RespawnLocation;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 		float ResetCanMoveTime = 60.f;
 
 	FTimerHandle TH_ResetCanMove;
@@ -59,10 +59,10 @@ public:
 	void TryPickup();
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category="Variables|Ordering")
+	UPROPERTY(EditDefaultsOnly, Category="Ordering")
 	TSubclassOf<AAIDropPoint_B> BP_DropPoint;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Ordering")
+	UPROPERTY(EditAnywhere, Category = "Ordering")
 	bool bCanOrderDrink = true;
 
 	UPROPERTY()

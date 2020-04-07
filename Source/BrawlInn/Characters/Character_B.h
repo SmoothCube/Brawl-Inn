@@ -71,10 +71,10 @@ public:
 protected:
 	float RotationInterpSpeed = 10.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	UPROPERTY(EditAnywhere, Category = "Movement")
 		float NormalRotationInterpSpeed = 10.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
+	UPROPERTY(EditAnywhere, Category = "Movement")
 		bool bCanMove = true;
 
 public:
@@ -98,10 +98,10 @@ protected:
 
 	FVector FindMeshGroundLocation() const;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Fall", meta = (Tooltip = "For when an external force made the character fall."))
+	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 2.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Fall")
+	UPROPERTY(EditAnywhere, Category = "Fall")
 		float FallLimitMultiplier = 1.5;
 
 	FTimerHandle TH_FallRecoverTimer;
@@ -134,16 +134,16 @@ protected:
 	UPROPERTY()
 		ACharacter_B* HoldingCharacter = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
+	UPROPERTY(EditAnywhere, Category = "Being Held")
 		float TimeBeforeThrowCollision = 0.3f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
+	UPROPERTY(EditAnywhere, Category = "Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
 		float PickupWeight = 2.f;
 
 	bool bCanBeHeld = false;
 	FTimerHandle TH_FallCollisionTimer;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
+	UPROPERTY(EditAnywhere, Category = "Being Held")
 		float MovementSpeedWhenHeld = 600.f;
 
 public:
@@ -151,16 +151,17 @@ public:
 	FRotator& GetHoldRotation();
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-
-		FRotator HoldRotation = FRotator(0, 0, 0);
-
-	FVector HoldOffset = FVector(0, 0, 0);
+	UPROPERTY(EditAnywhere, Category = "Being Held")
+	FRotator HoldRotation = FRotator(0, 0, 0);
+	
+	UPROPERTY(EditAnywhere, Category = "Being Held")
+	FVector HoldOffset = FVector(0, 0, 500);
 
 public:
 	// ********** Holding Drink **********
-	
-	FVector HoldingDrinkOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Holding")
+	FVector HoldingDrinkOffset = FVector(-20.920467,-3.708875,7.292015);
 
 	// ********** Charge **********
 	EChargeLevel GetChargeLevel();
@@ -170,20 +171,20 @@ public:
 	void SetIsCharging(bool Value);
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge1ThrowStrength = 200000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge2ThrowStrength = 250000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge3ThrowStrength = 500000.f;
 
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge2MoveSpeed = 500.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge3MoveSpeed = 100.f;
 
 	bool bIsCharging = false;
@@ -192,7 +193,7 @@ protected:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* ChargeLevelSound = nullptr;
 public:
 
@@ -201,14 +202,14 @@ public:
 public:
 	virtual void AddStun(const int Strength = 1);
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	UPROPERTY(EditAnywhere, Category = "Stun")
 		int StunStrength = 1;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	UPROPERTY(EditAnywhere, Category = "Stun")
 		float StunTime = 3.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	UPROPERTY(EditAnywhere, Category = "Stun")
 		int PunchesToStun = 1;
 
 	UPROPERTY(VisibleAnywhere)
@@ -234,16 +235,16 @@ public:
 	void MakeVulnerable();
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
+	UPROPERTY(EditAnywhere, Category = "Invulnerability")
 		float InvulnerabilityTime = 3.f;
 
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsInvulnerable = false;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+	UPROPERTY(EditAnywhere, Category = "Visuals")
 		UMaterialInstance* InvulnerableMat;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+	UPROPERTY(EditAnywhere, Category = "Visuals")
 		UMaterial* InvisibleMat;
 
 	FTimerHandle TH_InvincibilityTimer;
@@ -259,7 +260,7 @@ public:
 protected:
 	bool bHasShield = false;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+	UPROPERTY(EditAnywhere, Category = "Visuals")
 		UMaterialInstance* ShieldMat;
 
 	// ********** States **********
@@ -279,44 +280,44 @@ public:
 	UNiagaraComponent* GetChargeParticle() const;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
+	UPROPERTY(EditAnywhere, Category = "Punch")
 		FName ForceSocketName = "spine5_export_C_jnt";
 
-	UPROPERTY(VisibleAnywhere, Category = "Variables|Punch")
+	UPROPERTY(VisibleAnywhere, Category = "Punch")
 		UNiagaraComponent* PS_Charge = nullptr;
 
 	// ********** Damage **********
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int FellOutOfWorldScoreAmount = 100;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int SuicideScoreAmount = -50;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int FallScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int StoolScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int PowerupKnockbackScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HurtSound;
 public:
 	// ********** Powerup **********
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Powerup", meta = (Tooltip = "The strength of which this character will be knocked back when hit by a powered up player"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Powerup", meta = (Tooltip = "The strength of which this character will be knocked back when hit by a powered up player"))
 		float PowerupPushStrength = 80000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Powerup", meta = (Tooltip = "The upwards angle of the powerup knockback"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Powerup", meta = (Tooltip = "The upwards angle of the powerup knockback"))
 		float PowerupUpwardsAngle = 15.f;
 protected:
 	// ********** Misc. **********
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
 		int SpecialMaterialIndex = 6;
 
 	FTransform RelativeMeshTransform;

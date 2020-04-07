@@ -36,7 +36,7 @@ protected:
 	UPROPERTY()
 		AItem_B* Item = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Item")
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
 		bool bSpawnItemAtBeginPlay = true;
 
 public:

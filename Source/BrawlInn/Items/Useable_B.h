@@ -40,16 +40,16 @@ public:
 protected:
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Juice")
+	UPROPERTY(EditDefaultsOnly, Category = "Juice")
 		USoundCue* DrinkSound;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "How long it takes to use the powerup"))
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (ToolTip = "How long it takes to use the powerup"))
 		float UseTime = 2.f;
   
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The duration of the powerup. Set to -1 if it shouldn't expire by time"))
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (ToolTip = "The duration of the powerup. Set to -1 if it shouldn't expire by time"))
 		float Duration = 5.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost", meta = (ToolTip = "The amount of time the camera will focus on this after it spawns"))
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (ToolTip = "The amount of time the camera will focus on this after it spawns"))
 		float CameraFocusDuration = 3.f;
 	
 	FTimerHandle TH_DrinkHandle;

@@ -71,7 +71,6 @@ void ACharacter_B::BeginPlay()
 	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
-
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{

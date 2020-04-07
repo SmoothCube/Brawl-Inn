@@ -153,40 +153,40 @@ protected:
     void ToMergeParams(const TArray<FSkelMeshMergeUVTransformMapping>& InUVTransformsPerMesh, TArray<FSkelMeshMergeUVTransforms>& OutUVTransformsPerMesh);
 
     
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
+    UPROPERTY(EditDefaultsOnly, Category = "Modular Mesh Pieces")
     USkeleton* Skeleton;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
+    UPROPERTY(EditDefaultsOnly, Category = "Modular Mesh Pieces")
     UPhysicsAsset* PhysicsAsset;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Modular Mesh Pieces")
+    UPROPERTY(EditDefaultsOnly, Category = "Modular Mesh Pieces")
     UMaterial* BaseMaterial;
 
-    UPROPERTY(EditAnywhere, Category = "Variables | Modular Mesh Pieces")
+    UPROPERTY(EditAnywhere, Category = "Modular Mesh Pieces")
     TArray<FMeshCategory> MeshCategories;
 
-    UPROPERTY(EditAnywhere, Category = "Variables | Modular Mesh Pieces")
+    UPROPERTY(EditAnywhere, Category = "Modular Mesh Pieces")
     TArray<FTextureCategory> TextureCategories;
 
     // ********** Randomizing **********
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
         float MinHeight = 0.7f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
         float MaxHeight= 1.05f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
         float MinWidth = 0.7f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Variables | Scale Variation")
+    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
         float MaxWidth = 1.05f;
 
     // ********** Generation Time **********
-    UPROPERTY(EditAnywhere, Category = "Variables | Generation Time")
+    UPROPERTY(EditAnywhere, Category = "Generation Time")
     bool Generate = false;
 
 public:
-    UPROPERTY(EditAnywhere, Category = "Variables | Generation Time")
+    UPROPERTY(EditAnywhere, Category = "Generation Time")
     bool bRandomizeOnBeginPlay = true;
 
 

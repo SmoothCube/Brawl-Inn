@@ -36,7 +36,6 @@ AUseable_B::AUseable_B()
 void AUseable_B::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)

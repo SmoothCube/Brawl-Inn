@@ -38,13 +38,13 @@ public:
 	// Sets default values for this actor's properties
 
 	// ********** Drag **********
-	UPROPERTY(EditAnywhere, Category="Variables")
+	UPROPERTY(EditAnywhere)
 	float ItemDragStrength = 100000.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere)
 	float InputMultiplier = 0.25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere)
 	float SkeletalDragStrength= 4000.f;
 protected:
 	//for characters that has not fallen (movement components)

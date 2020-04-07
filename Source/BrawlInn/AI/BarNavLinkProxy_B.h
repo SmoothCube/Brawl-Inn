@@ -21,6 +21,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* Mesh;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(BlueprintReadWrite)
 	bool bDoorIsOpen = false;
 };

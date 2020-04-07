@@ -59,22 +59,22 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float MovementSpeedWhenHeld = 600.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge1ThrowStrength = 1000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge2ThrowStrength = 2000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge3ThrowStrength = 3000.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Throw")
+	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 		FRotator HoldRotation = FRotator(0, 0, 0);
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
+	UPROPERTY(EditAnywhere, Category = "Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
 		float PickupWeight = 1.f;
 
 
@@ -105,7 +105,7 @@ protected:
 
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 		TSubclassOf<UDamageType> BP_DamageType;
 
 	UPROPERTY()

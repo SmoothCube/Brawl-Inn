@@ -17,6 +17,6 @@ public:
 
 	virtual void Use_Implementation() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+	UPROPERTY(EditDefaultsOnly, Category = "Boost")
 		int StunStrength = 2;
 };

@@ -43,16 +43,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USphereComponent* Sphere;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float MovementSpeed = 2250.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float TimeBeforeCanThrow = 0.5f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float TimeUntilAutoThrow = 4.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float TimeBeforeCanBreakBarrel = 0.5f;
 
 	UPROPERTY()
