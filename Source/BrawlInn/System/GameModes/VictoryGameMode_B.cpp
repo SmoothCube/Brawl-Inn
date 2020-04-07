@@ -10,11 +10,9 @@
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/LocalPlayer.h"
-#include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 
 #include "System/GameInstance_B.h"
-#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
 
 void AVictoryGameMode_B::BeginPlay()
@@ -24,13 +22,6 @@ void AVictoryGameMode_B::BeginPlay()
 	ACameraActor* IntroCamera = GetWorld()->SpawnActor<ACameraActor>(ACameraActor::StaticClass(), GameInstance->GetCameraSwapTransform());
 	check(IsValid(IntroCamera));
 	UpdateViewTargets(IntroCamera);
-
-	BWarn("Scoreboard sorted by most score:");
-	for (auto Info : GameInstance->GetPlayerInfos())
-	{
-		APlayerController* Controller = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID);
-		BWarn("Player Controller ID: %i with %i as score.", Info.ID, Controller->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score);
-	}
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Players", OutActors);
@@ -71,6 +62,9 @@ void AVictoryGameMode_B::BeginPlay()
 	FadeToBlackSequencePlayer->OnFinished.AddDynamic(this, &AVictoryGameMode_B::OnFadeToBlackFinished);
 	check(IsValid(FadeToBlackSequencePlayer));
 
+	Skip = CreateWidget<UUserWidget>(GetWorld(), Skip_BP);
+	Skip->AddToViewport();
+	Skip->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void AVictoryGameMode_B::PostLevelLoad()
@@ -87,8 +81,16 @@ void AVictoryGameMode_B::StartFadeToScore()
 	if (bFinalScoreVisible)
 		return;
 
-	FadeToBlackSequencePlayer->Play();
-	bFinalScoreVisible = true;
+	if (!Skip->IsVisible())
+	{
+		Skip->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		FadeToBlackSequencePlayer->Play();
+		bFinalScoreVisible = true;
+		Skip->RemoveFromViewport();
+	}
 }
 
 void AVictoryGameMode_B::OnFadeToBlackFinished()

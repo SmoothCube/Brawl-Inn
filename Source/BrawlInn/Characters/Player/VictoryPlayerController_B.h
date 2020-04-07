@@ -6,7 +6,6 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "VictoryPlayerController_B.generated.h"
 
-
 class AVictoryGameMode_B;
 UCLASS()
 class BRAWLINN_API AVictoryPlayerController_B : public APlayerController_B
@@ -14,13 +13,15 @@ class BRAWLINN_API AVictoryPlayerController_B : public APlayerController_B
 	GENERATED_BODY()
 
 protected:
-
+	// ********** AActor **********
 	void BeginPlay() override;
-	void FaceButtonBottomReleased() override;
 
+	// ********** Buttons **********
+
+	void FaceButtonBottomPressed() override;
 
 	// ********** Misc. **********
 
-	UPROPERTY()
-	AVictoryGameMode_B* GameMode;
+	UPROPERTY(BlueprintReadOnly)
+	AVictoryGameMode_B* VictoryGameMode = nullptr;
 };

@@ -36,8 +36,18 @@ protected:
 	UFUNCTION()
 		void OnFadeToBlackFinished();
 
+	// ********** Skip Widget **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skip")
+		TSubclassOf<UUserWidget> Skip_BP;
+
+	UPROPERTY()
+		UUserWidget* Skip = nullptr;
+
+
 	// ********** Final Scores **********
 public:
+	UFUNCTION(BlueprintCallable)
 	void StartFadeToScore();
 
 	UPROPERTY(EditDefaultsOnly)
