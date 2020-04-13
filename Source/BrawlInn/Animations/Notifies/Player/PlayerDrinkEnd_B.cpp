@@ -12,7 +12,7 @@
 void UPlayerDrinkEnd_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	//Super::Notify(MeshComp, Animation);
-	//Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
-	//if (Player)
-	//	Player->ThrowComponent->CancelDrinking();
+	Player = Cast<APlayerCharacter_B>(MeshComp->GetOwner());
+	if (Player)
+		Player->ThrowComponent->ThrowDrink();
 }

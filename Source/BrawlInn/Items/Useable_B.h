@@ -52,9 +52,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (ToolTip = "The amount of time the camera will focus on this after it spawns"))
 		float CameraFocusDuration = 3.f;
 	
+	UPROPERTY(EditDefaultsOnly)
+		float ThrowAwayStrength = 100000;
+
 	FTimerHandle TH_DrinkHandle;
 
 	UFUNCTION()
 		virtual void ResetBoost();
-
+public:
+	void ThrowAway(FVector Direction);
 };

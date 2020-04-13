@@ -98,6 +98,12 @@ void AUseable_B::ResetBoost()
 {
 }
 
+void AUseable_B::ThrowAway(FVector Direction)
+{
+	Execute_Dropped(this);
+	Mesh->AddImpulse(Direction * ThrowAwayStrength);
+}
+
 void AUseable_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (!GetWorld()->GetTimerManager().TimerExists(TH_DrinkHandle))

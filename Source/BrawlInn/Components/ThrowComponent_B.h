@@ -53,6 +53,8 @@ public:
 	void CancelDrinking();
 
 	bool IsDrinkingFinished();
+
+	void ThrowDrink();
 protected:
 	bool bIsDrinkingFinished = false;
 	

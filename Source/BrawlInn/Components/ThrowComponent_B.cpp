@@ -175,6 +175,41 @@ bool UThrowComponent_B::IsDrinkingFinished()
 	return bIsDrinkingFinished;
 }
 
+void UThrowComponent_B::ThrowDrink()
+{
+	if (!OwningCharacter)
+	{
+		BError("No OwningCharacter for ThrowComponent %s!", *GetNameSafe(this));
+		return;
+	}
+	if (!HoldComponent)
+	{
+		BError("No HoldComponent for ThrowComponent");
+		return;
+	}
+	if (!HoldComponent->IsHolding())
+	{
+		OwningCharacter->SetState(EState::EWalking);
+		return;
+	}
+	OwningCharacter->SetState(EState::EWalking);
+	/// Prepare item to be thrown
+	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
+	if (Useable)
+	{
+		Useable->ThrowAway(OwningCharacter->GetActorRightVector());
+	}
+
+	if (OwningCharacter->GetChargeParticle())
+		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
+	else
+		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
+
+	OwningCharacter->SetIsCharging(false);
+	bIsThrowing = false;
+
+}
+
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 {
 	if (OtherPlayers.Num() == 0)
