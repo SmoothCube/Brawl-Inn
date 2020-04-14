@@ -51,4 +51,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
 		float GetPickupWeight() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+		const FRotator GetHoldRotation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+		const FVector GetHoldLocation();
+
 };

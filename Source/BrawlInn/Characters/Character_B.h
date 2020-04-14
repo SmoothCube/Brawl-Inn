@@ -148,20 +148,18 @@ protected:
 
 public:
 
-	FRotator& GetHoldRotation();
+	const FRotator GetHoldRotation_Implementation() override;
+
+	const FVector GetHoldLocation_Implementation() override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Being Held")
 	FRotator HoldRotation = FRotator(0, 0, 0);
 	
 	UPROPERTY(EditAnywhere, Category = "Being Held")
-	FVector HoldOffset = FVector(0, 0, 500);
+	FVector HoldLocation = FVector(0, 0, 575);
 
 public:
-	// ********** Holding Drink **********
-
-	UPROPERTY(EditAnywhere, Category = "Holding")
-	FVector HoldingDrinkOffset = FVector(-20.920467,-3.708875,7.292015);
 
 	// ********** Charge **********
 	EChargeLevel GetChargeLevel();

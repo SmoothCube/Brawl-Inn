@@ -55,7 +55,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 	Charge2ThrowStrength = 1000000.f;
 	Charge3ThrowStrength = 2000000.f;
 
-	HoldOffset = FVector(0, 0, 500);
 	//HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
 
 	PickupWeight = 4.f;
