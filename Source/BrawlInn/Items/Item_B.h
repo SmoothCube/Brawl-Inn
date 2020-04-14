@@ -42,7 +42,9 @@ protected:
 	// ********** Throwing **********
 public:
 
-	FRotator& GetHoldRotation();
+	const FVector GetHoldLocation_Implementation() override;
+
+	const FRotator GetHoldRotation_Implementation() override;
 
 protected:
 
@@ -73,6 +75,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 		FRotator HoldRotation = FRotator(0, 0, 0);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Throw")
+		FVector HoldLocation = FVector(92.291679f, -63.935005f, 0.000139f);
 
 	UPROPERTY(EditAnywhere, Category = "Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
 		float PickupWeight = 1.f;

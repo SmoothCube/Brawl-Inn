@@ -55,6 +55,9 @@ ACharacter_B::ACharacter_B()
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
 	//PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
+
+	HoldRotation = FRotator(0,0, 180);
+	HoldLocation = FVector(10, -50, -15);
 }
 
 void ACharacter_B::BeginPlay()
@@ -250,8 +253,8 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 
 	HoldingCharacter = Player;
-	SetActorLocation(GetActorLocation() + HoldOffset);
-	SetActorLocation(FindMeshGroundLocation());
+///	SetActorLocation(GetActorLocation() + HoldLocation);
+	//SetActorLocation(FindMeshGroundLocation());
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
@@ -268,7 +271,9 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetCharacterMovement()->StopActiveMovement();
 	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-	SetActorRotation(HoldRotation);
+//	SetActorRotation(HoldRotation);
+
+	
 
 }
 
@@ -320,7 +325,7 @@ bool ACharacter_B::IsHeld_Implementation() const
 
 bool ACharacter_B::CanBeHeld_Implementation() const
 {
-	return bCanBeHeld;
+	return bCanBeHeld && !bIsInvulnerable;
 }
 
 float ACharacter_B::GetThrowStrength_Implementation(EChargeLevel level) const
@@ -529,9 +534,14 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 
 }
 
-FRotator& ACharacter_B::GetHoldRotation()
+const FRotator ACharacter_B::GetHoldRotation_Implementation()
 {
 	return HoldRotation;
+}
+
+const FVector ACharacter_B::GetHoldLocation_Implementation()
+{
+	return HoldLocation;
 }
 
 EChargeLevel ACharacter_B::GetChargeLevel()
