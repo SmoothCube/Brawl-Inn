@@ -5,6 +5,9 @@
 #include "NiagaraComponent.h"
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
+#include "Components/CapsuleComponent.h"
+
+#include "DrawDebugHelpers.h"
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
@@ -27,9 +30,9 @@ void UThrowComponent_B::BeginPlay()
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
+		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
 	}
 	HoldComponent = OwningCharacter->HoldComponent;
 }
@@ -216,13 +219,16 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		return false;
 
 	FVector PlayerLocation = OwningCharacter->GetActorLocation();
-	PlayerLocation.Z = 0;
+
 	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * AimAssistRange;
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
+	DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
+	DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
 
 	TArray<ACharacter_B*> PlayersInCone;
+	TArray<ACharacter_B*> PlayersInInnerCone;
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
@@ -231,27 +237,51 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		if (HoldComponent && (OtherPlayer == HoldComponent->GetHoldingItem()))
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
-		OtherPlayerLocation.Z = 0;
 
 		FVector PlayerToOtherPlayer = OtherPlayerLocation - PlayerLocation;
+
 		if (PlayerToOtherPlayer.Size() > AimAssistRange)
 			continue;
 
+		//Inner range check
+		if (PlayerToOtherPlayer.Size() < AimAssistInnerRange)
+		{
+			FVector ZeroZPlayerToForward = PlayerToForward;
+			ZeroZPlayerToForward.Z = 0;
+			FVector ZeroZPlayerToOtherPlayer = PlayerToOtherPlayer;
+			ZeroZPlayerToOtherPlayer.Z = 0;
+
+			float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(ZeroZPlayerToForward.GetSafeNormal(), ZeroZPlayerToOtherPlayer.GetSafeNormal())));
+			if (AngleA <= AimAssistInnerAngle)
+			{
+				BWarn("Found Character in cone!");
+				PlayersInInnerCone.Add(OtherPlayer);
+			}
+		}
+		if (PlayersInInnerCone.Num() > 0)
+			continue;
+		//outer range check
 		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToOtherPlayer.GetSafeNormal())));
 		if (AngleA <= AimAssistAngle)
+		{
+			BWarn("Found Character in cone!");
 			PlayersInCone.Add(OtherPlayer);
+		}
 	}
-	ACharacter_B* TargetPlayer = nullptr;
+	TArray<ACharacter_B*> ArrayToCheck = PlayersInCone;
+	if (PlayersInInnerCone.Num() > 0)
+		ArrayToCheck = PlayersInInnerCone;
 
-	switch (PlayersInCone.Num())
+	ACharacter_B* TargetPlayer = nullptr;
+	switch (ArrayToCheck.Num())
 	{
 	case 0:
 		return false;
 	case 1:
-		TargetPlayer = PlayersInCone[0];
+		TargetPlayer = ArrayToCheck[0];
 		break;
 	default:
-		PlayersInCone.Sort([&](const ACharacter_B& LeftSide, const ACharacter_B& RightSide)
+		ArrayToCheck.Sort([&](const ACharacter_B& LeftSide, const ACharacter_B& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -261,19 +291,18 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
-		TargetPlayer = PlayersInCone[0];
+		TargetPlayer = ArrayToCheck[0];
 		break;
 	}
-
-	FVector TargetLocation = TargetPlayer->GetActorLocation();
-
-	FVector ThrowDirection = TargetLocation - PlayerLocation;
+	
+	FVector TargetLocation = TargetPlayer->GetActorLocation() + FVector(0.f, 0.f, TargetPlayer->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	FVector ThrowDirection = TargetLocation - HoldComponent->GetHoldingItem()->GetActorLocation();
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 
 	return true;
 }
 
-void UThrowComponent_B::OneCharacterChanged()
+void UThrowComponent_B::OnAnyCharacterChanged()
 {
 	/// Finds all characters
 	OtherPlayers.Empty();

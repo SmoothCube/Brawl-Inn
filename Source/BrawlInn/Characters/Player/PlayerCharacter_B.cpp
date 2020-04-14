@@ -50,15 +50,15 @@ APlayerCharacter_B::APlayerCharacter_B()
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
-
 	Charge1ThrowStrength = 400000.f;
 	Charge2ThrowStrength = 1000000.f;
 	Charge3ThrowStrength = 2000000.f;
 
 	HoldOffset = FVector(0, 0, 500);
 
+	FallRecoveryTime = 2.f;
 	PickupWeight = 4.f;
-	FallRecoveryTime = 5.f;
+
 }
 
 void APlayerCharacter_B::BeginPlay()

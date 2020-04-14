@@ -71,10 +71,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistRange = 1000.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
+		float AimAssistInnerAngle = 55.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
+		float AimAssistInnerRange = 300.f;
+
+
 	// ********** Misc. **********
 
 	UFUNCTION()
-		void OneCharacterChanged();
+		void OnAnyCharacterChanged();
 
 	UPROPERTY()
 		TArray<ACharacter_B*> OtherPlayers;
