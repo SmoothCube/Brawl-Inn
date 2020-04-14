@@ -76,7 +76,6 @@ void AUseable_B::Use_Implementation()
 		}
 	}
 
-	DrinkMesh->DestroyComponent();
 	PickupCapsule->DestroyComponent();
 	NiagaraSystemComponent->DestroyComponent();
 
@@ -100,6 +99,7 @@ void AUseable_B::ResetBoost()
 
 void AUseable_B::ThrowAway(FVector Direction)
 {
+	DrinkMesh->DestroyComponent();
 	Execute_Dropped(this);
 	Mesh->AddImpulse(Direction * ThrowAwayStrength);
 }

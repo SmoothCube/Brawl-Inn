@@ -99,7 +99,7 @@ protected:
 	FVector FindMeshGroundLocation() const;
 
 	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when an external force made the character fall."))
-		float FallRecoveryTime = 2.f;
+		float FallRecoveryTime = 5.f;
 
 	UPROPERTY(EditAnywhere, Category = "Fall")
 		float FallLimitMultiplier = 1.5;

@@ -126,7 +126,6 @@ void UMergeMeshComponent_B::PostEditChangeProperty(FPropertyChangedEvent& Proper
 }
 #endif
 
-
 void UMergeMeshComponent_B::ToMergeParams(const TArray<FSkelMeshMergeSectionMapping_BP>& InSectionMappings, TArray<FSkelMeshMergeSectionMapping>& OutSectionMappings)
 {
     if (InSectionMappings.Num() > 0)

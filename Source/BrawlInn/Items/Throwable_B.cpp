@@ -97,23 +97,18 @@ void AThrowable_B::Use_Implementation()
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		DestructibleComponent->SetCollisionProfileName("Destructible");
 		DestructibleComponent->SetSimulatePhysics(true);
+		DestructibleComponent->SetPhysicsLinearVelocity(FVector(0.f, 0.f, 0.f));
+		DestructibleComponent->SetPhysicsAngularVelocity(FVector(0.f, 0.f, 0.f));
 	}
 	else
 	{
 		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
 	}
-
 	bIsThrown = true;
 }
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
-	if (Mesh)
-		Mesh->DestroyComponent();
-	if (PickupCapsule)
-		PickupCapsule->DestroyComponent();
-	SetRootComponent(DestructibleComponent);
-
 	DestructibleComponent->SetCollisionProfileName("AfterFracture");
 	DestructibleComponent->SetGenerateOverlapEvents(false);
 
@@ -158,8 +153,9 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
 		PickupCapsule->DestroyComponent();
+	SetRootComponent(DestructibleComponent);
 
-	DestructibleComponent->ApplyDamage(1000, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 100);
+	DestructibleComponent->ApplyDamage(1, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 10000);
 }
 
 UDestructibleComponent* AThrowable_B::GetDestructibleComponent() const
