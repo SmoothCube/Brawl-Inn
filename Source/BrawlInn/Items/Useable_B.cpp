@@ -30,7 +30,9 @@ AUseable_B::AUseable_B()
 	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// Overriding variables
 	PickupWeight = 3.f;
+	HoldLocation = FVector(-20.920467, -3.708875, 7.292015);
 }
 
 void AUseable_B::BeginPlay()
@@ -56,8 +58,8 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 
 void AUseable_B::Dropped_Implementation()
 {
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	DetachFromActor(rules);
+	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(Rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
 	Mesh->SetSimulatePhysics(true);
 }

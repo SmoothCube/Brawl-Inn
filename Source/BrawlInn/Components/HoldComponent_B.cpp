@@ -98,19 +98,8 @@ bool UHoldComponent_B::TryPickup()
 		break;
 	}
 
-	ACharacter_B* Character = Cast<ACharacter_B>(NearestItem);
-	if (Character)
-	{
-		if (Character->Execute_CanBeHeld(Character) && !Character->IsInvulnerable())
-		{
-			Pickup(NearestItem);
-			return true;
-		}
-		return false;
-	}
-
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(NearestItem);
-	if (Interface->Execute_CanBeHeld(NearestItem))
+	if (Interface && Interface->Execute_CanBeHeld(NearestItem))
 	{
 		Pickup(NearestItem);
 		return true;
@@ -121,24 +110,18 @@ bool UHoldComponent_B::TryPickup()
 void UHoldComponent_B::Pickup(AActor* Item)
 {
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(Item);
-	if (Interface)
-		Interface->Execute_PickedUp(Item, OwningCharacter);
+	check(Interface);
 
-	FVector Offset = FVector::ZeroVector;
-	FName HoldSocketName = HoldingSocketName;
-	if (Item->IsA(AUseable_B::StaticClass()))
-	{
-		Offset = OwningCharacter->HoldingDrinkOffset;
-		HoldSocketName = FName("handBase_export_R_jnt");
-	}
+	Interface->Execute_PickedUp(Item, OwningCharacter);
+
+	const FName HoldSocketName = Item->IsA(AUseable_B::StaticClass()) ? FName("handBase_export_R_jnt") : HoldingSocketName;
+
 	const FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldSocketName);
 	HoldingItem = Item;
 
-	ACharacter_B* Character = Cast<ACharacter_B>(Item);
-
-	Item->AddActorLocalOffset(Character ? FVector(0, 0, 75) : Offset);
-	Item->SetActorRelativeRotation(Character ? Character->GetHoldRotation() : Cast<AItem_B>(Item)->GetHoldRotation());
+	Item->AddActorLocalOffset(Interface->Execute_GetHoldLocation(Item));
+	Item->SetActorRelativeRotation(Interface->Execute_GetHoldRotation(Item));
 
 	OwningCharacter->SetState(EState::EHolding);
 }

@@ -47,7 +47,7 @@ protected:
 		AActor* HoldingItem = nullptr;
 
 	UPROPERTY(EditAnywhere)
-		FName HoldingSocketName = FName("HoldingItemSocket");
+		FName HoldingSocketName = FName("middle1_L_export_jnt");
 
 	// ********** Misc. **********
 public:
