@@ -21,8 +21,6 @@ UMergeMeshComponent_B::UMergeMeshComponent_B(const FObjectInitializer& ObjectIni
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
 
 
@@ -50,6 +48,7 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
 
     //Randomize mesh
     FSkeletalMeshMergeParams params;
+    params.bSkeletonBefore = true;
     params.Skeleton = Skeleton;
 
     for (FMeshCategory& category : MeshCategories)
@@ -63,6 +62,7 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
     if (Character)
     {
         Character->GetMesh()->SetSkeletalMesh(MergedMesh);
+        Character->GetMesh()->SkeletalMesh->Skeleton = Skeleton;
         //Randomize textures
         UMaterialInstanceDynamic* NewMaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
         for (FTextureCategory& category : TextureCategories)
@@ -76,7 +76,6 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
             else
                 BError("World is invalid!");
         }
-
         //Randomize scale
         float Height = FMath::FRandRange(MinHeight, MaxHeight);
         float Width = FMath::FRandRange(MinWidth, MaxWidth);
@@ -85,9 +84,8 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
         return true;
     }
     return false;
-
-
 }
+
 void UMergeMeshComponent_B::AddRandomMeshFromCategory(FSkeletalMeshMergeParams& params, FMeshCategory MeshCategory)
 {
     //finds a random mesh in array;'
@@ -103,6 +101,7 @@ void UMergeMeshComponent_B::AddRandomMeshFromCategory(FSkeletalMeshMergeParams& 
     //Adds it to the parameter;
     params.MeshesToMerge.Add(MeshCategory.Meshes[i]);
 }
+
 void UMergeMeshComponent_B::AddRandomTextureFromCategory(UMaterialInstanceDynamic* Material, FTextureCategory TextureCategory)
 {
     //finds a random mesh in array;
@@ -165,6 +164,8 @@ void UMergeMeshComponent_B::ToMergeParams(const TArray<FSkelMeshMergeUVTransform
 
 USkeletalMesh* UMergeMeshComponent_B::MergeMeshes(const FSkeletalMeshMergeParams& Params)
 {
+
+    //Validates the meshes
     TArray<USkeletalMesh*> MeshesToMergeCopy = Params.MeshesToMerge;
     MeshesToMergeCopy.RemoveAll([](USkeletalMesh* InMesh)
         {
@@ -175,9 +176,13 @@ USkeletalMesh* UMergeMeshComponent_B::MergeMeshes(const FSkeletalMeshMergeParams
         UE_LOG(LogTemp, Warning, TEXT("Must provide multiple valid Skeletal Meshes in order to perform a merge."));
         return nullptr;
     }
+
+    //checks if the meshes need CPU access
     EMeshBufferAccess BufferAccess = Params.bNeedsCpuAccess ?
         EMeshBufferAccess::ForceCPUAndGPU :
         EMeshBufferAccess::Default;
+
+
     TArray<FSkelMeshMergeSectionMapping> SectionMappings;
     TArray<FSkelMeshMergeUVTransforms> UvTransforms;
     ToMergeParams(Params.MeshSectionMappings, SectionMappings);
@@ -188,20 +193,6 @@ USkeletalMesh* UMergeMeshComponent_B::MergeMeshes(const FSkeletalMeshMergeParams
     {
         BaseMesh->Skeleton = Params.Skeleton;
         bRunDuplicateCheck = true;
-        for (USkeletalMeshSocket* Socket : BaseMesh->GetMeshOnlySocketList())
-        {
-            if (Socket)
-            {
-                UE_LOG(LogTemp, Warning, TEXT("SkelMeshSocket: %s"), *(Socket->SocketName.ToString()));
-            }
-        }
-        for (USkeletalMeshSocket* Socket : BaseMesh->Skeleton->Sockets)
-        {
-            if (Socket)
-            {
-                UE_LOG(LogTemp, Warning, TEXT("SkelSocket: %s"), *(Socket->SocketName.ToString()));
-            }
-        }
     }
     FSkeletalMeshMerge Merger(BaseMesh, MeshesToMergeCopy, SectionMappings, Params.StripTopLODS, BufferAccess, UvTransforms.GetData());
     if (!Merger.DoMerge())
