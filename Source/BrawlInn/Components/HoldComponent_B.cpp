@@ -129,7 +129,7 @@ void UHoldComponent_B::Pickup(AActor* Item)
 	if (Item->IsA(AUseable_B::StaticClass()))
 	{
 		Offset = OwningCharacter->HoldingDrinkOffset;
-		HoldSocketName = FName("HoldingDrinkSocket");
+		HoldSocketName = FName("handBase_export_R_jnt");
 	}
 	const FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	Item->AttachToComponent(Cast<USceneComponent>(OwningCharacter->GetMesh()), Rules, HoldSocketName);

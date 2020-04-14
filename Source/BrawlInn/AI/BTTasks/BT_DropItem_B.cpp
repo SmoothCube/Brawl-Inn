@@ -57,8 +57,8 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	AItem_B* NewItem = GetWorld()->SpawnActor<AItem_B>(Item->GetClass(), DropPoint->GetActorTransform());
 	Item->Destroy();
-	DropPoint->SetNewItem(NewItem);
 	NewItem->SetActorLocationAndRotation(DropPoint->GetActorLocation(), DropPoint->GetActorRotation());
+	DropPoint->SetNewItem(NewItem);
 
 	OwnerComp.GetBlackboardComponent()->ClearValue(DropTargetPoint.SelectedKeyName);
 
