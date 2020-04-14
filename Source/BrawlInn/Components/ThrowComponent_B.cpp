@@ -7,8 +7,6 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 
-#include "DrawDebugHelpers.h"
-
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
@@ -170,6 +168,16 @@ void UThrowComponent_B::CancelDrinking()
 	{
 		OwningCharacter->PunchComponent->SetCanPunch(true);
 		OwningCharacter->PunchComponent->SetCanDash(true);
+		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
+		if (Interface)
+		{
+			Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
+		}
+		HoldComponent->SetHoldingItem(nullptr);
+		OwningCharacter->SetState(EState::EWalking);
+
+		OwningCharacter->SetIsCharging(false);
+		bIsThrowing = false;
 	}
 }
 
@@ -224,8 +232,8 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
-	DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
-	DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
+	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
+	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
 
 	TArray<ACharacter_B*> PlayersInCone;
 	TArray<ACharacter_B*> PlayersInInnerCone;

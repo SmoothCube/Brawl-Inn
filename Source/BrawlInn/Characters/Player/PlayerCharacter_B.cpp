@@ -58,7 +58,6 @@ APlayerCharacter_B::APlayerCharacter_B()
 
 	FallRecoveryTime = 2.f;
 	PickupWeight = 4.f;
-
 }
 
 void APlayerCharacter_B::BeginPlay()
