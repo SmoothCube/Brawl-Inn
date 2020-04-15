@@ -9,6 +9,8 @@
 
 class UCameraShake;
 class USoundCue;
+class USoundBase;
+class UAudioComponent;
 
 DECLARE_MULTICAST_DELEGATE(FPlayerInfoChanged);
 
@@ -16,6 +18,8 @@ UCLASS()
 class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
+
+public:
 
 		// ********** UGameInstance **********
 protected:
@@ -38,16 +42,21 @@ protected:
 		TSubclassOf<UCameraShake> ImpactCameraShake;
 
 	// ********** Sound **********
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAudioComponent* MainMusicComponent;
 	UPROPERTY()
 	UAudioComponent* BirdSoundComponent;
+
 	UPROPERTY()
 	UAudioComponent* RiverSoundComponent;
-
+	
+	UPROPERTY()
+	UAudioComponent* MainMusicComponent;
 public:
-	void StartSounds();
+
+	void StartAmbientSounds();
+
+	void SetAndPlayMusic(USoundCue* NewMusic);
+
+	const USoundBase* GetCurrentMusic();
 
 	float GetMasterVolume() const;
 

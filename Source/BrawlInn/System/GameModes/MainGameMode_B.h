@@ -30,10 +30,6 @@ protected:
 
 	AMainGameMode_B();
 
-	// ********** Components **********
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		UAudioComponent* MainMusicComponent;
-
 	void PostLevelLoad() override;
 
 	// ** Overridden functions **
@@ -113,7 +109,6 @@ private:
 
 	// ********** Sound **********
 public:
-	void SetMusic(USoundCue* NewMusic);
 
 	void ResetMusic();
 protected:
