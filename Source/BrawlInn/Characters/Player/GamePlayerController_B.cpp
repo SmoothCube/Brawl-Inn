@@ -184,7 +184,7 @@ void AGamePlayerController_B::LeftStickYAxis(const float Value)
 
 void AGamePlayerController_B::TryPauseGame()
 {
-	check(IsValid(MainGameMode));
+	if(IsValid(MainGameMode))
 		MainGameMode->PauseGame(this);
 }
 

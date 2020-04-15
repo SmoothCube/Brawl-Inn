@@ -58,7 +58,8 @@ protected:
 
 	void LeftStickYAxis(float Value) override;
 	
-	void TryPauseGame();
+	virtual void TryPauseGame();
+	
 	///Returns true if the player character is being held
 	bool TryBreakFree();
 

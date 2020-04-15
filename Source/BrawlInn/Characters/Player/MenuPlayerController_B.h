@@ -47,6 +47,8 @@ protected:
 	void FaceButtonBottomPressed() override;
 
 	void FaceButtonRightPressed() override;
+
+	void TryPauseGame() override;
 	
 	void TrySelect();
 	

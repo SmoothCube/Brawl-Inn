@@ -22,5 +22,5 @@ void AMenuMapLevelScriptActor_B::BeginPlay()
 	GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	checkf(GameMode, TEXT("Wrong GameMode in MenuMapStreamed!"));
 	const FLatentActionInfo Info(0, 0, TEXT("PostLevelLoad"), GameMode);
-	UGameplayStatics::LoadStreamLevel(GetWorld(), GameMapName,true,false,Info);
+	UGameplayStatics::LoadStreamLevel(GetWorld(), GameMapName,true,true,Info);
 }

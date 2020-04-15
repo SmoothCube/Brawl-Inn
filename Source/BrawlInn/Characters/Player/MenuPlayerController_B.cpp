@@ -100,6 +100,10 @@ void AMenuPlayerController_B::FaceButtonRightPressed()
 	Unselect();
 }
 
+void AMenuPlayerController_B::TryPauseGame()
+{
+}
+
 void AMenuPlayerController_B::TrySelect()
 {
 	if (PlayerCharacter)
