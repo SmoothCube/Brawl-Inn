@@ -14,7 +14,6 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnGetPunched, ACharacter_B*);
 
 DECLARE_MULTICAST_DELEGATE(FOnPunchHit);
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BRAWLINN_API UPunchComponent_B : public USphereComponent
 {
@@ -110,7 +109,7 @@ protected:
 public:
 	FOnGetPunched OnGetPunched_D;
 
-	FOnPunchHit OnPunchHit_D;
+	FOnPunchHit OnHitPlayerPunch_D;
 
 	// ********** Dash **********
 	UFUNCTION(BlueprintCallable)

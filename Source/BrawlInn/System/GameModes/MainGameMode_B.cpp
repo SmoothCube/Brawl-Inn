@@ -170,11 +170,10 @@ void AMainGameMode_B::EndGame()
 {
 	bGameIsOver = true;
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-
-	auto LeadingControllers = GetLeadingPlayerController();
-	BWarn("Number of leaders: %d", LeadingControllers.Num());
-
 	//TODO EndGame needs to be implemented.
+
+	DisableControllerInputs();
+	
 
 	ACameraActor* OutroCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(-2200.f, 480.f, 2200.f), FRotator(60, 0, 0));
 	check(IsValid(OutroCamera));

@@ -256,8 +256,6 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 
 	HoldingCharacter = Player;
-///	SetActorLocation(GetActorLocation() + HoldLocation);
-	//SetActorLocation(FindMeshGroundLocation());
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
 	GetWorld()->GetTimerManager().ClearTimer(TH_FallRecoverTimer);
@@ -274,7 +272,6 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetCharacterMovement()->StopActiveMovement();
 	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-//	SetActorRotation(HoldRotation);
 
 }
 
@@ -395,7 +392,6 @@ void ACharacter_B::MakeVulnerable()
 		RemoveSpecialMaterial();
 }
 
-
 bool ACharacter_B::IsInvulnerable()
 {
 	return bIsInvulnerable;
@@ -450,7 +446,6 @@ void ACharacter_B::SetState(EState s)
 
 EState ACharacter_B::GetState() const
 {
-
 	return State;
 }
 
@@ -531,7 +526,6 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 				UGameplayStatics::ApplyDamage(HitCharacter, 1, HitCharacter->GetController(), this, UDamageType::StaticClass());
 		}
 	}
-
 }
 
 const FRotator ACharacter_B::GetHoldRotation_Implementation()

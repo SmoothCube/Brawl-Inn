@@ -31,6 +31,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -113,6 +114,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void OnScoreParticleTimerFinished();
+
+	void OnPunchHit();
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Score|Visuals")
 		UNiagaraSystem* ScoreParticle = nullptr;

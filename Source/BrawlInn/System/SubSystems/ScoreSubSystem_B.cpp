@@ -4,10 +4,26 @@
 
 #include "BrawlInn.h"
 
-void UScoreSubSystem_B::AddScore(const int Score)
+void UScoreSubSystem_B::AddScore(const int Value, const EScoreValueTypes Type)
 {
-	ScoreValues.LastScoreAdded = Score;
-	ScoreValues.Score += Score;
+	switch (Type) {
+	case Score:
+		ScoreValues.Score += Value;
+		ScoreValues.LastScoreAdded = Value;
+		break;
+	case PunchesHit:
+		ScoreValues.PunchesHit += Value;
+		break;
+	case ThrowablesHit:
+		ScoreValues.ThrowablesHit += Value;
+	case CrownTime:
+		ScoreValues.CrownTime += Value;
+		break;
+	case OutOfMapDeaths:
+		ScoreValues.OutOfMapDeaths += Value;
+		break;
+	}
+
 	OnScoreValuesChanged.Broadcast(ScoreValues);
 	OnScoreValuesChanged_NoParam.Broadcast();
 }
