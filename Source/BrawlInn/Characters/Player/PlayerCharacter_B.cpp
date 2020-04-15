@@ -163,6 +163,7 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
 	if (HoldComponent)
 		HoldComponent->Drop();
+
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -270,6 +271,12 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
+
+	//Track OutOfWorld
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
+	{
+		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, OutOfMapDeaths);
+	}
 
 	if (GameInstance)
 	{
