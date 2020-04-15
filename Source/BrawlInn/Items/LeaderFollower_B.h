@@ -24,6 +24,8 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 
 	// ********** Components **********
 protected:
@@ -41,8 +43,16 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	FVector Offset = FVector(25, 0, 135);
-public:	
+public:
+
+	// ********** Time Tracking **********
+private:
+	int CurrentCrownTime = 0;
+	FTimerHandle CrownTimer;
+
+	void IncreaseCrownTime();
 	
+public:
 	// ********** Bobbing **********
 	float GetBobbingHeight(float Time);
 

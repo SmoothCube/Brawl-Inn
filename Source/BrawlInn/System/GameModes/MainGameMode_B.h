@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UAudioComponent* MainMusicComponent;
 
-		void PostLevelLoad() override;
+	void PostLevelLoad() override;
 
 	// ** Overridden functions **
 
@@ -46,9 +46,9 @@ protected:
 
 
 	// ********** PreGame **********
-	
+
 	void PreGame();
-	
+
 	void PregameCountdown();
 
 	void PregameCountdownClock();
@@ -77,7 +77,7 @@ public:
 
 	// ********** Score	 **********
 	void SortPlayerControllersByScore(TArray<APlayerController_B*>& TempPlayerControllers);
-	
+
 	FOnAnyScoreChange OnAnyScoreChange;
 
 	void CallOnAnyScoreChange() const;
@@ -164,5 +164,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<ALeaderFollower_B> BP_LeaderFollower;
+
+	UPROPERTY()
+		ALeaderFollower_B* LeaderFollower = nullptr;
 };
 

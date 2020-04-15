@@ -5,13 +5,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "TimerManager.h"
 #include "Engine/World.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
-
 
 ALeaderFollower_B::ALeaderFollower_B()
 {
@@ -33,23 +33,36 @@ void ALeaderFollower_B::BeginPlay()
 		GameMode->OnAnyScoreChange.AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
 	}
 	ScoreUpdated();
+
+	GetWorld()->GetTimerManager().SetTimer(CrownTimer, this, &ALeaderFollower_B::IncreaseCrownTime, 1.f, true);
 }
 
 void ALeaderFollower_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float Height = GetBobbingHeight(GetGameTimeSinceCreation());
+	const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
 	if (LeadingPlayerController && IsValid(LeadingPlayerController->GetPawn()))
 	{
 		APawn* PlayerPawn = LeadingPlayerController->GetPawn();
 		SetActorLocation(
 			FMath::Lerp(
-				GetActorLocation(), 
-				PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector().ToOrientationRotator().RotateVector(Offset)+ FVector(0.f,0.f, Height +BobAmplitude),
+				GetActorLocation(),
+				PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector().ToOrientationRotator().RotateVector(Offset) + FVector(0.f, 0.f, Height + BobAmplitude),
 				LerpAlpha));
 		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
 	}
+}
+
+void ALeaderFollower_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	BLog("Adding Crowntime %i", CurrentCrownTime);
+
+	if (LeadingPlayerController)
+		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(CurrentCrownTime, CrownTime);
+
+	GetWorld()->GetTimerManager().ClearTimer(CrownTimer);
+	Super::EndPlay(EndPlayReason);
 }
 
 void ALeaderFollower_B::ScoreUpdated()
@@ -64,6 +77,11 @@ void ALeaderFollower_B::ScoreUpdated()
 			if (FoundLeadingPlayerController[0]->GetPawn())
 			{
 				Mesh->SetHiddenInGame(false);
+				if ((FoundLeadingPlayerController[0] != LeadingPlayerController) && LeadingPlayerController)
+				{
+					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(CurrentCrownTime, CrownTime);
+				}
+				CurrentCrownTime = 0;
 				LeadingPlayerController = FoundLeadingPlayerController[0];
 			}
 		}
@@ -72,6 +90,12 @@ void ALeaderFollower_B::ScoreUpdated()
 			Mesh->SetHiddenInGame(true);
 		}
 	}
+}
+
+
+void ALeaderFollower_B::IncreaseCrownTime()
+{
+	CurrentCrownTime++;
 }
 
 float ALeaderFollower_B::GetBobbingHeight(float Time)

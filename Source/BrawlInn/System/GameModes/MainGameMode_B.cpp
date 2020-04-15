@@ -173,6 +173,7 @@ void AMainGameMode_B::EndGame()
 	//TODO EndGame needs to be implemented.
 
 	DisableControllerInputs();
+	LeaderFollower->Destroy();
 	
 
 	ACameraActor* OutroCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(-2200.f, 480.f, 2200.f), FRotator(60, 0, 0));
@@ -307,8 +308,9 @@ TArray<APlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
 void AMainGameMode_B::StartMultiplyingScores()
 {
 	bMultiplyScoresAgainstLeader = true;
-
-	if (!GetWorld()->SpawnActor<ALeaderFollower_B>(BP_LeaderFollower, FTransform()))
+	
+	LeaderFollower = GetWorld()->SpawnActor<ALeaderFollower_B>(BP_LeaderFollower, FTransform());
+	if (!LeaderFollower)
 		BError("Spawning LeaderFollower Failed!");
 }
 
