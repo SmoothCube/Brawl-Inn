@@ -192,6 +192,9 @@ void ACharacter_B::StandUp()
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
+
+	HoldingCharacter = nullptr; //moved this here so I can check if you hit the character that threw you
+
 	if (IsValid(GetMesh()))
 	{
 		GetMesh()->SetSimulatePhysics(false);
@@ -273,8 +276,6 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
 //	SetActorRotation(HoldRotation);
 
-	
-
 }
 
 void ACharacter_B::Dropped_Implementation()
@@ -305,7 +306,6 @@ void ACharacter_B::Use_Implementation()
 		GetCharacterMovement()->StopMovementImmediately();
 		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime, true);
-		HoldingCharacter = nullptr;
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
@@ -517,7 +517,7 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 {
 	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
-	if (HitComponent && HitCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
+	if (HitComponent && HitCharacter && HitCharacter != HoldingCharacter &&!HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
 		if (HitCharacter->HasShield())
 		{
