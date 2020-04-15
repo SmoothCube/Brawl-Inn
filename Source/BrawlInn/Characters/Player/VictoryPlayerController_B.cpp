@@ -18,4 +18,3 @@ void AVictoryPlayerController_B::FaceButtonBottomPressed()
 {
 	VictoryGameMode->StartFadeToScore();
 }
-

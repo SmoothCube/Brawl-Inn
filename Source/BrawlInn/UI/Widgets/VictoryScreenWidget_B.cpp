@@ -2,14 +2,33 @@
 
 #include "VictoryScreenWidget_B.h"
 #include "Components/TextBlock.h"
-#include "UI/UIElements/Button_B.h"
 #include "Kismet/GameplayStatics.h"
+
 #include "System/GameInstance_B.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
+#include "UI/UIElements/Button_B.h"
 
 void UVictoryScreenWidget_B::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	//UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+
+	/*TArray<UTextBlock*> PunchTextBlocks;
+	PunchTextBlocks.Add(FirstPlacePunches);
+	PunchTextBlocks.Add(SecondPlacePunches);
+	PunchTextBlocks.Add(ThirdPlacePunches);
+	PunchTextBlocks.Add(FourthPlacePunches);
+
+	for(auto TextBlock : PunchTextBlocks)
+		TextBlock->SetVisibility(ESlateVisibility::Hidden);
+
+	for (int i = 0; i < GameInstance->GetPlayerInfos().Num(); i++)
+	{
+		const int PunchesHit = GameInstance->GetLocalPlayerByIndex(GameInstance->GetPlayerInfos()[i].ID)->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().PunchesHit;
+		PunchTextBlocks[i]->SetText(FText::AsNumber(PunchesHit));
+		PunchTextBlocks[i]->SetVisibility(ESlateVisibility::Visible);
+	}*/
 }
 
 void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

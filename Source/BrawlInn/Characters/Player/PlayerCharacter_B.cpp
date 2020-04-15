@@ -88,6 +88,8 @@ void APlayerCharacter_B::BeginPlay()
 		{
 			NoiseEmitterComponent->MakeNoise(this, 1.f, GetActorLocation());
 		}, 0.5f, true);
+
+	PunchComponent->OnHitPlayerPunch_D.AddUObject(this, &APlayerCharacter_B::OnPunchHit);
 }
 
 void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -169,6 +171,9 @@ void APlayerCharacter_B::Die()
 	Super::Die();
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
+
+	if (PunchComponent->OnHitPlayerPunch_D.IsBoundToObject(this))
+		PunchComponent->OnHitPlayerPunch_D.RemoveAll(this);
 
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
@@ -366,6 +371,12 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 	check(IsValid(ScoreTextWidget));
 
 	ScoreTextWidget->HideScore();
+}
+
+void APlayerCharacter_B::OnPunchHit()
+{
+	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, EScoreValueTypes::PunchesHit);
+	BLog("Punch hit: %i", PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().PunchesHit);
 }
 
 void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)

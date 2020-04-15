@@ -16,10 +16,11 @@ class BRAWLINN_API UScoreSubSystem_B : public ULocalPlayerSubsystem
 	GENERATED_BODY()
 
 public:
-	void AddScore(int Score);
+	void AddScore(int Value, EScoreValueTypes Type = EScoreValueTypes::Score);
 
 	void ResetScoreValues();
 
+	UFUNCTION(BlueprintCallable)
 	FScoreValues GetScoreValues() const;
 
 	FOnScoreValuesChanged OnScoreValuesChanged;
