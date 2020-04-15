@@ -7,7 +7,10 @@
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "Sound/SoundBase.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+
+#include "BrawlInn.h"
 
 void UGameInstance_B::Init()
 {
@@ -40,6 +43,24 @@ void UGameInstance_B::SetCameraSwapTransform(const FTransform Transform)
 FTransform UGameInstance_B::GetCameraSwapTransform() const
 {
 	return CameraSwapTransform;
+}
+
+void UGameInstance_B::StartSounds()
+{
+	if (bMusicInitialized)
+		return;
+	if (!IsValid(BirdSoundComponent) && BirdsCue)
+	{
+		BWarn("Starting Sounds");
+		BirdSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BirdsCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
+		BirdSoundComponent->Play();
+	}
+	if (!IsValid(RiverSoundComponent) && RiverCue)
+	{
+		RiverSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), RiverCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
+		RiverSoundComponent->Play();
+	}
+	bMusicInitialized = true;
 }
 
 float UGameInstance_B::GetMasterVolume() const

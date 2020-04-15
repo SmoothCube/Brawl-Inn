@@ -39,6 +39,9 @@ void AGameMode_B::BeginPlay()
 
 void AGameMode_B::PostLevelLoad()
 {
+	if (GameInstance)
+		GameInstance->StartSounds();
+
 }
 
 void AGameMode_B::DisableControllerInputs()

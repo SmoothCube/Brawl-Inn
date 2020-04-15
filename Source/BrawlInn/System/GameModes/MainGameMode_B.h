@@ -121,12 +121,6 @@ protected:
 		UPauseMenu_B* PauseMenuWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
-		USoundCue* Birds;
-
-	UPROPERTY(EditAnywhere, Category = "Audio")
-		USoundCue* River;
-
-	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Countdown;
 
 

@@ -22,7 +22,6 @@ ADragArea_B::ADragArea_B()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	DragArea = CreateDefaultSubobject<UBoxComponent>("DragArea");
-	RiverSoundComponent = CreateDefaultSubobject<UAudioComponent>("RiverSoundComponent");
 //	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	SetRootComponent(DragArea);
 }
@@ -33,13 +32,7 @@ void ADragArea_B::BeginPlay()
 	Super::BeginPlay();
 	DragArea->OnComponentBeginOverlap.AddDynamic(this, &ADragArea_B::OnOverlapBegin);
 	DragArea->OnComponentEndOverlap.AddDynamic(this, &ADragArea_B::OnOverlapEnd);
-	if (RiverSoundComponent)
-	{
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
-		if (GameInstance)
-			RiverSoundComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume());
-		RiverSoundComponent->Play(FMath::FRandRange(0, 100));
-	}
+
 
 }
 

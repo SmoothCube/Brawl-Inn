@@ -46,6 +46,7 @@ void AMainGameMode_B::BeginPlay()
 
 void AMainGameMode_B::PostLevelLoad()
 {
+	Super::PostLevelLoad();
 	//find and cache score values
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	checkf(IsValid(GameInstance), TEXT("%s can't find the GameInstance_B! ABORT"), *GetNameSafe(this));
@@ -153,10 +154,7 @@ void AMainGameMode_B::StartGame()
 
 	EnableControllerInputs();
 
-	if (GameInstance && Birds)
-		UGameplayStatics::PlaySound2D(GetWorld(), Birds,
-			0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f,
-			FMath::FRandRange(0, 100));
+
 
 	if (GameInstance && MainMusicComponent)
 	{

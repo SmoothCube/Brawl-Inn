@@ -22,8 +22,6 @@ class BRAWLINN_API ADragArea_B : public AActor
 
 protected:
 	// ********** Components **********
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAudioComponent* RiverSoundComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* DragArea = nullptr;

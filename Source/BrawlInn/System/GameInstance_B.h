@@ -8,6 +8,7 @@
 #include "GameInstance_B.generated.h"
 
 class UCameraShake;
+class USoundCue;
 
 DECLARE_MULTICAST_DELEGATE(FPlayerInfoChanged);
 
@@ -37,7 +38,17 @@ protected:
 		TSubclassOf<UCameraShake> ImpactCameraShake;
 
 	// ********** Sound **********
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UAudioComponent* MainMusicComponent;
+	UPROPERTY()
+	UAudioComponent* BirdSoundComponent;
+	UPROPERTY()
+	UAudioComponent* RiverSoundComponent;
+
 public:
+	void StartSounds();
+
 	float GetMasterVolume() const;
 
 	float GetMusicVolume() const;
@@ -61,6 +72,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		float SfxVolume = 1.f;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* BirdsCue;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* RiverCue;
 	// ********** PlayerInfo **********
 public:
 	void AddPlayerInfo(FPlayerInfo PlayerInfo);
@@ -119,5 +135,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings|EditorOnly")
 		bool bMuteMusic = true;
+
+	// ********** Misc **********
+	bool bMusicInitialized = false;
 
 };
