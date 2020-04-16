@@ -68,6 +68,7 @@ protected:
 
 	bool bCanPunch = true;
 
+	TArray<AActor*> HitActors;
 	// ********** ChargePunch **********
 
 	UPROPERTY(EditAnywhere, Category = "Charge", meta = (ToolTip = "The strength a character is pushed with from a level 1 punch"))
@@ -83,8 +84,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Charge", meta = (ToolTip = "The strength a player's mesh is pushed with when falling from a level 3 punch"))
 	float Level3PunchStrength = 2000000.f;		
-
-	bool bHasHit = false;
 
 	UPROPERTY(EditAnywhere, Category = "Punch")
 	float PunchHitVelocityDamper = 0.3f;
@@ -165,5 +164,7 @@ protected:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void CheckPunchHit(AActor* OtherActor, UPrimitiveComponent* OtherComp); //TODO move somewhere further up
 
 };
