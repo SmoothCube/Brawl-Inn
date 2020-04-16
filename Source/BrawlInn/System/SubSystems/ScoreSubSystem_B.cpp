@@ -10,6 +10,8 @@ void UScoreSubSystem_B::AddScore(const int Value, const EScoreValueTypes Type)
 	case Score:
 		ScoreValues.Score += Value;
 		ScoreValues.LastScoreAdded = Value;
+		OnScoreChanged.Broadcast(ScoreValues);
+		OnScoreChangedNoParam.Broadcast();
 		break;
 	case PunchesHit:
 		ScoreValues.PunchesHit += Value;
@@ -24,8 +26,6 @@ void UScoreSubSystem_B::AddScore(const int Value, const EScoreValueTypes Type)
 		break;
 	}
 
-	OnScoreValuesChanged.Broadcast(ScoreValues);
-	OnScoreValuesChanged_NoParam.Broadcast();
 }
 
 void UScoreSubSystem_B::ResetScoreValues()

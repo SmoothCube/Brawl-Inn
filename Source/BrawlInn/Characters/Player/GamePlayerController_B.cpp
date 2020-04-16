@@ -299,8 +299,8 @@ void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 {
 	ScoreTextBlock = TextBlock;
 	UScoreSubSystem_B* ScoreSubSystem = GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
-	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(TextBlock))
-		ScoreSubSystem->OnScoreValuesChanged.AddUObject(TextBlock, &UColoredTextBlock_B::UpdateScore);
+	if (!ScoreSubSystem->OnScoreChanged.IsBoundToObject(TextBlock))
+		ScoreSubSystem->OnScoreChanged.AddUObject(TextBlock, &UColoredTextBlock_B::UpdateScore);
 }
 
 void AGamePlayerController_B::Debug_Spawn() const

@@ -70,7 +70,7 @@ void AMainGameMode_B::PostLevelLoad()
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
 
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
-		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged_NoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
+		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
 	}

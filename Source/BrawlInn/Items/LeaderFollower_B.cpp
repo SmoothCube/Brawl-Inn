@@ -5,8 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LocalPlayer.h"
-#include "TimerManager.h"
-#include "Engine/World.h"
 
 #include "BrawlInn.h"
 #include "Characters/Player/GamePlayerController_B.h"
@@ -34,13 +32,14 @@ void ALeaderFollower_B::BeginPlay()
 	}
 	ScoreUpdated();
 
-	GetWorld()->GetTimerManager().SetTimer(CrownTimer, this, &ALeaderFollower_B::IncreaseCrownTime, 1.f, true);
 }
 
 void ALeaderFollower_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CurrentCrownTime += DeltaTime;
+	
 	const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
 	if (LeadingPlayerController && IsValid(LeadingPlayerController->GetPawn()))
 	{
@@ -56,12 +55,15 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 
 void ALeaderFollower_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	BLog("Adding Crowntime %i", CurrentCrownTime);
 
 	if (LeadingPlayerController && LeadingPlayerController->GetLocalPlayer() && LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>())
-		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(CurrentCrownTime, CrownTime); //the engine crashed here when I pressed escape once
+		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(static_cast<int>(CurrentCrownTime), CrownTime); //the engine crashed here when I pressed escape once
 
-	GetWorld()->GetTimerManager().ClearTimer(CrownTimer);
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode && GameMode->ShouldUseScoreMultiplier())
+	{
+		GameMode->OnAnyScoreChange.RemoveAll(this);
+	}
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -79,7 +81,7 @@ void ALeaderFollower_B::ScoreUpdated()
 				Mesh->SetHiddenInGame(false);
 				if ((FoundLeadingPlayerController[0] != LeadingPlayerController) && LeadingPlayerController)
 				{
-					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(CurrentCrownTime, CrownTime);
+					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(static_cast<int>(CurrentCrownTime), CrownTime);
 				}
 				CurrentCrownTime = 0;
 				LeadingPlayerController = FoundLeadingPlayerController[0];
@@ -90,12 +92,6 @@ void ALeaderFollower_B::ScoreUpdated()
 			Mesh->SetHiddenInGame(true);
 		}
 	}
-}
-
-
-void ALeaderFollower_B::IncreaseCrownTime()
-{
-	CurrentCrownTime++;
 }
 
 float ALeaderFollower_B::GetBobbingHeight(float Time)

@@ -451,7 +451,7 @@ void APlayerCharacter_B::PossessedBy(AController* NewController)
 
 	if (!PlayerController)
 		return;
-	DisplayScoreVisualsHandle = PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.AddUObject(this, &APlayerCharacter_B::DisplayScoreVisuals);
+	DisplayScoreVisualsHandle = PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChanged.AddUObject(this, &APlayerCharacter_B::DisplayScoreVisuals);
 }
 
 void APlayerCharacter_B::UnPossessed()
@@ -459,7 +459,7 @@ void APlayerCharacter_B::UnPossessed()
 	AGamePlayerController_B* OldController = Cast<AGamePlayerController_B>(Controller);
 	if (OldController)
 	{
-		OldController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreValuesChanged.Remove(DisplayScoreVisualsHandle);
+		OldController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChanged.Remove(DisplayScoreVisualsHandle);
 	}
 
 	Super::UnPossessed();

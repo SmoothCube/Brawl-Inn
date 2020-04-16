@@ -34,7 +34,8 @@ protected:
 	
 	void ScoreUpdated();
 
-	APlayerController_B* LeadingPlayerController;
+	UPROPERTY()
+	APlayerController_B* LeadingPlayerController = nullptr;
 	
 
 	// ********** Positioning **********
@@ -47,10 +48,7 @@ public:
 
 	// ********** Time Tracking **********
 private:
-	int CurrentCrownTime = 0;
-	FTimerHandle CrownTimer;
-
-	void IncreaseCrownTime();
+	float CurrentCrownTime = 0;
 	
 public:
 	// ********** Bobbing **********
