@@ -30,16 +30,4 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UButton_B* ContinueButton;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* FirstPlacePunches;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* SecondPlacePunches;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* ThirdPlacePunches;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* FourthPlacePunches;
-
 };
