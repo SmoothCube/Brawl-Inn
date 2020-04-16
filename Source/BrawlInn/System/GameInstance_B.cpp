@@ -27,7 +27,7 @@ void UGameInstance_B::Init()
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), MasterVolume, GGameIni);
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicVolume, GGameIni);
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxVolume, GGameIni);
-	
+
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
@@ -45,13 +45,12 @@ FTransform UGameInstance_B::GetCameraSwapTransform() const
 	return CameraSwapTransform;
 }
 
-void UGameInstance_B::StartSounds()
+void UGameInstance_B::StartAmbientSounds()
 {
 	if (bMusicInitialized)
 		return;
 	if (!IsValid(BirdSoundComponent) && BirdsCue)
 	{
-		BWarn("Starting Sounds");
 		BirdSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BirdsCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
 		BirdSoundComponent->Play();
 	}
@@ -61,6 +60,35 @@ void UGameInstance_B::StartSounds()
 		RiverSoundComponent->Play();
 	}
 	bMusicInitialized = true;
+}
+
+void UGameInstance_B::SetAndPlayMusic(USoundCue* NewMusic)
+{
+	if (NewMusic)
+	{
+		if (!MainMusicComponent)
+		{
+			BWarn("Creating Music Component! Volume: %f", GetMusicVolume());
+			MainMusicComponent = UGameplayStatics::CreateSound2D(GetWorld(), NewMusic, GetMasterVolume() * GetMusicVolume(), 1.f,0.f, {}, true);
+			MainMusicComponent->Play();
+		}
+		else
+		{
+			MainMusicComponent->SetSound(NewMusic);
+			MainMusicComponent->SetVolumeMultiplier(GetMasterVolume() * GetMusicVolume());
+		}
+	}
+	else
+	{
+		BWarn("New Music invalid!");
+	}
+}
+
+const USoundBase* UGameInstance_B::GetCurrentMusic()
+{
+	if (MainMusicComponent)
+		return MainMusicComponent->Sound;
+	return nullptr;
 }
 
 float UGameInstance_B::GetMasterVolume() const

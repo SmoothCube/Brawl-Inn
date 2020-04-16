@@ -31,17 +31,13 @@ AMainGameMode_B::AMainGameMode_B()
 	PrimaryActorTick.bTickEvenWhenPaused = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	bAllowTickBeforeBeginPlay = false;
-
-	MainMusicComponent = CreateDefaultSubobject<UAudioComponent>("MainMusicComponent");
-	SetRootComponent(MainMusicComponent);
-	if (!MainMusicComponent)
-		BError("MusicComponet Not created properly!");
 }
 
 void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
-	MainMusicComponent->Stop();
+	//if(GameInstance)
+	//GameInstance->MainMusicComponent->Stop();
 }
 
 void AMainGameMode_B::PostLevelLoad()
@@ -154,13 +150,10 @@ void AMainGameMode_B::StartGame()
 
 	EnableControllerInputs();
 
-
-
-	if (GameInstance && MainMusicComponent)
+	if (GameInstance)
 	{
-		MainMusicComponent->SetSound(Music);
-		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
-		MainMusicComponent->Play();
+		BWarn("Starting Music");
+		GameInstance->SetAndPlayMusic(Music);
 	}
 }
 
@@ -251,21 +244,11 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 	}
 }
 
-void AMainGameMode_B::SetMusic(USoundCue* NewMusic)
-{
-	if (NewMusic && MainMusicComponent)
-		MainMusicComponent->SetSound(NewMusic);
-	else
-		BWarn("New Music invalid!");
-}
-
 void AMainGameMode_B::ResetMusic()
 {
-	if (MainMusicComponent && (MainMusicComponent->Sound != Music))
+	if (GameInstance && (GameInstance->GetCurrentMusic() != Music))
 	{
-		MainMusicComponent->SetSound(Music);
-		MainMusicComponent->SetVolumeMultiplier(GameInstance->GetMasterVolume() * GameInstance->GetMusicVolume());
-		MainMusicComponent->Play();
+		GameInstance->SetAndPlayMusic(Music);
 	}
 }
 

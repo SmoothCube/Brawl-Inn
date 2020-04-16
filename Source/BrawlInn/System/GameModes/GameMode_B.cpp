@@ -40,7 +40,7 @@ void AGameMode_B::BeginPlay()
 void AGameMode_B::PostLevelLoad()
 {
 	if (GameInstance)
-		GameInstance->StartSounds();
+		GameInstance->StartAmbientSounds();
 
 }
 
