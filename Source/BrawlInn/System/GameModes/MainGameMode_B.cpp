@@ -36,8 +36,6 @@ AMainGameMode_B::AMainGameMode_B()
 void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
-	//if(GameInstance)
-	//GameInstance->MainMusicComponent->Stop();
 }
 
 void AMainGameMode_B::PostLevelLoad()
@@ -151,10 +149,7 @@ void AMainGameMode_B::StartGame()
 	EnableControllerInputs();
 
 	if (GameInstance)
-	{
-		BWarn("Starting Music");
 		GameInstance->SetAndPlayMusic(Music);
-	}
 }
 
 void AMainGameMode_B::EndGame()

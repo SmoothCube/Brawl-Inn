@@ -98,7 +98,7 @@ void AThrowable_B::Use_Implementation()
 		DestructibleComponent->SetCollisionProfileName("Destructible");
 		DestructibleComponent->SetSimulatePhysics(true);
 		DestructibleComponent->SetPhysicsLinearVelocity(FVector(0.f, 0.f, 0.f));
-		DestructibleComponent->SetPhysicsAngularVelocity(FVector(0.f, 0.f, 0.f));
+		DestructibleComponent->SetPhysicsAngularVelocityInDegrees(FVector(0.f, 0.f, 0.f));
 	}
 	else
 	{
