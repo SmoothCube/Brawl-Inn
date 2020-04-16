@@ -5,6 +5,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/AudioComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -42,6 +43,8 @@ APlayerCharacter_B::APlayerCharacter_B()
 
 	NoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>("NoiseEmitterComponent");
 
+	ChiliBrewSoundComp = CreateDefaultSubobject<UAudioComponent>("ChiliBrewSoundComp");
+
 	PS_ChiliBrew = CreateDefaultSubobject<UNiagaraComponent>("ChiliBrewParticle");
 	PS_ChiliBrew->SetupAttachment(GetMesh());
 	PS_ChiliBrew->SetRelativeLocation(FVector(0.f, -14.5f, 80.f));
@@ -69,6 +72,7 @@ void APlayerCharacter_B::BeginPlay()
 	ScoreTextWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
 	PS_ChiliBrew->Deactivate();
+	ChiliBrewSoundComp->Stop();
 
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	checkf(GameInstance, TEXT("%s can't find the GameInstance_B! ABORT"), *GetNameSafe(this));
@@ -154,9 +158,9 @@ UNiagaraComponent* APlayerCharacter_B::GetChiliBrewParticle() const
 	return PS_ChiliBrew;
 }
 
-USoundCue* APlayerCharacter_B::GetChiliBrewSound() const
+UAudioComponent* APlayerCharacter_B::GetChiliBrewSound() const
 {
-	return ChiliBrewSound;
+	return ChiliBrewSoundComp;
 }
 
 void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
@@ -172,6 +176,11 @@ void APlayerCharacter_B::Die()
 	Super::Die();
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
+
+	if (ChiliBrewSoundComp && ChiliBrewSoundComp->IsPlaying())
+		ChiliBrewSoundComp->Stop();
+
+	PS_ChiliBrew->Deactivate();
 
 	if (PunchComponent->OnHitPlayerPunch_D.IsBoundToObject(this))
 		PunchComponent->OnHitPlayerPunch_D.RemoveAll(this);

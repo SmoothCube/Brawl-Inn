@@ -58,7 +58,7 @@ void ALeaderFollower_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	BLog("Adding Crowntime %i", CurrentCrownTime);
 
-	if (LeadingPlayerController)
+	if (LeadingPlayerController && LeadingPlayerController->GetLocalPlayer() && LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>())
 		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(CurrentCrownTime, CrownTime); //the engine crashed here when I pressed escape once
 
 	GetWorld()->GetTimerManager().ClearTimer(CrownTimer);

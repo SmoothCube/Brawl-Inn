@@ -16,6 +16,7 @@ class AController;
 class UGameInstance_B;
 class UDataTable_B;
 class USoundCue;
+class UAudioComponent;
 class AGamePlayerController_B;
 
 UCLASS()
@@ -43,7 +44,7 @@ public:
 
 	UNiagaraComponent* GetChiliBrewParticle() const;
 
-	USoundCue* GetChiliBrewSound() const;
+	UAudioComponent* GetChiliBrewSound() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -52,8 +53,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_ChiliBrew = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Audio")
-		USoundCue* ChiliBrewSound = nullptr;
+	UPROPERTY(VisibleAnywhere, Category = "Audio")
+		UAudioComponent* ChiliBrewSoundComp = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 		UPawnNoiseEmitterComponent* NoiseEmitterComponent = nullptr;
