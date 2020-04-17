@@ -36,13 +36,19 @@ void ARespawnPawn_B::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(TH_ThrowTimer, this, &ARespawnPawn_B::StartThrow, TimeBeforeCanThrow);
 
 	GameCamera = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()))->GetGameCamera();
-
+	
+	Cannon = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
+	if (Cannon)
+		Cannon->AddRotateTarget(this);
+	else
+		BError("No BarrelSpawner Found for RespawnPawn %s", *GetNameSafe(this));
 	check(GameCamera != nullptr);
 
 }
 
 void ARespawnPawn_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+
 	Super::EndPlay(EndPlayReason);
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
@@ -77,11 +83,11 @@ void ARespawnPawn_B::ThrowBarrel()
 	
 	if (!bBarrelIsThrown)
 	{
-		ABounceActorSpawner_B* BarrelSpawner = Cast<ABounceActorSpawner_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABounceActorSpawner_B::StaticClass()));
-		check(IsValid(BarrelSpawner));
+		check(IsValid(Cannon));
 
-		Barrel = BarrelSpawner->SpawnBounceActor(GetActorLocation());
+		Barrel = Cannon->SpawnBounceActor(GetActorLocation());
 
+		Cannon->RemoveRotateTarget(this);	
 		//Barrel now spawns the player...
 		if (Barrel)
 		{

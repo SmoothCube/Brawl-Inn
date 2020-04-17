@@ -8,6 +8,7 @@
 
 class AGameCamera_B;
 class ABounceActor_B;
+class ABounceActorSpawner_B;
 class USphereComponent;
 
 UCLASS()
@@ -57,6 +58,9 @@ protected:
 
 	UPROPERTY()
 		ABounceActor_B* Barrel = nullptr;
+
+	UPROPERTY()
+		ABounceActorSpawner_B* Cannon;
 
 	FVector InputVector = FVector::ZeroVector;
 
