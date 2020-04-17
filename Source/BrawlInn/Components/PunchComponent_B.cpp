@@ -62,16 +62,8 @@ void UPunchComponent_B::PunchStart()
 	GetOverlappingComponents(OurOverlappingComponents);
 	for (auto& comp : OurOverlappingComponents)
 	{
-		ACharacter_B* OtherCharacter = Cast<ACharacter_B>(comp->GetOwner());
-		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(comp);
-
-		if (!bHasHit && OtherCharacter != OwningCharacter)
-		{
-			if (OtherCharacter != nullptr && Capsule != nullptr)
-				PunchHit(OtherCharacter);
-			else
-				PunchHit(comp);
-		}
+		if(IsValid(comp))
+			CheckPunchHit(comp->GetOwner(), comp);
 	}
 
 	if (PunchSound)
@@ -91,6 +83,33 @@ void UPunchComponent_B::PunchStart()
 	}
 
 	PunchDash();
+}
+
+void UPunchComponent_B::CheckPunchHit(AActor* OtherActor, UPrimitiveComponent* OtherComp)
+{
+	if (HitActors.Find(OtherActor) != INDEX_NONE)
+		return;
+
+	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
+	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
+
+	if (OtherActor != OwningCharacter)
+	{
+		if (IsValid(OtherCharacter) && (OtherCharacter->GetState() != EState::EFallen))
+		{
+			BWarn("Punching Character %s, Actors Hit: %d", *GetNameSafe(OtherCharacter), HitActors.Num());
+			if (IsValid(Capsule))
+			{
+				HitActors.Add(OtherActor);
+				PunchHit(OtherCharacter);
+			}
+		}
+		else
+		{
+			HitActors.Add(OtherActor);
+			PunchHit(OtherComp);
+		}
+	}
 }
 
 void UPunchComponent_B::PunchDash()
@@ -168,6 +187,7 @@ void UPunchComponent_B::PunchEnd()
 	OwningCharacter->SetIsCharging(false);
 	OwningCharacter->SetChargeLevel(EChargeLevel::ENotCharging);
 
+	HitActors.Empty();
 	if (!GetIsPunching()) { return; }
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -181,16 +201,16 @@ void UPunchComponent_B::PunchEnd()
 		[&]()
 		{
 			SetCanPunch(true);
-			bHasHit = false;
 		},
 		PunchWaitingTime,
 			false);
 	VelocityBeforeDash = FVector::ZeroVector;
+
+
 }
 
 void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 {
-
 	if (!OtherPlayer) { BError("%s No OtherPlayer found!", *GetNameSafe(this)); return; }
 	if (!OtherPlayer->PunchComponent) { BError("No PunchComponent found for OtherPlayer %s!", *GetNameSafe(OtherPlayer)); return; }
 	if (!OwningCharacter) { BError("No OwningCharacter found for PunchComponent %s!", *GetNameSafe(this)); return; }
@@ -199,15 +219,12 @@ void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)
 	{
 		OtherPlayer->PunchComponent->GetPunched(CalculatePunchStrength(), OwningCharacter);
 		UGameplayStatics::ApplyDamage(OtherPlayer, CalculatePunchDamage(), OwningCharacter->GetController(), OwningCharacter, BP_DamageType);
-
 		OwningCharacter->StunStrength = 1; // This ends the punch powerup after you hit a punch. If we want to end the effect after every punch we need to move this to PunchEnd
 		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 
 		//If the character hit is a player increase the score
 		if (OtherPlayer->IsA(APlayerCharacter_B::StaticClass()))
 			OnHitPlayerPunch_D.Broadcast();
-
-		bHasHit = true;
 	}
 	else
 	{
@@ -224,7 +241,6 @@ void UPunchComponent_B::PunchHit(UPrimitiveComponent* OtherComp)
 		OwningCharacter->GetMovementComponent()->Velocity *= PunchHitVelocityDamper;
 		OtherComp->AddImpulse(CalculatePunchStrength());
 	}
-	bHasHit = true;
 }
 
 void UPunchComponent_B::GetPunched(FVector InPunchStrength, ACharacter_B* PlayerThatPunched)
@@ -339,19 +355,5 @@ bool UPunchComponent_B::GetIsDashing()
 
 void UPunchComponent_B::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ACharacter_B* OtherPlayer = Cast<ACharacter_B>(OtherActor);
-	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
-
-	if (!bHasHit && OtherActor != OwningCharacter)
-	{
-		if (IsValid(OtherPlayer))
-		{
-			if (IsValid(Capsule))
-				PunchHit(OtherPlayer);
-		}
-		else
-		{
-			PunchHit(OtherComp);
-		}
-	}
+	CheckPunchHit(OtherActor, OtherComp);
 }

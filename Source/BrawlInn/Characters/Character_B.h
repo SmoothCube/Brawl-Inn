@@ -178,7 +178,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge3ThrowStrength = 500000.f;
 
-
 	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge2MoveSpeed = 500.f;
 

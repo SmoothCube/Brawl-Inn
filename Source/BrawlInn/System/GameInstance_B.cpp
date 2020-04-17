@@ -68,7 +68,6 @@ void UGameInstance_B::SetAndPlayMusic(USoundCue* NewMusic)
 	{
 		if (!MainMusicComponent)
 		{
-			BWarn("Creating Music Component! Volume: %f", GetMusicVolume());
 			MainMusicComponent = UGameplayStatics::CreateSound2D(GetWorld(), NewMusic, GetMasterVolume() * GetMusicVolume(), 1.f,0.f, {}, true);
 			MainMusicComponent->Play();
 		}
