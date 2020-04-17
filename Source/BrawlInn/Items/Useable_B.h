@@ -6,6 +6,8 @@
 #include "Items/Item_B.h"
 #include "Useable_B.generated.h"
 
+class UDestructibleComponent;
+class UDestructibleMesh;
 class USoundCue;
 class UNiagaraComponent;
 
@@ -17,6 +19,7 @@ class BRAWLINN_API AUseable_B : public AItem_B
 public:
 
 	AUseable_B();
+	// ********** Components **********
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DrinkMesh;
@@ -24,6 +27,14 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* NiagaraSystemComponent;
 
+public:
+
+	UDestructibleComponent* GetDestructibleComponent() const;
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UDestructibleComponent* DestructibleComponent;
+	
 	// ** Overridden functions **
 
 	virtual void BeginPlay() override;
@@ -35,7 +46,7 @@ public:
 	virtual void Dropped_Implementation() override;
 
 	virtual void Use_Implementation() override;
-
+public:
 	float GetUseTime();
 protected:
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
@@ -61,4 +72,21 @@ protected:
 		virtual void ResetBoost();
 public:
 	void ThrowAway(FVector Direction);
+
+private:
+	// ********** Destroy/Fracture **********
+
+	FTimerHandle TH_Despawn;
+	FTimerHandle TH_Destroy;
+	
+	void BeginDespawn();
+
+	void StartDestroy();
+
+	UPROPERTY(EditAnywhere, Category = "Despawning")
+		float DownValuePerTick = 10;
+
+	UPROPERTY(EditAnywhere, Category = "Despawning")
+		float TimeBeforeDespawn = 5.f;
+
 };
