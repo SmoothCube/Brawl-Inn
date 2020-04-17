@@ -65,6 +65,7 @@ void ACharacter_B::BeginPlay()
 	Super::BeginPlay();
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACharacter_B::OnCapsuleOverlapBegin);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACharacter_B::OnCapsuleOverlapEnd);
 
 	NormalMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
@@ -100,9 +101,6 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		HandleMovement(DeltaTime);
 	}
-
-	//	BWarn("Mesh Parent: %s, Capsule Parent: %s", *GetNameSafe(GetMesh()->GetAttachParent()), *GetNameSafe(GetCapsuleComponent()->GetAttachParent()))
-
 }
 
 void ACharacter_B::SetInputVectorX(const float X)
@@ -362,6 +360,16 @@ void ACharacter_B::AddStun(const int Strength)
 	StunAmount += Strength;
 }
 
+int ACharacter_B::GetPunchesToStun()
+{
+	return PunchesToStun;
+}
+
+int ACharacter_B::GetStunAmount()
+{
+	return StunAmount;
+}
+
 void ACharacter_B::SetSpecialMaterial(UMaterialInstance* Material)
 {
 	if (Material)
@@ -526,6 +534,10 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 				UGameplayStatics::ApplyDamage(HitCharacter, 1, HitCharacter->GetController(), this, UDamageType::StaticClass());
 		}
 	}
+}
+
+void ACharacter_B::OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 const FRotator ACharacter_B::GetHoldRotation_Implementation()

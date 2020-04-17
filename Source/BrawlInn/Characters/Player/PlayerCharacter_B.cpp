@@ -476,20 +476,25 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 		return;
 
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
-	if (IsValid(Capsule))
+	if (IsValid(Capsule) && Capsule == OtherActor->GetRootComponent())
 	{
 		int DamageAmount = 5;
 		FVector Direction = FVector::ZeroVector;
 		if (GetState() == EState::EPoweredUp)
 		{
+			BWarn("Powerup Overlap! %s", *GetNameSafe(OtherActor));
 			Direction = ((OtherCharacter->GetActorLocation()) - GetActorLocation());
 			Direction.Z = 0;
 			Direction.Normalize();
 			Direction = Direction.RotateAngleAxis(PowerupUpwardsAngle, FVector::CrossProduct(Direction, FVector(0, 0, 1.f)).GetSafeNormal());
 
 			Direction *= OtherCharacter->PowerupPushStrength;
-
+			OtherCharacter->AddStun();
 			DamageAmount = PowerupKnockbackScoreAmount;
+			if (OtherCharacter->GetStunAmount() >= OtherCharacter->GetPunchesToStun())
+			{
+				OtherCharacter->CheckFall(Direction);
+			}
 		}
 		else if (IsValid(PunchComponent) && PunchComponent->GetIsDashing() && !OtherCharacter->IsInvulnerable())
 		{
@@ -506,3 +511,8 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
 }
+
+void APlayerCharacter_B::OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
+

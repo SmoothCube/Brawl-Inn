@@ -48,7 +48,7 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
 
     //Randomize mesh
     FSkeletalMeshMergeParams params;
-    params.bSkeletonBefore = true;
+    params.bSkeletonBefore = false;
     params.Skeleton = Skeleton;
 
     for (FMeshCategory& category : MeshCategories)

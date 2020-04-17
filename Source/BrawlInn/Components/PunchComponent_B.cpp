@@ -97,7 +97,6 @@ void UPunchComponent_B::CheckPunchHit(AActor* OtherActor, UPrimitiveComponent* O
 	{
 		if (IsValid(OtherCharacter) && (OtherCharacter->GetState() != EState::EFallen))
 		{
-			BWarn("Punching Character %s, Actors Hit: %d", *GetNameSafe(OtherCharacter), HitActors.Num());
 			if (IsValid(Capsule))
 			{
 				HitActors.Add(OtherActor);
