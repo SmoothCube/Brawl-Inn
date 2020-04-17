@@ -73,6 +73,9 @@ void AMainGameMode_B::PostLevelLoad()
 		SpawnCharacter_D.Broadcast(Info, false, FTransform());
 	}
 
+	UpdateViewTargets();
+
+
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
 	TrackingBox = Cast<ATriggerBox>(Actors[0]);

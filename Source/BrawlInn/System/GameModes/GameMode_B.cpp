@@ -41,7 +41,6 @@ void AGameMode_B::PostLevelLoad()
 {
 	if (GameInstance)
 		GameInstance->StartAmbientSounds();
-
 }
 
 void AGameMode_B::DisableControllerInputs()
@@ -84,6 +83,7 @@ void AGameMode_B::CreatePlayerControllers()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), OutActors);
 	for (const auto& Actor : OutActors)
 		PlayerControllers.Add(Cast<APlayerController_B>(Actor));
+
 }
 
 // ---------------- Spawn PlayerCharacter functions --------------------------
@@ -125,7 +125,6 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		MainMode->AddCameraFocusPoint(Character);
 	}
-	UpdateViewTargets();
 	SpawnCharacter_NOPARAM_D.Broadcast();
 }
 
@@ -155,7 +154,7 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	}
 
 	PlayerController->SetPlayerCharacter(nullptr);
-	UpdateViewTargets();
+
 	OnRespawnCharacter_D.Broadcast();
 }
 
@@ -172,7 +171,7 @@ void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 	if (GameInstance)
 		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 
-	UpdateViewTargets();
+
 	DespawnCharacter_NOPARAM_D.Broadcast();
 }
 

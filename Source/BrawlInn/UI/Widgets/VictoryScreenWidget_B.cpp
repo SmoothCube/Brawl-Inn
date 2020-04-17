@@ -3,6 +3,7 @@
 #include "VictoryScreenWidget_B.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
@@ -35,6 +36,11 @@ void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 	ContinueButton->Execute_Tick(ContinueButton);
+}
+
+float UVictoryScreenWidget_B::easeInOut(float t)
+{
+	return t < .5f ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
 }
 
 void UVictoryScreenWidget_B::ContinueButtonClicked()
