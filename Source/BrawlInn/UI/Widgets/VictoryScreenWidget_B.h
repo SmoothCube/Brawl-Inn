@@ -20,6 +20,9 @@ protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+		float easeInOut(float t);
+
 	UFUNCTION()
 		void ContinueButtonClicked();
 
@@ -29,5 +32,9 @@ protected:
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UButton_B* ContinueButton;
+
+private:
+
+	FTimerHandle Handle;
 
 };
