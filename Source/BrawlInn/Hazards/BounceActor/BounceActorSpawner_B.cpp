@@ -4,11 +4,13 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Sound/SoundCue.h"
 #include "DestructibleComponent.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
+#include "Components/MergeMeshComponent_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
 
 ABounceActorSpawner_B::ABounceActorSpawner_B()
@@ -38,6 +40,22 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 	BarrelSpawnLocation->SetupAttachment(CannonBarrelMesh);
 	BarrelSpawnLocation->SetRelativeLocation({ 0.f,0.f,-800.f });
 
+	OperatorNPCMesh = CreateDefaultSubobject<USkeletalMeshComponent>("OperatorNPCMesh");
+	OperatorNPCMesh->SetupAttachment(MainMesh);
+	OperatorNPCMesh->SetRelativeLocation({ -185.f, 0.f, -86.f });
+	OperatorNPCMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
+	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");
+}
+
+void ABounceActorSpawner_B::BeginPlay()
+{
+	Super::BeginPlay();
+	if (MergeMeshComponent && MergeMeshComponent->bRandomizeOnBeginPlay)
+	{
+		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
+		MergeMeshComponent->DestroyComponent();
+	}
 }
 
 void ABounceActorSpawner_B::Tick(float DeltaTime)

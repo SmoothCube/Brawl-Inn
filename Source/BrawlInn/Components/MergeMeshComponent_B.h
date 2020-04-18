@@ -127,7 +127,7 @@ public:
 	// Sets default values for this component's properties
 	UMergeMeshComponent_B(const FObjectInitializer& ObjectInitializer);
 
-    bool CreateRandomMesh();
+    bool CreateRandomMesh(USkeletalMeshComponent* ComponentToAlter = nullptr);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

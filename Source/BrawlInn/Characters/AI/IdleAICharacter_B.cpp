@@ -35,7 +35,7 @@ void AIdleAICharacter_B::BeginPlay()
 
 	if (MergeMeshComponent && MergeMeshComponent->bRandomizeOnBeginPlay)
 	{
-		MergeMeshComponent->CreateRandomMesh();
+		MergeMeshComponent->CreateRandomMesh(GetMesh());
 		MergeMeshComponent->DestroyComponent();
 	}
 }

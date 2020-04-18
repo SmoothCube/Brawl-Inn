@@ -9,6 +9,8 @@
 class ABounceActor_B;
 class USoundCue;
 class UStaticMeshComponent;
+class USkeletalMeshComponent;
+class UMergeMeshComponent_B;
 
 UCLASS()
 class BRAWLINN_API ABounceActorSpawner_B : public AActor
@@ -35,9 +37,20 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* BarrelSpawnLocation;
+
+	UPROPERTY(VisibleAnywhere)
+		USkeletalMeshComponent* OperatorNPCMesh;
+
+	UPROPERTY(VisibleAnywhere)
+		UMergeMeshComponent_B* MergeMeshComponent;
+
+
 public:
 
 	// ********** Overrides **********
+
+	virtual void BeginPlay() override;
+
 	virtual void Tick(float DeltaTime) override;
 
 	// ********** Barrel Spawning **********

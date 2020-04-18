@@ -30,20 +30,26 @@ void UMergeMeshComponent_B::BeginPlay()
 	Super::BeginPlay();
 }
 
-bool UMergeMeshComponent_B::CreateRandomMesh()
+bool UMergeMeshComponent_B::CreateRandomMesh(USkeletalMeshComponent* ComponentToAlter)
 {
-    if (!Skeleton) 
-    { 
+    if (!Skeleton) { BError("No Skeleton Selected to merge to for actor %s!", *GetNameSafe(GetOwner())); return false; }
+    if (!ComponentToAlter) 
+    {
         ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
         if (Character)
         {
-            BError("No Skeleton Selected for character %s!", *GetNameSafe(Character));
+            ComponentToAlter = Character->GetMesh();
+            if (!ComponentToAlter)
+            {
+                BError("Invalid Skeletal mesh component to alter! %s!", *GetNameSafe(GetOwner()));
+                return false;
+            }
         }
         else
         {
-            BError("No Skeleton Selected! Owning character invalid!");
+            BError("Invalid Skeletal mesh component to alter! Owner is not a character, so could not use that! %s!", *GetNameSafe(GetOwner()));
+            return false;
         }
-        return false;
     }
 
     //Randomize mesh
@@ -58,32 +64,27 @@ bool UMergeMeshComponent_B::CreateRandomMesh()
     
     if (!IsValid(MergedMesh)){ BError("Merged Mesh is invalid!"); return false; }
 
-    ACharacter_B* Character = Cast<ACharacter_B>(GetOwner());
-    if (Character)
+    ComponentToAlter->SetSkeletalMesh(MergedMesh);
+    ComponentToAlter->SkeletalMesh->Skeleton = Skeleton;
+    //Randomize textures
+    UMaterialInstanceDynamic* NewMaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+    for (FTextureCategory& category : TextureCategories)
+        AddRandomTextureFromCategory(NewMaterialInstance, category);
+    if (IsValid(NewMaterialInstance))
+        ComponentToAlter->SetMaterial(0,NewMaterialInstance);
+    if (IsValid(PhysicsAsset))
     {
-        Character->GetMesh()->SetSkeletalMesh(MergedMesh);
-        Character->GetMesh()->SkeletalMesh->Skeleton = Skeleton;
-        //Randomize textures
-        UMaterialInstanceDynamic* NewMaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
-        for (FTextureCategory& category : TextureCategories)
-            AddRandomTextureFromCategory(NewMaterialInstance, category);
-        if (IsValid(NewMaterialInstance))
-            Character->GetMesh()->SetMaterial(0,NewMaterialInstance);
-        if (IsValid(PhysicsAsset))
-        {
-            if (GetWorld())
-                Character->GetMesh()->SetPhysicsAsset(PhysicsAsset);
-            else
-                BError("World is invalid!");
-        }
-        //Randomize scale
-        float Height = FMath::FRandRange(MinHeight, MaxHeight);
-        float Width = FMath::FRandRange(MinWidth, MaxWidth);
-        Character->SetActorScale3D({ Width,  Width, Height });
-
-        return true;
+        if (GetWorld())
+            ComponentToAlter->SetPhysicsAsset(PhysicsAsset);
+        else
+            BError("World is invalid!");
     }
-    return false;
+    //Randomize scale
+    float Height = FMath::FRandRange(MinHeight, MaxHeight);
+    float Width = FMath::FRandRange(MinWidth, MaxWidth);
+    ComponentToAlter->SetRelativeScale3D({ Width,  Width, Height });
+
+    return true;
 }
 
 void UMergeMeshComponent_B::AddRandomMeshFromCategory(FSkeletalMeshMergeParams& params, FMeshCategory MeshCategory)
