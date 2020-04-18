@@ -24,11 +24,11 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 
 	SmallCogMesh = CreateDefaultSubobject<UStaticMeshComponent>("SmallCogMesh");
 	SmallCogMesh->SetupAttachment(MainMesh);
-	SmallCogMesh->SetRelativeLocation({ 180.f, 90.f,-60.f });
+	SmallCogMesh->SetRelativeLocation({ 90.f, -180.f,-60.f });
 
 	BigCogMesh = CreateDefaultSubobject<UStaticMeshComponent>("BigCogMesh");
 	BigCogMesh->SetupAttachment(MainMesh);
-	BigCogMesh->SetRelativeLocation({ 180.f, -32.f,-11.f });
+	BigCogMesh->SetRelativeLocation({ -33.f, -180.f,-10.f });
 
 	CannonBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>("CannonBarrelMesh");
 	CannonBarrelMesh->SetupAttachment(MainMesh);
@@ -42,31 +42,27 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 
 void ABounceActorSpawner_B::Tick(float DeltaTime)
 {
-	SmallCogMesh->AddRelativeRotation(FRotator(0.f, 0.f, CogRotateSpeed * DeltaTime));
-	BigCogMesh->AddRelativeRotation(FRotator(0.f, 0.f, CogRotateSpeed * DeltaTime * -1));
+	Super::Tick(DeltaTime);
 
-	FRotator RotationTarget = GetActorRotation();
+	SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
+	BigCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch * -1.f, 0.f, 0.f));
+	CurrentCogPitch += CogRotateSpeed * DeltaTime;
+
 	if (RotateTargets.IsValidIndex(0) && RotateTargets[0])
 	{
 		FVector RotationTarget =  GetActorLocation() - RotateTargets[0]->GetActorLocation();
-		RotationTarget;
+
 		FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed);
 		MainMesh->SetRelativeRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
 
 		FVector LaunchVel = FVector::ZeroVector;
 		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(),RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
 
-		LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetForwardVector());
+		LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
 		FRotator CurrentRot = CannonBarrelMesh->GetRelativeRotation();
-		float AngleInDegrees = FMath::Acos(FVector::DotProduct(LaunchVel, CurrentRot.Vector()));
+		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), CurrentRot.Vector());
 
-		BWarn("Angle: %f", AngleInDegrees);
-		CurrentRot += FRotator(-90.f, 0.f, 0.f);
-		//FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), FRotator(CurrentRot.Pitch, CurrentRot.Yaw, AngleInDegrees), CannonRotateSpeed);
-
-		//CannonBarrelMesh->AddRelativeRotation(FRotator(CurrentRot.Pitch, CurrentRot.Yaw, AngleInDegrees));
-		//CannonBarrelMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch, CurrentRot.Yaw, CurrentRot.Roll + AngleInDegrees), DeltaTime, CannonRotateSpeed));
-
+		CannonBarrelMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
 	}
 }
 

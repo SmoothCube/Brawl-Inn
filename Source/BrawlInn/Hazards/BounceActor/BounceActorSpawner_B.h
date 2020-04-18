@@ -66,5 +66,8 @@ protected:
 	float LowestBarrelRotation = 65.f;
 	// ********** Misc **********
 
+	UPROPERTY(EditAnywhere, Category = "Cog Rotation")
 	float CogRotateSpeed = 50.f;
+
+	float CurrentCogPitch = 0.f;
 };
