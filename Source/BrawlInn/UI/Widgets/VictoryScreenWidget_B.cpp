@@ -3,44 +3,45 @@
 #include "VictoryScreenWidget_B.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "ListView.h"
 #include "TimerManager.h"
 
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/Button_B.h"
+#include "Victory/CharacterVictoryScreen_B.h"
+#include "Victory/StatEntry_B.h"
 
-void UVictoryScreenWidget_B::NativeConstruct()
+void UVictoryScreenWidget_B::NativeOnInitialized()
 {
-	Super::NativeConstruct();
+	Super::NativeOnInitialized();
 
-	//UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
+	EnableContinueButton(); // Enable etterhvert? Ikke instant
 
-	/*TArray<UTextBlock*> PunchTextBlocks;
-	PunchTextBlocks.Add(FirstPlacePunches);
-	PunchTextBlocks.Add(SecondPlacePunches);
-	PunchTextBlocks.Add(ThirdPlacePunches);
-	PunchTextBlocks.Add(FourthPlacePunches);
+	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	for(auto TextBlock : PunchTextBlocks)
-		TextBlock->SetVisibility(ESlateVisibility::Hidden);
+	StatBoards.Add(StatTopLeft);
+	StatBoards.Add(StatTopRight);
+	StatBoards.Add(StatBotLeft);
+	StatBoards.Add(StatBotRight);
 
-	for (int i = 0; i < GameInstance->GetPlayerInfos().Num(); i++)
+	for (auto Board : StatBoards)
 	{
-		const int PunchesHit = GameInstance->GetLocalPlayerByIndex(GameInstance->GetPlayerInfos()[i].ID)->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().PunchesHit;
-		PunchTextBlocks[i]->SetText(FText::AsNumber(PunchesHit));
-		PunchTextBlocks[i]->SetVisibility(ESlateVisibility::Visible);
-	}*/
+		for (int i = 0; i < 3; ++i)
+		{
+			UStatEntry_B* Item = CreateWidget<UStatEntry_B>(Board, BP_StatEntry);
+			Board->StatsList->AddItem(Item);
+		}
+	}
+
+	DisplayScores(PunchesHit);
+	
 }
 
 void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 	ContinueButton->Execute_Tick(ContinueButton);
-}
-
-float UVictoryScreenWidget_B::easeInOut(float t)
-{
-	return t < .5f ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
 }
 
 void UVictoryScreenWidget_B::ContinueButtonClicked()
@@ -58,4 +59,60 @@ void UVictoryScreenWidget_B::EnableContinueButton()
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 	ContinueButton->SetKeyboardFocus();
+}
+
+void UVictoryScreenWidget_B::DisplayScores(const EScoreValueTypes Type)
+{
+	const TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
+	for (int i = 0; i < PlayerInfos.Num(); ++i)
+	{
+		const FScoreValues ScoreValues = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfos[i].ID)
+			->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues();
+
+		switch (Type) {
+		case Score:
+			CountNumber(0, ScoreValues.Score, StatBoards[i]->ScoreNumber);
+			break;
+		case PunchesHit:
+		{
+			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsList->GetItemAt(0));
+			Stat->Text->SetText(FText::FromString("PUNCHES HIT"));
+			CountNumber(0, ScoreValues.PunchesHit, Stat->Number);
+			break;
+		}
+		case OutOfMapDeaths:
+		{
+
+			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsList->GetItemAt(1));
+			Stat->Text->SetText(FText::FromString("OUT OF MAP"));
+			CountNumber(0, ScoreValues.OutOfMapDeaths, Stat->Number);
+			break;
+		}
+		case CrownTime:
+		{
+			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsList->GetItemAt(2));
+			Stat->Text->SetText(FText::FromString("CROWN TIME (S)"));
+			CountNumber(0, ScoreValues.CrownTime, Stat->Number);
+			break;
+		}
+		case ThrowablesHit:
+		{
+			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsList->GetItemAt(3));
+			Stat->Text->SetText(FText::FromString("THROWABLES HIT"));
+			CountNumber(0, ScoreValues.ThrowablesHit, Stat->Number);
+			break;
+		}
+		default:;
+		}
+	}
+
+}
+
+//Count kommer etterhvert
+void UVictoryScreenWidget_B::CountNumber(int Start, int End, UTextBlock* TextBlock)
+{
+	if (!TextBlock)
+		return;
+
+	TextBlock->SetText(FText::AsNumber(End));
 }
