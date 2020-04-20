@@ -92,4 +92,6 @@ protected:
 		TSubclassOf<UStatEntry_B> BP_StatEntry;
 
 	TArray<FCountNumberQueue> CountNumbers;
+
+	FNumberFormattingOptions FormattingOptions;
 };

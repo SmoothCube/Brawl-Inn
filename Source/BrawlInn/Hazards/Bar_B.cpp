@@ -1,29 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Bar_B.h"
 
+
 #include "BrawlInn.h"
+#include "Characters/AI/AICharacter_B.h"
+#include "Characters/AI/IdleAICharacter_B.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/StaticMeshComponent.h"
+#include "System/DataTable_B.h"
+#include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
+#include "Items/Useable_B.h"
 
-#include "System/DataTable_B.h"
-#include "Characters/AI/AICharacter_B.h"
-#include "Characters/AI/IdleAICharacter_B.h"
-#include "System/GameInstance_B.h"
-#include "System/GameModes/MainGameMode_B.h"
-
-ABar_B::ABar_B()
+UBar_B::UBar_B()
 {
-	PrimaryActorTick.bCanEverTick = false;
 
-	House = CreateDefaultSubobject<UStaticMeshComponent>("House");
-	SetRootComponent(House);
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void ABar_B::BeginPlay()
+void UBar_B::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -78,7 +77,7 @@ void ABar_B::BeginPlay()
 		Customers.Add(Customer);
 	}
 
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(GetOwner());
 	if (GameMode)
 	{
 		GameMode->OnGameStart.AddLambda([&]()
@@ -88,14 +87,14 @@ void ABar_B::BeginPlay()
 	}
 }
 
-void ABar_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UBar_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
-
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::EndPlay(EndPlayReason);
 }
 
-void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
+void UBar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 {
 	if (BP_Useables.Num() == 0)
 		return;
@@ -105,7 +104,7 @@ void ABar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
-void ABar_B::RandomOrder()
+void UBar_B::RandomOrder()
 {
 	const int RandomIndex = FMath::RandRange(0, Customers.Num() - 1);
 	if (Customers.IsValidIndex(RandomIndex))
@@ -117,26 +116,25 @@ void ABar_B::RandomOrder()
 		if (GameInstance)
 			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 
-		UGameplayStatics::PlaySoundAtLocation(
+		UGameplayStatics::PlaySound2D(
 			GetWorld(),
 			DrinkReadySound,
-			GetActorLocation(),
 			Volume
-			);
+		);
 	}
 }
 
-void ABar_B::StartRandomOrder(const float Time)
+void UBar_B::StartRandomOrder(const float Time)
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_StartOrderTimer, this, &ABar_B::RandomOrder, Time < 0 ? TimeUntilDelivery : Time, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_StartOrderTimer, this, &UBar_B::RandomOrder, Time < 0 ? TimeUntilDelivery : Time, false);
 }
 
-void ABar_B::GetOrder(AAIDropPoint_B* DropPoint)
+void UBar_B::GetOrder(AAIDropPoint_B* DropPoint)
 {
 	AddDropLocation(EBarDropLocationType::Tankard, DropPoint);
 }
 
-void ABar_B::AddDropLocation(const EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
+void UBar_B::AddDropLocation(const EBarDropLocationType Type, AAIDropPoint_B* DropPoint)
 {
 	switch (Type)
 	{
@@ -162,12 +160,13 @@ void ABar_B::AddDropLocation(const EBarDropLocationType Type, AAIDropPoint_B* Dr
 	}
 }
 
-FBarDropLocations* ABar_B::GetDropLocations(AAICharacter_B* Character)
+FBarDropLocations* UBar_B::GetDropLocations(AAICharacter_B* Character)
 {
 	return DropLocationMap.Find(Character);
 }
 
-FOnDeliverStart& ABar_B::OnDeliverStart()
+FOnDeliverStart& UBar_B::OnDeliverStart()
 {
 	return OnDeliverStart_Delegate;
 }
+

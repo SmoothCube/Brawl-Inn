@@ -23,6 +23,7 @@
 #include "System/Structs/ScoreLookupTable.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/Widgets/GameOverlay_B.h"
+#include "Hazards/Bar_B.h"
 #include "UI/Widgets/PauseMenu_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
 
@@ -31,6 +32,8 @@ AMainGameMode_B::AMainGameMode_B()
 	PrimaryActorTick.bTickEvenWhenPaused = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	bAllowTickBeforeBeginPlay = false;
+
+	BarComponent = CreateDefaultSubobject<UBar_B>("BarComponent");
 }
 
 void AMainGameMode_B::BeginPlay()
@@ -201,6 +204,11 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	check(IsValid(PauseMenuWidget));
 
 	PauseMenuWidget->MenuTick();
+}
+
+UBar_B* AMainGameMode_B::GetBar() const
+{
+	return BarComponent;
 }
 
 void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
