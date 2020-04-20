@@ -28,7 +28,9 @@ void AAICharacter_B::BeginPlay()
 	Super::BeginPlay();
 
 	StartTransform = GetActorTransform();
-	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	UBar_B* Bar = GameMode->GetBar();
 	if (Bar)
 		Bar->OnDeliverStart().AddUObject(this, &AAICharacter_B::Deliver);
 

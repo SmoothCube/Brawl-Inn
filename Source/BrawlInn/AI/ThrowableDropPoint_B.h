@@ -6,9 +6,7 @@
 #include "AI/AIDropPoint_B.h"
 #include "ThrowableDropPoint_B.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class BRAWLINN_API AThrowableDropPoint_B : public AAIDropPoint_B
 {

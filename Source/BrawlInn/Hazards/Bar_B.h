@@ -3,37 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Items/Useable_B.h"
+#include "Components/ActorComponent.h"
 #include "System/Structs/BarDropLocations.h"
 #include "Bar_B.generated.h"
 
-class UGameInstance_B;
-class AIdleAICharacter_B;
-class UStaticMeshComponent;
-class AAICharacter_B;
-class AAIDropPoint_B;
 class AItem_B;
+class AUseable_B;
+class AIdleAICharacter_B;
+class AAICharacter_B;
+class UGameInstance_B;
+class USoundCue;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDeliverStart, AItem_B*, AAICharacter_B*);
 
-UCLASS()
-class BRAWLINN_API ABar_B : public AActor
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class BRAWLINN_API UBar_B : public UActorComponent
 {
 	GENERATED_BODY()
-public:
-	ABar_B();
 
-	// ********** AActor **********
+public:	
+	// Sets default values for this component's properties
+	UBar_B();
+
 protected:
+	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	// ********** Components **********
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* House;
 
 	// ********** Tankard **********
 protected:
@@ -110,7 +106,5 @@ protected:
 
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
+		
 };
-
-
-

@@ -6,6 +6,7 @@
 #include "System/GameModes/GameMode_B.h"
 #include "MainGameMode_B.generated.h"
 
+class UBar_B;
 class ATriggerBox;
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
@@ -32,7 +33,7 @@ protected:
 
 	void PostLevelLoad() override;
 
-	// ** Overridden functions **
+	// ********** AActor **********
 
 	void BeginPlay() override;
 
@@ -40,6 +41,13 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	// ********** Components **********
+public:
+	UBar_B* GetBar() const;
+
+protected:
+	UPROPERTY(VisibleAnywhere)
+		UBar_B* BarComponent;
 
 	// ********** PreGame **********
 

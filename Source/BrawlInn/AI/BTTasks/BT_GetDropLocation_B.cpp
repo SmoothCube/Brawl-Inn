@@ -9,6 +9,7 @@
 #include "BrawlInn.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "AI/AIDropPoint_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 UBT_GetDropLocation_B::UBT_GetDropLocation_B()
 {
@@ -20,8 +21,9 @@ EBTNodeResult::Type UBT_GetDropLocation_B::ExecuteTask(UBehaviorTreeComponent& O
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-
-	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	check(IsValid(GameMode));
+	Bar = GameMode->GetBar();
 	if (!Bar)
 	{
 		BError("Can't find the Bar");

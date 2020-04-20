@@ -7,7 +7,7 @@
 #include "IdleAICharacter_B.generated.h"
 
 class AAIDropPoint_B;
-class ABar_B;
+class UBar_B;
 class UMergeMeshComponent_B;
 UCLASS()
 class BRAWLINN_API AIdleAICharacter_B : public ACharacter_B
@@ -66,8 +66,6 @@ protected:
 	bool bCanOrderDrink = true;
 
 	UPROPERTY()
-		ABar_B* Bar = nullptr;
-
-
+		UBar_B* Bar = nullptr;
 
 };
