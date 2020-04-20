@@ -168,8 +168,10 @@ void AMainGameMode_B::EndGame()
 	LeaderFollower->Destroy();
 	
 
-	ACameraActor* OutroCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(-2200.f, 480.f, 2200.f), FRotator(60, 0, 0));
-	check(IsValid(OutroCamera));
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "EndGame", OutActors);
+	check(OutActors.Num() != 0);
+	ACameraActor* OutroCamera = Cast<ACameraActor>(OutActors[0]);
 
 	GameCamera->SetActorTickEnabled(false);
 	GameInstance->SetCameraSwapTransform(OutroCamera->GetActorTransform());
