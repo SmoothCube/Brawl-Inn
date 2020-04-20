@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ReadyTrigger_B.h"
+
+#include "BrawlInn.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
@@ -47,8 +49,6 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 	{
 		GameMode->SetPlayersReady(GameMode->GetPlayersReady() + 1);
 
-		PlayerInfos.Add(Cast<AMenuPlayerController_B>(PlayerCharacter->GetController())->GetPlayerInfo());
-
 		GameMode->UpdateCharacterSelectionOverlay();
 
 		if (GameMode->GetPlayersReady() >= GameMode->GetPlayersActive())
@@ -63,14 +63,11 @@ void AReadyTrigger_B::ClearReadyTimer()
 
 void AReadyTrigger_B::OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	BLog("OLG");
 	APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(OtherActor);
 	if (PlayerCharacter && GameMode)
 	{
 		GameMode->SetPlayersReady(GameMode->GetPlayersReady() - 1);
-
-		PlayerInfos.RemoveAll([&](const FPlayerInfo& Info) {
-			return Info.ID == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(PlayerCharacter->GetController()));
-			});
 
 		GameMode->UpdateCharacterSelectionOverlay();
 
@@ -85,6 +82,16 @@ void AReadyTrigger_B::PrepareStartGame()
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	checkf(IsValid(GameInstance), TEXT("GameInstance is not valid. Can't start game!"));
 
+	TArray<AActor*> OutActors;
+	GetOverlappingActors(OutActors, APlayerCharacter_B::StaticClass());
+
+	PlayerInfos.Empty();
+	
+	for(auto Actor : OutActors)
+	{
+		PlayerInfos.Add(Cast<APlayerController_B>(Cast<APlayerCharacter_B>(Actor)->GetController())->GetPlayerInfo());
+	}
+	
 	GameInstance->SetPlayerInfos(PlayerInfos);
 	GameMode->PrepareGameStart();
 }

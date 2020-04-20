@@ -294,7 +294,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		return 0;
 
 	//Track OutOfWorld
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
+        	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, OutOfMapDeaths);
 	}
@@ -484,7 +484,7 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 	Super::OnCapsuleOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
 	ACharacter_B* OtherCharacter = Cast<ACharacter_B>(OtherActor);
-	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen)
+	if (!IsValid(OtherCharacter) || OtherCharacter->GetState() == EState::EFallen || OtherCharacter == HoldingCharacter)
 		return;
 
 	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(OtherComp);
@@ -519,8 +519,8 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 			DamageAmount = DashThroughScoreValue;
 		}
-		OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
-		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
+			OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
+			UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
 }
 

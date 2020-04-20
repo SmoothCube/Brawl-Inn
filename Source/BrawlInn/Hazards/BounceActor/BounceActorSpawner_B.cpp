@@ -35,7 +35,7 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 
 	CannonBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>("CannonBarrelMesh");
 	CannonBarrelMesh->SetupAttachment(MainMesh);
-	CannonBarrelMesh->SetRelativeLocation({0.f,0.f,-200.f });
+	CannonBarrelMesh->SetRelativeLocation({ 0.f,0.f,-200.f });
 
 	BarrelSpawnLocation = CreateDefaultSubobject<USceneComponent>("BarrelSpawnLocation");
 	BarrelSpawnLocation->SetupAttachment(CannonBarrelMesh);
@@ -72,8 +72,10 @@ void ABounceActorSpawner_B::BeginPlay()
 	if (EngineSoundComponent)
 		EngineSoundComponent->SetVolumeMultiplier(Volume);
 	if (CogSoundComponent)
+	{
 		CogSoundComponent->SetVolumeMultiplier(Volume);
-
+		CogSoundComponent->Stop();
+	}
 }
 
 void ABounceActorSpawner_B::Tick(float DeltaTime)
@@ -88,13 +90,13 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		BigCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch * -1.f, 0.f, 0.f));
 		CurrentCogPitch += CogRotateSpeed * DeltaTime;
 
-		FVector RotationTarget =  GetActorLocation() - RotateTargets[0]->GetActorLocation();
+		FVector RotationTarget = GetActorLocation() - RotateTargets[0]->GetActorLocation();
 
 		FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed);
 		MainMesh->SetRelativeRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
 
 		FVector LaunchVel = FVector::ZeroVector;
-		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(),RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
+		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
 
 		LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
 		FRotator CurrentRot = CannonBarrelMesh->GetRelativeRotation();
