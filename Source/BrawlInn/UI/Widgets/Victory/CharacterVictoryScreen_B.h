@@ -6,7 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterVictoryScreen_B.generated.h"
 
-class UListView;
+class UImage;
+class UVerticalBox;
 class UTextBlock;
 
 UCLASS()
@@ -18,19 +19,12 @@ class BRAWLINN_API UCharacterVictoryScreen_B : public UUserWidget
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UListView* StatsList;
+		UVerticalBox* StatsBox;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* ScoreNumber;
 
-protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* PunchNumber;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* OutOfMapNumber;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* CrownTimeNumber;
+		UImage* CharacterRender;
 
 };

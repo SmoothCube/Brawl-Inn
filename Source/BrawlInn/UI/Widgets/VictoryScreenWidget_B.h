@@ -14,6 +14,36 @@ class UCharacterVictoryScreen_B;
 class UTextBlock;
 class UButton_B;
 
+USTRUCT()
+struct FCountNumber
+{
+	GENERATED_BODY()
+public:
+	FCountNumber() {  };
+	FCountNumber(const int EndIn, const float DurationIn, UTextBlock* Text) : End(EndIn), Duration(DurationIn), TextBlock(Text) {}
+
+	int Start = 0;
+	int End = 0;
+	float CurrentTime = 0.f;
+	float Duration = 1.f;
+	UTextBlock* TextBlock = nullptr;
+};
+
+USTRUCT()
+struct FCountNumberQueue
+{
+	GENERATED_BODY()
+		FCountNumberQueue() {}
+
+	void Push(const FCountNumber Number) { Queue.Add(Number); }
+	FCountNumber& Top() { if (Queue.IsValidIndex(0)) return Queue[0]; return Dummy; }
+	void Pop() { Queue.RemoveAt(0); }
+	int Size() const { return Queue.Num(); }
+private:
+	TArray<FCountNumber> Queue;
+	FCountNumber Dummy;
+};
+
 UCLASS()
 class BRAWLINN_API UVictoryScreenWidget_B : public UUserWidget
 {
@@ -32,7 +62,7 @@ protected:
 
 	void DisplayScores(EScoreValueTypes Type);
 
-	void CountNumber(int Start, int End, UTextBlock* TextBlock);
+	void AddToCountQueue(int Start, int End, UTextBlock* TextBlock, int PlayerControllerID);
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -53,13 +83,13 @@ protected:
 
 	// ********** Arrays of Stats **********
 	UPROPERTY(BlueprintReadWrite)
-	TArray<UCharacterVictoryScreen_B*> StatBoards;
+		TArray<UCharacterVictoryScreen_B*> StatBoards;
 
 	UPROPERTY()
-	UGameInstance_B* GameInstance = nullptr;
+		UGameInstance_B* GameInstance = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<UStatEntry_B> BP_StatEntry;
-	
-	
+
+	TArray<FCountNumberQueue> CountNumbers;
 };
