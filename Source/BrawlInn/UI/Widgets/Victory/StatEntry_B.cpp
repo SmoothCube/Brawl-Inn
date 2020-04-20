@@ -3,3 +3,11 @@
 
 #include "StatEntry_B.h"
 
+#include "TextBlock.h"
+
+void UStatEntry_B::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	Number->SetText(FText::AsNumber(0));
+}

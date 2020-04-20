@@ -11,11 +11,12 @@
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/AIController_B.h"
 #include "Components/HoldComponent_B.h"
-#include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
 #include "Items/Throwable_B.h"
 #include "Items/Useable_B.h"
 #include "AI/AIDropPoint_B.h"
+#include "Hazards/Bar_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 UBT_DropItem_B::UBT_DropItem_B()
 {
@@ -51,9 +52,9 @@ EBTNodeResult::Type UBT_DropItem_B::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 
 	AICharacter->HoldComponent->Drop();
-	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
-
-	Bar->GetDropLocations(AICharacter)->RemoveFront();
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	check(IsValid(GameMode));
+	GameMode->GetBar()->GetDropLocations(AICharacter)->RemoveFront();
 
 	AItem_B* NewItem = GetWorld()->SpawnActor<AItem_B>(Item->GetClass(), DropPoint->GetActorTransform());
 	Item->Destroy();

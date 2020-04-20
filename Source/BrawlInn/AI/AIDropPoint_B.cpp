@@ -2,18 +2,21 @@
 
 #include "AIDropPoint_B.h"
 
-#include "BrawlInn.h"
-#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
-#include "Items/Item_B.h"
+#include "BrawlInn.h"
 #include "Hazards/Bar_B.h"
+#include "Items/Item_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 void AAIDropPoint_B::BeginPlay()
 {
-	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
-
 	Super::BeginPlay();
+
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	check(IsValid(GameMode));
+	Bar = GameMode->GetBar();
 
 	SpawnItem();
 }

@@ -7,6 +7,7 @@
 #include "Hazards/Bar_B.h"
 #include "BT_GetDropLocation_B.generated.h"
 
+class UBar_B;
 class AItem_B;
 
 UCLASS()
@@ -33,5 +34,5 @@ protected:
 		AItem_B* Item = nullptr;
 
 	UPROPERTY()
-		ABar_B* Bar = nullptr;
+		UBar_B* Bar = nullptr;
 };

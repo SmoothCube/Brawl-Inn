@@ -57,6 +57,9 @@ void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 		if (Count.Size() == 0)
 			continue;
 
+
+		FormattingOptions.UseGrouping = false;
+
 		if (Count.Top().CurrentTime < Count.Top().Duration)
 		{
 			Count.Top().CurrentTime += InDeltaTime;
@@ -64,12 +67,12 @@ void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 				Count.Top().Start, Count.Top().End, Count.Top().CurrentTime / Count.Top().Duration, 2));
 
 			if (Count.Top().TextBlock)
-				Count.Top().TextBlock->SetText(FText::AsNumber(ValueFloored));
+				Count.Top().TextBlock->SetText(FText::AsNumber(ValueFloored, &FormattingOptions));
 		}
 		else
 		{
 			if (Count.Top().TextBlock)
-				Count.Top().TextBlock->SetText(FText::AsNumber(Count.Top().End));
+				Count.Top().TextBlock->SetText(FText::AsNumber(Count.Top().End, &FormattingOptions));
 			Count.Pop();
 		}
 	}

@@ -14,6 +14,8 @@ class BRAWLINN_API UStatEntry_B : public UUserWidget
 	GENERATED_BODY()
 public:
 
+	void NativeOnInitialized() override;
+	
 	UPROPERTY(BlueprintReadWrite , meta = (BindWidget))
 		UTextBlock* Number;
 

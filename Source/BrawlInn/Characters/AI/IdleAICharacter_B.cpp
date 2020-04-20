@@ -12,6 +12,8 @@
 #include "Components/HoldComponent_B.h"
 #include "Components/MergeMeshComponent_B.h"
 #include "Hazards/Bar_B.h"
+#include "System/GameModes/MainGameMode_B.h"
+
 
 AIdleAICharacter_B::AIdleAICharacter_B()
 {
@@ -22,9 +24,13 @@ void AIdleAICharacter_B::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	StartLocation = GetActorLocation();
-	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		Bar = GameMode->GetBar();
+	}
 	bCanMove = false;
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "NPCPlatform", OutActors);
@@ -84,9 +90,12 @@ void AIdleAICharacter_B::SetState(EState s)
 
 void AIdleAICharacter_B::OrderDrink()
 {
-	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, StartLocation, FRotator());
-	DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
-	Bar->GetOrder(DropPoint);
+	if (Bar)
+	{
+		AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, StartLocation, FRotator());
+		DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
+		Bar->GetOrder(DropPoint);
+	}
 }
 
 bool AIdleAICharacter_B::CanOrderDrink() const
