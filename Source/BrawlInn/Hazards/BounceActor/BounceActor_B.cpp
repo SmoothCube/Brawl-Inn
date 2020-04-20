@@ -20,7 +20,7 @@
 
 ABounceActor_B::ABounceActor_B()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	Mesh->SetSimulatePhysics(true);
 	PickupCapsule->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 }
@@ -42,8 +42,16 @@ void ABounceActor_B::BeginPlay()
 	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
 
 }
+
+void ABounceActor_B::Tick(float DeltaTime)
+{
+	if(!bIsFractured)
+		SetActorRotation(GetVelocity().ToOrientationRotator() + FRotator(90.f, 0.f, 0.f));
+}
+
 void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	BWarn("Capsule Overlap");
 	if (OtherActor == this)
 		return;
 
@@ -97,8 +105,6 @@ void ABounceActor_B::SpawnPlayerCharacter()
 void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
 {
 	PlayerController = Controller;
-
-	SetActorRotation(FRotator(0, 0, 90));
 
 	UMaterialInstanceDynamic* MeshMaterial = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
 	MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);

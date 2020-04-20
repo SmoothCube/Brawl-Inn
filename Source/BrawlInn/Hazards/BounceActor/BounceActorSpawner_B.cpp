@@ -115,6 +115,7 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	if (!IsValid(NewBounceActor))
 		return nullptr;
 
+
 	if (SpawnCue)
 	{
 		float Volume = 1.f;
@@ -131,7 +132,6 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 		);
 	}
 
-	NewBounceActor->SetActorRotation(FRotator(0, 50, 0));
 	FVector LaunchVel = FVector::ZeroVector;
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), TargetLocation, 0.0f, 0.5f);
 	NewBounceActor->GetMesh()->AddImpulse(LaunchVel, NAME_None, true);

@@ -19,6 +19,7 @@ public:
 	ABounceActor_B();
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
 	void OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

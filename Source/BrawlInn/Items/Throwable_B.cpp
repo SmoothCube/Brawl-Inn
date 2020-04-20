@@ -109,6 +109,13 @@ void AThrowable_B::Use_Implementation()
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
+
+	if (Mesh)
+		Mesh->DestroyComponent();
+	if (PickupCapsule)
+		PickupCapsule->DestroyComponent();
+	SetRootComponent(DestructibleComponent);
+
 	DestructibleComponent->SetCollisionProfileName("AfterFracture");
 	DestructibleComponent->SetGenerateOverlapEvents(false);
 
@@ -132,6 +139,7 @@ void AThrowable_B::BeginDespawn()
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	BWarn("Throwable Hit"); //TODO remove
 	if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		return;
 
@@ -149,11 +157,6 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 			UGameplayStatics::ApplyDamage(HitPlayer, ScoreAmount, OwningCharacter->GetController(), this, BP_DamageType);
 		}
 	}
-	if (Mesh)
-		Mesh->DestroyComponent();
-	if (PickupCapsule)
-		PickupCapsule->DestroyComponent();
-	SetRootComponent(DestructibleComponent);
 
 	DestructibleComponent->ApplyDamage(1, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 10000);
 }
