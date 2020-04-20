@@ -177,8 +177,20 @@ void APlayerCharacter_B::Die()
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
+	//playEnd
 	if (ChiliBrewSoundComp && ChiliBrewSoundComp->IsPlaying())
-		ChiliBrewSoundComp->Stop();
+	{
+		if (ChiliBrewEndSound)
+		{
+			ChiliBrewSoundComp->SetSound(ChiliBrewEndSound);
+			ChiliBrewSoundComp->Play();
+		}
+		else
+		{
+			ChiliBrewSoundComp->Stop();
+
+		}
+	}
 
 	PS_ChiliBrew->Deactivate();
 

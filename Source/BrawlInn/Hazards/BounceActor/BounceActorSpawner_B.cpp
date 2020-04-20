@@ -62,12 +62,12 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
-	BigCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch * -1.f, 0.f, 0.f));
-	CurrentCogPitch += CogRotateSpeed * DeltaTime;
-
 	if (RotateTargets.IsValidIndex(0) && RotateTargets[0])
 	{
+		SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
+		BigCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch * -1.f, 0.f, 0.f));
+		CurrentCogPitch += CogRotateSpeed * DeltaTime;
+
 		FVector RotationTarget =  GetActorLocation() - RotateTargets[0]->GetActorLocation();
 
 		FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed);
