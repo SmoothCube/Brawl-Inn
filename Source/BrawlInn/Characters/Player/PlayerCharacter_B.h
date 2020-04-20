@@ -138,7 +138,7 @@ protected:
 
 	FTimerHandle LastHitByTimer_TH;
 
-	// ********** Shatter **********
+	// ********** Sounds **********
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* LowShatterSound = nullptr;
 
@@ -147,6 +147,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HighShatterSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* ChiliBrewEndSound = nullptr;
 
 
 	// ********** Misc. **********
