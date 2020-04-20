@@ -7,6 +7,7 @@
 #include "BounceActorSpawner_B.generated.h"
 
 class ABounceActor_B;
+class UAudioComponent;
 class USoundCue;
 class UStaticMeshComponent;
 class USkeletalMeshComponent;
@@ -43,6 +44,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		UMergeMeshComponent_B* MergeMeshComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+		UAudioComponent* EngineSoundComponent;
+
+	UPROPERTY(VisibleAnywhere)
+		UAudioComponent* CogSoundComponent;
 
 
 public:

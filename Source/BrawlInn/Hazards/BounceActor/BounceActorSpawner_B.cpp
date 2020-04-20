@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 #include "DestructibleComponent.h"
 
@@ -46,6 +47,9 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 	OperatorNPCMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 
 	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");
+
+	EngineSoundComponent = CreateDefaultSubobject<UAudioComponent>("EngineSoundComponent");
+	CogSoundComponent = CreateDefaultSubobject<UAudioComponent>("CogSoundComponent");
 }
 
 void ABounceActorSpawner_B::BeginPlay()
@@ -56,6 +60,20 @@ void ABounceActorSpawner_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
 		MergeMeshComponent->DestroyComponent();
 	}
+
+	float Volume = 1.f;
+
+	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance)
+	{
+		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
+	}
+
+	if (EngineSoundComponent)
+		EngineSoundComponent->SetVolumeMultiplier(Volume);
+	if (CogSoundComponent)
+		CogSoundComponent->SetVolumeMultiplier(Volume);
+
 }
 
 void ABounceActorSpawner_B::Tick(float DeltaTime)
@@ -64,6 +82,8 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 
 	if (RotateTargets.IsValidIndex(0) && RotateTargets[0])
 	{
+		if (CogSoundComponent && !CogSoundComponent->IsPlaying())
+			CogSoundComponent->Play();
 		SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
 		BigCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch * -1.f, 0.f, 0.f));
 		CurrentCogPitch += CogRotateSpeed * DeltaTime;
@@ -81,6 +101,11 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), CurrentRot.Vector());
 
 		CannonBarrelMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
+	}
+	else
+	{
+		if (CogSoundComponent && CogSoundComponent->IsPlaying())
+			CogSoundComponent->Stop();
 	}
 }
 
