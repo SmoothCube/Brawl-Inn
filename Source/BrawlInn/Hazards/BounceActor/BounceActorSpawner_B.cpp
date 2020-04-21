@@ -8,6 +8,7 @@
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 #include "DestructibleComponent.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
@@ -33,12 +34,18 @@ ABounceActorSpawner_B::ABounceActorSpawner_B()
 	BigCogMesh->SetupAttachment(MainMesh);
 	BigCogMesh->SetRelativeLocation({ -33.f, -180.f,-10.f });
 
-	CannonBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>("CannonBarrelMesh");
-	CannonBarrelMesh->SetupAttachment(MainMesh);
-	CannonBarrelMesh->SetRelativeLocation({ 0.f,0.f,-200.f });
+	BarrelLowMesh = CreateDefaultSubobject<USkeletalMeshComponent>("BarrelLowMesh");
+	BarrelLowMesh->SetupAttachment(MainMesh);
+	BarrelLowMesh->SetRelativeLocation({ 0.f,0.f,-200.f });
+
+	BarrelMidMesh = CreateDefaultSubobject<USkeletalMeshComponent>("BarrelMidMesh");
+	BarrelMidMesh->SetupAttachment(BarrelLowMesh);
+
+	BarrelTopMesh = CreateDefaultSubobject<USkeletalMeshComponent>("BarrelTopMesh");
+	BarrelTopMesh->SetupAttachment(BarrelMidMesh);
 
 	BarrelSpawnLocation = CreateDefaultSubobject<USceneComponent>("BarrelSpawnLocation");
-	BarrelSpawnLocation->SetupAttachment(CannonBarrelMesh);
+	BarrelSpawnLocation->SetupAttachment(BarrelTopMesh);
 	BarrelSpawnLocation->SetRelativeLocation({ 0.f,0.f,-800.f });
 
 	OperatorNPCMesh = CreateDefaultSubobject<USkeletalMeshComponent>("OperatorNPCMesh");
@@ -60,7 +67,8 @@ void ABounceActorSpawner_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
 		MergeMeshComponent->DestroyComponent();
 	}
-
+	BarrelMidMesh->Stop();
+	BarrelTopMesh->Stop();
 	float Volume = 1.f;
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -87,7 +95,7 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		if (CogSoundComponent && !CogSoundComponent->IsPlaying())
 			CogSoundComponent->Play();
 		SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
-		BigCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch * -1.f, 0.f, 0.f));
+		BigCogMesh->SetRelativeRotation(FRotator(20.f + CurrentCogPitch * -1.f, 0.f, 0.f));
 		CurrentCogPitch += CogRotateSpeed * DeltaTime;
 
 		FVector RotationTarget = GetActorLocation() - RotateTargets[0]->GetActorLocation();
@@ -99,10 +107,10 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
 
 		LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
-		FRotator CurrentRot = CannonBarrelMesh->GetRelativeRotation();
+		FRotator CurrentRot = BarrelLowMesh->GetRelativeRotation();
 		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), CurrentRot.Vector());
 
-		CannonBarrelMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
+		BarrelLowMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
 	}
 	else
 	{
@@ -113,10 +121,10 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 
 ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 {
+	bIsShooting = true;
 	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, BarrelSpawnLocation->GetComponentLocation(), FRotator(90, 0, 0));
 	if (!IsValid(NewBounceActor))
 		return nullptr;
-
 
 	if (SpawnCue)
 	{
@@ -138,7 +146,14 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), TargetLocation, 0.0f, 0.5f);
 	NewBounceActor->GetMesh()->AddImpulse(LaunchVel, NAME_None, true);
 	NewBounceActor->GetDestructibleComponent()->SetSimulatePhysics(true);
-
+	FTimerHandle TH_;
+	GetWorld()->GetTimerManager().SetTimer(TH_,[&]()
+		{
+			BWarn("Cannon Timer!");
+			bIsShooting = false;
+		},
+		0.05f,
+		false);
 	return NewBounceActor;
 }
 

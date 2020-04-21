@@ -34,7 +34,13 @@ protected:
 		UStaticMeshComponent* BigCogMesh;
 
 	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* CannonBarrelMesh;
+		USkeletalMeshComponent* BarrelLowMesh;
+
+	UPROPERTY(VisibleAnywhere)
+		USkeletalMeshComponent* BarrelMidMesh;
+
+	UPROPERTY(VisibleAnywhere)
+		USkeletalMeshComponent* BarrelTopMesh;
 
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* BarrelSpawnLocation;
@@ -50,7 +56,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		UAudioComponent* CogSoundComponent;
-
 
 public:
 
@@ -78,16 +83,15 @@ protected:
 	TArray<AActor*> RotateTargets;
 
 	float CannonRotateSpeed = 180.f;
-	// ********** Cannon Barrel Rotation **********
-	UPROPERTY(EditAnywhere, Category = "Barrel Rotation")
-	float HighestBarrelRotation = 15.f;
-	
-	UPROPERTY(EditAnywhere, Category = "Barrel Rotation")
-	float LowestBarrelRotation = 65.f;
+
 	// ********** Misc **********
 
 	UPROPERTY(EditAnywhere, Category = "Cog Rotation")
 	float CogRotateSpeed = 50.f;
 
 	float CurrentCogPitch = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsShooting = false;
+
 };
