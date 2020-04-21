@@ -51,7 +51,6 @@ void ABounceActor_B::Tick(float DeltaTime)
 
 void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	BWarn("Capsule Overlap");
 	if (OtherActor == this)
 		return;
 
@@ -88,7 +87,6 @@ void ABounceActor_B::OnItemFracture()
 
 void ABounceActor_B::SpawnPlayerCharacter()
 {
-
 	//Respawns player. Kinda hates having this here.
 	if (PlayerController)
 	{
@@ -97,9 +95,9 @@ void ABounceActor_B::SpawnPlayerCharacter()
 		{
 			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
 		}
+		if (PlayerController->GetPlayerCharacter())
+			PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);
 	}
-	if (PlayerController->GetPlayerCharacter())
-		PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);
 }
 
 void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
@@ -107,13 +105,17 @@ void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
 	PlayerController = Controller;
 
 	UMaterialInstanceDynamic* MeshMaterial = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
-	MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
-
-	DestructibleComponent->SetMaterial(0, MeshMaterial);
-	DestructibleComponent->SetMaterial(1, MeshMaterial);
-
-	Mesh->SetMaterial(0, MeshMaterial);
-
+	if (MeshMaterial)
+	{
+		MeshMaterial->SetTextureParameterValue("BaseColor", PlayerController->GetPlayerInfo().CharacterVariant.BarrelTexture);
+		DestructibleComponent->SetMaterial(0, MeshMaterial);
+		DestructibleComponent->SetMaterial(1, MeshMaterial);
+		Mesh->SetMaterial(0, MeshMaterial);
+	}
+	else
+	{
+		BWarn("failed to create MeshMaterial for %s", *GetNameSafe(this));
+	}
 }
 
 void ABounceActor_B::BreakBarrel()

@@ -7,6 +7,7 @@
 #include "BounceActorSpawner_B.generated.h"
 
 class ABounceActor_B;
+class ARespawnPawn_B;
 class UAudioComponent;
 class USoundCue;
 class UStaticMeshComponent;
@@ -66,9 +67,9 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 
-	void RotateBarrel(float DeltaTime);
+	void RotateBarrel(float DeltaTime, FVector TargetLocation);
 
-	void RotateMainCannon(float DeltaTime);
+	void RotateMainCannon(float DeltaTime, FVector TargetLocation);
 
 	void RotateCogs(float DeltaTime);
 
@@ -86,10 +87,27 @@ protected:
 public:
 	void AddRotateTarget(AActor* NewTarget);
 	void RemoveRotateTarget(AActor* NewTarget);
-protected:
-	TArray<AActor*> RotateTargets;
 
-	float CannonRotateSpeed = 180.f;
+	void AddShootTarget(ARespawnPawn_B* NewTarget);
+protected:
+	UPROPERTY()
+	TArray<AActor*> RotateTargets;
+	
+	UPROPERTY()
+	TArray<ARespawnPawn_B*> ShootTargets;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CannonRotateSpeed = 18.f;
+
+	// ********** Barrel Rotation **********
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float LowestBarrelPitch = 25.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float HighestBarrelPitch = 75.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float BarrelRotationSpeed = 50.f;
 
 	// ********** Misc **********
 
