@@ -12,7 +12,6 @@
 #include "Hazards/Bar_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 
-
 AIdleAICharacter_B::AIdleAICharacter_B()
 {
 	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");

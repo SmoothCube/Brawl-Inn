@@ -37,8 +37,10 @@ void AGameMode_B::BeginPlay()
 	/// Bind delegates
 	SpawnCharacter_D.AddUObject(this, &AGameMode_B::SpawnCharacter);
 	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
-
+	
+#if WITH_EDITOR
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
+#endif
 
 	Super::BeginPlay();
 }
@@ -186,6 +188,7 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 
 	OnRespawnCharacter_D.Broadcast();
 }
+#if WITH_EDITOR
 
 void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 {
@@ -203,6 +206,7 @@ void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 
 	DespawnCharacter_NOPARAM_D.Broadcast();
 }
+#endif
 
 FTransform AGameMode_B::GetRandomSpawnTransform()
 {
