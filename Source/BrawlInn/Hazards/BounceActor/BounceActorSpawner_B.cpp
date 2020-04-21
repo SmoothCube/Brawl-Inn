@@ -14,6 +14,7 @@
 #include "System/GameInstance_B.h"
 #include "Components/MergeMeshComponent_B.h"
 #include "Hazards/BounceActor/BounceActor_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 
 ABounceActorSpawner_B::ABounceActorSpawner_B()
 {
@@ -94,16 +95,33 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (RotateTargets.IsValidIndex(0) && RotateTargets[0])
+	if (ShootTargets.IsValidIndex(0) && ShootTargets[0])
+	{
+		RotateCogs(DeltaTime);
+
+		RotateMainCannon(DeltaTime, ShootTargets[0]->GetActorLocation());
+
+		RotateBarrel(DeltaTime, ShootTargets[0]->GetActorLocation());
+
+		FVector LaunchVel;
+		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), ShootTargets[0]->GetActorLocation(), 0.0f, 0.5f);
+		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), BarrelLowMesh->GetComponentRotation().Vector());
+		
+		if (FMath::IsNearlyEqual(DotProduct,1.f,0.005f))
+		{
+			SpawnBounceActor(ShootTargets[0]->GetActorLocation());
+		}
+	}
+	else if (RotateTargets.IsValidIndex(0) && RotateTargets[0])
 	{
 		if (CogSoundComponent && !CogSoundComponent->IsPlaying())
 			CogSoundComponent->Play();
 		
 		RotateCogs(DeltaTime);
 
-		RotateMainCannon(DeltaTime);
+		RotateMainCannon(DeltaTime, RotateTargets[0]->GetActorLocation());
 
-		RotateBarrel(DeltaTime);
+		RotateBarrel(DeltaTime, RotateTargets[0]->GetActorLocation());
 	}
 	else
 	{
@@ -112,24 +130,33 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 	}
 }
 
-void ABounceActorSpawner_B::RotateBarrel(float DeltaTime)
+void ABounceActorSpawner_B::RotateBarrel(float DeltaTime, FVector TargetLocation)
 {
 	FVector LaunchVel = FVector::ZeroVector;
-	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
-
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), TargetLocation, 0.0f, 0.5f);
+	
 	LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
-	FRotator CurrentRot = BarrelLowMesh->GetRelativeRotation();
-	float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), CurrentRot.Vector());
+	LaunchVel.Normalize();
 
-	BarrelLowMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
+	FRotator CurrentWorldRot = BarrelLowMesh->GetComponentRotation();
+	
+	float DotProduct = FVector::DotProduct(LaunchVel, CurrentWorldRot.Vector());
+
+	float Angle = FMath::RadiansToDegrees(FMath::Acos(DotProduct));
+	Angle = (LaunchVel.Z > CurrentWorldRot.Vector().Z) ? Angle : -Angle;
+
+	float newPitch = CurrentWorldRot.Pitch + Angle;
+
+	//newPitch = FMath::Clamp(newPitch, LowestBarrelPitch, HighestBarrelPitch);
+
+	BarrelLowMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentWorldRot, FRotator(newPitch, CurrentWorldRot.Yaw, CurrentWorldRot.Roll), DeltaTime, BarrelRotationSpeed));
 }
 
-void ABounceActorSpawner_B::RotateMainCannon(float DeltaTime)
+void ABounceActorSpawner_B::RotateMainCannon(float DeltaTime, FVector TargetLocation)
 {
-	FVector RotationTarget = GetActorLocation() - RotateTargets[0]->GetActorLocation();
+	FVector RotationTarget = TargetLocation -  GetActorLocation();
 
-	FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed);
-	MainMesh->SetRelativeRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
+	MainMesh->SetWorldRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
 }
 
 void ABounceActorSpawner_B::RotateCogs(float DeltaTime)
@@ -145,6 +172,16 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, BarrelSpawnLocation->GetComponentLocation(), FRotator(90, 0, 0));
 	if (!IsValid(NewBounceActor))
 		return nullptr;
+
+	if (ShootTargets.IsValidIndex(0) && ShootTargets[0])
+	{
+		ShootTargets[0]->SetupBarrel(NewBounceActor);
+		ShootTargets.RemoveAt(0);
+	}
+	else
+	{
+		BError("SetupBarrel Failed!");
+	}
 
 	if (SpawnCue)
 	{
@@ -186,4 +223,13 @@ void ABounceActorSpawner_B::RemoveRotateTarget(AActor* NewTarget)
 {
 	if (IsValid(NewTarget))
 		RotateTargets.Remove(NewTarget);
+}
+
+void ABounceActorSpawner_B::AddShootTarget(ARespawnPawn_B* NewTarget)
+{
+	if (IsValid(NewTarget))
+		ShootTargets.Add(NewTarget);
+	else
+		BWarn("Adding shoot target failed!");
+
 }

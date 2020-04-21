@@ -31,6 +31,9 @@ protected:
 public:
 
 	void ThrowBarrel();
+
+	void SetupBarrel(ABounceActor_B* NewBarrel); // can probably find a better name for this
+
 	void SetCanBreakBarrel();
 
 	void SetInputVectorX(float X);
