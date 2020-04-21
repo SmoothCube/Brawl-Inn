@@ -1,27 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GamePlayerController_B.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
-#include "Engine/World.h"
-#include "Engine/LocalPlayer.h"
 
 #include "BrawlInn.h"
-#include "System/GameModes/MainGameMode_B.h"
-#include "Characters/Player/RespawnPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/GameMode_B.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/ColoredTextBlock_B.h"
 
 void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
-	MainGameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-
+	
+	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 void AGamePlayerController_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -184,8 +184,8 @@ void AGamePlayerController_B::LeftStickYAxis(const float Value)
 
 void AGamePlayerController_B::TryPauseGame()
 {
-	if(IsValid(MainGameMode))
-		MainGameMode->PauseGame(this);
+	if(IsValid(GameMode))
+		GameMode->PauseGame(this);
 }
 
 bool AGamePlayerController_B::TryBreakFree()
@@ -285,8 +285,8 @@ void AGamePlayerController_B::TryPickup()
 
 void AGamePlayerController_B::Respawn() const
 {
-	check(IsValid(MainGameMode))
-		MainGameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
+	check(IsValid(GameMode))
+		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
 }
 
 void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
@@ -306,16 +306,16 @@ void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 void AGamePlayerController_B::Debug_Spawn() const
 {
 #if WITH_EDITOR
-	check(IsValid(MainGameMode))
-		MainGameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
+	check(IsValid(GameMode))
+		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
 #endif
 }
 
 void AGamePlayerController_B::Debug_DeSpawn()
 {
 #if WITH_EDITOR
-	check(IsValid(MainGameMode))
+	check(IsValid(GameMode))
 
-		MainGameMode->DespawnCharacter_D.Broadcast(this);
+		GameMode->DespawnCharacter_D.Broadcast(this);
 #endif
 }

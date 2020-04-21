@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PauseMenu_B.generated.h"
 
+class UControllerLayout_B;
 class UButton_B;
 
 UCLASS()
@@ -13,10 +14,10 @@ class BRAWLINN_API UPauseMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
 
-	// ********** UUserWidget **********
+		// ********** UUserWidget **********
 protected:
 	void NativeOnInitialized() override;
-	
+
 	void NativeConstruct() override;
 public:
 	void RemoveFromParent() override;
@@ -25,9 +26,15 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* ContinueButton;
-	
+
+	UPROPERTY(meta = (BindWidget))
+		UButton_B* ControlsButton;
+
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* ExitButton;
+
+	UPROPERTY(meta = (BindWidget))
+		UControllerLayout_B* ControllerLayout;
 
 	// ********** Functions **********
 public:
@@ -39,6 +46,12 @@ protected:
 
 	UFUNCTION()
 		void ContinueButtonClicked();
+
+	UFUNCTION()
+		void ControlsButtonClicked();
+
+	UFUNCTION()
+		void ControllerLayoutBackButtonClicked();
 
 	UFUNCTION()
 		void ExitButtonClicked();

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu_B.generated.h"
 
+class UControllerLayout_B;
 class USettingsWidget_B;
 class UTextBlock;
 class IUIElementsInterface_B;
@@ -33,6 +34,12 @@ protected:
 		void SettingsButtonClicked();
 
 	UFUNCTION()
+		void ControlsButtonClicked();
+
+	UFUNCTION()
+		void ControllerLayoutBackButtonClicked();
+
+	UFUNCTION()
 		void CreditsButtonClicked();
 
 	UFUNCTION()
@@ -53,6 +60,9 @@ protected:
 		UButton_B* CreditsButton;
 
 	UPROPERTY(meta = (BindWidget))
+		UButton_B* ControlsButton;
+
+	UPROPERTY(meta = (BindWidget))
 		UButton_B* QuitButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -60,8 +70,10 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		USettingsWidget_B* SettingsWidget;
-	
-	
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UControllerLayout_B* ControllerLayout;
+
 	// ********** Misc. **********
 
 	UPROPERTY()
@@ -71,5 +83,5 @@ protected:
 		UGameInstance_B* GameInstance = nullptr;
 
 	UPROPERTY()
-	TArray<UWidget*> UIElementsWithInterface;
+		TArray<UWidget*> UIElementsWithInterface;
 };

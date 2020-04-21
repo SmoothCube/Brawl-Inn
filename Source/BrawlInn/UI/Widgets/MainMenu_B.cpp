@@ -7,6 +7,7 @@
 
 #include "BrawlInn.h"
 #include "ConfigCacheIni.h"
+#include "ControllerLayout_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
 #include "UI/UIElements//Button_B.h"
@@ -25,14 +26,19 @@ void UMainMenu_B::NativeConstruct()
 	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::OnMenuPlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
 	SettingsWidget->GetBackButton()->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
+	ControlsButton->OnClicked.AddDynamic(this, &UMainMenu_B::ControlsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
 
 	UIElementsWithInterface.Add(PlayButton);
 	UIElementsWithInterface.Add(SettingsButton);
 	UIElementsWithInterface.Add(CreditsButton);
+	UIElementsWithInterface.Add(ControlsButton);
 	UIElementsWithInterface.Add(QuitButton);
 
+	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
+
+	
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(PlayButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
@@ -58,11 +64,32 @@ void UMainMenu_B::SettingsButtonClicked()
 	GetOwningPlayer()->SetInputMode(InputMode);
 }
 
+void UMainMenu_B::ControlsButtonClicked()
+{
+
+	ControllerLayout->SetVisibility(ESlateVisibility::Visible);
+	
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(ControllerLayout->GetBackButton()->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
+	ControllerLayout->GetBackButton()->OnPressed.AddDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
+}
+
+void UMainMenu_B::ControllerLayoutBackButtonClicked()
+{
+	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
+	
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(ControlsButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
+	ControllerLayout->GetBackButton()->OnPressed.RemoveDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
+}
+
 void UMainMenu_B::CreditsButtonClicked()
 {
 	BScreen("Credits");
-
-
 }
 
 void UMainMenu_B::QuitButtonClicked()

@@ -23,7 +23,6 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 
 protected:
 
-	AMenuGameMode_B();
 	void PrepareCharacterSelection();
 
 	void PostLevelLoad() override;

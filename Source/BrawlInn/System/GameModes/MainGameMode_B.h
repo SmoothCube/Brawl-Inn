@@ -11,7 +11,6 @@ class ATriggerBox;
 class AGameCamera_B;
 class UVictoryScreenWidget_B;
 class USceneComponent;
-class UPauseMenu_B;
 class UGameOverlay_B;
 class AGamePlayerController_B;
 class ACameraActor;
@@ -38,8 +37,6 @@ protected:
 	void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	virtual void Tick(float DeltaTime) override;
 
 	// ********** Components **********
 public:
@@ -71,10 +68,6 @@ protected:
 	void EndGame();
 
 public:
-	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
-
-	UFUNCTION(BlueprintCallable)
-		void ResumeGame();
 
 	FPlayerWin OnPlayerWin;
 	FGameStart OnGameStart;
@@ -89,7 +82,7 @@ public:
 	// ********** Tracking **********
 	UFUNCTION()
 		void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
+	
 
 	UPROPERTY()
 		ATriggerBox* TrackingBox = nullptr;
@@ -103,8 +96,7 @@ protected:
 	UPROPERTY()
 		ACameraActor* FromCharacterSelectionCamera = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
-		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UVictoryScreenWidget_B> BP_VictoryScreen;
@@ -120,8 +112,6 @@ public:
 
 	void ResetMusic();
 protected:
-	UPROPERTY(BlueprintReadWrite)
-		UPauseMenu_B* PauseMenuWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Countdown;

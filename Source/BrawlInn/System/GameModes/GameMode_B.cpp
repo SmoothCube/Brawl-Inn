@@ -16,10 +16,16 @@
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
+#include "UI/Widgets/PauseMenu_B.h"
+
+AGameMode_B::AGameMode_B()
+{
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+}
 
 void AGameMode_B::BeginPlay()
 {
-
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
 	/// Finds spawnpoints
@@ -35,6 +41,14 @@ void AGameMode_B::BeginPlay()
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
 
 	Super::BeginPlay();
+}
+
+void AGameMode_B::Tick(const float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (IsValid(PauseMenuWidget))
+		PauseMenuWidget->MenuTick();
 }
 
 void AGameMode_B::PostLevelLoad()
@@ -55,6 +69,21 @@ void AGameMode_B::EnableControllerInputs()
 		Controller->EnableInput(Controller);
 }
 
+void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
+{
+	check(IsValid(BP_PauseMenu));
+	PlayerControllerThatPaused = ControllerThatPaused;
+	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
+	PauseMenuWidget->AddToViewport();
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+}
+
+void AGameMode_B::ResumeGame()
+{
+	PauseMenuWidget->RemoveFromParent();
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
 void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool LockOutgoing)
 {
 	AActor* CameraToUse = GameCamera;
@@ -64,7 +93,7 @@ void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool 
 	for (auto& PlayerController : PlayerControllers)
 	{
 		if (IsValid(CameraToUse))
-			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut,2, LockOutgoing);
+			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2, LockOutgoing);
 	}
 }
 
