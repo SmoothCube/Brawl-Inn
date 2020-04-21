@@ -1,13 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "IdleAICharacter_B.h"
-
-
-#include "AI/AIDropPoint_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
+#include "AI/AIDropPoint_B.h"
 #include "AIController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/MergeMeshComponent_B.h"
@@ -54,7 +52,7 @@ void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AIdleAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
-	Respawn();
+	Die();
 }
 
 void AIdleAICharacter_B::Respawn()
@@ -63,29 +61,21 @@ void AIdleAICharacter_B::Respawn()
 	StandUp();
 	SetActorLocation(RespawnLocation);
 	bCanMove = false;
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetCanMove, [&]()
-		{
-			bCanMove = true;
-			GetWorld()->GetTimerManager().ClearTimer(TH_Respawn);
-			Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
-		}, ResetCanMoveTime, false);
+	Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 }
 
 void AIdleAICharacter_B::Die()
 {
 	Super::Die();
-	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, [&]()
-		{
-			Respawn();
-		}, 5, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, this, &AIdleAICharacter_B::Respawn, 4, false);
 }
 
-void AIdleAICharacter_B::SetState(EState s)
+void AIdleAICharacter_B::SetState(const EState StateIn)
 {
-	if (State == EState::EFallen && s == EState::EWalking)
+	if (StateIn == EState::EFallen && StateIn == EState::EWalking)
 		Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 
-	Super::SetState(s);
+	Super::SetState(StateIn);
 }
 
 void AIdleAICharacter_B::OrderDrink()

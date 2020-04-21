@@ -22,21 +22,20 @@ protected:
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void FellOutOfWorld(const UDamageType& dmgType) override;
-	void Respawn();
-
+	
 	// ********** Components **********
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UMergeMeshComponent_B* MergeMeshComponent;
-
-
 		
 	// ********** ACharacter_B **********
 
 	void Die() override;
 	
-	void SetState(EState s) override;
+	void SetState(EState StateIn) override;
 
 	// ********** Location/Movement **********
+
+	void Respawn();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		FVector StartLocation;
@@ -45,9 +44,8 @@ protected:
 		FVector RespawnLocation;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
-		float ResetCanMoveTime = 60.f;
+		float ResetCanMoveTime = 5.f;
 
-	FTimerHandle TH_ResetCanMove;
 	FTimerHandle TH_Respawn;
 
 	// ********** Drink ordering**********

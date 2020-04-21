@@ -109,6 +109,8 @@ float AUseable_B::GetUseTime()
 
 void AUseable_B::ResetBoost()
 {
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AUseable_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &AUseable_B::StartDestroy, TimeBeforeDespawn + 0.1f, false);
 }
 
 void AUseable_B::ThrowAway(FVector /*Direction*/)
@@ -121,9 +123,6 @@ void AUseable_B::ThrowAway(FVector /*Direction*/)
 	Mesh->DestroyComponent();
 	DrinkMesh->DestroyComponent();
 	DestructibleComponent->SetSimulatePhysics(true);
-
-	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AUseable_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
-	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &AUseable_B::StartDestroy, TimeBeforeDespawn + 0.1f, false);
 }
 
 void AUseable_B::StartDestroy()
