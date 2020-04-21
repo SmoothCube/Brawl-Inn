@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AICharacter_B.h"
+
+#include "AIController_B.h"
+#include "BrawlInn.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/PawnSensingComponent.h"
@@ -55,6 +58,16 @@ void AAICharacter_B::Die()
 		SetActorTransform(StartTransform);
 	else
 		Super::Die();
+}
+
+void AAICharacter_B::SetState(const EState StateIn)
+{
+	if (State == EState::EFallen && StateIn == EState::EWalking)
+	{
+		Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
+	}
+
+	Super::SetState(StateIn);
 }
 
 UPawnSensingComponent* AAICharacter_B::GetPawnSensingComponent() const

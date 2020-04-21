@@ -30,7 +30,9 @@ void UThrowComponent_B::BeginPlay()
 	{
 		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
 		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+#if WITH_EDITOR
 		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+#endif
 	}
 	HoldComponent = OwningCharacter->HoldComponent;
 }

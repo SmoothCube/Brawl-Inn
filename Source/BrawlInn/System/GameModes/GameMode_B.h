@@ -19,11 +19,14 @@ class USoundCue;
 struct FPlayerInfo;
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FSpawnCharacter, FPlayerInfo, bool, FTransform);
-DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, AGamePlayerController_B*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FRespawnCharacter, FPlayerInfo);
 DECLARE_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
-DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
 DECLARE_MULTICAST_DELEGATE(FOnRespawnCharacter);
+
+#if WITH_EDITOR
+DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDespawnCharacter, AGamePlayerController_B*);
+#endif
 
 UCLASS()
 class BRAWLINN_API AGameMode_B : public AGameModeBase
@@ -88,22 +91,22 @@ public:
 
 	/// ** Delegates ** 
 	FSpawnCharacter SpawnCharacter_D;
-
-	FDespawnCharacter DespawnCharacter_D;
-
-	FRespawnCharacter RespawnCharacter_D;
-
 	FSpawnCharacter_NOPARAM SpawnCharacter_NOPARAM_D;
 
-	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
-
+	FRespawnCharacter RespawnCharacter_D;
 	FOnRespawnCharacter OnRespawnCharacter_D;
+
+#if WITH_EDITOR
+	FDespawnCharacter DespawnCharacter_D;
+	FDespawnCharacter_NOPARAM DespawnCharacter_NOPARAM_D;
+	UFUNCTION()
+		void DespawnCharacter(AGamePlayerController_B* PlayerController);
+#endif
+
 
 	UFUNCTION()
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
 
-	UFUNCTION()
-		void DespawnCharacter(AGamePlayerController_B* PlayerController);
 
 	UFUNCTION()
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
