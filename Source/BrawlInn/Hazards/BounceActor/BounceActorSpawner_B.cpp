@@ -67,8 +67,7 @@ void ABounceActorSpawner_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
 		MergeMeshComponent->DestroyComponent();
 	}
-	BarrelMidMesh->Stop();
-	BarrelTopMesh->Stop();
+
 	float Volume = 1.f;
 
 	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -86,6 +85,11 @@ void ABounceActorSpawner_B::BeginPlay()
 	}
 }
 
+void ABounceActorSpawner_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearTimer(TH_ResetIsShooting);
+}
+
 void ABounceActorSpawner_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -94,29 +98,45 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 	{
 		if (CogSoundComponent && !CogSoundComponent->IsPlaying())
 			CogSoundComponent->Play();
-		SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
-		BigCogMesh->SetRelativeRotation(FRotator(20.f + CurrentCogPitch * -1.f, 0.f, 0.f));
-		CurrentCogPitch += CogRotateSpeed * DeltaTime;
+		
+		RotateCogs(DeltaTime);
 
-		FVector RotationTarget = GetActorLocation() - RotateTargets[0]->GetActorLocation();
+		RotateMainCannon(DeltaTime);
 
-		FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed);
-		MainMesh->SetRelativeRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
-
-		FVector LaunchVel = FVector::ZeroVector;
-		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
-
-		LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
-		FRotator CurrentRot = BarrelLowMesh->GetRelativeRotation();
-		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), CurrentRot.Vector());
-
-		BarrelLowMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
+		RotateBarrel(DeltaTime);
 	}
 	else
 	{
 		if (CogSoundComponent && CogSoundComponent->IsPlaying())
 			CogSoundComponent->Stop();
 	}
+}
+
+void ABounceActorSpawner_B::RotateBarrel(float DeltaTime)
+{
+	FVector LaunchVel = FVector::ZeroVector;
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), RotateTargets[0]->GetActorLocation(), 0.0f, 0.5f);
+
+	LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
+	FRotator CurrentRot = BarrelLowMesh->GetRelativeRotation();
+	float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), CurrentRot.Vector());
+
+	BarrelLowMesh->SetRelativeRotation(FMath::RInterpConstantTo(CurrentRot, FRotator(CurrentRot.Pitch - (DotProduct), CurrentRot.Yaw, CurrentRot.Roll), DeltaTime, CannonRotateSpeed));
+}
+
+void ABounceActorSpawner_B::RotateMainCannon(float DeltaTime)
+{
+	FVector RotationTarget = GetActorLocation() - RotateTargets[0]->GetActorLocation();
+
+	FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed);
+	MainMesh->SetRelativeRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
+}
+
+void ABounceActorSpawner_B::RotateCogs(float DeltaTime)
+{
+	SmallCogMesh->SetRelativeRotation(FRotator(CurrentCogPitch, 0.f, 0.f));
+	BigCogMesh->SetRelativeRotation(FRotator(20.f + CurrentCogPitch * -1.f, 0.f, 0.f));
+	CurrentCogPitch += CogRotateSpeed * DeltaTime;
 }
 
 ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
@@ -146,10 +166,9 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, NewBounceActor->GetActorLocation(), TargetLocation, 0.0f, 0.5f);
 	NewBounceActor->GetMesh()->AddImpulse(LaunchVel, NAME_None, true);
 	NewBounceActor->GetDestructibleComponent()->SetSimulatePhysics(true);
-	FTimerHandle TH_;
-	GetWorld()->GetTimerManager().SetTimer(TH_,[&]()
+
+	GetWorld()->GetTimerManager().SetTimer(TH_ResetIsShooting,[&]()
 		{
-			BWarn("Cannon Timer!");
 			bIsShooting = false;
 		},
 		0.05f,

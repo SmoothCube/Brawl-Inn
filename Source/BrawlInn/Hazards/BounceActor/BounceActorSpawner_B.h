@@ -63,7 +63,14 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
+
+	void RotateBarrel(float DeltaTime);
+
+	void RotateMainCannon(float DeltaTime);
+
+	void RotateCogs(float DeltaTime);
 
 	// ********** Barrel Spawning **********
 	ABounceActor_B* SpawnBounceActor(FVector TargetLocation);
@@ -93,5 +100,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsShooting = false;
+
+	FTimerHandle TH_ResetIsShooting;
 
 };
