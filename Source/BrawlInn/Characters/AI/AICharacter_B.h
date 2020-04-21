@@ -24,7 +24,10 @@ protected:
 
 	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
 
+	// ********** ACharacter_B **********
 	void Die() override;
+	
+	void SetState(EState StateIn) override;
 
 
 	// ********** Components **********

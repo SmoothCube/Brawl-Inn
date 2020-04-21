@@ -71,7 +71,7 @@ void AIdleAICharacter_B::Die()
 
 void AIdleAICharacter_B::SetState(const EState StateIn)
 {
-	if (StateIn == EState::EFallen && StateIn == EState::EWalking)
+	if (State == EState::EFallen && StateIn == EState::EWalking)
 		Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 
 	Super::SetState(StateIn);
