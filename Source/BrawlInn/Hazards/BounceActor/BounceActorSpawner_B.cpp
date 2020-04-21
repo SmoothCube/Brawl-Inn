@@ -88,6 +88,7 @@ void ABounceActorSpawner_B::BeginPlay()
 
 void ABounceActorSpawner_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	GetWorld()->GetTimerManager().ClearTimer(TH_ResetIsShooting);
 }
 

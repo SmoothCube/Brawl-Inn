@@ -18,11 +18,6 @@
 #include "UI/Widgets/MainMenu_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
-AMenuGameMode_B::AMenuGameMode_B()
-{
-	PrimaryActorTick.bCanEverTick = false;
-}
-
 void AMenuGameMode_B::PostLevelLoad()
 {
 	Super::PostLevelLoad();

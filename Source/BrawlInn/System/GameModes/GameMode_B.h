@@ -7,6 +7,7 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameMode_B.generated.h"
 
+class UPauseMenu_B;
 class APlayerController_B;
 class AGameCamera_B;
 class APlayerStart;
@@ -24,15 +25,19 @@ DECLARE_MULTICAST_DELEGATE(FSpawnCharacter_NOPARAM);
 DECLARE_MULTICAST_DELEGATE(FDespawnCharacter_NOPARAM);
 DECLARE_MULTICAST_DELEGATE(FOnRespawnCharacter);
 
-
 UCLASS()
 class BRAWLINN_API AGameMode_B : public AGameModeBase
 {
 	GENERATED_BODY()
 public:
+		AGameMode_B();
+		// ********** AActor **********
+protected:
+	void BeginPlay() override;
 
-	virtual void BeginPlay() override;
+	void Tick(float DeltaSeconds) override;
 
+public:
 	UFUNCTION(BlueprintCallable)
 		virtual void PostLevelLoad();
 
@@ -42,6 +47,24 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void EnableControllerInputs();
+
+	// ********** PauseMenu **********
+
+	void PauseGame(AGamePlayerController_B* ControllerThatPaused);
+
+	UFUNCTION(BlueprintCallable)
+		void ResumeGame();
+
+	UPROPERTY()
+		AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
+
+	UPROPERTY(BlueprintReadWrite)
+		UPauseMenu_B* PauseMenuWidget = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
+		TSubclassOf<UPauseMenu_B> BP_PauseMenu;
+
+	// ********** Misc. **********
 
 	UPROPERTY()
 		TArray<APlayerController_B*> PlayerControllers;
@@ -86,7 +109,7 @@ public:
 		void RespawnCharacter(FPlayerInfo PlayerInfo);
 
 	AGameCamera_B* GetGameCamera() const;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<AGameCamera_B> BP_GameCamera;
 
@@ -105,7 +128,7 @@ protected:
 	void GetAllSpawnpointsInWorld();
 	FTransform GetRandomSpawnTransform();
 	FTransform GetSpawnTransform(const int PlayerControllerID);
-	
+
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Music;
 };

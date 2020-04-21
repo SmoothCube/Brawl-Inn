@@ -29,10 +29,6 @@
 
 AMainGameMode_B::AMainGameMode_B()
 {
-	PrimaryActorTick.bTickEvenWhenPaused = true;
-	PrimaryActorTick.bStartWithTickEnabled = false;
-	bAllowTickBeforeBeginPlay = false;
-
 	BarComponent = CreateDefaultSubobject<UBar_B>("BarComponent");
 }
 
@@ -199,34 +195,10 @@ void AMainGameMode_B::EndGame()
 
 	GameInstance->SetPlayerInfos(PlayerInfos);
 }
-void AMainGameMode_B::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	check(IsValid(PauseMenuWidget));
-
-	PauseMenuWidget->MenuTick();
-}
 
 UBar_B* AMainGameMode_B::GetBar() const
 {
 	return BarComponent;
-}
-
-void AMainGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
-{
-	PlayerControllerThatPaused = ControllerThatPaused;
-	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
-	PauseMenuWidget->AddToViewport();
-	SetActorTickEnabled(true);
-	UGameplayStatics::SetGamePaused(GetWorld(), true);
-}
-
-void AMainGameMode_B::ResumeGame()
-{
-	SetActorTickEnabled(false);
-	PauseMenuWidget->RemoveFromParent();
-	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
 void AMainGameMode_B::CallOnAnyScoreChange() const

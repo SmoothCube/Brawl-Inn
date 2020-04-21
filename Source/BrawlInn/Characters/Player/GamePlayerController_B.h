@@ -6,6 +6,7 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "GamePlayerController_B.generated.h"
 
+class AGameMode_B;
 class AMainGameMode_B;
 class ARespawnPawn_B;
 class UColoredTextBlock_B;
@@ -98,7 +99,7 @@ protected:
 		UColoredTextBlock_B* ScoreTextBlock = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
-	AMainGameMode_B* MainGameMode = nullptr;
+		AGameMode_B* GameMode = nullptr;
 
 	// ********** EditorOnly **********
 	void Debug_Spawn() const;
