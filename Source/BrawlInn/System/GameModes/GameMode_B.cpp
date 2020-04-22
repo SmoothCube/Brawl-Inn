@@ -74,7 +74,6 @@ void AGameMode_B::EnableControllerInputs()
 void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 {
 	check(IsValid(BP_PauseMenu));
-	PlayerControllerThatPaused = ControllerThatPaused;
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
 	PauseMenuWidget->AddToViewport();
 	UGameplayStatics::SetGamePaused(GetWorld(), true);

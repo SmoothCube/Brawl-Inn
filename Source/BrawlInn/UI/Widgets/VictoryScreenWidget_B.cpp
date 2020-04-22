@@ -18,8 +18,6 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	EnableContinueButton();
-
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
 	StatBoards.Add(StatTopLeft);
