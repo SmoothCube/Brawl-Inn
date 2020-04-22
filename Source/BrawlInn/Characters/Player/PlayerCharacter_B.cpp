@@ -296,7 +296,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	//Track OutOfWorld
         	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, OutOfMapDeaths);
+		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(1, OutOfMapDeaths);
 	}
 
 	if (GameInstance)
@@ -331,12 +331,12 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
 			if (OtherPlayerController)
 			{
-				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(Score);
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score);
 			}
 		}
 		else
 		{
-			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(SuicideScoreAmount);
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(SuicideScoreAmount);
 		}
 	}
 	else
@@ -344,7 +344,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
 		if (OtherPlayerController)
 		{
-			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(Score);
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score);
 		}
 	}
 
@@ -403,7 +403,7 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 
 void APlayerCharacter_B::OnPunchHit()
 {
-	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, EScoreValueTypes::PunchesHit);
+	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(1, EScoreValueTypes::PunchesHit);
 	BLog("Punch hit: %i", PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().PunchesHit);
 }
 

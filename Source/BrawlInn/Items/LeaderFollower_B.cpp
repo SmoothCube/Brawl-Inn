@@ -57,7 +57,7 @@ void ALeaderFollower_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 
 	if (LeadingPlayerController && LeadingPlayerController->GetLocalPlayer() && LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>())
-		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(static_cast<int>(CurrentCrownTime), CrownTime); //the engine crashed here when I pressed escape once
+		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(static_cast<int>(CurrentCrownTime), CrownTime); //the engine crashed here when I pressed escape once
 
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
@@ -81,7 +81,7 @@ void ALeaderFollower_B::ScoreUpdated()
 				Mesh->SetHiddenInGame(false);
 				if ((FoundLeadingPlayerController[0] != LeadingPlayerController) && LeadingPlayerController)
 				{
-					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(static_cast<int>(CurrentCrownTime), CrownTime);
+					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(static_cast<int>(CurrentCrownTime), CrownTime);
 				}
 				CurrentCrownTime = 0;
 				LeadingPlayerController = FoundLeadingPlayerController[0];

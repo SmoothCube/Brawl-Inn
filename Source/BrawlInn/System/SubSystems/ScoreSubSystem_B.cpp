@@ -4,7 +4,7 @@
 
 #include "BrawlInn.h"
 
-void UScoreSubSystem_B::AddScore(const int Value, const EScoreValueTypes Type)
+void UScoreSubSystem_B::AddPoints(const int Value, const EScoreValueTypes Type)
 {
 	switch (Type) {
 	case Score:
