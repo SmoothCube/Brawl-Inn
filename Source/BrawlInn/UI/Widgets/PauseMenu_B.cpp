@@ -2,6 +2,8 @@
 
 #include "PauseMenu_B.h"
 
+
+#include "BrawlInn.h"
 #include "ControllerLayout_B.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -12,22 +14,22 @@
 void UPauseMenu_B::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	
-	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
-	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
-	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
-
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UPauseMenu_B::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FInputModeGameAndUI InputMode;
+	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 	ContinueButton->SetKeyboardFocus();
+
+	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
+	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
+	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
+
+	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UPauseMenu_B::RemoveFromParent()
@@ -45,6 +47,7 @@ void UPauseMenu_B::MenuTick()
 {
 	ContinueButton->Execute_Tick(ContinueButton);
 	ControlsButton->Execute_Tick(ControlsButton);
+	ControllerLayout->GetBackButton()->Execute_Tick(ControllerLayout->GetBackButton());
 	ExitButton->Execute_Tick(ExitButton);
 }
 

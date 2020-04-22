@@ -58,9 +58,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ResumeGame();
 
-	UPROPERTY()
-		AGamePlayerController_B* PlayerControllerThatPaused = nullptr;
-
 	UPROPERTY(BlueprintReadWrite)
 		UPauseMenu_B* PauseMenuWidget = nullptr;
 
