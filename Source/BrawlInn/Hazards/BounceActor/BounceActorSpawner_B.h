@@ -116,6 +116,11 @@ protected:
 
 	float CurrentCogPitch = 0.f;
 
+public:
+	bool IsShooting();
+	void SetIsShooting(bool Value);
+protected:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsShooting = false;
 

@@ -108,7 +108,7 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), ShootTargets[0]->GetActorLocation(), 0.0f, 0.5f);
 		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), BarrelLowMesh->GetComponentRotation().Vector());
 		
-		if (FMath::IsNearlyEqual(DotProduct,1.f,0.005f))
+		if (!bIsShooting && FMath::IsNearlyEqual(DotProduct,1.f,0.005f))
 		{
 			SpawnBounceActor(ShootTargets[0]->GetActorLocation());
 		}
@@ -205,12 +205,6 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	NewBounceActor->GetMesh()->AddImpulse(LaunchVel, NAME_None, true);
 	NewBounceActor->GetDestructibleComponent()->SetSimulatePhysics(true);
 
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetIsShooting,[&]()
-		{
-			bIsShooting = false;
-		},
-		0.05f,
-		false);
 	return NewBounceActor;
 }
 
@@ -233,4 +227,14 @@ void ABounceActorSpawner_B::AddShootTarget(ARespawnPawn_B* NewTarget)
 	else
 		BWarn("Adding shoot target failed!");
 
+}
+
+bool ABounceActorSpawner_B::IsShooting()
+{
+	return bIsShooting;
+}
+
+void ABounceActorSpawner_B::SetIsShooting(bool Value)
+{
+	bIsShooting = Value;
 }
