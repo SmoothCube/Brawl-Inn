@@ -9,6 +9,8 @@ void UScoreSubSystem_B::AddScore(const int Value, const EScoreValueTypes Type)
 	switch (Type) {
 	case Score:
 		ScoreValues.Score += Value;
+		if (ScoreValues.Score < 0)
+			ScoreValues.Score = 0;
 		ScoreValues.LastScoreAdded = Value;
 		OnScoreChanged.Broadcast(ScoreValues);
 		OnScoreChangedNoParam.Broadcast();
