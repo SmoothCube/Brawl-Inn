@@ -411,20 +411,24 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
 	Super::SetChargeLevel(chargeLevel);
 	float VibrationStrength = 0.f;
+	float VibrationLength = 0.f;
 	switch (chargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1:
-		VibrationStrength = 0.5f;
+		VibrationStrength = 0.6f;
+		VibrationLength = 0.3f;
 		break;
 	case EChargeLevel::EChargeLevel2:
 		VibrationStrength = 0.7f;
+		VibrationLength = 0.5f;
 		break;
 	case EChargeLevel::EChargeLevel3:
-		VibrationStrength = 1.f;
+		VibrationStrength = 0.7f;
+		VibrationLength = -1.f;
 		break;
 	}
 	if (PlayerController)
-		PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true); //CRASH HERE
+		PlayerController->PlayControllerVibration(VibrationStrength, VibrationLength, true, true, true, true);
 }
 
 void APlayerCharacter_B::AddStun(const int Strength)

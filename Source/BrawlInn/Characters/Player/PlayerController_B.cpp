@@ -120,7 +120,16 @@ void APlayerController_B::SetPlayerInfo(const FPlayerInfo& Info)
 void APlayerController_B::PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action)
 {
 	if (bVibrateControllers)
-		PlayDynamicForceFeedback(Strength, Duration, bAffectsLeftLarge, bAffectsLeftSmall, bAffectsRightLarge, bAffectsRightSmall, Action);
+	{
+		//this code feels really weird but it works i guess!! Caches the handle every time one is made, and uses the last handle for every new action
+		StopControllerVibration();
+		VibrationHandle = PlayDynamicForceFeedback(Strength, Duration, bAffectsLeftLarge, bAffectsLeftSmall, bAffectsRightLarge, bAffectsRightSmall, Action, VibrationHandle);
+	}
+}
+
+void APlayerController_B::StopControllerVibration()
+{
+	PlayDynamicForceFeedback(0, -1, true,true,true,true, EDynamicForceFeedbackAction::Stop, VibrationHandle);
 
 }
 

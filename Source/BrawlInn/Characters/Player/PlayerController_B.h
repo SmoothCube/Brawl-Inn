@@ -99,6 +99,9 @@ public:
 	UFUNCTION()
 	void PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action = EDynamicForceFeedbackAction::Start);
 
+	UFUNCTION()
+	void StopControllerVibration();
+
 	APlayerCharacter_B* GetPlayerCharacter() const;
 
 	void SetPlayerCharacter(APlayerCharacter_B* Character);
@@ -118,4 +121,7 @@ protected:
 		bool bVibrateControllers = false;
 
 	FPlayerInfo PlayerInfo;
+
+	FDynamicForceFeedbackHandle VibrationHandle;
+
 };

@@ -238,6 +238,7 @@ bool AGamePlayerController_B::TryEndPunchCharge()
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->IsCharging())
 	{
+		StopControllerVibration();
 		PlayerCharacter->PunchComponent->SetIsPunching(true);
 		PlayerCharacter->PunchComponent->SetCanPunch(false);
 		PlayerCharacter->SetIsCharging(false);
@@ -271,6 +272,7 @@ bool AGamePlayerController_B::TryThrow()
 		PlayerCharacter->ThrowComponent &&
 		PlayerCharacter->HoldComponent->IsHolding())
 	{
+		StopControllerVibration();
 		PlayerCharacter->ThrowComponent->StartThrow();
 		return true;
 	}
