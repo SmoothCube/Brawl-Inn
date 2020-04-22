@@ -11,13 +11,6 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 
-
-void AMenuPlayerController_B::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
 void AMenuPlayerController_B::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -97,7 +90,7 @@ void AMenuPlayerController_B::FaceButtonBottomPressed()
 
 void AMenuPlayerController_B::FaceButtonRightPressed()
 {
-	//Unselect();
+	Unselect();
 }
 
 void AMenuPlayerController_B::TrySelect()
@@ -105,9 +98,9 @@ void AMenuPlayerController_B::TrySelect()
 	if (PlayerCharacter)
 		return;
 
-	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->Select(this, CharacterVariantIndex);
+	AMenuGameMode_B* MenuGameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (MenuGameMode)
+		MenuGameMode->Select(this, CharacterVariantIndex);
 }
 
 void AMenuPlayerController_B::Unselect()
@@ -115,10 +108,10 @@ void AMenuPlayerController_B::Unselect()
 	if (!PlayerCharacter)
 		return;
 
-	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	AMenuGameMode_B* MenuGameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (MenuGameMode)
 	{
-		GameMode->UnSelect(this);
+		MenuGameMode->UnSelect(this);
 	}
 }
 
@@ -127,9 +120,9 @@ void AMenuPlayerController_B::SelectLeft()
 	if (PlayerCharacter)
 		return;
 
-	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->HoverLeft(this);
+	AMenuGameMode_B* MenuGameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (MenuGameMode)
+		MenuGameMode->HoverLeft(this);
 }
 
 void AMenuPlayerController_B::SelectRight()
@@ -137,7 +130,7 @@ void AMenuPlayerController_B::SelectRight()
 	if (PlayerCharacter)
 		return;
 
-	AMenuGameMode_B* GameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
-		GameMode->HoverRight(this);
+	AMenuGameMode_B* MenuGameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (MenuGameMode)
+		MenuGameMode->HoverRight(this);
 }

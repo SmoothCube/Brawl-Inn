@@ -14,6 +14,7 @@ void UPlayerAnimInstance_B::NativeBeginPlay()
 	Super::NativeBeginPlay();
 
 	Owner = Cast<ACharacter_B>(TryGetPawnOwner());
+	RandomIdleStartTime = FMath::FRandRange(0.f, 1.5f);
 }
 
 bool UPlayerAnimInstance_B::IsReady() const
@@ -32,7 +33,6 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 		bIsPunching = Owner->PunchComponent->GetIsPunching();
 		bIsChargingPunch = Owner->IsCharging();
 	}
-	bIsDrinking = Owner->bIsDrinking;
 	bIsBeingHeld = (Owner->GetState() == EState::EBeingHeld);
 	bIsHoldingUseable = false;
 	if (Owner->HoldComponent)
@@ -45,10 +45,13 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 				bIsHoldingUseable = true;
 			}
 		}
-
 	}
 	if (Owner->ThrowComponent)
 	{
+		bIsDrinking = Owner->ThrowComponent->IsDrinking();
+
+		bIsFinishedDrinking = Owner->ThrowComponent->IsDrinkingFinished();
+
 		bIsThrowing = Owner->ThrowComponent->IsThrowing();
 		if(!bIsThrowing) //if you go to throw before charge, ie tap the button and not hold it
 			bIsChargingThrow = Owner->IsCharging();

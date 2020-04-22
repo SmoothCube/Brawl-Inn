@@ -1,16 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "IdleAICharacter_B.h"
-
-
-#include "AI/AIDropPoint_B.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
+#include "AI/AIDropPoint_B.h"
 #include "AIController_B.h"
 #include "Components/HoldComponent_B.h"
+#include "Components/MergeMeshComponent_B.h"
 #include "Hazards/Bar_B.h"
+#include "System/GameModes/MainGameMode_B.h"
+
+AIdleAICharacter_B::AIdleAICharacter_B()
+{
+	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");
+}
 
 void AIdleAICharacter_B::BeginPlay()
 {
@@ -18,7 +23,11 @@ void AIdleAICharacter_B::BeginPlay()
 
 	StartLocation = GetActorLocation();
 
-	Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		Bar = GameMode->GetBar();
+	}
 	bCanMove = false;
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "NPCPlatform", OutActors);
@@ -26,6 +35,12 @@ void AIdleAICharacter_B::BeginPlay()
 		RespawnLocation = OutActors[0]->GetActorLocation() + FVector(0, 0, 150);
 	else
 		RespawnLocation = StartLocation;
+
+	if (MergeMeshComponent && MergeMeshComponent->bRandomizeOnBeginPlay)
+	{
+		MergeMeshComponent->CreateRandomMesh(GetMesh());
+		MergeMeshComponent->DestroyComponent();
+	}
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -36,7 +51,7 @@ void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AIdleAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
-	Respawn();
+	Die();
 }
 
 void AIdleAICharacter_B::Respawn()
@@ -45,36 +60,31 @@ void AIdleAICharacter_B::Respawn()
 	StandUp();
 	SetActorLocation(RespawnLocation);
 	bCanMove = false;
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetCanMove, [&]()
-		{
-			bCanMove = true;
-			GetWorld()->GetTimerManager().ClearTimer(TH_Respawn);
-			Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
-		}, ResetCanMoveTime, false);
+	Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 }
 
 void AIdleAICharacter_B::Die()
 {
 	Super::Die();
-	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, [&]()
-		{
-			Respawn();
-		}, 5, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, this, &AIdleAICharacter_B::Respawn, 4, false);
 }
 
-void AIdleAICharacter_B::SetState(EState s)
+void AIdleAICharacter_B::SetState(const EState StateIn)
 {
-	if (State == EState::EFallen && s == EState::EWalking)
+	if (State == EState::EFallen && StateIn == EState::EWalking)
 		Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 
-	Super::SetState(s);
+	Super::SetState(StateIn);
 }
 
 void AIdleAICharacter_B::OrderDrink()
 {
-	AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, StartLocation, FRotator());
-	DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
-	Bar->GetOrder(DropPoint);
+	if (Bar)
+	{
+		AAIDropPoint_B* DropPoint = GetWorld()->SpawnActor<AAIDropPoint_B>(BP_DropPoint, StartLocation, FRotator());
+		DropPoint->OnItemDelivered().AddUObject(this, &AIdleAICharacter_B::TryPickup);
+		Bar->GetOrder(DropPoint);
+	}
 }
 
 bool AIdleAICharacter_B::CanOrderDrink() const

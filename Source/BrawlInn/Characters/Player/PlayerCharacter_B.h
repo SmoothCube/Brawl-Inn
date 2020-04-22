@@ -5,12 +5,18 @@
 #include "CoreMinimal.h"
 #include "Characters/Character_B.h"
 #include "Characters/Player/PlayerInfo.h"
+#include "System/Structs/ScoreValues.h"
 #include "PlayerCharacter_B.generated.h"
 
+class UScoreText_B;
+class UUserWidget;
+class UWidgetComponent;
+class UNiagaraSystem;
 class AController;
 class UGameInstance_B;
 class UDataTable_B;
 class USoundCue;
+class UAudioComponent;
 class AGamePlayerController_B;
 
 UCLASS()
@@ -26,6 +32,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -37,8 +44,8 @@ public:
 
 	UNiagaraComponent* GetChiliBrewParticle() const;
 
-	USoundCue* GetChiliBrewSound() const;
-	
+	UAudioComponent* GetChiliBrewSound() const;
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* DirectionIndicatorPlane = nullptr;
@@ -46,8 +53,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_ChiliBrew = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Audio")
-		USoundCue* ChiliBrewSound = nullptr;
+	UPROPERTY(VisibleAnywhere, Category = "Audio")
+		UAudioComponent* ChiliBrewSoundComp = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 		UPawnNoiseEmitterComponent* NoiseEmitterComponent = nullptr;
@@ -58,13 +65,14 @@ protected:
 
 	FVector PrevInputVector;
 
+	int DashThroughScoreValue = 5.f;
 	// ********** Falling **********
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 public:
 	virtual void Die() override;
 protected:
-	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1) override;
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1, bool bPlaySound = true) override;
 
 	virtual void StandUp() override;
 
@@ -79,42 +87,69 @@ public:
 protected:
 	void BreakFree();
 
-	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The longest amount of time this character can be held"))
+	UPROPERTY(EditAnywhere, meta = (Tooltip = "The longest amount of time this character can be held"))
 		float MaxHoldTime = 3.f;
 
 	float CurrentHoldTime = 0.f;
 public:
 	float BreakFreeAnimationBlend = 0.f;
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables", meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
+	UPROPERTY(EditAnywhere, meta = (Tooltip = "The time in seconds the press of a button decreases hold time"))
 		float HoldTimeDecreasePerButtonMash = 0.05f;
 
-	// ********** Damage **********
+	// ********** Score **********
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	void SetLastHitBy(AController* EventInstigator);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
-		UTexture2D* ColoredHealthIcon = nullptr;
+	void DisplayScoreVisuals(FScoreValues ScoreValues);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visuals|UI")
-		UTexture2D* GreyHealthIcon = nullptr;
+	FDelegateHandle DisplayScoreVisualsHandle;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+		void ScoreParticleTimerStart();
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Info")
+	UFUNCTION(BlueprintCallable)
+		void OnScoreParticleTimerUpdate(float Value);
+
+	UFUNCTION(BlueprintCallable)
+		void OnScoreParticleTimerFinished();
+
+	void OnPunchHit();
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Score|Visuals")
+		UNiagaraSystem* ScoreParticle = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Score|Audio")
+		USoundCue* ScoreSound = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Score|Visuals")
+		TSubclassOf<UScoreText_B> BP_ScoreTextWidget = nullptr;
+
+	UScoreText_B* ScoreTextWidget = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UWidgetComponent* ScoreTextWidgetComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Score")
 		float RespawnDelay = 1.f;
 
 	FTimerHandle LastHitByTimer_TH;
 
-	// ********** Shatter **********
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	// ********** Sounds **********
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* LowShatterSound = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* MidShatterSound = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HighShatterSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* ChiliBrewEndSound = nullptr;
 
 
 	// ********** Misc. **********
@@ -123,7 +158,7 @@ public:
 	virtual void SetChargeLevel(EChargeLevel chargeLevel) override;
 	virtual void AddStun(const int Strength = 1) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FPlayerInfo PlayerInfo;
 
 protected:
@@ -132,7 +167,11 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	void UnPossessed() override;
+
 	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+
+	virtual void OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	FTimerHandle TH_MakeNoiseTimer;

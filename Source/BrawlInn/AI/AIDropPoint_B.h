@@ -8,7 +8,7 @@
 #include "AIDropPoint_B.generated.h"
 
 class AItem_B;
-class ABar_B;
+class UBar_B;
 
 DECLARE_MULTICAST_DELEGATE(FOnItemDelivered);
 
@@ -31,12 +31,12 @@ protected:
 		EBarDropLocationType Type = EBarDropLocationType::Stool;
 
 	UPROPERTY(BlueprintReadOnly)
-		ABar_B* Bar = nullptr;
+		UBar_B* Bar = nullptr;
 
 	UPROPERTY()
 		AItem_B* Item = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Item")
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
 		bool bSpawnItemAtBeginPlay = true;
 
 public:

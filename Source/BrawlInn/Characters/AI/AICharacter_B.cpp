@@ -1,11 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AICharacter_B.h"
+
+#include "AIController_B.h"
+#include "BrawlInn.h"
 #include "System/GameModes/MainGameMode_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Engine/World.h"
 
+#include "Components/MergeMeshComponent_B.h"
 #include "Hazards/Bar_B.h"
 #include "Items/Item_B.h"
 
@@ -18,7 +22,8 @@ AAICharacter_B::AAICharacter_B()
 	PawnSensingComponent->bSeePawns = false;
 	PawnSensingComponent->SightRadius = 0;
 	PawnSensingComponent->SetPeripheralVisionAngle(0);
-	
+
+	MergeMeshComponent = CreateDefaultSubobject<UMergeMeshComponent_B>("MergeComponent");
 }
 
 void AAICharacter_B::BeginPlay()
@@ -26,9 +31,17 @@ void AAICharacter_B::BeginPlay()
 	Super::BeginPlay();
 
 	StartTransform = GetActorTransform();
-	ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	UBar_B* Bar = GameMode->GetBar();
 	if (Bar)
 		Bar->OnDeliverStart().AddUObject(this, &AAICharacter_B::Deliver);
+
+	if (MergeMeshComponent && MergeMeshComponent->bRandomizeOnBeginPlay)
+	{
+		MergeMeshComponent->CreateRandomMesh(GetMesh());
+		MergeMeshComponent->DestroyComponent();
+	}
 }
 
 void AAICharacter_B::FellOutOfWorld(const UDamageType& DmgType)
@@ -45,6 +58,16 @@ void AAICharacter_B::Die()
 		SetActorTransform(StartTransform);
 	else
 		Super::Die();
+}
+
+void AAICharacter_B::SetState(const EState StateIn)
+{
+	if (State == EState::EFallen && StateIn == EState::EWalking)
+	{
+		Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
+	}
+
+	Super::SetState(StateIn);
 }
 
 UPawnSensingComponent* AAICharacter_B::GetPawnSensingComponent() const

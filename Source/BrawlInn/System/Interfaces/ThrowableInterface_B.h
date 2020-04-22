@@ -18,30 +18,43 @@ class UThrowableInterface_B : public UInterface
 };
 
 /**
- * 
+ *
  */
 class BRAWLINN_API IThrowableInterface_B
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+		// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	void PickedUp(ACharacter_B* Player);
+		void PickedUp(ACharacter_B* Player);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	void Dropped();
+		void Dropped();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	bool IsHeld() const;
+		bool IsHeld() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	bool CanBeHeld() const;
+		bool CanBeHeld() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	void Use();
+		float GetMovementSpeedWhenHeld() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-	float GetThrowStrength(EChargeLevel level) const;
-};	
+		void Use();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+		float GetThrowStrength(EChargeLevel level) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+		float GetPickupWeight() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+		const FRotator GetHoldRotation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
+		const FVector GetHoldLocation();
+
+};

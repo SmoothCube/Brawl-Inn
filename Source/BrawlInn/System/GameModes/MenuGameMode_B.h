@@ -7,10 +7,10 @@
 #include "System/Structs/CharacterVariants.h"
 #include "MenuGameMode_B.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStart);
+DECLARE_DELEGATE(FPlayersActiveUpdated);
 
-class ACameraActor;
-class UCharacterSelection_B;
+class ULevelSequence;
+class UCharacterSelectionOverlay_B;
 class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
@@ -21,14 +21,11 @@ class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
 {
 	GENERATED_BODY()
 
-		// ********** AActor **********
 protected:
-	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void PostLevelLoad();
+	void PrepareCharacterSelection();
 
-	virtual void Tick(float DeltaTime) override;
+	void PostLevelLoad() override;
 
 	// ********** MainMenu **********
 
@@ -38,18 +35,34 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void HideMainMenu();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
 		TSubclassOf<UMainMenu_B> BP_MainMenu;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
+		TSubclassOf<ACameraActor> IntroCamera_BP;
 
 	UPROPERTY()
 		UMainMenu_B* MainMenuWidget = nullptr;
 
+	// ********** Level Sequences **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Level Sequence")
+		ULevelSequence* IntroLevelSequence;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Level Sequence")
+		ULevelSequence* ToGameLevelSequence;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Level Sequence")
+		TSubclassOf<ACameraActor> SequenceCamera_BP;
+
+	UFUNCTION()
+		void OnIntroLevelSequencePaused();
+
+
 	// ********** Ready up **********
 public:
 
-	void UpdateNumberOfActivePlayers();
-
-	void UpdateNumberOfReadyPlayers();
+	void UpdateCharacterSelectionOverlay();
 
 	int GetPlayersActive() const;
 
@@ -59,19 +72,21 @@ public:
 
 	void SetPlayersReady(int Value);
 
-	UFUNCTION(BlueprintNativeEvent)
-	void PlayButtonClicked();
+	UFUNCTION()
+		void OnMenuPlayButtonClicked();
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-		FOnGameStart PrepareGameStart_Delegate;
-	
+	UFUNCTION()
+		void PrepareGameStart();
+
+	UFUNCTION()
+		void OnToGameLevelSequencePaused();
+
+	FPlayersActiveUpdated PlayersActiveUpdated;
+
 protected:
-	int PlayersActive = 0;
+	unsigned int PlayersActive = 0;
 
-	int PlayersReady = 0;
-
-	UPROPERTY(EditDefaultsonly, BlueprintReadOnly, Category = "Variables|ReadyUp")
-		FName PlayMap = "Graybox_v6";
+	unsigned int PlayersReady = 0;
 
 	// ********** CharacterSelection **********
 public:
@@ -79,34 +94,36 @@ public:
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 
 	void UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected);
-	
+
 	void UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* SelectionPawn, int ID);
 
 	void HoverLeft(AMenuPlayerController_B* PlayerController);
 
 	void HoverRight(AMenuPlayerController_B* PlayerController);
 
+	UCharacterSelectionOverlay_B* GetCharacterSelectionOverlay() const;
+
 protected:
 	void UpdateOtherSelections();
 
-	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<UCharacterSelection_B> BP_CharacterSelectionOverlay;
+	UPROPERTY(EditDefaultsOnly, Category = "Character Selection")
+		TSubclassOf<UCharacterSelectionOverlay_B> BP_CharacterSelectionOverlay;
 
-	UPROPERTY()
-		UCharacterSelection_B* CharacterSelectionWidget = nullptr;
+	UPROPERTY(BlueprintReadWrite)
+		UCharacterSelectionOverlay_B* CharacterSelectionOverlay = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TSubclassOf<ASelectionPawn_B> BP_SelectionPawn;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
+	UPROPERTY(EditDefaultsOnly, Category = "Selection", meta = (Tooltip = "The location is relative to the playercharacter its supposed to hover over."))
 		FVector SelectionIndicatorOffsetLocation = FVector(0, 0, 250);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TArray<FCharacterVariants> CharacterVariants;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Selection")
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TArray<UPaperSprite*> SelectionIndicators;
-	
+
 	UPROPERTY()
 		TArray<AMenuPlayerController_B*> MenuPlayerControllers;
 
@@ -115,7 +132,4 @@ protected:
 
 	TArray<FTransform> CharacterStartTransforms;
 
-	// ********** Misc. **********
-
-	bool bIsQuitting = false;
 };

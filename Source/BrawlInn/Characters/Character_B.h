@@ -44,7 +44,7 @@ public:
 		UThrowComponent_B* ThrowComponent;
 
 protected:
-	
+
 	// ********** AActor **********
 
 	virtual void BeginPlay() override;
@@ -58,36 +58,39 @@ public:
 	void SetInputVectorX(const float X);
 
 	void SetInputVectorY(const float Y);
-	
+
 protected:
-	
+
 	void HandleMovement(float DeltaTime);
 public:
 	float NormalMaxWalkSpeed = 0;
 	void SetCanMove(bool Value);
 
 	bool GetCanMove();
-	
+
 protected:
 	float RotationInterpSpeed = 10.f;
-	
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	float NormalRotationInterpSpeed = 10.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Movement")
-	bool bCanMove = true;
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		float NormalRotationInterpSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		bool bCanMove = true;
 
 public:
-	UPROPERTY()
-	AGameCamera_B* GameCamera = nullptr;
+
+	void SetGameCamera(AGameCamera_B* Camera);
 protected:
+	UPROPERTY()
+		AGameCamera_B* GameCamera = nullptr;
+	
 	FVector InputVector = FVector::ZeroVector;
 
 	// ********** Falling **********
 public:
 	void CheckFall(FVector MeshForce);
 protected:
-	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1);
+	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1, bool bPlaySound = true);
 
 	virtual void StandUp();
 
@@ -95,10 +98,10 @@ protected:
 
 	FVector FindMeshGroundLocation() const;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Fall", meta = (Tooltip = "For when an external force made the character fall."))
-		float FallRecoveryTime = 2.f;
+	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when an external force made the character fall."))
+		float FallRecoveryTime = 5.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Fall")
+	UPROPERTY(EditAnywhere, Category = "Fall")
 		float FallLimitMultiplier = 1.5;
 
 	FTimerHandle TH_FallRecoverTimer;
@@ -117,75 +120,80 @@ public:
 
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
-	UFUNCTION()
-	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	float GetMovementSpeedWhenHeld_Implementation() const override;
+
+	virtual float GetPickupWeight_Implementation() const override;
+
 	
+	UFUNCTION()
+		virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	virtual void OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 protected:
 	EState State = EState::EWalking;
 
 	UPROPERTY()
-	ACharacter_B* HoldingCharacter = nullptr;
+		ACharacter_B* HoldingCharacter = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-	float TimeBeforeThrowCollision = 0.3f;
+	UPROPERTY(EditAnywhere, Category = "Being Held")
+		float TimeBeforeThrowCollision = 0.3f;
 
-	bool bCanBeHeld = true;
+	UPROPERTY(EditAnywhere, Category = "Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
+		float PickupWeight = 2.f;
+
+	bool bCanBeHeld = false;
 	FTimerHandle TH_FallCollisionTimer;
 
-	
+	UPROPERTY(EditAnywhere, Category = "Being Held")
+		float MovementSpeedWhenHeld = 600.f;
+
 public:
 
-	 FRotator& GetHoldRotation();
+	const FRotator GetHoldRotation_Implementation() override;
+
+	const FVector GetHoldLocation_Implementation() override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Being Held")
-	
+	UPROPERTY(EditAnywhere, Category = "Being Held")
 	FRotator HoldRotation = FRotator(0, 0, 0);
 	
-	FVector HoldOffset = FVector(0, 0, 0);
+	UPROPERTY(EditAnywhere, Category = "Being Held")
+	FVector HoldLocation = FVector(0, 0, 575);
 
 public:
-	// ********** Holding Drink **********
-	FVector HoldingDrinkOffset = FVector::ZeroVector;
-	
-	bool bIsDrinking = false;
-		// ********** Charge **********
+
+	// ********** Charge **********
 	EChargeLevel GetChargeLevel();
 	bool IsCharging() const;
 	virtual void SetChargeLevel(EChargeLevel chargeLevel);
 
 	void SetIsCharging(bool Value);
 
-protected:	
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge1ThrowStrength = 200000.f;
+protected:
+	UPROPERTY(EditAnywhere, Category = "Throw")
+		float Charge1ThrowStrength = 200000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge2ThrowStrength = 250000.f;
-	
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
-	float Charge3ThrowStrength = 500000.f;
+	UPROPERTY(EditAnywhere, Category = "Throw")
+		float Charge2ThrowStrength = 250000.f;
 
+	UPROPERTY(EditAnywhere, Category = "Throw")
+		float Charge3ThrowStrength = 500000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge2MoveSpeed = 500.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
+	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge3MoveSpeed = 100.f;
-	
+
 	bool bIsCharging = false;
 
 	EChargeLevel ChargeLevel = EChargeLevel::ENotCharging;
-public:
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float ChargeTier2Percentage = 0.2;
-
-	UPROPERTY(EditAnywhere, Category = "Variables|Charge")
-		float ChargeTier3Percentage = 0.9;
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* ChargeLevelSound = nullptr;
 public:
 
@@ -194,14 +202,18 @@ public:
 public:
 	virtual void AddStun(const int Strength = 1);
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	int GetPunchesToStun();
+
+	int GetStunAmount();
+
+	UPROPERTY(EditAnywhere, Category = "Stun")
 		int StunStrength = 1;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	UPROPERTY(EditAnywhere, Category = "Stun")
 		float StunTime = 3.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stun")
+	UPROPERTY(EditAnywhere, Category = "Stun")
 		int PunchesToStun = 1;
 
 	UPROPERTY(VisibleAnywhere)
@@ -227,16 +239,16 @@ public:
 	void MakeVulnerable();
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Invulnerability")
+	UPROPERTY(EditAnywhere, Category = "Invulnerability")
 		float InvulnerabilityTime = 3.f;
 
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsInvulnerable = false;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+	UPROPERTY(EditAnywhere, Category = "Visuals")
 		UMaterialInstance* InvulnerableMat;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Visuals")
+	UPROPERTY(EditAnywhere, Category = "Visuals")
 		UMaterial* InvisibleMat;
 
 	FTimerHandle TH_InvincibilityTimer;
@@ -261,10 +273,10 @@ public:
 	virtual void SetState(EState s);
 
 	UFUNCTION(BlueprintCallable)
-	EState GetState() const;
+		EState GetState() const;
 
 	UFUNCTION()
-	virtual void Die();
+		virtual void Die();
 	// ********** Punch **********
 public:
 	void TryStartCharging();
@@ -272,34 +284,44 @@ public:
 	UNiagaraComponent* GetChargeParticle() const;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Variables|Punch")
-		FName ForceSocketName = "ProtoPlayer_BIND_SpineTop_JNT_center";
+	UPROPERTY(EditAnywhere, Category = "Punch")
+		FName ForceSocketName = "spine5_export_C_jnt";
 
-	UPROPERTY(VisibleAnywhere, Category = "Variables|Punch")
+	UPROPERTY(VisibleAnywhere, Category = "Punch")
 		UNiagaraComponent* PS_Charge = nullptr;
 
 	// ********** Damage **********
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int FellOutOfWorldScoreAmount = 100;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
+		int SuicideScoreAmount = -50;
+
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int FallScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 		int StoolScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Damage")
-		int PowerupKnockdownScoreAmount = 25;
+	UPROPERTY(EditAnywhere, Category = "Damage")
+		int PowerupKnockbackScoreAmount = 25;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Audio")
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* HurtSound;
+public:
+	// ********** Powerup **********
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Powerup", meta = (Tooltip = "The strength of which this character will be knocked back when hit by a powered up player"))
+		float PowerupPushStrength = 80000.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Powerup", meta = (Tooltip = "The upwards angle of the powerup knockback"))
+		float PowerupUpwardsAngle = 15.f;
+protected:
 	// ********** Misc. **********
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals", meta = (Tooltip = "The material index that special effects like invulnerability will be applied to"))
 		int SpecialMaterialIndex = 6;
 
 	FTransform RelativeMeshTransform;
@@ -310,11 +332,9 @@ protected:
 public:
 
 	bool IsAlive() const;
-	
+
 protected:
-	
+
 	bool bIsAlive = true;
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (Tooltip = "The strength og which this character will be knocked back when hit by a powered up player"))
-	float PowerupPushStrength = 1600000.f;
+
 };

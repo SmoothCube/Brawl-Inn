@@ -44,10 +44,18 @@ UStaticMeshComponent* AItem_B::GetMesh() const
 	return Mesh;
 }
 
-FRotator& AItem_B::GetHoldRotation()
+const FVector AItem_B::GetHoldLocation_Implementation()
+{
+	return HoldLocation;
+
+}
+
+const FRotator AItem_B::GetHoldRotation_Implementation()
 {
 	return HoldRotation;
+
 }
+
 
 bool AItem_B::IsHeld_Implementation() const
 {
@@ -56,7 +64,7 @@ bool AItem_B::IsHeld_Implementation() const
 
 bool AItem_B::CanBeHeld_Implementation() const
 {
-	return !bIsFractured;
+	return  !(bIsFractured || bIsThrown);
 }
 
 float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
@@ -74,6 +82,16 @@ float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
 	default:
 		return 0;
 	}
+}
+
+float AItem_B::GetPickupWeight_Implementation() const
+{
+	return PickupWeight;
+}
+
+float AItem_B::GetMovementSpeedWhenHeld_Implementation() const
+{
+	return MovementSpeedWhenHeld;
 }
 
 FOnFracture& AItem_B::OnFracture()
@@ -110,9 +128,7 @@ void AItem_B::OnThrowOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 	if (Interface)
-	{
 		if (!Interface->Execute_IsHeld(this)) return;
-	}
 
 	OnHit(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }

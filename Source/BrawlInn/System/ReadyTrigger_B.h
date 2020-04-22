@@ -9,23 +9,21 @@
 
 class AMenuGameMode_B;
 
-DECLARE_MULTICAST_DELEGATE(FOnOverlapChange);
-
 UCLASS()
 class BRAWLINN_API AReadyTrigger_B : public ATriggerBox
 {
 	GENERATED_BODY()
 
 public:
-		AReadyTrigger_B();
+	AReadyTrigger_B();
 
 protected:
-
-	FOnOverlapChange OnReadyOverlapChange;
-
-	virtual void BeginPlay() override;
+	// ********** AActor **********
+	void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	// ********** Overlaps **********
 
 	UFUNCTION()
 		void OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
@@ -33,13 +31,19 @@ protected:
 	UFUNCTION()
 		void OnEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
-	void PrepareStartGame();
+	// ********** Timer **********
+public:
+	void ClearReadyTimer();
 
+protected:
 	FTimerHandle TH_StartTimer;
 
+	// ********** Misc. **********
+	void PrepareStartGame();
+
+protected:
 	TArray<FPlayerInfo> PlayerInfos;
 
 	UPROPERTY()
-	AMenuGameMode_B* GameMode = nullptr;
-
+		AMenuGameMode_B* GameMode = nullptr;
 };

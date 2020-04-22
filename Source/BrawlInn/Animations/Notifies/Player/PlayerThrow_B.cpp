@@ -3,6 +3,7 @@
 
 #include "PlayerThrow_B.h"
 
+#include "BrawlInn.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/ThrowComponent_B.h"

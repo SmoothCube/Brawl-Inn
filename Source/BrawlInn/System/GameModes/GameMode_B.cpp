@@ -1,27 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameMode_B.h"
-#include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/PlayerStart.h"
-#include "Sound/SoundCue.h"
 #include "Camera/CameraActor.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
-#include "System/GameInstance_B.h"
-#include "System/Camera/GameCamera_B.h"
-
-#include "System/GameModes/MainGameMode_B.h"
-#include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
+#include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
+#include "System/Camera/GameCamera_B.h"
+#include "System/GameInstance_B.h"
+#include "System/GameModes/MainGameMode_B.h"
+#include "UI/Widgets/PauseMenu_B.h"
+
+AGameMode_B::AGameMode_B()
+{
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+}
 
 void AGameMode_B::BeginPlay()
 {
-	Super::BeginPlay();
-
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
 	/// Finds spawnpoints
@@ -33,8 +37,26 @@ void AGameMode_B::BeginPlay()
 	/// Bind delegates
 	SpawnCharacter_D.AddUObject(this, &AGameMode_B::SpawnCharacter);
 	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
-
+	
+#if WITH_EDITOR
 	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
+#endif
+
+	Super::BeginPlay();
+}
+
+void AGameMode_B::Tick(const float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (IsValid(PauseMenuWidget))
+		PauseMenuWidget->MenuTick();
+}
+
+void AGameMode_B::PostLevelLoad()
+{
+	if (GameInstance)
+		GameInstance->StartAmbientSounds();
 }
 
 void AGameMode_B::DisableControllerInputs()
@@ -49,6 +71,20 @@ void AGameMode_B::EnableControllerInputs()
 		Controller->EnableInput(Controller);
 }
 
+void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
+{
+	check(IsValid(BP_PauseMenu));
+	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
+	PauseMenuWidget->AddToViewport();
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+}
+
+void AGameMode_B::ResumeGame()
+{
+	PauseMenuWidget->RemoveFromParent();
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
 void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool LockOutgoing)
 {
 	AActor* CameraToUse = GameCamera;
@@ -58,7 +94,7 @@ void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool 
 	for (auto& PlayerController : PlayerControllers)
 	{
 		if (IsValid(CameraToUse))
-			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut,2, LockOutgoing);
+			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2, LockOutgoing);
 	}
 }
 
@@ -76,7 +112,8 @@ void AGameMode_B::CreatePlayerControllers()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController_B::StaticClass(), OutActors);
 	for (const auto& Actor : OutActors)
-		PlayerControllers.Add(Cast<AGamePlayerController_B>(Actor));
+		PlayerControllers.Add(Cast<APlayerController_B>(Actor));
+
 }
 
 // ---------------- Spawn PlayerCharacter functions --------------------------
@@ -118,7 +155,6 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		MainMode->AddCameraFocusPoint(Character);
 	}
-	UpdateViewTargets();
 	SpawnCharacter_NOPARAM_D.Broadcast();
 }
 
@@ -148,9 +184,10 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 	}
 
 	PlayerController->SetPlayerCharacter(nullptr);
-	UpdateViewTargets();
+
 	OnRespawnCharacter_D.Broadcast();
 }
+#if WITH_EDITOR
 
 void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 {
@@ -165,9 +202,10 @@ void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 	if (GameInstance)
 		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 
-	UpdateViewTargets();
+
 	DespawnCharacter_NOPARAM_D.Broadcast();
 }
+#endif
 
 FTransform AGameMode_B::GetRandomSpawnTransform()
 {

@@ -33,7 +33,7 @@ protected:
 
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere)
 		float ThrowHitStrength = 100;
 
 	// ********** Components **********
@@ -49,23 +49,23 @@ protected:
 	// ********** Destroy/Fracture **********
 
 	UFUNCTION()
-		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection);
+		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection); 
 
 	void BeginDespawn();
 
 	void StartDestroy();
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Despawning")
+	UPROPERTY(EditAnywhere, Category = "Despawning")
 		float DownValuePerTick = 10;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Despawning")
+	UPROPERTY(EditAnywhere, Category = "Despawning")
 		float TimeBeforeDespawn = 5.f;
 
 	FTimerHandle TH_Destroy;
 	FTimerHandle TH_Despawn;
 
 	// ********** Score **********
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	UPROPERTY(EditDefaultsOnly, Category = "Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
 		int ScoreAmount = 1;
 
 };

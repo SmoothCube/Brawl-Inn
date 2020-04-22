@@ -5,13 +5,13 @@
 #include "NiagaraComponent.h"
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
+#include "Components/CapsuleComponent.h"
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "System/GameModes/GameMode_B.h"
-#include "System/GameInstance_B.h"
 #include "Items/Useable_B.h"
 
 UThrowComponent_B::UThrowComponent_B(const FObjectInitializer& ObjectInitializer)
@@ -26,10 +26,14 @@ void UThrowComponent_B::BeginPlay()
 	OwningCharacter = Cast<ACharacter_B>(GetOwner());
 
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-	GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-	GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OneCharacterChanged);
-
+	if (GameMode)
+	{
+		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+#if WITH_EDITOR
+		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+#endif
+	}
 	HoldComponent = OwningCharacter->HoldComponent;
 }
 
@@ -62,18 +66,17 @@ bool UThrowComponent_B::TryStartCharge()
 		BWarn("Wrong Player State");
 		return false;
 	}
-	
 
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
 	if (Useable)
 	{
 		StartDrinking();
 
-		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer,this, &UThrowComponent_B::StopDrinking,Useable->GetUseTime());
+		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer, this, &UThrowComponent_B::FinishDrinking, Useable->GetUseTime());
 	}
 	else if (OwningCharacter->GetChargeParticle())
 	{
-		OwningCharacter->bIsCharging = true;
+		OwningCharacter->SetIsCharging(true);
 		OwningCharacter->GetChargeParticle()->Activate();
 	}
 
@@ -82,12 +85,12 @@ bool UThrowComponent_B::TryStartCharge()
 
 void UThrowComponent_B::StartThrow()
 {
-	if(HoldComponent)
+	if (HoldComponent)
 		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
 			return;
-	if (OwningCharacter->bIsCharging)
+	if (OwningCharacter->IsCharging())
 	{
-		OwningCharacter->bIsCharging = false;
+		OwningCharacter->SetIsCharging(false);
 		if (OwningCharacter && OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
@@ -124,9 +127,9 @@ void UThrowComponent_B::Throw()
 	if (OwningCharacter->GetChargeParticle())
 		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 	else
-		BError("No PS_Charge for player %f", *GetNameSafe(OwningCharacter));
+		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
 
-	OwningCharacter->bIsCharging = false;
+	OwningCharacter->SetIsCharging(false);
 	bIsThrowing = false;
 }
 
@@ -135,11 +138,14 @@ bool UThrowComponent_B::IsThrowing() const
 	return bIsThrowing;
 }
 
+bool UThrowComponent_B::IsDrinking()
+{
+	return bIsDrinking;
+}
+
 void UThrowComponent_B::StartDrinking()
 {
-	BWarn("StartDrinking!");
-
-	OwningCharacter->bIsDrinking = true;
+	bIsDrinking = true;
 	//remove all control from player for a while
 	OwningCharacter->SetCanMove(false);
 	if (OwningCharacter->PunchComponent)
@@ -149,16 +155,72 @@ void UThrowComponent_B::StartDrinking()
 	}
 }
 
-void UThrowComponent_B::StopDrinking()
+void UThrowComponent_B::FinishDrinking()
 {
-	BWarn("StopDrinking!");
-	OwningCharacter->bIsDrinking = false;
+	OwningCharacter->MakeInvulnerable(-1.f, false);
+	bIsDrinking = false;
+	bIsDrinkingFinished = true;
+}
+
+void UThrowComponent_B::CancelDrinking()
+{
+	bIsDrinking = false;
 	OwningCharacter->SetCanMove(true);
 	if (OwningCharacter->PunchComponent)
 	{
 		OwningCharacter->PunchComponent->SetCanPunch(true);
 		OwningCharacter->PunchComponent->SetCanDash(true);
+		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
+		if (Interface)
+		{
+			Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
+		}
+		HoldComponent->SetHoldingItem(nullptr);
+		OwningCharacter->SetState(EState::EWalking);
+
+		OwningCharacter->SetIsCharging(false);
+		bIsThrowing = false;
 	}
+}
+
+bool UThrowComponent_B::IsDrinkingFinished()
+{
+	return bIsDrinkingFinished;
+}
+
+void UThrowComponent_B::ThrowDrink()
+{
+	if (!OwningCharacter)
+	{
+		BError("No OwningCharacter for ThrowComponent %s!", *GetNameSafe(this));
+		return;
+	}
+	if (!HoldComponent)
+	{
+		BError("No HoldComponent for ThrowComponent");
+		return;
+	}
+	if (!HoldComponent->IsHolding())
+	{
+		OwningCharacter->SetState(EState::EWalking);
+		return;
+	}
+	OwningCharacter->SetState(EState::EWalking);
+	/// Prepare item to be thrown
+	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
+	if (Useable)
+	{
+		Useable->ThrowAway(OwningCharacter->GetActorRightVector());
+	}
+
+	if (OwningCharacter->GetChargeParticle())
+		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
+	else
+		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
+
+	OwningCharacter->SetIsCharging(false);
+	bIsThrowing = false;
+
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
@@ -167,13 +229,16 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		return false;
 
 	FVector PlayerLocation = OwningCharacter->GetActorLocation();
-	PlayerLocation.Z = 0;
+
 	FVector PlayerForward = PlayerLocation + OwningCharacter->GetActorForwardVector() * AimAssistRange;
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
+	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
+	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
 
 	TArray<ACharacter_B*> PlayersInCone;
+	TArray<ACharacter_B*> PlayersInInnerCone;
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
@@ -182,27 +247,51 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		if (HoldComponent && (OtherPlayer == HoldComponent->GetHoldingItem()))
 			continue;
 		FVector OtherPlayerLocation = OtherPlayer->GetActorLocation();
-		OtherPlayerLocation.Z = 0;
 
 		FVector PlayerToOtherPlayer = OtherPlayerLocation - PlayerLocation;
+
 		if (PlayerToOtherPlayer.Size() > AimAssistRange)
 			continue;
 
+		//Inner range check
+		if (PlayerToOtherPlayer.Size() < AimAssistInnerRange)
+		{
+			FVector ZeroZPlayerToForward = PlayerToForward;
+			ZeroZPlayerToForward.Z = 0;
+			FVector ZeroZPlayerToOtherPlayer = PlayerToOtherPlayer;
+			ZeroZPlayerToOtherPlayer.Z = 0;
+
+			float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(ZeroZPlayerToForward.GetSafeNormal(), ZeroZPlayerToOtherPlayer.GetSafeNormal())));
+			if (AngleA <= AimAssistInnerAngle)
+			{
+				BWarn("Found Character in cone!");
+				PlayersInInnerCone.Add(OtherPlayer);
+			}
+		}
+		if (PlayersInInnerCone.Num() > 0)
+			continue;
+		//outer range check
 		float AngleA = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PlayerToForward.GetSafeNormal(), PlayerToOtherPlayer.GetSafeNormal())));
 		if (AngleA <= AimAssistAngle)
+		{
+			BWarn("Found Character in cone!");
 			PlayersInCone.Add(OtherPlayer);
+		}
 	}
-	ACharacter_B* TargetPlayer = nullptr;
+	TArray<ACharacter_B*> ArrayToCheck = PlayersInCone;
+	if (PlayersInInnerCone.Num() > 0)
+		ArrayToCheck = PlayersInInnerCone;
 
-	switch (PlayersInCone.Num())
+	ACharacter_B* TargetPlayer = nullptr;
+	switch (ArrayToCheck.Num())
 	{
 	case 0:
 		return false;
 	case 1:
-		TargetPlayer = PlayersInCone[0];
+		TargetPlayer = ArrayToCheck[0];
 		break;
 	default:
-		PlayersInCone.Sort([&](const ACharacter_B& LeftSide, const ACharacter_B& RightSide)
+		ArrayToCheck.Sort([&](const ACharacter_B& LeftSide, const ACharacter_B& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -212,18 +301,18 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 				float DistanceB = FVector::Dist(PlayerLocation, RightSide.GetActorLocation());
 				return DistanceA < DistanceB;
 			});
-		TargetPlayer = PlayersInCone[0];
+		TargetPlayer = ArrayToCheck[0];
 		break;
 	}
-
-	FVector TargetLocation = TargetPlayer->GetActorLocation();
-
-	FVector ThrowDirection = TargetLocation - PlayerLocation;
+	
+	FVector TargetLocation = TargetPlayer->GetActorLocation() + FVector(0.f, 0.f, TargetPlayer->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	FVector ThrowDirection = TargetLocation - HoldComponent->GetHoldingItem()->GetActorLocation();
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
+
 	return true;
 }
 
-void UThrowComponent_B::OneCharacterChanged()
+void UThrowComponent_B::OnAnyCharacterChanged()
 {
 	/// Finds all characters
 	OtherPlayers.Empty();

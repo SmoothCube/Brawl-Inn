@@ -3,63 +3,59 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Items/Useable_B.h"
+#include "Components/ActorComponent.h"
 #include "System/Structs/BarDropLocations.h"
 #include "Bar_B.generated.h"
 
-class UGameInstance_B;
-class AIdleAICharacter_B;
-class UStaticMeshComponent;
-class AAICharacter_B;
-class AAIDropPoint_B;
 class AItem_B;
+class AUseable_B;
+class AIdleAICharacter_B;
+class AAICharacter_B;
+class UGameInstance_B;
+class USoundCue;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDeliverStart, AItem_B*, AAICharacter_B*);
 
-UCLASS()
-class BRAWLINN_API ABar_B : public AActor
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class BRAWLINN_API UBar_B : public UActorComponent
 {
 	GENERATED_BODY()
-public:
-	ABar_B();
 
-	// ********** AActor **********
+public:	
+	// Sets default values for this component's properties
+	UBar_B();
+
 protected:
+	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	// ********** Components **********
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* House;
 
 	// ********** Tankard **********
 protected:
 	void GiveRandomTankard(AAICharacter_B* Waiter);
 	void RandomOrder();
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Tankard")
+	UPROPERTY(EditAnywhere, Category = "Tankard")
 		TArray<TSubclassOf<AUseable_B>> BP_Useables;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Tankard")
+	UPROPERTY(EditDefaultsOnly, Category = "Tankard")
 		FName WaiterTag = "Waiter";
 
 	// ********** Stool **********
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Stool")
+	UPROPERTY(EditAnywhere, Category = "Stool")
 		TSubclassOf<AItem_B> BP_Stool;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Stool")
+	UPROPERTY(EditDefaultsOnly, Category = "Stool")
 		FName StoolReplacerTag = "StoolReplacer";
 
 	// ********** Box **********
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Box")
+	UPROPERTY(EditAnywhere, Category = "Box")
 		TSubclassOf<AItem_B> BP_Box;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Box")
+	UPROPERTY(EditDefaultsOnly, Category = "Box")
 		FName BoxReplacerTag = "BoxReplacer";
 
 
@@ -71,17 +67,17 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Audio")
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 		USoundCue* DrinkReadySound;
 
 	TArray<AIdleAICharacter_B*> Customers;
 
 	FTimerHandle TH_StartOrderTimer;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	UPROPERTY(EditDefaultsOnly, Category = "Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
 		float TimeUntilFirstDelivery = 2;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
+	UPROPERTY(EditDefaultsOnly, Category = "Score", meta = (Tooltip = "This value is overridden if ShouldUseSpreadSheets is enabled"))
 		float TimeUntilDelivery = 10;
 
 	// ********** Delivery **********
@@ -110,7 +106,5 @@ protected:
 
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
+		
 };
-
-
-

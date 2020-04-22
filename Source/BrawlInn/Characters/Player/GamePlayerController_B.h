@@ -6,8 +6,10 @@
 #include "Characters/Player/PlayerController_B.h"
 #include "GamePlayerController_B.generated.h"
 
+class AGameMode_B;
+class AMainGameMode_B;
 class ARespawnPawn_B;
-class UColoredTextBlock_B;;
+class UColoredTextBlock_B;
 
 UCLASS()
 class BRAWLINN_API AGamePlayerController_B : public APlayerController_B
@@ -57,7 +59,8 @@ protected:
 
 	void LeftStickYAxis(float Value) override;
 	
-	void TryPauseGame();
+	virtual void TryPauseGame();
+	
 	///Returns true if the player character is being held
 	bool TryBreakFree();
 
@@ -89,12 +92,14 @@ protected:
 public:
 	void TryRespawn(const float ReSpawnDelay);
 
-	void SetHealthWidget(UColoredTextBlock_B* Widget);
+	void SetScoreTextBlock(UColoredTextBlock_B* TextBlock);
 protected:
 
 	UPROPERTY()
 		UColoredTextBlock_B* ScoreTextBlock = nullptr;
 
+	UPROPERTY(BlueprintReadOnly)
+		AGameMode_B* GameMode = nullptr;
 
 	// ********** EditorOnly **********
 	void Debug_Spawn() const;

@@ -6,16 +6,18 @@
 #include "Sound/SoundCue.h"
 #include "NiagaraComponent.h"
 #include "Engine/World.h"
+#include "DestructibleComponent.h"
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
+#include "Throwable_B.h"
 
 AUseable_B::AUseable_B()
 {
-
 	NiagaraSystemComponent = CreateDefaultSubobject<UNiagaraComponent>("Particle System");
+	NiagaraSystemComponent->SetRelativeLocation(FVector(0.f, -61.5f, 44.f));
 	NiagaraSystemComponent->SetupAttachment(RootComponent);
 
 	Mesh->SetSimulatePhysics(false);
@@ -23,18 +25,31 @@ AUseable_B::AUseable_B()
 	PickupCapsule->SetRelativeLocation(FVector(0, 37, 0));
 	PickupCapsule->SetCapsuleHalfHeight(60);
 	PickupCapsule->SetCapsuleRadius(60);
+	PickupCapsule->SetCollisionProfileName("Powerup-CapsuleComponent");
 
 	DrinkMesh = CreateDefaultSubobject<UStaticMeshComponent>("Drink Mesh");
 	DrinkMesh->SetupAttachment(RootComponent);
-	DrinkMesh->SetRelativeLocation(FVector(2.3f, 36.5f, 38));
+	DrinkMesh->SetRelativeLocation(FVector(2.3f, -63.5, 38));
 	DrinkMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.05f));
 	DrinkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	DestructibleComponent = CreateDefaultSubobject<UDestructibleComponent>("DestructibleComponent");
+	DestructibleComponent->SetupAttachment(GetRootComponent());
+
+	// Overriding variables
+	PickupWeight = 3.f;
+	HoldLocation = FVector(-20.920467, -3.708875, 7.292015);
+}
+
+UDestructibleComponent* AUseable_B::GetDestructibleComponent() const
+{
+	return DestructibleComponent;
 }
 
 void AUseable_B::BeginPlay()
 {
 	Super::BeginPlay();
-
+	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -45,29 +60,24 @@ void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
-	BWarn("Picking up Item %s", *GetNameSafe(this));
-
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 
-	OwningCharacter = Player;
+		OwningCharacter = Player;
 }
 
 void AUseable_B::Dropped_Implementation()
 {
-	BWarn("Dropping Item %s", *GetNameSafe(this));
-	FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	DetachFromActor(rules);
+	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
+	DetachFromActor(Rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
 	Mesh->SetSimulatePhysics(true);
 }
 
 void AUseable_B::Use_Implementation()
 {
-	BWarn("Using Item %s", *GetNameSafe(this));
-
 	if (Duration > 0)
 		GetWorld()->GetTimerManager().SetTimer(TH_DrinkHandle, this, &AUseable_B::ResetBoost, Duration, false);
 
@@ -80,7 +90,6 @@ void AUseable_B::Use_Implementation()
 		}
 	}
 
-	DrinkMesh->DestroyComponent();
 	PickupCapsule->DestroyComponent();
 	NiagaraSystemComponent->DestroyComponent();
 
@@ -100,6 +109,32 @@ float AUseable_B::GetUseTime()
 
 void AUseable_B::ResetBoost()
 {
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AUseable_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &AUseable_B::StartDestroy, TimeBeforeDespawn + 0.1f, false);
+}
+
+void AUseable_B::ThrowAway(FVector /*Direction*/)
+{
+	DestructibleComponent->SetCollisionProfileName("AfterFracture");
+	DestructibleComponent->SetSimulatePhysics(true);
+	Execute_Dropped(this);
+
+	SetRootComponent(DestructibleComponent);
+	Mesh->DestroyComponent();
+	DrinkMesh->DestroyComponent();
+	DestructibleComponent->SetSimulatePhysics(true);
+}
+
+void AUseable_B::StartDestroy()
+{
+	Destroy();
+}
+
+void AUseable_B::BeginDespawn()
+{
+	FVector Location = GetActorLocation();
+	Location.Z -= DownValuePerTick;
+	SetActorLocation(Location);
 }
 
 void AUseable_B::FellOutOfWorld(const UDamageType& dmgType)

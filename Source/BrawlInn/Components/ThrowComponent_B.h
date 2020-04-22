@@ -44,24 +44,44 @@ protected:
 public:
 
 	// ********** Drinking **********
+	bool IsDrinking();
+
 	void StartDrinking();
 
-	void StopDrinking();
+	void FinishDrinking();
 
+	void CancelDrinking();
+
+	bool IsDrinkingFinished();
+
+	void ThrowDrink();
+protected:
+	bool bIsDrinkingFinished = false;
+	
+	bool bIsDrinking = false;
+	
 	FTimerHandle TH_DrinkTimer;
+public:
 	// ********** AimAssist **********
 	bool AimAssist(FVector& TargetPlayerLocation);
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistAngle = 20.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables|AimAssist")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
 		float AimAssistRange = 1000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
+		float AimAssistInnerAngle = 55.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AimAssist")
+		float AimAssistInnerRange = 300.f;
+
 
 	// ********** Misc. **********
 
 	UFUNCTION()
-		void OneCharacterChanged();
+		void OnAnyCharacterChanged();
 
 	UPROPERTY()
 		TArray<ACharacter_B*> OtherPlayers;

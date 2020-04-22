@@ -11,8 +11,10 @@
 #include "AI/AIDropPoint_B.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/AIController_B.h"
+#include "Items/Item_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Hazards/Bar_B.h"
+#include "System/GameModes/MainGameMode_B.h"
 
 UBTS_CheckIfFall_B::UBTS_CheckIfFall_B()
 {
@@ -41,9 +43,11 @@ void UBTS_CheckIfFall_B::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		return;
 	}
 
-	if ((AICharacter->GetState() == EState::EBeingHeld && AICharacter->HoldComponent->IsHolding()) || (AICharacter->GetState() == EState::EFallen))
+	if ((AICharacter->GetState() == EState::EBeingHeld && AICharacter->HoldComponent->IsHolding()) || (AICharacter->GetState() == EState::EFallen) || AICharacter->GetState() == EState::EBeingHeld)
 	{
-		ABar_B* Bar = Cast<ABar_B>(UGameplayStatics::GetActorOfClass(GetWorld(), ABar_B::StaticClass()));
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+		check(IsValid(GameMode));
+		UBar_B* Bar = GameMode->GetBar();
 		if (Bar)
 		{
 			AAIDropPoint_B* DropPoint = Bar->GetDropLocations(AICharacter)->PeekFront();
@@ -56,6 +60,6 @@ void UBTS_CheckIfFall_B::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 		OwnerComp.GetBlackboardComponent()->ClearValue(HoldingItem.SelectedKeyName);
 		OwnerComp.GetBlackboardComponent()->ClearValue(DropLocation.SelectedKeyName);
-		OwningAI->OnCharacterFall().Broadcast();
+		OwningAI->GetBrainComponent()->StopLogic("");
 	}
 }

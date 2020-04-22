@@ -42,7 +42,9 @@ protected:
 	// ********** Throwing **********
 public:
 
-	FRotator& GetHoldRotation();
+	const FVector GetHoldLocation_Implementation() override;
+
+	const FRotator GetHoldRotation_Implementation() override;
 
 protected:
 
@@ -52,17 +54,34 @@ protected:
 
 	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	virtual float GetPickupWeight_Implementation() const override;
+
+public:
+	float GetMovementSpeedWhenHeld_Implementation() const override;
+
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Throw")
+		float MovementSpeedWhenHeld = 600.f;
+
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge1ThrowStrength = 1000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge2ThrowStrength = 2000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Throw")
+	UPROPERTY(EditAnywhere, Category = "Throw")
 		float Charge3ThrowStrength = 3000.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Throw")
+	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 		FRotator HoldRotation = FRotator(0, 0, 0);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Throw")
+		FVector HoldLocation = FVector(92.291679f, -63.935005f, 0.000139f);
+
+	UPROPERTY(EditAnywhere, Category = "Throw", meta = (Tooltip = "Used to prioritize what item gets picked up when more than one is avaliable. Higher values will be chosen."))
+		float PickupWeight = 1.f;
+
 
 	// ********** Destroy/Fracture **********
 public:
@@ -75,6 +94,8 @@ protected:
 	virtual void OnItemFracture();
 
 	bool bIsFractured = false;
+
+	bool bIsThrown = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Juice|Destroy")
 		UNiagaraSystem* PS_OnDestroy;
@@ -89,7 +110,7 @@ protected:
 
 	virtual void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 		TSubclassOf<UDamageType> BP_DamageType;
 
 	UPROPERTY()

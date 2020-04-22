@@ -1,13 +1,33 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameInstance_B.h"
+
+#include "ConfigCacheIni.h"
+#include "DataTable_B.h"
+#include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "Sound/SoundBase.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+
+#include "BrawlInn.h"
 
 void UGameInstance_B::Init()
 {
 	Super::Init();
+
+	UDataTable_B* DataTable = NewObject<UDataTable_B>();
+	DataTable->LoadCSVFile(FStringValues::StaticStruct(), "MapNames.csv");
+	GameMap = DataTable->GetRow<FStringValues>("GameMap")->Value;
+	MenuMap = DataTable->GetRow<FStringValues>("MenuMap")->Value;
+	VictoryMap = DataTable->GetRow<FStringValues>("VictoryMap")->Value;
+	DataTable->ConditionalBeginDestroy();
+
+	
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), MasterVolume, GGameIni);
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicVolume, GGameIni);
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxVolume, GGameIni);
+
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
@@ -23,6 +43,51 @@ void UGameInstance_B::SetCameraSwapTransform(const FTransform Transform)
 FTransform UGameInstance_B::GetCameraSwapTransform() const
 {
 	return CameraSwapTransform;
+}
+
+void UGameInstance_B::StartAmbientSounds()
+{
+	if (bMusicInitialized)
+		return;
+	if (!IsValid(BirdSoundComponent) && BirdsCue)
+	{
+		BirdSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BirdsCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
+		BirdSoundComponent->Play();
+	}
+	if (!IsValid(RiverSoundComponent) && RiverCue)
+	{
+		RiverSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), RiverCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
+		RiverSoundComponent->Play();
+	}
+	bMusicInitialized = true;
+}
+
+void UGameInstance_B::SetAndPlayMusic(USoundCue* NewMusic)
+{
+	if (NewMusic)
+	{
+		if (!MainMusicComponent)
+		{
+			MainMusicComponent = UGameplayStatics::CreateSound2D(GetWorld(), NewMusic, GetMasterVolume() * GetMusicVolume(), 1.f,0.f, {}, true);
+			MainMusicComponent->Play();
+		}
+		else
+		{
+			MainMusicComponent->SetSound(NewMusic);
+			MainMusicComponent->SetVolumeMultiplier(GetMasterVolume() * GetMusicVolume());
+		}
+	}
+	else
+	{
+		BWarn("New Music invalid!");
+	}
+}
+
+const USoundBase* UGameInstance_B::GetCurrentMusic()
+{
+	if (MainMusicComponent)
+		return MainMusicComponent->Sound;
+	return nullptr;
 }
 
 float UGameInstance_B::GetMasterVolume() const
@@ -103,11 +168,20 @@ bool UGameInstance_B::ShouldUseSpreadSheets() const
 	return bShouldUseSpreadSheets;
 }
 
-bool UGameInstance_B::GameIsScoreBased() const
+const FString& UGameInstance_B::GetGameMapName() const
 {
-	return bGameIsScoreBased;
+	return GameMap;
 }
 
+const FString& UGameInstance_B::GetMenuMapName() const
+{
+	return MenuMap;
+}
+
+const FString& UGameInstance_B::GetVictoryMapName() const
+{
+	return VictoryMap;
+}
 
 bool UGameInstance_B::IgnoreCountdown() const
 {

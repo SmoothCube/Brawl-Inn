@@ -49,34 +49,34 @@ private:
 	void LerpCameraLocation(FVector LerpLoc);
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MaxCameraHeight = 100000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MinCameraHeight = -100000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float LerpAlpha = 0.5;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float CameraMoveSpeed = 0.05f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraMoveSpeed = 0.03f;
 
 	// ********** Zoom **********
 private:
 	void SetSpringArmLength(FConvexVolume& scene);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float SmallestSpringArmLength = 750.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float SmallestSpringArmLength = 1200.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float LargestSpringArmLength = 3000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float LargestSpringArmLength = 4500.f;
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float BorderWidth = 1000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		float CameraZoomSpeed = 0.1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float CameraZoomSpeed = 0.05f;
 private:
 	float CameraZoom = 0.f;
 
@@ -86,12 +86,11 @@ private:
 	float StartPitch;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float LowestRotAdd = -0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LowestRotAdd = -5.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-	float HighestRotAdd = 15.f;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HighestRotAdd = 20.f;
 
 	// ********** Tracking **********
 private:

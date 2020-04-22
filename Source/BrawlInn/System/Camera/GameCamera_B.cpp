@@ -43,7 +43,8 @@ void AGameCamera_B::BeginPlay()
 
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
-	TrackingBox = Cast<ATriggerBox>(Actors[0]);
+	if (Actors.IsValidIndex(0))
+		TrackingBox = Cast<ATriggerBox>(Actors[0]);
 	if (TrackingBox)
 	{
 		TrackingBox->GetCollisionComponent()->OnComponentEndOverlap.AddDynamic(this, &AGameCamera_B::OnTrackingBoxEndOverlap);
@@ -52,7 +53,7 @@ void AGameCamera_B::BeginPlay()
 
 	//Caches the camera rotation angle
 	StartPitch = SpringArm->GetComponentRotation().Pitch;
-//	SetActorTickEnabled(false);
+	//	SetActorTickEnabled(false);
 }
 
 void AGameCamera_B::Tick(float DeltaTime)
@@ -64,7 +65,7 @@ void AGameCamera_B::Tick(float DeltaTime)
 
 	FMinimalViewInfo ViewInfo;
 	Camera->GetCameraView(GetWorld()->GetDeltaSeconds(), ViewInfo);
-	UGameplayStatics::GetViewProjectionMatrix(ViewInfo, View,Proj, ViewProj);
+	UGameplayStatics::GetViewProjectionMatrix(ViewInfo, View, Proj, ViewProj);
 	FConvexVolume v;
 	GetViewFrustumBounds(v, ViewProj, true);
 
@@ -83,12 +84,10 @@ void AGameCamera_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 {
-	if (!TrackingBox) { BError("CameraTrackingBox not found!"); return;}
-
-	FVector sum = FVector::ZeroVector;
+	FVector Sum = FVector::ZeroVector;
 
 	TArray<AActor*> ActorsToRemove;
-	for (int i=0; i< scene.Planes.Num(); i++)
+	for (int i = 0; i < scene.Planes.Num() - 1; i++)
 	{
 		auto& p = scene.Planes[i];
 		float DistOutside = 0;
@@ -100,23 +99,25 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 		FVector DirVec = FVector::ZeroVector;
 		switch (i)
 		{
-		case 0:		DirVec = FVector(0, 1, 0);
+		case 0:
+			DirVec = Camera->GetRightVector();
 			break;
-		case 1:		DirVec = FVector(0, -1, 0);
+		case 1:
+			DirVec = -Camera->GetRightVector();
 			break;
-		case 2:		DirVec = FVector(-1, 0, 0);
+		case 2:
+			DirVec = -Camera->GetUpVector();
 			break;
-		case 3:		DirVec = FVector(1, 0, 0);
+		case 3:
+			DirVec = Camera->GetUpVector();
 			break;
 		}
-
 		for (auto& a : ActorsToTrack)
 		{
-			if (!IsValid(a)) { ActorsToRemove.Add(a); continue;}
+			if (!IsValid(a)) { ActorsToRemove.Add(a); continue; }
 
 			//find player position with border
-			FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
-			BorderVector.Z = 0;
+			FVector BorderVector = DirVec.GetSafeNormal() * BorderWidth;
 			FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
 
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
@@ -124,25 +125,25 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 			if (Dist >= DistOutside)	//Outside frustum
 			{
 				DistOutside = Dist;
-				DistVec = DirVec *DistOutside;
+				DistVec = DirVec * DistOutside;
 			}
-			else if (Dist < 0 && Dist > DistInside )	//inside frustum
+			else if (Dist < 0 && Dist > DistInside)	//inside frustum
 			{
 				if (DistOutside == 0)
 				{
 					DistInside = Dist;
-					DistVec = DirVec *DistInside;
+					DistVec = DirVec * DistInside;
 				}
 			}
 		}
-		sum -= DistVec * CameraMoveSpeed;
+		Sum -= DistVec * CameraMoveSpeed;
 	}
 
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
 
-	FHitResult OutHit; 
-	LerpCameraLocation(GetActorLocation() + sum);
+	FHitResult OutHit;
+	LerpCameraLocation(GetActorLocation() + Sum);
 
 }
 
@@ -165,16 +166,15 @@ void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 			float Dist = p.PlaneDot(TrackingPointWithBorder);
 			if (Dist > 0 && Dist > FurthestDist)
 				FurthestDist = Dist;
-			else if (Dist < 0 && Dist > FurthestDist&& FurthestDist <= 0)
+			else if (Dist < 0 && Dist > FurthestDist && FurthestDist <= 0)
 				FurthestDist = Dist;
 		}
 	}
 
 	CameraZoom += FurthestDist * CameraZoomSpeed;
-	
-	if (CameraZoom < SmallestSpringArmLength)
-		CameraZoom = SmallestSpringArmLength;
-	
+
+	CameraZoom = FMath::Clamp(CameraZoom, SmallestSpringArmLength, LargestSpringArmLength);
+
 	SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, CameraZoom, LerpAlpha);
 }
 
@@ -184,12 +184,11 @@ void AGameCamera_B::SetSpringArmPitch()
 	float Length = SpringArm->TargetArmLength;
 
 	float NormalizedLength = (Length - SmallestSpringArmLength) / (LargestSpringArmLength - SmallestSpringArmLength);
-	float PitchSetter = 1 - (NormalizedLength*NormalizedLength);
-
-	FMath::Clamp(PitchSetter, 0.f, 1.f);
+	float PitchSetter = -(NormalizedLength* NormalizedLength) + 2*NormalizedLength;
+	PitchSetter = FMath::Clamp(PitchSetter, 0.f, 1.f); //PitchSetter should never be anything else, but keep this just to be sure
 
 	//map normalization to the value
-	float VariablePitch = (PitchSetter * (HighestRotAdd - LowestRotAdd)) + LowestRotAdd;
+	float VariablePitch = (PitchSetter * (LowestRotAdd - HighestRotAdd)) + HighestRotAdd;
 
 	//set value
 	SpringArm->SetWorldRotation(FRotator(StartPitch + VariablePitch, SpringArm->GetComponentRotation().Yaw, SpringArm->GetComponentRotation().Roll));
@@ -224,6 +223,6 @@ void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCompo
 
 void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))	
+	if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))
 		ActorsToTrack.Add(OtherActor);
 }

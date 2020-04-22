@@ -97,15 +97,19 @@ void AThrowable_B::Use_Implementation()
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		DestructibleComponent->SetCollisionProfileName("Destructible");
 		DestructibleComponent->SetSimulatePhysics(true);
+		DestructibleComponent->SetPhysicsLinearVelocity(FVector(0.f, 0.f, 0.f));
+		DestructibleComponent->SetPhysicsAngularVelocityInDegrees(FVector(0.f, 0.f, 0.f));
 	}
 	else
 	{
 		BError("No OwningCharacter for Throwable %s", *GetNameSafe(this))
 	}
+	bIsThrown = true;
 }
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
+
 	if (Mesh)
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
@@ -135,6 +139,7 @@ void AThrowable_B::BeginDespawn()
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	BWarn("Throwable Hit"); //TODO remove
 	if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		return;
 
@@ -152,12 +157,8 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 			UGameplayStatics::ApplyDamage(HitPlayer, ScoreAmount, OwningCharacter->GetController(), this, BP_DamageType);
 		}
 	}
-	if (Mesh)
-		Mesh->DestroyComponent();
-	if (PickupCapsule)
-		PickupCapsule->DestroyComponent();
 
-	DestructibleComponent->ApplyDamage(1000, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 100);
+	DestructibleComponent->ApplyDamage(1, DestructibleComponent->GetComponentLocation(), FVector(1, 0, 0), 10000);
 }
 
 UDestructibleComponent* AThrowable_B::GetDestructibleComponent() const

@@ -18,10 +18,10 @@ public:
 protected:
 	
 	// ** Variables ** 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+	UPROPERTY(EditDefaultsOnly, Category = "Boost")
 	float MovementSpeedBoost = 1000;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Variables|Boost")
+	UPROPERTY(EditDefaultsOnly, Category = "Boost")
 	float AccelerationBoost = 400;
 
 private:

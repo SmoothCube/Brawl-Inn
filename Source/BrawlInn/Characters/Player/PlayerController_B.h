@@ -96,7 +96,7 @@ protected:
 
 	// ********** Various **********
 public:
-
+	UFUNCTION()
 	void PlayControllerVibration(float Strength, float Duration, bool bAffectsLeftLarge, bool bAffectsLeftSmall, bool bAffectsRightLarge, bool bAffectsRightSmall, EDynamicForceFeedbackAction::Type Action = EDynamicForceFeedbackAction::Start);
 
 	APlayerCharacter_B* GetPlayerCharacter() const;
@@ -110,9 +110,11 @@ public:
 	void SetPlayerInfo(const FPlayerInfo& Info);
 	
 protected:
+
+	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter_B* PlayerCharacter = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Variables")
+	UPROPERTY(EditAnywhere)
 		bool bVibrateControllers = false;
 
 	FPlayerInfo PlayerInfo;

@@ -1,25 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GamePlayerController_B.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
-#include "Engine/World.h"
-#include "Engine/LocalPlayer.h"
 
 #include "BrawlInn.h"
-#include "System/GameModes/MainGameMode_B.h"
-#include "Characters/Player/RespawnPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Components/ThrowComponent_B.h"
-#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/GameMode_B.h"
+#include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/ColoredTextBlock_B.h"
 
 void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 void AGamePlayerController_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -182,8 +184,7 @@ void AGamePlayerController_B::LeftStickYAxis(const float Value)
 
 void AGamePlayerController_B::TryPauseGame()
 {
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	if(IsValid(GameMode))
 		GameMode->PauseGame(this);
 }
 
@@ -237,6 +238,8 @@ bool AGamePlayerController_B::TryEndPunchCharge()
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->IsCharging())
 	{
+		PlayerCharacter->PunchComponent->SetIsPunching(true);
+		PlayerCharacter->PunchComponent->SetCanPunch(false);
 		PlayerCharacter->SetIsCharging(false);
 		return true;
 	}
@@ -252,7 +255,6 @@ bool AGamePlayerController_B::TryPunch()
 		PlayerCharacter->PunchComponent->GetCanPunch()
 		)
 	{
-		BWarn("Trying punch!");
 		PlayerCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);
 		PlayerCharacter->PunchComponent->SetIsPunching(true);
 		PlayerCharacter->PunchComponent->SetCanPunch(false);
@@ -283,8 +285,7 @@ void AGamePlayerController_B::TryPickup()
 
 void AGamePlayerController_B::Respawn() const
 {
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	check(IsValid(GameMode))
 		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
 }
 
@@ -294,22 +295,18 @@ void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
 		GetWorld()->GetTimerManager().SetTimer(TH_RespawnTimer, this, &AGamePlayerController_B::Respawn, ReSpawnDelay, false);
 }
 
-void AGamePlayerController_B::SetHealthWidget(UColoredTextBlock_B* Widget)
+void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 {
-	ScoreTextBlock = Widget;
+	ScoreTextBlock = TextBlock;
 	UScoreSubSystem_B* ScoreSubSystem = GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
-	if (!ScoreSubSystem->OnScoreValuesChanged.IsBoundToObject(Widget))
-	{
-		ScoreSubSystem->OnScoreValuesChanged.AddUObject(Widget, &UColoredTextBlock_B::UpdateScore);
-	}
+	if (!ScoreSubSystem->OnScoreChanged.IsBoundToObject(TextBlock))
+		ScoreSubSystem->OnScoreChanged.AddUObject(TextBlock, &UColoredTextBlock_B::UpdateScore);
 }
 
 void AGamePlayerController_B::Debug_Spawn() const
 {
 #if WITH_EDITOR
-	BScreen("Editor");
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	check(IsValid(GameMode))
 		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
 #endif
 }
@@ -317,8 +314,8 @@ void AGamePlayerController_B::Debug_Spawn() const
 void AGamePlayerController_B::Debug_DeSpawn()
 {
 #if WITH_EDITOR
-	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode)
+	check(IsValid(GameMode))
+
 		GameMode->DespawnCharacter_D.Broadcast(this);
 #endif
 }

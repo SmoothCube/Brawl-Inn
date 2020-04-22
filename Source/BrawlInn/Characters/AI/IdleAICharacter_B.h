@@ -7,12 +7,14 @@
 #include "IdleAICharacter_B.generated.h"
 
 class AAIDropPoint_B;
-class ABar_B;
+class UBar_B;
+class UMergeMeshComponent_B;
 UCLASS()
 class BRAWLINN_API AIdleAICharacter_B : public ACharacter_B
 {
 	GENERATED_BODY()
 
+	AIdleAICharacter_B();
 protected:
 	// ********** AActor **********
 	void BeginPlay() override;
@@ -20,26 +22,30 @@ protected:
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void FellOutOfWorld(const UDamageType& dmgType) override;
-	void Respawn();
-
+	
+	// ********** Components **********
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UMergeMeshComponent_B* MergeMeshComponent;
+		
 	// ********** ACharacter_B **********
 
 	void Die() override;
 	
-	void SetState(EState s) override;
+	void SetState(EState StateIn) override;
 
 	// ********** Location/Movement **********
 
-	UPROPERTY(BlueprintReadOnly, Category = "Variables|Movement")
+	void Respawn();
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		FVector StartLocation;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Variables|Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		FVector RespawnLocation;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variables|Movement")
-		float ResetCanMoveTime = 60.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+		float ResetCanMoveTime = 5.f;
 
-	FTimerHandle TH_ResetCanMove;
 	FTimerHandle TH_Respawn;
 
 	// ********** Drink ordering**********
@@ -51,15 +57,13 @@ public:
 	void TryPickup();
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category="Variables|Ordering")
+	UPROPERTY(EditDefaultsOnly, Category="Ordering")
 	TSubclassOf<AAIDropPoint_B> BP_DropPoint;
 
-	UPROPERTY(EditAnywhere, Category = "Variables|Ordering")
+	UPROPERTY(EditAnywhere, Category = "Ordering")
 	bool bCanOrderDrink = true;
 
 	UPROPERTY()
-		ABar_B* Bar = nullptr;
-
-
+		UBar_B* Bar = nullptr;
 
 };
