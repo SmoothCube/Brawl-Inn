@@ -23,11 +23,11 @@ void UGameInstance_B::Init()
 	VictoryMap = DataTable->GetRow<FStringValues>("VictoryMap")->Value;
 	DataTable->ConditionalBeginDestroy();
 
-	
-	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), MasterVolume, GGameIni);
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), MasterSoundClass->Properties.Volume, GGameIni);
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicVolume, GGameIni);
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxVolume, GGameIni);
 
+	
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
@@ -92,7 +92,7 @@ const USoundBase* UGameInstance_B::GetCurrentMusic()
 
 float UGameInstance_B::GetMasterVolume() const
 {
-	return MasterVolume;
+	return MasterSoundClass->Properties.Volume;
 }
 
 float UGameInstance_B::GetMusicVolume() const
@@ -111,7 +111,7 @@ float UGameInstance_B::GetSfxVolume() const
 
 void UGameInstance_B::SetMasterVolume(const float Value)
 {
-	MasterVolume = Value;
+	MasterSoundClass->Properties.Volume = Value;
 }
 
 void UGameInstance_B::SetMusicVolume(const float Value)

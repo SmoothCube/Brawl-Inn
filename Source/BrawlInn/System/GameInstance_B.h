@@ -7,6 +7,7 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameInstance_B.generated.h"
 
+class USoundClass;
 class UCameraShake;
 class USoundCue;
 class USoundBase;
@@ -72,8 +73,14 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-		float MasterVolume = 1.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
+		USoundClass* MasterSoundClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
+		USoundClass* MusicSoundClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
+		USoundClass* SfxSoundClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		float MusicVolume = 1.f;
@@ -86,6 +93,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* RiverCue;
+
 	// ********** PlayerInfo **********
 public:
 	void AddPlayerInfo(FPlayerInfo PlayerInfo);
