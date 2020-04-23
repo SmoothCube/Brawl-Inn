@@ -1,16 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameInstance_B.h"
-
-#include "ConfigCacheIni.h"
-#include "DataTable_B.h"
-#include "Engine/Engine.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
 #include "Components/AudioComponent.h"
+#include "ConfigCacheIni.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
 #include "BrawlInn.h"
+#include "DataTable_B.h"
 
 void UGameInstance_B::Init()
 {
@@ -24,10 +23,8 @@ void UGameInstance_B::Init()
 	DataTable->ConditionalBeginDestroy();
 
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), MasterSoundClass->Properties.Volume, GGameIni);
-	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicVolume, GGameIni);
-	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxVolume, GGameIni);
-
-	
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicSoundClass->Properties.Volume, GGameIni);
+	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxSoundClass->Properties.Volume, GGameIni);
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)
@@ -49,14 +46,15 @@ void UGameInstance_B::StartAmbientSounds()
 {
 	if (bMusicInitialized)
 		return;
+	
 	if (!IsValid(BirdSoundComponent) && BirdsCue)
 	{
-		BirdSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BirdsCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
+		BirdSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), BirdsCue, 1.f, 1.f, FMath::FRandRange(0, 100), {}, true);
 		BirdSoundComponent->Play();
 	}
 	if (!IsValid(RiverSoundComponent) && RiverCue)
 	{
-		RiverSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), RiverCue, GetMasterVolume() * GetSfxVolume(), 1.f, FMath::FRandRange(0, 100), {}, true);
+		RiverSoundComponent = UGameplayStatics::CreateSound2D(GetWorld(), RiverCue, 1.f, 1.f, FMath::FRandRange(0, 100), {}, true);
 		RiverSoundComponent->Play();
 	}
 	bMusicInitialized = true;
@@ -68,13 +66,12 @@ void UGameInstance_B::SetAndPlayMusic(USoundCue* NewMusic)
 	{
 		if (!MainMusicComponent)
 		{
-			MainMusicComponent = UGameplayStatics::CreateSound2D(GetWorld(), NewMusic, GetMasterVolume() * GetMusicVolume(), 1.f,0.f, {}, true);
+			MainMusicComponent = UGameplayStatics::CreateSound2D(GetWorld(), NewMusic, 1.f, 1.f,0.f, {}, true);
 			MainMusicComponent->Play();
 		}
 		else
 		{
 			MainMusicComponent->SetSound(NewMusic);
-			MainMusicComponent->SetVolumeMultiplier(GetMasterVolume() * GetMusicVolume());
 		}
 	}
 	else
@@ -101,12 +98,12 @@ float UGameInstance_B::GetMusicVolume() const
 	if (bMuteMusic)
 		return 0;
 #endif
-	return MusicVolume;
+	return MusicSoundClass->Properties.Volume;
 }
 
 float UGameInstance_B::GetSfxVolume() const
 {
-	return SfxVolume;
+	return SfxSoundClass->Properties.Volume;
 }
 
 void UGameInstance_B::SetMasterVolume(const float Value)
@@ -116,12 +113,12 @@ void UGameInstance_B::SetMasterVolume(const float Value)
 
 void UGameInstance_B::SetMusicVolume(const float Value)
 {
-	MusicVolume = Value;
+	MusicSoundClass->Properties.Volume = Value;
 }
 
 void UGameInstance_B::SetSfxVolume(const float Value)
 {
-	SfxVolume = Value;
+	SfxSoundClass->Properties.Volume = Value;
 }
 
 void UGameInstance_B::AddPlayerInfo(FPlayerInfo PlayerInfo)

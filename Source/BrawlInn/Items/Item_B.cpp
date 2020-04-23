@@ -105,16 +105,11 @@ void AItem_B::OnItemFracture()
 
 	if (DestroyedCue)
 	{
-		float  Volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			DestroyedCue,
 			GetActorLocation(),
-			Volume
+			1.f
 			);
 	}
 

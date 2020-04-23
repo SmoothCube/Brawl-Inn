@@ -20,11 +20,8 @@ class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
 
-public:
-
-		// ********** UGameInstance **********
 protected:
-	virtual void Init() override;
+	void Init() override;
 
 	// ********** Camera **********
 public:
@@ -44,13 +41,13 @@ protected:
 
 	// ********** Sound **********
 	UPROPERTY()
-	UAudioComponent* BirdSoundComponent;
+		UAudioComponent* BirdSoundComponent;
 
 	UPROPERTY()
-	UAudioComponent* RiverSoundComponent;
-	
+		UAudioComponent* RiverSoundComponent;
+
 	UPROPERTY()
-	UAudioComponent* MainMusicComponent;
+		UAudioComponent* MainMusicComponent;
 public:
 
 	void StartAmbientSounds();
@@ -78,15 +75,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
 		USoundClass* MusicSoundClass;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
 		USoundClass* SfxSoundClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-		float MusicVolume = 1.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-		float SfxVolume = 1.f;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* BirdsCue;
@@ -127,11 +118,11 @@ protected:
 public:
 
 	const FString& GetGameMapName() const;
-	
+
 	const FString& GetMenuMapName() const;
-	
+
 	const FString& GetVictoryMapName() const;
-	
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Maps")

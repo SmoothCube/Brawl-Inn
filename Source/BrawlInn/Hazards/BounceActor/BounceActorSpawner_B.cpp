@@ -68,20 +68,9 @@ void ABounceActorSpawner_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
 		MergeMeshComponent->DestroyComponent();
 	}
-
-	float Volume = 1.f;
-
-	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GameInstance)
-	{
-		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-	}
-
-	if (EngineSoundComponent)
-		EngineSoundComponent->SetVolumeMultiplier(Volume);
+	
 	if (CogSoundComponent)
 	{
-		CogSoundComponent->SetVolumeMultiplier(Volume);
 		CogSoundComponent->Stop();
 	}
 }
@@ -186,17 +175,11 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 
 	if (SpawnCue)
 	{
-		float Volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			SpawnCue,
 			GetActorLocation(),
-			Volume
+			1.f
 		);
 	}
 

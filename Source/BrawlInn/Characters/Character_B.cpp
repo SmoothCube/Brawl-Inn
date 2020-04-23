@@ -56,7 +56,7 @@ ACharacter_B::ACharacter_B()
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
 	//PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
 
-	HoldRotation = FRotator(0,0, 180);
+	HoldRotation = FRotator(0, 0, 180);
 	HoldLocation = FVector(10, -50, -15);
 }
 
@@ -496,16 +496,11 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
 	if (HurtSound && !DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		float Volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HurtSound,
 			GetActorLocation(),
-			Volume
+			1.f
 		);
 	}
 	return DamageAmount;
@@ -520,7 +515,7 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 {
 	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
-	if (HitComponent && HitCharacter && HitCharacter != HoldingCharacter &&!HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
+	if (HitComponent && HitCharacter && HitCharacter != HoldingCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
 		if (HitCharacter->HasShield())
 		{
@@ -589,17 +584,11 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 
 	if (ShouldPlaySound && ChargeLevelSound)
 	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			ChargeLevelSound,
 			GetActorLocation(),
-			volume,
+			1.f,
 			SoundPitch
 		);
 	}

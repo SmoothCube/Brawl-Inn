@@ -83,11 +83,7 @@ void AUseable_B::Use_Implementation()
 
 	if (DrinkSound)
 	{
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(GetGameInstance());
-		if (GameInstance)
-		{
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation(), 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume());
-		}
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DrinkSound, GetActorLocation(), 1.f);
 	}
 
 	PickupCapsule->DestroyComponent();
