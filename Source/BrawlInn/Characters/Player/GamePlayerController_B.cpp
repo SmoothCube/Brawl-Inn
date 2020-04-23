@@ -20,7 +20,7 @@
 void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
@@ -125,7 +125,7 @@ void AGamePlayerController_B::RightShoulderPressed()
 	if (!TryBreakFree())
 		if (!TryStartThrowCharge())
 			TryPunch();
-	
+
 }
 
 void AGamePlayerController_B::RightShoulderReleased()
@@ -184,7 +184,7 @@ void AGamePlayerController_B::LeftStickYAxis(const float Value)
 
 void AGamePlayerController_B::TryPauseGame()
 {
-	if(IsValid(GameMode))
+	if (IsValid(GameMode))
 		GameMode->PauseGame(this);
 }
 
@@ -200,10 +200,10 @@ bool AGamePlayerController_B::TryBreakFree()
 
 void AGamePlayerController_B::TryDash()
 {
-	if (PlayerCharacter && 
+	if (PlayerCharacter &&
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->PunchComponent->GetCanDash()
-		) 
+		)
 		PlayerCharacter->PunchComponent->Dash();
 }
 
@@ -221,7 +221,7 @@ bool AGamePlayerController_B::TryStartPunchCharge()
 
 bool AGamePlayerController_B::TryStartThrowCharge()
 {
-	if (PlayerCharacter && 
+	if (PlayerCharacter &&
 		PlayerCharacter->HoldComponent->IsHolding() &&
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->PunchComponent->GetCanPunch())
@@ -288,7 +288,7 @@ void AGamePlayerController_B::TryPickup()
 void AGamePlayerController_B::Respawn() const
 {
 	check(IsValid(GameMode))
-		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
+		GameMode->RespawnCharacter(PlayerInfo);
 }
 
 void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
@@ -309,7 +309,7 @@ void AGamePlayerController_B::Debug_Spawn() const
 {
 #if WITH_EDITOR
 	check(IsValid(GameMode))
-		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
+		GameMode->SpawnCharacter(PlayerInfo, false, FTransform());
 #endif
 }
 
@@ -317,7 +317,6 @@ void AGamePlayerController_B::Debug_DeSpawn()
 {
 #if WITH_EDITOR
 	check(IsValid(GameMode))
-
-		GameMode->DespawnCharacter_D.Broadcast(this);
+		GameMode->DespawnCharacter(this);
 #endif
 }

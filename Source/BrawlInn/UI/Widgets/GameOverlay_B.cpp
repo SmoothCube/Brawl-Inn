@@ -23,9 +23,9 @@ void UGameOverlay_B::NativeOnInitialized()
 	GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	check(IsValid(GameMode));
 
-	GameMode->OnAnyScoreChange.AddUObject(this, &UGameOverlay_B::UpdateScoreList);
+	GameMode->OnAnyScoreChange().AddUObject(this, &UGameOverlay_B::UpdateScoreList);
 
-	for (auto PlayerController : GameMode->PlayerControllers)
+	for (auto PlayerController : GameMode->GetPlayerControllers())
 	{
 		AGamePlayerController_B* GamePlayerController = Cast<AGamePlayerController_B>(PlayerController);
 		if (GamePlayerController)

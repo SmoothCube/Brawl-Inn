@@ -69,7 +69,7 @@ void AMainGameMode_B::PostLevelLoad()
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 
-		SpawnCharacter_D.Broadcast(Info, false, FTransform());
+		SpawnCharacter(Info, false, FTransform());
 	}
 
 	UpdateViewTargets();
@@ -142,7 +142,7 @@ void AMainGameMode_B::UpdateClock()
 
 void AMainGameMode_B::StartGame()
 {
-	OnGameStart.Broadcast();
+	OnGameStart_Delegate.Broadcast();
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
@@ -152,6 +152,11 @@ void AMainGameMode_B::StartGame()
 
 	if (GameInstance)
 		GameInstance->SetAndPlayMusic(Music);
+}
+
+FGameStart& AMainGameMode_B::OnGameStart()
+{
+	return OnGameStart_Delegate;
 }
 
 void AMainGameMode_B::EndGame()
@@ -196,6 +201,11 @@ void AMainGameMode_B::EndGame()
 	GameInstance->SetPlayerInfos(PlayerInfos);
 }
 
+FOnAnyScoreChange& AMainGameMode_B::OnAnyScoreChange()
+{
+	return OnAnyScoreChange_Delegate;
+}
+
 UBar_B* AMainGameMode_B::GetBar() const
 {
 	return BarComponent;
@@ -203,7 +213,7 @@ UBar_B* AMainGameMode_B::GetBar() const
 
 void AMainGameMode_B::CallOnAnyScoreChange() const
 {
-	OnAnyScoreChange.Broadcast();
+	OnAnyScoreChange_Delegate.Broadcast();
 }
 
 void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
