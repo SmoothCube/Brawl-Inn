@@ -239,8 +239,6 @@ void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Super::PickedUp_Implementation(Player);
 
-	SetLastHitBy(Player->GetController());
-
 	DirectionIndicatorPlane->SetHiddenInGame(true);
 }
 
@@ -249,6 +247,14 @@ void APlayerCharacter_B::Dropped_Implementation()
 	Super::Dropped_Implementation();
 	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
+}
+
+void APlayerCharacter_B::Use_Implementation()
+{
+	SetLastHitBy(HoldingCharacter->GetController());
+
+	Super::Use_Implementation();
+
 }
 
 void APlayerCharacter_B::BreakFreeButtonMash()
@@ -291,12 +297,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
 
-	//Track OutOfWorld
-	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
-	{
-		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(1, OutOfMapDeaths);
-	}
-
 	if (GameInstance)
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
@@ -312,38 +312,47 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (EventInstigator == PlayerController)
 		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	
 	float Score = DamageAmount;
+	bool bIsMultiplied = false;
+	bool bIsAgainstLeader = false;
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
+		bIsMultiplied = GameMode->MultipleScoreIsActivated();
+		if (bIsMultiplied)
+			Score *= 2;
+		
 		auto LeadingControllers = GameMode->GetLeadingPlayerController();
 
 		if ((LeadingControllers.Num() == 1) && (PlayerController == LeadingControllers[0]))
+		{	
 			Score *= 2;
+			bIsAgainstLeader = true;
+		}
 	}
 
+	//Falling out of the map
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
+		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, OutOfMapDeaths);
+
 		if (LastHitBy) // Hit by someone before falling out of the world!
 		{
 			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
 			if (OtherPlayerController)
-			{
-				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score);
-			}
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score,bIsMultiplied, bIsAgainstLeader);
 		}
 		else
 		{
-			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(SuicideScoreAmount);
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(SuicideScoreAmount, false, false);
 		}
 	}
-	else
+	else //Everything else
 	{
 		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
 		if (OtherPlayerController)
-		{
-			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score);
-		}
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score, bIsMultiplied, bIsAgainstLeader);
 	}
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -376,8 +385,8 @@ void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 	const float Pitch = FMath::RandRange(0.7f, 1.2f);
 
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), 1.f, Pitch);
-
-	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded);
+	
+	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded,ScoreValues.bIsMultiplied, ScoreValues.bIsAgainstLeader, PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
 
 	ScoreParticleTimerStart();
 }
@@ -398,7 +407,7 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 
 void APlayerCharacter_B::OnPunchHit()
 {
-	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(1, EScoreValueTypes::PunchesHit);
+	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, EScoreValueTypes::PunchesHit);
 	BLog("Punch hit: %i", PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().PunchesHit);
 }
 

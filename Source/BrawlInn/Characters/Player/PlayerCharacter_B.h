@@ -81,6 +81,8 @@ protected:
 
 	virtual void Dropped_Implementation() override;
 
+	void Use_Implementation() override;
+
 public:
 	void BreakFreeButtonMash();
 

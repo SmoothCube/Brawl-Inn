@@ -494,6 +494,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		CheckFall(ImpulseDir * ImpulseScale);
 	}
 
+	//Play sound if hurt, but not when falling out of the map
 	if (HurtSound && !DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		UGameplayStatics::PlaySoundAtLocation(

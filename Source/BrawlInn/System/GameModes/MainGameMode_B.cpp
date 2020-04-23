@@ -136,8 +136,22 @@ void AMainGameMode_B::UpdateClock()
 		return;
 
 	Overlay->UpdateTimerText(--GameTimeRemaining);
+
+	if (GameTimeRemaining == TimeRemainingBeforeMultipleScore)
+		StartMultipleScore();
+	
 	if (GameTimeRemaining < 0)
 		EndGame();
+}
+
+void AMainGameMode_B::StartMultipleScore()
+{
+	bMultipleScore = true;
+}
+
+bool AMainGameMode_B::MultipleScoreIsActivated() const
+{
+	return bMultipleScore;
 }
 
 void AMainGameMode_B::StartGame()

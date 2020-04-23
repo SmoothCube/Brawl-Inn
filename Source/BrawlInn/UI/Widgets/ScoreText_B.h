@@ -16,7 +16,7 @@ class BRAWLINN_API UScoreText_B : public UUserWidget
 		UPROPERTY(meta = (BindWidget))
 		UTextBlock* ScoreText;
 public:
-	void DisplayScore(float Score);
+	void DisplayScore(const int Score, const bool bIsMultiplied, const bool bIsAgainstLeader, FLinearColor Color);
 
 	void HideScore();
 
