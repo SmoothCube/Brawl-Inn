@@ -68,8 +68,6 @@ protected:
 
 	bool TryStartPunchCharge();
 
-	bool TryStartThrowCharge();
-
 	bool TryEndPunchCharge();
 
 	bool TryPunch();

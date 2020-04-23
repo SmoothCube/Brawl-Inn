@@ -53,9 +53,9 @@ APlayerCharacter_B::APlayerCharacter_B()
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
-	Charge1ThrowStrength = 400000.f;
-	Charge2ThrowStrength = 1000000.f;
-	Charge3ThrowStrength = 2000000.f;
+	
+	ThrowStrength = 400000.f;
+
 
 	//HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
 

@@ -48,23 +48,24 @@ void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UThrowComponent_B::TryStartCharge()
+void UThrowComponent_B::StartThrow()
 {
 	if (!IsReady())
 	{
 		BWarn("Not Ready To Throw");
-		return false;
+		return;
 	}
 	else if (!HoldComponent->IsHolding())
 	{
 		BWarn("Not Holding Item!");
-		return false;
+		return;
 	}
 	else if (!(OwningCharacter->GetState() == EState::EHolding))
 	{
 		BWarn("Wrong Player State");
-		return false;
+		return;
 	}
+
 
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
 	if (Useable)
@@ -72,25 +73,13 @@ bool UThrowComponent_B::TryStartCharge()
 		StartDrinking();
 
 		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer, this, &UThrowComponent_B::FinishDrinking, Useable->GetUseTime());
-	}
-	else if (OwningCharacter->GetChargeParticle())
-	{
-		OwningCharacter->SetIsCharging(true);
-		OwningCharacter->GetChargeParticle()->Activate();
+		return;
 	}
 
-	return true;
-}
-
-void UThrowComponent_B::StartThrow()
-{
-	if (HoldComponent)
-		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
-			return;
-	if (OwningCharacter->IsCharging())
+	if (OwningCharacter)
 	{
-		OwningCharacter->SetIsCharging(false);
-		if (OwningCharacter && OwningCharacter->GetChargeParticle())
+		OwningCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);	//TODO remove
+		if (OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
 	}

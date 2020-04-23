@@ -67,21 +67,9 @@ bool AItem_B::CanBeHeld_Implementation() const
 	return  !(bIsFractured || bIsThrown);
 }
 
-float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
+float AItem_B::GetThrowStrength_Implementation() const
 {
-	switch (level)
-	{
-	case EChargeLevel::EChargeLevel1:
-		return Charge1ThrowStrength;
-
-	case EChargeLevel::EChargeLevel2:
-		return Charge2ThrowStrength;
-
-	case EChargeLevel::EChargeLevel3:
-		return Charge3ThrowStrength;
-	default:
-		return 0;
-	}
+	return ThrowStrength;
 }
 
 float AItem_B::GetPickupWeight_Implementation() const

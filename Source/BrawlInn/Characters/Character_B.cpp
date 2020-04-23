@@ -296,7 +296,7 @@ void ACharacter_B::Use_Implementation()
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 		if (Interface)
 		{
-			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
+			ImpulseStrength = Interface->Execute_GetThrowStrength(this);
 		}
 		GetCharacterMovement()->StopMovementImmediately();
 		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
@@ -323,21 +323,9 @@ bool ACharacter_B::CanBeHeld_Implementation() const
 	return bCanBeHeld && !bIsInvulnerable;
 }
 
-float ACharacter_B::GetThrowStrength_Implementation(EChargeLevel level) const
+float ACharacter_B::GetThrowStrength_Implementation() const
 {
-	switch (level)
-	{
-	case EChargeLevel::EChargeLevel1:
-		return Charge1ThrowStrength;
-
-	case EChargeLevel::EChargeLevel2:
-		return Charge2ThrowStrength;
-
-	case EChargeLevel::EChargeLevel3:
-		return Charge3ThrowStrength;
-	default:
-		return 0;
-	}
+	return ThrowStrength;
 }
 
 float ACharacter_B::GetMovementSpeedWhenHeld_Implementation() const

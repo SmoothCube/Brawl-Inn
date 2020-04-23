@@ -46,7 +46,7 @@ public:
 		void Use();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
-		float GetThrowStrength(EChargeLevel level) const;
+		float GetThrowStrength() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Broadcast")
 		float GetPickupWeight() const;

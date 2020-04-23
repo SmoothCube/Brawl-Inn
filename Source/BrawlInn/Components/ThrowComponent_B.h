@@ -29,7 +29,6 @@ protected:
 
 	// ********** Throw **********
 public:
-	bool TryStartCharge();
 
 	void StartThrow();
 

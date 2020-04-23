@@ -62,7 +62,7 @@ void AGamePlayerController_B::FaceButtonTopPressed()
 	if (TryBreakFree())
 	{
 	}
-	else if (TryStartThrowCharge())
+	else if (TryThrow())
 	{
 	}
 	else if (TryStartPunchCharge())
@@ -100,7 +100,7 @@ void AGamePlayerController_B::FaceButtonBottomRepeat()
 void AGamePlayerController_B::FaceButtonLeftPressed()
 {
 	if (!TryBreakFree())
-		if (!TryStartThrowCharge())
+		if (!TryThrow())
 			TryPunch();
 }
 
@@ -123,9 +123,8 @@ void AGamePlayerController_B::LeftShoulderPressed()
 void AGamePlayerController_B::RightShoulderPressed()
 {
 	if (!TryBreakFree())
-		if (!TryStartThrowCharge())
+		if (!TryThrow())
 			TryPunch();
-
 }
 
 void AGamePlayerController_B::RightShoulderReleased()
@@ -138,7 +137,7 @@ void AGamePlayerController_B::RightTriggerPressed()
 	if (TryBreakFree())
 	{
 	}
-	else if (TryStartThrowCharge())
+	else if (TryThrow())
 	{
 	}
 	else if (TryStartPunchCharge())
@@ -214,19 +213,6 @@ bool AGamePlayerController_B::TryStartPunchCharge()
 		PlayerCharacter->PunchComponent->GetCanPunch())
 	{
 		PlayerCharacter->TryStartCharging();
-		return true;
-	}
-	return false;
-}
-
-bool AGamePlayerController_B::TryStartThrowCharge()
-{
-	if (PlayerCharacter &&
-		PlayerCharacter->HoldComponent->IsHolding() &&
-		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->PunchComponent->GetCanPunch())
-	{
-		PlayerCharacter->ThrowComponent->TryStartCharge();
 		return true;
 	}
 	return false;

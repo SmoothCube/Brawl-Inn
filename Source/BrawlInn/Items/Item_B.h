@@ -52,7 +52,7 @@ protected:
 
 	virtual bool CanBeHeld_Implementation() const override;
 
-	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
+	virtual float GetThrowStrength_Implementation() const override;
 
 	virtual float GetPickupWeight_Implementation() const override;
 
@@ -65,13 +65,7 @@ protected:
 		float MovementSpeedWhenHeld = 600.f;
 
 	UPROPERTY(EditAnywhere, Category = "Throw")
-		float Charge1ThrowStrength = 1000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Throw")
-		float Charge2ThrowStrength = 2000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Throw")
-		float Charge3ThrowStrength = 3000.f;
+		float ThrowStrength = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 		FRotator HoldRotation = FRotator(0, 0, 0);

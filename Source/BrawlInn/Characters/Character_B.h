@@ -118,7 +118,7 @@ public:
 
 	virtual bool CanBeHeld_Implementation() const override;
 
-	virtual float GetThrowStrength_Implementation(EChargeLevel level) const override;
+	virtual float GetThrowStrength_Implementation() const override;
 
 	float GetMovementSpeedWhenHeld_Implementation() const override;
 
@@ -173,13 +173,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Throw")
-		float Charge1ThrowStrength = 200000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Throw")
-		float Charge2ThrowStrength = 250000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Throw")
-		float Charge3ThrowStrength = 500000.f;
+		float ThrowStrength = 200000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge2MoveSpeed = 600.f;

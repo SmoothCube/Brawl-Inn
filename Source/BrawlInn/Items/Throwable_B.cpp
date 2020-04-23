@@ -90,7 +90,7 @@ void AThrowable_B::Use_Implementation()
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 		if (Interface)
 		{
-			ImpulseStrength = Interface->Execute_GetThrowStrength(this, OwningCharacter->GetChargeLevel());
+			ImpulseStrength = Interface->Execute_GetThrowStrength(this);
 		}
 		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * ImpulseStrength, NAME_None, true);
 		Mesh->SetVisibility(false);
@@ -109,7 +109,6 @@ void AThrowable_B::Use_Implementation()
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
-
 	if (Mesh)
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
