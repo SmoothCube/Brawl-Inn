@@ -28,10 +28,9 @@ void UThrowComponent_B::BeginPlay()
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
-		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnCharacterSpawn().AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
 #if WITH_EDITOR
-		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnCharacterDespawn().AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
 #endif
 	}
 	HoldComponent = OwningCharacter->HoldComponent;

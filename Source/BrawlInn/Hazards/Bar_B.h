@@ -37,7 +37,7 @@ protected:
 	void RandomOrder();
 
 	UPROPERTY(EditAnywhere, Category = "Tankard")
-		TArray<TSubclassOf<AUseable_B>> BP_Useables;
+		TSubclassOf<AUseable_B> BP_Useable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tankard")
 		FName WaiterTag = "Waiter";

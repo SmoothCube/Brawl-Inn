@@ -28,7 +28,7 @@ void ALeaderFollower_B::BeginPlay()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		GameMode->OnAnyScoreChange.AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
+		GameMode->OnAnyScoreChange().AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
 	}
 	ScoreUpdated();
 }
@@ -64,7 +64,7 @@ void ALeaderFollower_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		GameMode->OnAnyScoreChange.RemoveAll(this);
+		GameMode->OnAnyScoreChange().RemoveAll(this);
 	}
 	Super::EndPlay(EndPlayReason);
 }

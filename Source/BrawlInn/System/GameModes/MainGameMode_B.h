@@ -17,7 +17,6 @@ class ACameraActor;
 class UAudioComponent;
 class ALeaderFollower_B;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameStart);
 DECLARE_EVENT(AMainGameMode_B, FOnAnyScoreChange);
 
@@ -54,52 +53,49 @@ protected:
 
 	void PregameCountdownClock();
 
+	void StartGame();
 
+public:
+	FGameStart& OnGameStart();
+
+protected:
+	FGameStart OnGameStart_Delegate;
+	
 	// ********** Game **********
 	void UpdateClock();
 
 	// ********** PostGame **********
+	void EndGame();
 
 	bool bGameIsOver = false;
 
-	// ********** Game States **********
-	void StartGame();
-
-	void EndGame();
-
+	// ********** Score	 **********
 public:
 
-	FPlayerWin OnPlayerWin;
-	FGameStart OnGameStart;
-
-	// ********** Score	 **********
+	FOnAnyScoreChange& OnAnyScoreChange();
+	
+protected:
+	
+	FOnAnyScoreChange OnAnyScoreChange_Delegate;
+	
 	void SortPlayerControllersByScore(TArray<APlayerController_B*>& TempPlayerControllers);
-
-	FOnAnyScoreChange OnAnyScoreChange;
 
 	void CallOnAnyScoreChange() const;
 
-	// ********** Tracking **********
+	// ********** Camera **********
 	UFUNCTION()
 		void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-
 	UPROPERTY()
 		ATriggerBox* TrackingBox = nullptr;
 
-protected:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		TSubclassOf<ACameraActor> BP_FromCharacterSelectionCamera;
-	// ********** UI **********
 
 	UPROPERTY()
 		ACameraActor* FromCharacterSelectionCamera = nullptr;
 
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
-		TSubclassOf<UVictoryScreenWidget_B> BP_VictoryScreen;
+	// ********** UI **********
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
@@ -130,11 +126,10 @@ private:
 
 	FTimerHandle TH_CountdownTimer;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Leader")
 		int TimeBeforeMultiplyScoreAgainstLeader = 2;
 
 	FTimerHandle TH_MultiplyScoresAgainstLeaderTimer;
-
 
 	// ********** Leader **********
 public:
@@ -146,10 +141,10 @@ public:
 protected:
 	bool bMultiplyScoresAgainstLeader = false;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Leader")
 		float AgainstLeaderMultiplier = 2.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Leader")
 		TSubclassOf<ALeaderFollower_B> BP_LeaderFollower;
 
 	UPROPERTY()

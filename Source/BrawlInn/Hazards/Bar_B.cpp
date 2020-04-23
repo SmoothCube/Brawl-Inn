@@ -1,24 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Bar_B.h"
-
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "TimerManager.h"
 
 #include "BrawlInn.h"
 #include "Characters/AI/AICharacter_B.h"
 #include "Characters/AI/IdleAICharacter_B.h"
-#include "Kismet/GameplayStatics.h"
+#include "Items/Useable_B.h"
 #include "System/DataTable_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
-#include "Engine/World.h"
-#include "TimerManager.h"
-#include "Sound/SoundCue.h"
-#include "Items/Useable_B.h"
 
 UBar_B::UBar_B()
 {
-
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -80,7 +77,7 @@ void UBar_B::BeginPlay()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(GetOwner());
 	if (GameMode)
 	{
-		GameMode->OnGameStart.AddLambda([&]()
+		GameMode->OnGameStart().AddLambda([&]()
 			{
 				StartRandomOrder(TimeUntilFirstDelivery);
 			});
@@ -96,12 +93,10 @@ void UBar_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UBar_B::GiveRandomTankard(AAICharacter_B* Waiter)
 {
-	if (BP_Useables.Num() == 0)
+	if (!BP_Useable)
 		return;
+	Waiter->SetItemDelivered(BP_Useable.GetDefaultObject());
 
-	const int RandomIndex = FMath::RandRange(0, BP_Useables.Num() - 1);
-	if (BP_Useables.IsValidIndex(RandomIndex))
-		Waiter->SetItemDelivered(BP_Useables[RandomIndex].GetDefaultObject());
 }
 
 void UBar_B::RandomOrder()

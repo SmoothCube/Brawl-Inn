@@ -239,6 +239,8 @@ void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Super::PickedUp_Implementation(Player);
 
+	SetLastHitBy(Player->GetController());
+
 	DirectionIndicatorPlane->SetHiddenInGame(true);
 }
 
