@@ -407,10 +407,6 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	float VibrationLength = 0.f;
 	switch (chargeLevel)
 	{
-	case EChargeLevel::EChargeLevel1:
-		VibrationStrength = 0.6f;
-		VibrationLength = 0.3f;
-		break;
 	case EChargeLevel::EChargeLevel2:
 		VibrationStrength = 0.7f;
 		VibrationLength = 0.5f;

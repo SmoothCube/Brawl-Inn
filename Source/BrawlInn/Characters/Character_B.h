@@ -182,10 +182,10 @@ protected:
 		float Charge3ThrowStrength = 500000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Charge")
-		float Charge2MoveSpeed = 500.f;
+		float Charge2MoveSpeed = 600.f;
 
 	UPROPERTY(EditAnywhere, Category = "Charge")
-		float Charge3MoveSpeed = 100.f;
+		float Charge3MoveSpeed = 350.f;
 
 	bool bIsCharging = false;
 
