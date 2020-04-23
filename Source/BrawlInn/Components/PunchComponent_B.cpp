@@ -68,17 +68,11 @@ void UPunchComponent_B::PunchStart()
 
 	if (PunchSound)
 	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			PunchSound,
 			GetComponentLocation(),
-			volume
+			1.f
 		);
 	}
 

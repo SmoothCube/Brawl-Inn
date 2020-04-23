@@ -115,9 +115,9 @@ void AMainGameMode_B::PreGame()
 
 void AMainGameMode_B::PregameCountdown()
 {
-	check(IsValid(GameInstance) && IsValid(Countdown));
+	check(IsValid(Countdown));
 
-	UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 0.75 * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume(), 1.0f);
+	UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 1.f, 1.0f);
 
 	// Start game when sound is finished
 	BI::Delay(this, Countdown->GetDuration(), [&]() {StartGame(); });

@@ -214,15 +214,11 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 
 	if (IsValid(HighShatterSound) && bPlaySound)
 	{
-		float Volume = 1.f;
-		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HighShatterSound,
 			GetActorLocation(),
-			Volume
+			1.f
 		);
 	}
 }
@@ -294,7 +290,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		return 0;
 
 	//Track OutOfWorld
-        	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
+	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(1, OutOfMapDeaths);
 	}
@@ -373,14 +369,11 @@ void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 	if (ScoreValues.LastScoreAdded <= 0)
 		return;
 
-	check(IsValid(GameInstance));
-
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ScoreParticle, GetActorLocation());
 
-	const float Volume = 1.f * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 	const float Pitch = FMath::RandRange(0.7f, 1.2f);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), Volume, Pitch);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), 1.f, Pitch);
 
 	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded);
 
@@ -436,23 +429,18 @@ void APlayerCharacter_B::AddStun(const int Strength)
 	Super::AddStun(Strength);
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
 
-	float Volume = 1.f;
-	GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GameInstance)
-		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 	switch (StunAmount)
 	{
 	case 0:
 		break;
 	case 1:
 		if (LowShatterSound)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), Volume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), 1.f);
 		break;
 	case 2:
 	case 3:
 		if (MidShatterSound)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), Volume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), 1.f);
 		break;
 	case 4:
 		break;
@@ -523,12 +511,11 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 			DamageAmount = DashThroughScoreValue;
 		}
-			OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
-			UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
+		OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
+		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
 }
 
 void APlayerCharacter_B::OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 }
-

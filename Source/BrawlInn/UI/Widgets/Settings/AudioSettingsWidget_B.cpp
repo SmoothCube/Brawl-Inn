@@ -40,7 +40,6 @@ void UAudioSettingsWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
 			IUIElementsInterface_B::Execute_Tick(Element);
 	}
-
 }
 
 void UAudioSettingsWidget_B::OnSfxValueChanged(float Value)

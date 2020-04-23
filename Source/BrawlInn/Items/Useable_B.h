@@ -51,7 +51,7 @@ public:
 protected:
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Juice")
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 		USoundCue* DrinkSound;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (ToolTip = "How long it takes to use the powerup"))

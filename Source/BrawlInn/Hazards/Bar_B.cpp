@@ -112,14 +112,10 @@ void UBar_B::RandomOrder()
 
 	if (IsValid(DrinkReadySound))
 	{
-		float Volume = 1.f;
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 		UGameplayStatics::PlaySound2D(
 			GetWorld(),
 			DrinkReadySound,
-			Volume
+			1.f
 		);
 	}
 }
