@@ -27,7 +27,6 @@ void UGameInstance_B::Init()
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Music Volume"), MusicVolume, GGameIni);
 	GConfig->GetFloat(TEXT("BrawlInn.Audio"), TEXT("Sfx Volume"), SfxVolume, GGameIni);
 
-	
 }
 
 void UGameInstance_B::PlayImpactCameraShake(FVector Epicenter)

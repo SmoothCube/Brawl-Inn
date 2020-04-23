@@ -31,7 +31,6 @@ void ALeaderFollower_B::BeginPlay()
 		GameMode->OnAnyScoreChange.AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
 	}
 	ScoreUpdated();
-
 }
 
 void ALeaderFollower_B::Tick(float DeltaTime)
@@ -47,9 +46,12 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 		SetActorLocation(
 			FMath::Lerp(
 				GetActorLocation(),
-				PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector().ToOrientationRotator().RotateVector(Offset) + FVector(0.f, 0.f, Height + BobAmplitude),
+				PlayerPawn->GetActorLocation()
+				+ PlayerPawn->GetActorForwardVector().ToOrientationRotator().RotateVector(Offset)
+				+ FVector(0.f, 0.f, AnimationZOffset)
+				+ FVector(0.f, 0.f, Height + BobAmplitude),
 				LerpAlpha));
-		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
+		AddActorLocalRotation(FRotator(0.f, RotationSpeed+ AnimationRotationIncrease, 0.f));
 	}
 }
 
@@ -78,18 +80,20 @@ void ALeaderFollower_B::ScoreUpdated()
 		{
 			if (FoundLeadingPlayerController[0]->GetPawn())
 			{
-				Mesh->SetHiddenInGame(false);
-				if ((FoundLeadingPlayerController[0] != LeadingPlayerController) && LeadingPlayerController)
+				if ((FoundLeadingPlayerController[0] != LeadingPlayerController))
 				{
-					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(static_cast<int>(CurrentCrownTime), CrownTime);
+					if(LeadingPlayerController)
+						LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(static_cast<int>(CurrentCrownTime), CrownTime);
+					NextControllerToFollow = FoundLeadingPlayerController[0];
+					Dissapear();
+					CurrentCrownTime = 0;
 				}
-				CurrentCrownTime = 0;
-				LeadingPlayerController = FoundLeadingPlayerController[0];
 			}
 		}
 		else
 		{
-			Mesh->SetHiddenInGame(true);
+			NextControllerToFollow = nullptr;
+			Dissapear();
 		}
 	}
 }
@@ -97,4 +101,24 @@ void ALeaderFollower_B::ScoreUpdated()
 float ALeaderFollower_B::GetBobbingHeight(float Time)
 {
 	return 	BobAmplitude * FMath::Sin(Time * BobFrequency);
+}
+
+void ALeaderFollower_B::AnimationTimelineFinished(bool bAppeared)
+{
+	BWarn("Animation finished!");
+
+	//if dissapeared, swap leader and appear
+	if (!bAppeared)
+	{
+		if (NextControllerToFollow)
+		{
+			LeadingPlayerController = NextControllerToFollow;
+			NextControllerToFollow = nullptr;
+			Appear();
+		}
+		else
+		{
+			LeadingPlayerController = nullptr;
+		}
+	}
 }
