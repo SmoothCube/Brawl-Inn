@@ -60,9 +60,19 @@ public:
 
 protected:
 	FGameStart OnGameStart_Delegate;
-	
+
 	// ********** Game **********
 	void UpdateClock();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Clock")
+		int TimeRemainingBeforeMultipleScore = 20;
+
+	void StartMultipleScore();
+
+public:
+	bool MultipleScoreIsActivated() const;
+protected:
+	bool bMultipleScore = false;
 
 	// ********** PostGame **********
 	void EndGame();
@@ -73,11 +83,11 @@ protected:
 public:
 
 	FOnAnyScoreChange& OnAnyScoreChange();
-	
+
 protected:
-	
+
 	FOnAnyScoreChange OnAnyScoreChange_Delegate;
-	
+
 	void SortPlayerControllersByScore(TArray<APlayerController_B*>& TempPlayerControllers);
 
 	void CallOnAnyScoreChange() const;
@@ -85,7 +95,7 @@ protected:
 	// ********** Camera **********
 	UFUNCTION()
 		void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
+
 	UPROPERTY()
 		ATriggerBox* TrackingBox = nullptr;
 
@@ -121,7 +131,7 @@ private:
 
 	int PreGameCountdownTimer = 3;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Countdown")
+	UPROPERTY(EditDefaultsOnly, Category = "Clock")
 		int GameTimeRemaining = 300;
 
 	FTimerHandle TH_CountdownTimer;
