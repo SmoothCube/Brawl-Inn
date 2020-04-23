@@ -7,6 +7,8 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 
+//#include "DrawDebugHelpers.h"
+
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
@@ -297,6 +299,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	FVector ThrowDirection = TargetLocation - HoldComponent->GetHoldingItem()->GetActorLocation();
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 
+	//DrawDebugPoint(GetWorld(), TargetLocation, 10.f, FColor::Red, false, 10.f);
 	return true;
 }
 

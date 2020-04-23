@@ -47,15 +47,12 @@ UStaticMeshComponent* AItem_B::GetMesh() const
 const FVector AItem_B::GetHoldLocation_Implementation()
 {
 	return HoldLocation;
-
 }
 
 const FRotator AItem_B::GetHoldRotation_Implementation()
 {
 	return HoldRotation;
-
 }
-
 
 bool AItem_B::IsHeld_Implementation() const
 {

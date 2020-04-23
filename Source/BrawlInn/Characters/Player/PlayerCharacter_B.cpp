@@ -54,12 +54,10 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PunchesToStun = 4;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
 	
-	ThrowStrength = 400000.f;
-
-
-	//HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
+	ThrowStrength = 1000000.f;
 
 	FallRecoveryTime = 2.f;
+	ThrowRecoveryTime = 1.f;
 	PickupWeight = 4.f;
 }
 

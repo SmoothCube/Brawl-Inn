@@ -300,7 +300,7 @@ void ACharacter_B::Use_Implementation()
 		}
 		GetCharacterMovement()->StopMovementImmediately();
 		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime, true);
+		Fall(TargetLocation * ImpulseStrength, ThrowRecoveryTime, true);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()

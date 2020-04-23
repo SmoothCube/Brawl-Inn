@@ -65,7 +65,7 @@ protected:
 		float MovementSpeedWhenHeld = 600.f;
 
 	UPROPERTY(EditAnywhere, Category = "Throw")
-		float ThrowStrength = 1000.f;
+		float ThrowStrength = 2000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 		FRotator HoldRotation = FRotator(0, 0, 0);

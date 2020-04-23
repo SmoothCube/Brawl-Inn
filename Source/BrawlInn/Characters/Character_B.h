@@ -101,6 +101,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 5.f;
 
+	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when a character was thrown."))
+		float ThrowRecoveryTime = 5.f;
+
 	UPROPERTY(EditAnywhere, Category = "Fall")
 		float FallLimitMultiplier = 1.5;
 
@@ -126,7 +129,7 @@ public:
 
 	
 	UFUNCTION()
-		virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
 	virtual void OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -173,7 +176,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Throw")
-		float ThrowStrength = 200000.f;
+		float ThrowStrength = 500000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Charge")
 		float Charge2MoveSpeed = 600.f;
