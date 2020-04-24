@@ -54,7 +54,6 @@ ACharacter_B::ACharacter_B()
 	PS_Stun->SetRelativeLocation(FVector(0.000000, -20.000000, 180.000000));
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
-	//PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
 
 	HoldRotation = FRotator(0, 0, 180);
 	HoldLocation = FVector(10, -50, -15);
@@ -171,7 +170,6 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	//	GetMesh()->SetCollisionProfileName("Ragdoll");
 
 	GetMesh()->AddImpulse(MeshForce, ForceSocketName, false);	//TODO make the bone dynamic instead of a variable
 
@@ -189,7 +187,6 @@ void ACharacter_B::StandUp()
 	SetActorLocation(FindMeshGroundLocation());
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-
 
 	HoldingCharacter = nullptr; //moved this here so I can check if you hit the character that threw you
 
@@ -252,7 +249,6 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
-
 	HoldingCharacter = Player;
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
@@ -270,7 +266,6 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetCharacterMovement()->StopActiveMovement();
 	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-
 }
 
 void ACharacter_B::Dropped_Implementation()
@@ -480,6 +475,12 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		bool const bMassIndependentImpulse = !DmgTypeCDO->bScaleMomentumByMass;
 
 		CheckFall(ImpulseDir * ImpulseScale);
+	}
+
+	if (GetState() == EState::EHolding)
+	{
+		//either turn off collision so it doesnt fall or make the item fly into the air
+		ThrowComponent->DropItem();
 	}
 
 	//Play sound if hurt, but not when falling out of the map
