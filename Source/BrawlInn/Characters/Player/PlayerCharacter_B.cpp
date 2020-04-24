@@ -243,7 +243,7 @@ void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
-	DirectionIndicatorPlane->SetHiddenInGame(true);
+//	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
 }
 

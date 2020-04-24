@@ -51,8 +51,6 @@ public:
 
 	void CancelDrinking();
 
-	void DropItem();
-
 	bool IsDrinkingFinished();
 
 	void ThrowDrink();

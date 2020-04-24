@@ -160,22 +160,12 @@ void UThrowComponent_B::CancelDrinking()
 	{
 		OwningCharacter->PunchComponent->SetCanPunch(true);
 		OwningCharacter->PunchComponent->SetCanDash(true);
-		DropItem();
+		if (HoldComponent)
+			HoldComponent->Drop();
 
 		OwningCharacter->SetIsCharging(false);
 		bIsThrowing = false;
 	}
-}
-
-void UThrowComponent_B::DropItem()
-{
-	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
-	if (Interface)
-	{
-		Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
-	}
-	HoldComponent->SetHoldingItem(nullptr);
-	OwningCharacter->SetState(EState::EWalking);
 }
 
 bool UThrowComponent_B::IsDrinkingFinished()

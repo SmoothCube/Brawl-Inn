@@ -65,12 +65,13 @@ void AThrowable_B::Dropped_Implementation()
 	DetachFromActor(Rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
 	Mesh->SetSimulatePhysics(true);
-	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+	PickupCapsule->SetCollisionProfileName(FName("Throwable-Trigger"));
 
 	Mesh->SetVisibility(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	DestructibleComponent->SetCollisionProfileName("Destructible");
-	DestructibleComponent->SetSimulatePhysics(true);
+	DestructibleComponent->SetCollisionProfileName("AfterFracture");
+	
+	OwningCharacter = nullptr;
 }
 
 void AThrowable_B::Use_Implementation()

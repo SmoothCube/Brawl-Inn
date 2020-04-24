@@ -271,7 +271,6 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 void ACharacter_B::Dropped_Implementation()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
 	Fall(FVector::ZeroVector, FallRecoveryTime, true);
 	//	GetMesh()->SetSimulatePhysics(true); //should be unnecceCharacterMeshsary
 	HoldingCharacter = nullptr;
@@ -480,7 +479,7 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	if (GetState() == EState::EHolding)
 	{
 		//either turn off collision so it doesnt fall or make the item fly into the air
-		ThrowComponent->DropItem();
+		HoldComponent->Drop();
 	}
 
 	//Play sound if hurt, but not when falling out of the map
