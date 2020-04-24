@@ -21,13 +21,13 @@ void UVideoSettingsWidget_B::NativeOnInitialized()
 
 	for (FIntPoint& Resolution : ScreenResolutionsSupported)
 	{
-		const FString ResolutionAsString = FString::FromInt(Resolution.X) + "x" + FString::FromInt(Resolution.Y);
+		const FString ResolutionAsString = FString::FromInt(Resolution.X) + " • " + FString::FromInt(Resolution.Y);
 		ScreenResolutionBox->AddOption(ResolutionAsString);
 		ScreenResolutions.Add(ResolutionAsString, Resolution);
 	}
 
 	const FIntPoint Resolution = GEngine->GetGameUserSettings()->GetScreenResolution();
-	const FString ResolutionAsString = FString::FromInt(Resolution.X) + "x" + FString::FromInt(Resolution.Y);
+	const FString ResolutionAsString = FString::FromInt(Resolution.X) + " • " + FString::FromInt(Resolution.Y);
 	if (ScreenResolutions.Contains(ResolutionAsString))
 	{
 		ScreenResolutionBox->SetSelectedOption(ResolutionAsString);

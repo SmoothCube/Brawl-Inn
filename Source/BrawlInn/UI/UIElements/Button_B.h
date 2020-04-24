@@ -7,26 +7,29 @@
 #include "System/Interfaces/UIElementsInterface_B.h"
 #include "Button_B.generated.h"
 
+class UTextBlock;
 UCLASS()
 class BRAWLINN_API UButton_B : public UButton, public IUIElementsInterface_B
 {
 	GENERATED_BODY()
 
-
 public:
 
 	void Tick_Implementation() override;
 
-	UPROPERTY(EditAnywhere)
-		FButtonStyle Selected;
-
-	UPROPERTY(EditAnywhere)
-		FButtonStyle Pressed;
-	
-	UPROPERTY(EditAnywhere)
-		FButtonStyle Unselected;
+	void SetTextAndSettings(UTextBlock* Text, FSlateFontInfo UnSelectedFontInfo, FSlateColor UnSelectedColorIn, FSlateFontInfo SelectedFontInfo, FSlateColor
+	                        SelectedColorIn);
 
 	void ShouldUpdateStyle(bool bShouldUpdateStyleIn);
 protected:
-	bool bShouldUpdateStyle = true;
+	bool bShouldUpdateStyle = false;
+
+	UPROPERTY()
+		UTextBlock* ButtonText;
+
+	FSlateFontInfo UnSelectedFont;
+	FSlateColor UnSelectedColor;
+	
+	FSlateFontInfo SelectedFont;
+	FSlateColor SelectedColor;
 };

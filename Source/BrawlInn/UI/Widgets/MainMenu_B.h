@@ -15,6 +15,7 @@ class UGameInstance_B;
 class UWidgetSwitcher;
 class UButton_B;
 class AMenuGameMode_B;
+class UFont;
 class UVideoSettingsWidget_B;
 
 UCLASS()
@@ -26,6 +27,8 @@ protected:
 	// ********** UUserWidget **********
 
 	void NativeConstruct() override;
+
+	void NativeOnInitialized() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
@@ -50,6 +53,7 @@ protected:
 
 	// ********** Widgets **********
 
+	// ****** Buttons ******
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UButton_B* PlayButton;
 
@@ -65,15 +69,39 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* QuitButton;
 
+	// ****** Text ******
+	
 	UPROPERTY(meta = (BindWidget))
-		UWidgetSwitcher* WidgetSwitcher;
+		UTextBlock* PlayText;
 
 	UPROPERTY(meta = (BindWidget))
-		USettingsWidget_B* SettingsWidget;
+		UTextBlock* SettingsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ControlsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* CreditsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* QuitText;
+
+	
+
+//	UPROPERTY(meta = (BindWidget))
+	//	UWidgetSwitcher* WidgetSwitcher;
+
+	//UPROPERTY(meta = (BindWidget))
+		//USettingsWidget_B* SettingsWidget;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
 
+
+	UPROPERTY(EditDefaultsOnly)
+		UFont* TextFont;
+
+	
 	// ********** Misc. **********
 
 	UPROPERTY()
