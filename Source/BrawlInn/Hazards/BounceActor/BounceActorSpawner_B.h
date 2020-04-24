@@ -37,10 +37,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		USkeletalMeshComponent* BarrelLowMesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		USkeletalMeshComponent* BarrelMidMesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		USkeletalMeshComponent* BarrelTopMesh;
 
 	UPROPERTY(VisibleAnywhere)
@@ -74,7 +74,7 @@ public:
 	void RotateCogs(float DeltaTime);
 
 	// ********** Barrel Spawning **********
-	ABounceActor_B* SpawnBounceActor(FVector TargetLocation);
+	ABounceActor_B* SpawnBounceActor();
 protected:
 
 	UPROPERTY(EditAnywhere)
@@ -117,12 +117,23 @@ protected:
 	float CurrentCogPitch = 0.f;
 
 public:
-	bool IsShooting();
-	void SetIsShooting(bool Value);
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayAnimationMontages();
+
+//	bool IsShooting();
+//	void SetIsShooting(bool Value);
+
+	bool IsAnimationFinished();
+	void SetAnimationFinished(bool Value);
+
+	void SetAnimationFinishedTimer();
 protected:
 
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//	bool bIsShooting = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bIsShooting = false;
+	bool bAnimationFinished = true;
 
 	FTimerHandle TH_ResetIsShooting;
 

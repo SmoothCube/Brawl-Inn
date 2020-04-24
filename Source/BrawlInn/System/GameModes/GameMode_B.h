@@ -69,7 +69,9 @@ public:
 		void SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform);
 
 	UFUNCTION()
-		void RespawnCharacter(FPlayerInfo PlayerInfo);
+	void RespawnCharacter(FPlayerInfo PlayerInfo);
+		
+	void SpawnRespawnPawn(FPlayerInfo PlayerInfo);
 
 	FOnCharacterSpawn& OnCharacterSpawn();
 

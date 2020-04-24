@@ -161,6 +161,36 @@ FOnCharacterSpawn& AGameMode_B::OnCharacterSpawn()
 }
 
 // Når man respawner gjennom en barrel
+void AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
+{
+	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
+	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
+	APawn* Pawn = PlayerController->GetPawn();
+	if (IsValid(Pawn))
+		Pawn->Destroy();
+
+	TArray<AActor*> SpawnActors;
+
+	ARespawnPawn_B* RespawnPawn;
+	
+	RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetSpawnTransform(PlayerInfo.ID));
+	
+	if (RespawnPawn)
+	{
+		RespawnPawn->TimeUntilAutoThrow = 0.5f;
+		PlayerController->Possess(RespawnPawn);
+		PlayerController->RespawnPawn = RespawnPawn;
+		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+		if (MainMode)
+			MainMode->AddCameraFocusPoint(RespawnPawn);
+	}
+
+	PlayerController->SetPlayerCharacter(nullptr);
+
+	OnCharacterSpawn_Delegate.Broadcast();
+}
+
+// Når man respawner gjennom en barrel
 void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 {
 	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
