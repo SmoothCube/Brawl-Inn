@@ -121,7 +121,7 @@ void AMainGameMode_B::PregameCountdown()
 	UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 1.f, 1.0f);
 
 	// Start game when sound is finished
-	BI::Delay(this, Countdown->GetDuration(), [&]() {StartGame(); });
+	BI::Delay(this, Countdown->GetDuration() - 1.f, [&]() {StartGame(); });
 }
 
 void AMainGameMode_B::PregameCountdownClock()
@@ -142,12 +142,13 @@ void AMainGameMode_B::UpdateClock()
 		StartMultipleScore();
 	
 	if (GameTimeRemaining < 0)
-		EndGame();
+		PostGame();
 }
 
 void AMainGameMode_B::StartMultipleScore()
 {
 	bMultipleScore = true;
+	Overlay->DisplayText("HAPPY HOUR!", "DOUBLE THE SCORE, DOUBLE THE FUN!", 2.f);
 }
 
 bool AMainGameMode_B::MultipleScoreIsActivated() const
@@ -158,6 +159,8 @@ bool AMainGameMode_B::MultipleScoreIsActivated() const
 void AMainGameMode_B::StartGame()
 {
 	OnGameStart_Delegate.Broadcast();
+
+	Overlay->DisplayText("LET THE BRAWL, BEGIN!", "", 2.f);
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
@@ -174,11 +177,11 @@ FGameStart& AMainGameMode_B::OnGameStart()
 	return OnGameStart_Delegate;
 }
 
-void AMainGameMode_B::EndGame()
+void AMainGameMode_B::PostGame()
 {
 	bGameIsOver = true;
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	//TODO EndGame needs to be implemented.
+	//TODO PostGame needs to be implemented.
 
 	DisableControllerInputs();
 	LeaderFollower->Destroy();
@@ -193,6 +196,8 @@ void AMainGameMode_B::EndGame()
 	GameInstance->SetCameraSwapTransform(OutroCamera->GetActorTransform());
 
 	const float BlendTime = 3.f;
+
+	Overlay->DisplayText("TIME'S UP!", "", 2.f);
 
 	UpdateViewTargets(OutroCamera, BlendTime, true);
 	BI::Delay(this, BlendTime, [&]() {UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName()); });

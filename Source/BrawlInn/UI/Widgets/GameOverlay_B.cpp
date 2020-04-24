@@ -10,6 +10,7 @@
 #include "Characters/Player/GamePlayerController_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/ColoredTextBlock_B.h"
+#include "UMGSequencePlayer.h"
 
 void UGameOverlay_B::NativeOnInitialized()
 {
@@ -34,6 +35,56 @@ void UGameOverlay_B::NativeOnInitialized()
 			ScoreArray[UGameplayStatics::GetPlayerControllerID(GamePlayerController)]->OwningPlayer = GamePlayerController;
 		}
 	}
+
+	FirstTextLine->SetVisibility(ESlateVisibility::Hidden);
+	SecondTextLine->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UGameOverlay_B::NativeTick(const FGeometry& MyGeometry, const float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// Text Display
+	if (bShouldDisplay)
+	{
+		if (CurrentDisplayTime < DisplayTime)
+		{
+			CurrentDisplayTime += InDeltaTime;
+		}
+		else
+		{
+			bShouldDisplay = false;
+			CurrentDisplayTime = 0.f;
+			PlayFadeTextAnimation(false);
+		}
+	}
+}
+
+void UGameOverlay_B::DisplayText(const FString FirstLine, const FString SecondLine, const float TimeToDisplay)
+{
+	FirstTextLine->SetText(FText::FromString(FirstLine));
+	SecondTextLine->SetText(FText::FromString(SecondLine));
+	
+	DisplayTime = TimeToDisplay;
+	CurrentDisplayTime = 0.f;
+	FirstTextLine->SetVisibility(ESlateVisibility::HitTestInvisible);
+	SecondTextLine->SetVisibility(ESlateVisibility::HitTestInvisible);
+	PlayFadeTextAnimation(true);
+
+}
+
+void UGameOverlay_B::OnFadeTextFinished(const bool bIsPlayingForward)
+{
+	if (bIsPlayingForward)
+	{
+		bShouldDisplay = true;
+	}
+	else
+	{
+		bShouldDisplay = false;
+		FirstTextLine->SetVisibility(ESlateVisibility::Hidden);
+		SecondTextLine->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void UGameOverlay_B::UpdateScoreList()
@@ -47,7 +98,7 @@ void UGameOverlay_B::UpdateScoreList()
 	ScoreBox->ClearChildren();
 
 	for (auto Score : ScoreArray)
-	ScoreBox->AddChildToVerticalBox(Score);
+		ScoreBox->AddChildToVerticalBox(Score);
 }
 
 void UGameOverlay_B::UpdateTimerText(const int TimeRemaining)

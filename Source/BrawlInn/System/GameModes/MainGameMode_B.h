@@ -75,7 +75,7 @@ protected:
 	bool bMultipleScore = false;
 
 	// ********** PostGame **********
-	void EndGame();
+	void PostGame();
 
 	bool bGameIsOver = false;
 
