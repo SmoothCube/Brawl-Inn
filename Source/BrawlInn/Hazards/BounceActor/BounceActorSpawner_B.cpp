@@ -11,8 +11,6 @@
 #include "TimerManager.h"
 #include "Animation/AnimMontage.h"
 
-#include "DrawDebugHelpers.h"
-
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "Components/MergeMeshComponent_B.h"
@@ -100,14 +98,11 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), ShootTargets[0]->GetActorLocation(), 0.0f, 0.5f);
 		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), BarrelLowMesh->GetComponentRotation().Vector());
 		
-		DrawDebugLine(GetWorld(), BarrelSpawnLocation->GetComponentLocation(), BarrelSpawnLocation->GetComponentLocation() + LaunchVel.GetSafeNormal(), FColor::Blue, false, 0.5f);
-		DrawDebugLine(GetWorld(), BarrelSpawnLocation->GetComponentLocation(), BarrelSpawnLocation->GetComponentLocation() + BarrelLowMesh->GetComponentRotation().Vector(),FColor::Red,false, 0.5f);
 		if (FMath::IsNearlyEqual(DotProduct,1.f,0.005f))
 		{
 			if (bAnimationFinished)
 			{
 				bAnimationFinished = false;
-				//SetIsShooting(false);
 				PlayAnimationMontages();
 			}
 		}
@@ -147,8 +142,6 @@ void ABounceActorSpawner_B::RotateBarrel(float DeltaTime, FVector TargetLocation
 
 	float newPitch = CurrentWorldRot.Pitch + Angle;
 
-	//newPitch = FMath::Clamp(newPitch, LowestBarrelPitch, HighestBarrelPitch);
-
 	BarrelLowMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentWorldRot, FRotator(newPitch, CurrentWorldRot.Yaw, CurrentWorldRot.Roll), DeltaTime, BarrelRotationSpeed));
 }
 
@@ -168,8 +161,6 @@ void ABounceActorSpawner_B::RotateCogs(float DeltaTime)
 
 ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor()
 {
-	BWarn("Shooting Cannon!");
-//	SetIsShooting(true);
 	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, BarrelSpawnLocation->GetComponentLocation(), FRotator(90, 0, 0));
 	if (!IsValid(NewBounceActor))
 	{
@@ -183,10 +174,6 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor()
 		TargetLocation = ShootTargets[0]->GetActorLocation();
 		ShootTargets[0]->SetupBarrel(NewBounceActor);
 		ShootTargets.RemoveAt(0);
-	}
-	else
-	{
-		BError("SetupBarrel Failed!");
 	}
 
 	if (SpawnCue)
@@ -227,26 +214,13 @@ void ABounceActorSpawner_B::AddShootTarget(ARespawnPawn_B* NewTarget)
 		BWarn("Adding shoot target failed!");
 }
 
-//bool ABounceActorSpawner_B::IsShooting()
-//{
-//	return bIsShooting;
-//}
-//
-//void ABounceActorSpawner_B::SetIsShooting(bool Value)
-//{
-//	BWarn("Setting Is Shooting! %s", Value? TEXT("true") : TEXT("False"));
-//	bIsShooting = Value;
-//}
-
 bool ABounceActorSpawner_B::IsAnimationFinished()
 {
-
 	return bAnimationFinished;
 }
 
 void ABounceActorSpawner_B::SetAnimationFinished(bool Value)
 {
-	BWarn("Setting Animation Finished! %s", Value ? TEXT("true") : TEXT("False"));
 	bAnimationFinished = Value;
 }
 

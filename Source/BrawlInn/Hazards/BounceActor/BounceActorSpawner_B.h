@@ -120,17 +120,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayAnimationMontages();
 
-//	bool IsShooting();
-//	void SetIsShooting(bool Value);
-
 	bool IsAnimationFinished();
 	void SetAnimationFinished(bool Value);
 
 	void SetAnimationFinishedTimer();
 protected:
 
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-//	bool bIsShooting = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bAnimationFinished = true;

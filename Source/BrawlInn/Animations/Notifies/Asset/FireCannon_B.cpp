@@ -8,12 +8,10 @@
 
 void UFireCannon_B::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	BWarn("CannonFired Notify!");
 	Super::Notify(MeshComp, Animation);
 	ABounceActorSpawner_B* Cannon = Cast<ABounceActorSpawner_B>(MeshComp->GetOwner());
 	if (Cannon)
 	{
-	//	Cannon->SetIsShooting(false);
 		Cannon->SpawnBounceActor();
 	}
 }
