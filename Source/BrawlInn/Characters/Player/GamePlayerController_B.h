@@ -65,9 +65,9 @@ protected:
 	bool TryBreakFree();
 
 	bool TryThrow();
-
+public:
 	bool TryStartPunchCharge();
-
+protected:
 	bool TryEndPunchCharge();
 
 	bool TryPunch();
@@ -99,6 +99,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		AGameMode_B* GameMode = nullptr;
 
+public:
+	bool IsPunchChargeInputHeld();
+protected:
+	bool bPunchChargeInputHeld = false;
 	// ********** EditorOnly **********
 	void Debug_Spawn() const;
 	void Debug_DeSpawn();

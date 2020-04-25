@@ -89,7 +89,7 @@ protected:
 	float PunchHitVelocityDamper = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = "Punch")
-	float PunchWaitingTime = 0.5f;
+	float PunchWaitingTime = 0.25f;
 
 	UPROPERTY(EditAnywhere, Category = "Punch|Dash")
 	float Charge1PunchDashSpeed = 1000.f;
