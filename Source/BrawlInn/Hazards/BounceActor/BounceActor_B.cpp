@@ -45,7 +45,7 @@ void ABounceActor_B::BeginPlay()
 
 void ABounceActor_B::Tick(float DeltaTime)
 {
-	if(!bIsFractured)
+	if(!bIsFractured && !Execute_IsHeld(this))
 		SetActorRotation(GetVelocity().ToOrientationRotator() + FRotator(90.f, 0.f, 0.f));
 }
 
