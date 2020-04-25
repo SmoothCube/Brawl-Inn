@@ -53,6 +53,9 @@ void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedCompo
 {
 	if (OtherActor == this)
 		return;
+	UHoldComponent_B* HoldComp = Cast<UHoldComponent_B>(OtherComp);
+	if(HoldComp)
+		return;
 
 	BreakBarrel();
 }
