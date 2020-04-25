@@ -545,8 +545,6 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	ChargeLevel = chargeLevel;
 	bool ShouldPlaySound = true;
 	float SoundPitch = 1.0f;
-	bool ShouldPlayVibration = true;
-	float VibrationStrength = 1.0f;
 
 	switch (ChargeLevel)
 	{
@@ -569,7 +567,6 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 		ShouldPlaySound = false;
 		break;
 	}
-
 
 	if (ShouldPlaySound && ChargeLevelSound)
 	{

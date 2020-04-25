@@ -67,9 +67,9 @@ protected:
 	bool TryThrow();
 public:
 	bool TryStartPunchCharge();
-protected:
-	bool TryEndPunchCharge();
 
+	bool TryEndPunchCharge();
+protected:
 	bool TryPunch();
 
 	void TryDash();

@@ -419,6 +419,8 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	case EChargeLevel::EChargeLevel2:
 		VibrationStrength = 0.7f;
 		VibrationLength = 0.5f;
+		if (PlayerController && !PlayerController->IsPunchChargeInputHeld())
+			PlayerController->TryEndPunchCharge();
 		break;
 	case EChargeLevel::EChargeLevel3:
 		VibrationStrength = 0.7f;

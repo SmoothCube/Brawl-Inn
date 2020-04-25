@@ -80,7 +80,6 @@ void UThrowComponent_B::StartThrow()
 
 	if (OwningCharacter)
 	{
-		OwningCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);	//TODO remove
 		if (OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;

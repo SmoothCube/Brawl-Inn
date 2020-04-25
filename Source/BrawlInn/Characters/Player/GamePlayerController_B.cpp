@@ -226,7 +226,7 @@ bool AGamePlayerController_B::TryEndPunchCharge()
 	if (PlayerCharacter && PlayerCharacter->PunchComponent)
 	{
 		bPunchChargeInputHeld = false;
-		if(PlayerCharacter->IsCharging())
+		if(PlayerCharacter->IsCharging() && PlayerCharacter->GetChargeLevel() > EChargeLevel::EChargeLevel1)
 		{
 			StopControllerVibration();
 			PlayerCharacter->PunchComponent->SetIsPunching(true);
