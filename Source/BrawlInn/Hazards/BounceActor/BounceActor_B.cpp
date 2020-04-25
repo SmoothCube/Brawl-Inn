@@ -93,7 +93,7 @@ void ABounceActor_B::SpawnPlayerCharacter()
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
-			GameMode->SpawnCharacter(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
+			GameMode->SpawnCharacter(PlayerController->GetPlayerInfo(), true, FTransform(FRotator(0.f,180.f,0.f),GetActorLocation()));
 		}
 		if (PlayerController->GetPlayerCharacter())
 			PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);
