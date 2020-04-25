@@ -111,7 +111,7 @@ void UMainMenu_B::ControlsButtonClicked()
 
 	ControllerLayout->GetBackButton()->OnPressed.AddDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
 
-	FOnInputAction FaceButtonRightDelegate;
+	FOnInputAction FaceButtonRightDelegate; //This doesnt work, maybe because mainmenu isnt in focus anymore?
 	FaceButtonRightDelegate.BindDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
 	ListenForInputAction("FaceButtonRight", IE_Pressed, true, FaceButtonRightDelegate);
 }
