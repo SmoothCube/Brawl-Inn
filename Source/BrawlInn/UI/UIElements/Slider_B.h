@@ -25,10 +25,16 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brawl Inn Settings")
-		FSlateBrush UnSelectedBrush;
+		FSlateBrush UnSelectedNormalBarImage;
 
 	UPROPERTY(EditAnywhere, Category = "Brawl Inn Settings")
-		FSlateBrush SelectedBrush;
+	FSlateBrush UnSelectedNormalThumbImage;
+
+	UPROPERTY(EditAnywhere, Category = "Brawl Inn Settings")
+		FSlateBrush SelectedNormalBarImage;
+
+	UPROPERTY(EditAnywhere, Category = "Brawl Inn Settings")
+		FSlateBrush SelectedNormalThumbImage;
 
 	// ********** Text Settings **********
 

@@ -30,13 +30,15 @@ void USlider_B::Tick_Implementation()
 
 		if (HasUserFocus(GetOwningPlayer()))
 		{
-			WidgetStyle.SetNormalBarImage(SelectedBrush);
+			WidgetStyle.SetNormalBarImage(SelectedNormalBarImage);
+			WidgetStyle.SetNormalThumbImage(SelectedNormalThumbImage);
 			SliderText->SetFont(SelectedFont);
 			SliderText->SetColorAndOpacity(SelectedColor);
 		}
 		else
 		{
-			WidgetStyle.SetNormalBarImage(UnSelectedBrush);
+			WidgetStyle.SetNormalBarImage(UnSelectedNormalBarImage);
+			WidgetStyle.SetNormalThumbImage(UnSelectedNormalThumbImage);
 			SliderText->SetFont(UnSelectedFont);
 			SliderText->SetColorAndOpacity(UnSelectedColor);
 		}

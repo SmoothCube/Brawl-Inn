@@ -8,20 +8,27 @@
 #include "ComboBoxString_B.generated.h"
 
 
+class UTextBlock;
 UCLASS()
 class BRAWLINN_API UComboBoxString_B : public UComboBoxString, public IUIElementsInterface_B
 {
 	GENERATED_BODY()
+
+public:
+	void SetTextAndSettings(UTextBlock* Text, FSlateFontInfo UnSelectedFontInfo, FSlateColor UnSelectedColorIn, FSlateFontInfo SelectedFontInfo, FSlateColor
+		SelectedColorIn);
 protected:
 
 	void Tick_Implementation() override;
-	
-	UPROPERTY(EditAnywhere)
-		FButtonStyle Selected;
 
-	UPROPERTY(EditAnywhere)
-		FButtonStyle Pressed;
+	// ********** Text Settings **********
 
-	UPROPERTY(EditAnywhere)
-		FButtonStyle Unselected;
+	UPROPERTY()
+		UTextBlock* BoxText = nullptr;
+
+	FSlateFontInfo UnSelectedFont;
+	FSlateColor UnSelectedColor;
+
+	FSlateFontInfo SelectedFont;
+	FSlateColor SelectedColor;
 };

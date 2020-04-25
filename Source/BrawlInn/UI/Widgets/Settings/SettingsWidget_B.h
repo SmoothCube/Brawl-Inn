@@ -6,10 +6,12 @@
 #include "Blueprint/UserWidget.h"
 #include "SettingsWidget_B.generated.h"
 
+class UTextBlock;
 class UAudioSettingsWidget_B;
 class UWidgetSwitcher;
 class UVideoSettingsWidget_B;
 class UButton_B;
+class UFont;
 
 UCLASS()
 class BRAWLINN_API USettingsWidget_B : public UUserWidget
@@ -44,6 +46,15 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* BackButton;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* BackText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* VideoText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* AudioText;
 	
 	// ********** Functions **********
 	
@@ -61,4 +72,9 @@ protected:
 
 	UFUNCTION()
 		void BackFromSettingsButtonClicked();
+
+	// ********** Text **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fonts")
+	UFont* AbadiMTFont = nullptr;
 };

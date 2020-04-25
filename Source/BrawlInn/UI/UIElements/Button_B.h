@@ -18,11 +18,13 @@ public:
 	void Tick_Implementation() override;
 
 	void SetTextAndSettings(UTextBlock* Text, FSlateFontInfo UnSelectedFontInfo, FSlateColor UnSelectedColorIn, FSlateFontInfo SelectedFontInfo, FSlateColor
-	                        SelectedColorIn);
+	                        SelectedColorIn, bool bShouldIndentIn);
 
 	void ShouldUpdateStyle(bool bShouldUpdateStyleIn);
 protected:
 	bool bShouldUpdateStyle = false;
+
+	bool bShouldIndent = false;
 
 	UPROPERTY()
 		UTextBlock* ButtonText;

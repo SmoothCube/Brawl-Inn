@@ -7,7 +7,7 @@ void UButton_B::Tick_Implementation()
 {
 	if (!IsValid(ButtonText))
 		return;
-	
+
 	if (bShouldUpdateStyle)
 	{
 		if (IsHovered())
@@ -16,7 +16,8 @@ void UButton_B::Tick_Implementation()
 		if (HasUserFocus(GetOwningPlayer()))
 		{
 			ButtonText->SetFont(SelectedFont);
-			ButtonText->SetRenderTranslation(FVector2D(15, 0));
+			if (bShouldIndent)
+				ButtonText->SetRenderTranslation(FVector2D(15, 0));
 			ButtonText->SetColorAndOpacity(SelectedColor);
 			SetRenderScale(FVector2D(1, 1));
 
@@ -24,7 +25,8 @@ void UButton_B::Tick_Implementation()
 		else
 		{
 			ButtonText->SetFont(UnSelectedFont);
-			ButtonText->SetRenderTranslation(FVector2D(0, 0));
+			if (bShouldIndent)
+				ButtonText->SetRenderTranslation(FVector2D(0, 0));
 			ButtonText->SetColorAndOpacity(UnSelectedColor);
 			SetRenderScale(FVector2D(1, 1));
 		}
@@ -32,13 +34,15 @@ void UButton_B::Tick_Implementation()
 	else
 	{
 		ButtonText->SetFont(SelectedFont);
-		ButtonText->SetRenderTranslation(FVector2D(10, 0));
+		if (bShouldIndent)
+			ButtonText->SetRenderTranslation(FVector2D(15, 0));
 		ButtonText->SetColorAndOpacity(SelectedColor);
-		SetRenderScale(FVector2D(0.5,1));
+		SetRenderScale(FVector2D(1, 1));
 	}
 }
 
-void UButton_B::SetTextAndSettings(UTextBlock* Text, FSlateFontInfo UnSelectedFontInfo, FSlateColor UnSelectedColorIn, FSlateFontInfo SelectedFontInfo, FSlateColor SelectedColorIn)
+void UButton_B::SetTextAndSettings(UTextBlock* Text, FSlateFontInfo UnSelectedFontInfo, FSlateColor UnSelectedColorIn, FSlateFontInfo SelectedFontInfo, FSlateColor SelectedColorIn, bool
+	bShouldIndentIn)
 {
 	if (Text)
 	{
@@ -48,6 +52,7 @@ void UButton_B::SetTextAndSettings(UTextBlock* Text, FSlateFontInfo UnSelectedFo
 		UnSelectedColor = UnSelectedColorIn;
 		SelectedFont = SelectedFontInfo;
 		SelectedColor = SelectedColorIn;
+		bShouldIndent = bShouldIndentIn;
 	}
 }
 

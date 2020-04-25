@@ -3,6 +3,7 @@
 #include "VideoSettingsWidget_B.h"
 
 #include "Engine/Engine.h"
+#include "Engine/Font.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -21,13 +22,13 @@ void UVideoSettingsWidget_B::NativeOnInitialized()
 
 	for (FIntPoint& Resolution : ScreenResolutionsSupported)
 	{
-		const FString ResolutionAsString = FString::FromInt(Resolution.X) + " • " + FString::FromInt(Resolution.Y);
+		const FString ResolutionAsString = FString::FromInt(Resolution.X) + "x" + FString::FromInt(Resolution.Y);
 		ScreenResolutionBox->AddOption(ResolutionAsString);
 		ScreenResolutions.Add(ResolutionAsString, Resolution);
 	}
 
 	const FIntPoint Resolution = GEngine->GetGameUserSettings()->GetScreenResolution();
-	const FString ResolutionAsString = FString::FromInt(Resolution.X) + " • " + FString::FromInt(Resolution.Y);
+	const FString ResolutionAsString = FString::FromInt(Resolution.X) + "x" + FString::FromInt(Resolution.Y);
 	if (ScreenResolutions.Contains(ResolutionAsString))
 	{
 		ScreenResolutionBox->SetSelectedOption(ResolutionAsString);
@@ -61,6 +62,31 @@ void UVideoSettingsWidget_B::NativeOnInitialized()
 	// Apply button
 
 	ApplyButton->OnClicked.AddDynamic(this, &UVideoSettingsWidget_B::OnApplyButtonClicked);
+
+	FSlateFontInfo UnSelectedFontInfo;
+	UnSelectedFontInfo.FontObject = AbadiMTFont;
+	UnSelectedFontInfo.TypefaceFontName = "Light";
+	UnSelectedFontInfo.Size = 36;
+
+	const FSlateColor UnSelectedColor(FLinearColor(0.930111f, 0.623960f, 0.147027f, 1));
+
+	FSlateFontInfo SelectedFontInfo;
+	SelectedFontInfo.FontObject = AbadiMTFont;
+	SelectedFontInfo.TypefaceFontName = "Italic";
+	SelectedFontInfo.Size = 36;
+
+	const FSlateColor SelectedColor(FLinearColor(1.000000f, 0.896269f, 0.376262f, 1));
+
+	ApplyButton->SetTextAndSettings(ApplyText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, false);
+
+	UnSelectedFontInfo.TypefaceFontName = "Default";
+	UnSelectedFontInfo.Size = 32;
+
+	SelectedFontInfo.TypefaceFontName = "Italic";
+	SelectedFontInfo.Size = 32;
+	
+	FullscreenModeBox->SetTextAndSettings(WindowText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
+	ScreenResolutionBox->SetTextAndSettings(ResolutionText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
 
 	UIElementsWithInterface.Add(ApplyButton);
 	UIElementsWithInterface.Add(FullscreenModeBox);

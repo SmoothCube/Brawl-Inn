@@ -65,11 +65,13 @@ void UMainMenu_B::NativeOnInitialized()
 
 	const FSlateColor SelectedColor(FLinearColor(1.000000f, 0.896269f, 0.376262f, 1));
 
-	PlayButton->SetTextAndSettings(PlayText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
-	SettingsButton->SetTextAndSettings(SettingsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
-	ControlsButton->SetTextAndSettings(ControlsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
-	CreditsButton->SetTextAndSettings(CreditsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
-	QuitButton->SetTextAndSettings(QuitText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
+	PlayButton->SetTextAndSettings(PlayText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
+	SettingsButton->SetTextAndSettings(SettingsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
+	ControlsButton->SetTextAndSettings(ControlsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
+	CreditsButton->SetTextAndSettings(CreditsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
+	QuitButton->SetTextAndSettings(QuitText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
+
+	SettingsWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -87,11 +89,11 @@ void UMainMenu_B::SettingsButtonClicked()
 {
 	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
 
-	for(auto Widget : UIElementsWithInterface)
+	for (auto Widget : UIElementsWithInterface)
 	{
 		Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
-	
+
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(SettingsWidget->GetBackButton()->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
@@ -108,6 +110,10 @@ void UMainMenu_B::ControlsButtonClicked()
 	GetOwningPlayer()->SetInputMode(InputMode);
 
 	ControllerLayout->GetBackButton()->OnPressed.AddDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
+
+	FOnInputAction FaceButtonRightDelegate;
+	FaceButtonRightDelegate.BindDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
+	ListenForInputAction("FaceButtonRight", IE_Pressed, true, FaceButtonRightDelegate);
 }
 
 void UMainMenu_B::ControllerLayoutBackButtonClicked()
@@ -119,6 +125,8 @@ void UMainMenu_B::ControllerLayoutBackButtonClicked()
 	GetOwningPlayer()->SetInputMode(InputMode);
 
 	ControllerLayout->GetBackButton()->OnPressed.RemoveDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
+
+	StopListeningForInputAction("FaceButtonRight", IE_Pressed);
 }
 
 void UMainMenu_B::CreditsButtonClicked()

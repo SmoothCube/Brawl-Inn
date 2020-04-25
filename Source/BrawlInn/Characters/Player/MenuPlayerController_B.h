@@ -56,6 +56,8 @@ protected:
 
 	int CharacterVariantIndex = 0;
 
+	bool bIsInMenuMode = true;
+
 	UPROPERTY()
 		ASelectionPawn_B* SelectionPawn;
 };

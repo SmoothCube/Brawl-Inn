@@ -52,44 +52,67 @@ void AMenuPlayerController_B::SetCharacterVariantIndex(const int Value)
 
 void AMenuPlayerController_B::LeftStickRightPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	SelectRight();
 }
 
 void AMenuPlayerController_B::LeftStickLeftPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	SelectLeft();
 }
 
 void AMenuPlayerController_B::LeftShoulderPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	SelectLeft();
 	Super::LeftShoulderPressed();
 }
 
 void AMenuPlayerController_B::DPadLeftPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	SelectLeft();
 }
 
 void AMenuPlayerController_B::DPadRightPressed()
 {
-	SelectRight();
+	if (bIsInMenuMode)
+		return;
 	
+	SelectRight();
 }
 
 void AMenuPlayerController_B::RightShoulderPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	SelectRight();
 	Super::RightShoulderPressed();
 }
 
 void AMenuPlayerController_B::FaceButtonBottomPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	TrySelect();
 }
 
 void AMenuPlayerController_B::FaceButtonRightPressed()
 {
+	if (bIsInMenuMode)
+		return;
+	
 	Unselect();
 }
 
