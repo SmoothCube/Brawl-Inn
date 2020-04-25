@@ -49,6 +49,11 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PS_ChiliBrew->SetupAttachment(GetMesh());
 	PS_ChiliBrew->SetRelativeLocation(FVector(0.f, -14.5f, 80.f));
 
+	PS_CandleFlame = CreateDefaultSubobject<UNiagaraComponent>("CandleFlameParticle");
+	PS_CandleFlame->SetupAttachment(GetMesh(), "neckEnd_export_C_jnt");
+	PS_CandleFlame->SetRelativeLocation(FVector(0.f, -33.f, 8.f));
+	PS_CandleFlame->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
