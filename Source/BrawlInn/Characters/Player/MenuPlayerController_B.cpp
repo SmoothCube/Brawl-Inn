@@ -157,3 +157,8 @@ void AMenuPlayerController_B::SelectRight()
 	if (MenuGameMode)
 		MenuGameMode->HoverRight(this);
 }
+
+void AMenuPlayerController_B::SetIsMenuMode(const bool Value)
+{
+	bIsInMenuMode = Value;
+}

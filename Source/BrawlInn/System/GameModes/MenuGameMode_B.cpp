@@ -134,6 +134,9 @@ void AMenuGameMode_B::OnMenuPlayButtonClicked()
 	DisableControllerInputs();
 	HideMainMenu();
 
+	for (auto Controller : MenuPlayerControllers)
+		Controller->SetIsMenuMode(false);
+
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bPauseAtEnd = true;
 	ALevelSequenceActor* OutActor;
