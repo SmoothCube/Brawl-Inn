@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "AudioSettingsWidget_B.generated.h"
 
+class UFont;
 class USettingsWidget_B;
 class UGameInstance_B;
 class UTextBlock;
@@ -36,28 +37,30 @@ protected:
 	// ********** Widgets **********
 
 public:
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 		USlider_B* MasterSlider;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 		USlider_B* MusicSlider;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 		USlider_B* SfxSlider;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* SfxValueText;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* MasterValueText;
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* MasterText;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* MusicValueText;
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* MusicText;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UButton_B* InvisibleButton;
-	
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* SfxText;
+
+
 	// ********** Misc. **********
-	
+
+	UPROPERTY(EditDefaultsOnly)
+		UFont* TextFont;
+
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
 

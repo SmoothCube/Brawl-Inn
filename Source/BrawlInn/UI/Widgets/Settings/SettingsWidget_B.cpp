@@ -56,8 +56,6 @@ void USettingsWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	AudioButton->Execute_Tick(AudioButton);
 	VideoButton->Execute_Tick(VideoButton);
 
-	if (AudioSettingsWidget->InvisibleButton->HasAnyUserFocus())
-		FocusBackButton();
 }
 
 void USettingsWidget_B::FocusBackButton()

@@ -4,8 +4,11 @@
 #include "TextBlock.h"
 
 void UButton_B::Tick_Implementation()
-{	
-	if (bShouldUpdateStyle && IsValid(ButtonText))
+{
+	if (!IsValid(ButtonText))
+		return;
+	
+	if (bShouldUpdateStyle)
 	{
 		if (IsHovered())
 			SetUserFocus(GetOwningPlayer());

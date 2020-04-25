@@ -86,13 +86,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* QuitText;
 
-	
-
-//	UPROPERTY(meta = (BindWidget))
-	//	UWidgetSwitcher* WidgetSwitcher;
-
-	//UPROPERTY(meta = (BindWidget))
-		//USettingsWidget_B* SettingsWidget;
+	UPROPERTY(meta = (BindWidget))
+		USettingsWidget_B* SettingsWidget;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;

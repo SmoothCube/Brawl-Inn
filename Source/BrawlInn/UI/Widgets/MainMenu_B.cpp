@@ -27,7 +27,7 @@ void UMainMenu_B::NativeConstruct()
 
 	PlayButton->OnClicked.AddDynamic(GameMode, &AMenuGameMode_B::OnMenuPlayButtonClicked);
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenu_B::SettingsButtonClicked);
-	//SettingsWidget->GetBackButton()->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
+	SettingsWidget->GetBackButton()->OnClicked.AddDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
 	ControlsButton->OnClicked.AddDynamic(this, &UMainMenu_B::ControlsButtonClicked);
 	CreditsButton->OnClicked.AddDynamic(this, &UMainMenu_B::CreditsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu_B::QuitButtonClicked);
@@ -85,11 +85,17 @@ void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UMainMenu_B::SettingsButtonClicked()
 {
-	//WidgetSwitcher->SetActiveWidgetIndex(1);
+	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
 
-	//FInputModeGameAndUI InputMode;
-	//InputMode.SetWidgetToFocus(SettingsWidget->GetBackButton()->GetCachedWidget());
-	//GetOwningPlayer()->SetInputMode(InputMode);
+	for(auto Widget : UIElementsWithInterface)
+	{
+		Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+	
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(SettingsWidget->GetBackButton()->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
 }
 
 void UMainMenu_B::ControlsButtonClicked()
@@ -127,11 +133,16 @@ void UMainMenu_B::QuitButtonClicked()
 
 void UMainMenu_B::BackFromSettingsButtonClicked()
 {
-//	WidgetSwitcher->SetActiveWidgetIndex(0);
+	for (auto Widget : UIElementsWithInterface)
+	{
+		Widget->SetVisibility(ESlateVisibility::Visible);
+	}
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(SettingsButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
+
+	SettingsWidget->SetVisibility(ESlateVisibility::Hidden);
 
 	check(IsValid(GameInstance));
 
