@@ -70,7 +70,7 @@ protected:
 		UButton_B* QuitButton;
 
 	// ****** Text ******
-	
+
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* PlayText;
 
@@ -96,7 +96,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		UFont* TextFont;
 
-	
+
 	// ********** Misc. **********
 
 	UPROPERTY()
@@ -107,4 +107,16 @@ protected:
 
 	UPROPERTY()
 		TArray<UWidget*> UIElementsWithInterface;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SettingsBlockAnimationForward();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SettingsBlockAnimationReverse();
+
+	UPROPERTY(BlueprintReadWrite, Category = "SettingsWidget")
+		bool bSettingsIsVisible = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "SettingsWidget")
+		bool bIsInsideSetting = false;
 };

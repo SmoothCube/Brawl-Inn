@@ -71,7 +71,7 @@ void UMainMenu_B::NativeOnInitialized()
 	CreditsButton->SetTextAndSettings(CreditsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
 	QuitButton->SetTextAndSettings(QuitText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
 
-	SettingsWidget->SetVisibility(ESlateVisibility::Hidden);
+	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -83,12 +83,20 @@ void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
 			IUIElementsInterface_B::Execute_Tick(Element);
 	}
+
+	if(SettingsButton->HasAnyUserFocus())
+	{
+		SettingsBlockAnimationForward();
+	}
+	else
+	{
+		SettingsBlockAnimationReverse();
+	}
 }
 
 void UMainMenu_B::SettingsButtonClicked()
 {
-	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
-
+	bIsInsideSetting = true;
 	for (auto Widget : UIElementsWithInterface)
 	{
 		Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -150,8 +158,8 @@ void UMainMenu_B::BackFromSettingsButtonClicked()
 	InputMode.SetWidgetToFocus(SettingsButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 
-	SettingsWidget->SetVisibility(ESlateVisibility::Hidden);
-
+	bIsInsideSetting = false;
+	
 	check(IsValid(GameInstance));
 
 	GConfig->SetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), GameInstance->GetMasterVolume(), GGameIni);
