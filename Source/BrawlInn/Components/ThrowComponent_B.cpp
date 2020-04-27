@@ -80,7 +80,6 @@ void UThrowComponent_B::StartThrow()
 
 	if (OwningCharacter)
 	{
-		OwningCharacter->SetChargeLevel(EChargeLevel::EChargeLevel1);	//TODO remove
 		if (OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
@@ -160,13 +159,8 @@ void UThrowComponent_B::CancelDrinking()
 	{
 		OwningCharacter->PunchComponent->SetCanPunch(true);
 		OwningCharacter->PunchComponent->SetCanDash(true);
-		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
-		if (Interface)
-		{
-			Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
-		}
-		HoldComponent->SetHoldingItem(nullptr);
-		OwningCharacter->SetState(EState::EWalking);
+		if (HoldComponent)
+			HoldComponent->Drop();
 
 		OwningCharacter->SetIsCharging(false);
 		bIsThrowing = false;

@@ -69,7 +69,8 @@ void AMainGameMode_B::PostLevelLoad()
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 
-		SpawnCharacter(Info, false, FTransform());
+		SpawnRespawnPawn(Info);
+		//SpawnCharacter(Info, false, FTransform());
 	}
 
 	UpdateViewTargets();

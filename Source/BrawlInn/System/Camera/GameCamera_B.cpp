@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "Engine/TriggerBox.h"
 #include "Engine/LocalPlayer.h"
+#include "Engine/TargetPoint.h"
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
@@ -199,6 +200,16 @@ void AGameCamera_B::EndFocus(AActor* OtherActor)
 	if (!IsValid(OtherActor))
 		BWarn("No Other Actor!");
 	ActorsToTrack.Remove(OtherActor);
+	ATargetPoint* Target = Cast<ATargetPoint>(OtherActor);
+	if (Target)
+		Target->Destroy();
+}
+
+void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	FTimerHandle UniqueHandle;
+	//end focus for player and spawn a targetpoint and focus that 
+	EndFocus(OtherActor);
 
 	APlayerCharacter_B* Player = Cast<APlayerCharacter_B>(OtherActor);
 	if (Player)
@@ -210,17 +221,19 @@ void AGameCamera_B::EndFocus(AActor* OtherActor)
 		{
 			ActorsToTrack.Add(Player);
 		}
+		else
+		{
+			AActor* Target = GetWorld()->SpawnActor<ATargetPoint>(ATargetPoint::StaticClass(), OtherActor->GetActorTransform());
+			if (IsValid(Target))
+			{
+				ActorsToTrack.Add(Target);
+
+				FTimerDelegate RespawnDelegate = FTimerDelegate::CreateUObject(this, &AGameCamera_B::EndFocus, Target);
+				GetWorldTimerManager().SetTimer(UniqueHandle, RespawnDelegate, EndFocusTime, false);
+			}
+		}
 	}
 }
-
-void AGameCamera_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	FTimerHandle UniqueHandle;
-	FTimerDelegate RespawnDelegate = FTimerDelegate::CreateUObject(this, &AGameCamera_B::EndFocus, OtherActor);
-	GetWorldTimerManager().SetTimer(UniqueHandle, RespawnDelegate, EndFocusTime, false);
-	//GetWorld()->GetTimerManager().SetTimer(TH_EndFocusTimer, this, &AGameCamera_B::EndFocus, EndFocusTime, false);
-}
-
 void AGameCamera_B::OnTrackingBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA(APlayerCharacter_B::StaticClass()))

@@ -209,26 +209,31 @@ void AGamePlayerController_B::TryDash()
 bool AGamePlayerController_B::TryStartPunchCharge()
 {
 	if (PlayerCharacter &&
-		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->PunchComponent->GetCanPunch())
+		PlayerCharacter->PunchComponent)
 	{
-		PlayerCharacter->TryStartCharging();
-		return true;
+		bPunchChargeInputHeld = true;
+		if (PlayerCharacter->PunchComponent->GetCanPunch())
+		{
+			PlayerCharacter->TryStartCharging();
+			return true;
+		}
 	}
 	return false;
 }
 
 bool AGamePlayerController_B::TryEndPunchCharge()
 {
-	if (PlayerCharacter &&
-		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->IsCharging())
+	if (PlayerCharacter && PlayerCharacter->PunchComponent)
 	{
-		StopControllerVibration();
-		PlayerCharacter->PunchComponent->SetIsPunching(true);
-		PlayerCharacter->PunchComponent->SetCanPunch(false);
-		PlayerCharacter->SetIsCharging(false);
-		return true;
+		bPunchChargeInputHeld = false;
+		if(PlayerCharacter->IsCharging() && PlayerCharacter->GetChargeLevel() > EChargeLevel::EChargeLevel1)
+		{
+			StopControllerVibration();
+			PlayerCharacter->PunchComponent->SetIsPunching(true);
+			PlayerCharacter->PunchComponent->SetCanPunch(false);
+			PlayerCharacter->SetIsCharging(false);
+			return true;
+		}
 	}
 	return false;
 }
@@ -289,6 +294,11 @@ void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 	UScoreSubSystem_B* ScoreSubSystem = GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>();
 	if (!ScoreSubSystem->OnScoreChanged.IsBoundToObject(TextBlock))
 		ScoreSubSystem->OnScoreChanged.AddUObject(TextBlock, &UColoredTextBlock_B::UpdateScore);
+}
+
+bool AGamePlayerController_B::IsPunchChargeInputHeld()
+{
+	return bPunchChargeInputHeld;
 }
 
 void AGamePlayerController_B::Debug_Spawn() const

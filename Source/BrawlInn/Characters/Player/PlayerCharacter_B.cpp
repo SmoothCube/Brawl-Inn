@@ -49,6 +49,11 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PS_ChiliBrew->SetupAttachment(GetMesh());
 	PS_ChiliBrew->SetRelativeLocation(FVector(0.f, -14.5f, 80.f));
 
+	PS_CandleFlame = CreateDefaultSubobject<UNiagaraComponent>("CandleFlameParticle");
+	PS_CandleFlame->SetupAttachment(GetMesh(), "neckEnd_export_C_jnt");
+	PS_CandleFlame->SetRelativeLocation(FVector(0.f, -33.f, 8.f));
+	PS_CandleFlame->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
@@ -243,7 +248,7 @@ void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
-	DirectionIndicatorPlane->SetHiddenInGame(true);
+//	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
 }
 
@@ -419,6 +424,8 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	case EChargeLevel::EChargeLevel2:
 		VibrationStrength = 0.7f;
 		VibrationLength = 0.5f;
+		if (PlayerController && !PlayerController->IsPunchChargeInputHeld())
+			PlayerController->TryEndPunchCharge();
 		break;
 	case EChargeLevel::EChargeLevel3:
 		VibrationStrength = 0.7f;

@@ -3,6 +3,7 @@
 #include "HoldComponent_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Items/Useable_B.h"
@@ -97,7 +98,7 @@ bool UHoldComponent_B::TryPickup()
 			NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
-
+	BWarn("Trying to pick up %s", *GetNameSafe(NearestItem)); //TODO remove
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(NearestItem);
 	if (Interface && Interface->Execute_CanBeHeld(NearestItem))
 	{

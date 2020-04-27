@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_ChiliBrew = nullptr;
 
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* PS_CandleFlame = nullptr;
+
 	UPROPERTY(VisibleAnywhere, Category = "Audio")
 		UAudioComponent* ChiliBrewSoundComp = nullptr;
 

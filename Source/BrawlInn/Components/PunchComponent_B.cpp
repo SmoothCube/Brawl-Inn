@@ -13,6 +13,7 @@
 #include "System/GameInstance_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "Components/ThrowComponent_B.h"
+#include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Character_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 
@@ -194,6 +195,14 @@ void UPunchComponent_B::PunchEnd()
 		[&]()
 		{
 			SetCanPunch(true);
+
+			//GetO
+			AGamePlayerController_B* PlayerController = OwningCharacter->GetController<AGamePlayerController_B>();
+			if (PlayerController)
+			{
+				if(PlayerController->IsPunchChargeInputHeld())
+					PlayerController->TryStartPunchCharge();
+			}
 		},
 		PunchWaitingTime,
 			false);

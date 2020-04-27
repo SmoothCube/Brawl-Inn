@@ -105,8 +105,6 @@ float ALeaderFollower_B::GetBobbingHeight(float Time)
 
 void ALeaderFollower_B::AnimationTimelineFinished(bool bAppeared)
 {
-	BWarn("Animation finished!");
-
 	//if dissapeared, swap leader and appear
 	if (!bAppeared)
 	{
