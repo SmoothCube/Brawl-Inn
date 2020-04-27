@@ -113,6 +113,12 @@ private:
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
 
+#if WITH_EDITOR
+	UPROPERTY(EditAnywhere, Category = "UserWidgets")
+	bool bShowGameOverlay = true;
+
+	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 	// ********** Sound **********
 public:
 

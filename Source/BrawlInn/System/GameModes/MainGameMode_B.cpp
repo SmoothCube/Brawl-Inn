@@ -140,7 +140,7 @@ void AMainGameMode_B::UpdateClock()
 
 	if (GameTimeRemaining == TimeRemainingBeforeMultipleScore)
 		StartMultipleScore();
-	
+
 	if (GameTimeRemaining < 0)
 		PostGame();
 }
@@ -160,7 +160,7 @@ void AMainGameMode_B::StartGame()
 {
 	OnGameStart_Delegate.Broadcast();
 
-//	Overlay->DisplayText("","LET THE BRAWL, BEGIN!", 2.f);
+	//	Overlay->DisplayText("","LET THE BRAWL, BEGIN!", 2.f);
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
@@ -185,7 +185,7 @@ void AMainGameMode_B::PostGame()
 
 	DisableControllerInputs();
 	LeaderFollower->Destroy();
-	
+
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "EndGame", OutActors);
@@ -204,15 +204,15 @@ void AMainGameMode_B::PostGame()
 
 	auto TempPlayerControllers = PlayerControllers;
 	SortPlayerControllersByScore(TempPlayerControllers);
-	
+
 	TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
 	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
 		{
 			APlayerController* LeftController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Left.ID);
 			APlayerController* RightController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Right.ID);
 
-			 int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-			 int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 			if (LeftScore >= RightScore)
 				return true;
 			return false;
@@ -253,6 +253,21 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 		}
 	}
 }
+#if WITH_EDITOR
+
+void AMainGameMode_B::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(AMainGameMode_B, bShowGameOverlay))
+	{
+		if (GetWorld()->IsPlayInEditor() && !bShowGameOverlay)
+			Overlay->SetVisibility(ESlateVisibility::Hidden);
+		if (GetWorld()->IsPlayInEditor() && bShowGameOverlay)
+			Overlay->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+#endif
 
 void AMainGameMode_B::ResetMusic()
 {
@@ -299,7 +314,7 @@ TArray<APlayerController_B*> AMainGameMode_B::GetLeadingPlayerController()
 void AMainGameMode_B::StartMultiplyingScores()
 {
 	bMultiplyScoresAgainstLeader = true;
-	
+
 	LeaderFollower = GetWorld()->SpawnActor<ALeaderFollower_B>(BP_LeaderFollower, FTransform());
 	if (!LeaderFollower)
 		BError("Spawning LeaderFollower Failed!");
