@@ -8,8 +8,6 @@
 #include "BrawlInn.h"
 #include "UI/UIElements/Button_B.h"
 #include "UI/UIElements/ComboBoxString_B.h"
-#include "UI/UIElements/Slider_B.h"
-#include "VideoSettingsWidget_B.h"
 
 void USettingsWidget_B::NativeOnInitialized()
 {
@@ -20,7 +18,6 @@ void USettingsWidget_B::NativeOnInitialized()
 
 	AudioButton->ShouldUpdateStyle(false);
 	VideoButton->ShouldUpdateStyle(true);
-
 
 	FSlateFontInfo UnSelectedFontInfo;
 	UnSelectedFontInfo.FontObject = AbadiMTFont;
@@ -61,7 +58,6 @@ void USettingsWidget_B::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent
 	LeftShoulderDelegate.BindDynamic(this, &USettingsWidget_B::OnAudioButtonClicked);
 	ListenForInputAction("LeftShoulder", IE_Pressed, true, LeftShoulderDelegate);
 
-
 }
 
 void USettingsWidget_B::NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent)
@@ -91,16 +87,6 @@ void USettingsWidget_B::FocusBackButton()
 UButton_B* USettingsWidget_B::GetBackButton() const
 {
 	return BackButton;
-}
-
-
-void USettingsWidget_B::BackFromSettingsButtonClicked()
-{
-	//WidgetSwitcher->SetActiveWidgetIndex(0);
-
-//	FInputModeGameAndUI InputMode;
-	//InputMode.SetWidgetToFocus(SettingsButton->GetCachedWidget());
-	//GetOwningPlayer()->SetInputMode(InputMode);
 }
 
 void USettingsWidget_B::OnAudioButtonClicked()

@@ -38,7 +38,6 @@ void UPauseMenu_B::NativeOnInitialized()
 	UIElementsWithInterface.Add(ContinueButton);
 	UIElementsWithInterface.Add(ControlsButton);
 	UIElementsWithInterface.Add(ExitButton);
-	
 }
 
 void UPauseMenu_B::NativeConstruct()
@@ -93,6 +92,10 @@ void UPauseMenu_B::ControlsButtonClicked()
 	InputMode.SetWidgetToFocus(ControllerLayout->GetBackButton()->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 
+	FOnInputAction FaceButtonRightDelegate;
+	FaceButtonRightDelegate.BindDynamic(this, &UPauseMenu_B::ControllerLayoutBackButtonClicked);
+	ListenForInputAction("FaceButtonRight", IE_Pressed, true, FaceButtonRightDelegate);
+
 	ControllerLayout->GetBackButton()->OnPressed.AddDynamic(this, &UPauseMenu_B::ControllerLayoutBackButtonClicked);
 }
 
@@ -103,6 +106,8 @@ void UPauseMenu_B::ControllerLayoutBackButtonClicked()
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControlsButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
+
+	StopListeningForInputAction("FaceButtonRight", IE_Pressed);
 
 	ControllerLayout->GetBackButton()->OnPressed.RemoveDynamic(this, &UPauseMenu_B::ControllerLayoutBackButtonClicked);
 }

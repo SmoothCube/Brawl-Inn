@@ -70,9 +70,6 @@ protected:
 	UFUNCTION()
 		void OnVideoButtonClicked();
 
-	UFUNCTION()
-		void BackFromSettingsButtonClicked();
-
 	// ********** Text **********
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fonts")

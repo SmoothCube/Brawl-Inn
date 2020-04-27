@@ -71,7 +71,7 @@ void UMainMenu_B::NativeOnInitialized()
 	CreditsButton->SetTextAndSettings(CreditsText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
 	QuitButton->SetTextAndSettings(QuitText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor, true);
 
-	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+	SettingsWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -84,7 +84,7 @@ void UMainMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			IUIElementsInterface_B::Execute_Tick(Element);
 	}
 
-	if(SettingsButton->HasAnyUserFocus())
+	if (SettingsButton->HasAnyUserFocus())
 	{
 		SettingsBlockAnimationForward();
 	}
@@ -101,6 +101,11 @@ void UMainMenu_B::SettingsButtonClicked()
 	{
 		Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
+	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+
+	FOnInputAction FaceButtonRightDelegate; 
+	FaceButtonRightDelegate.BindDynamic(this, &UMainMenu_B::BackFromSettingsButtonClicked);
+	ListenForInputAction("FaceButtonRight", IE_Pressed, true, FaceButtonRightDelegate);
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(SettingsWidget->GetBackButton()->GetCachedWidget());
@@ -110,7 +115,6 @@ void UMainMenu_B::SettingsButtonClicked()
 
 void UMainMenu_B::ControlsButtonClicked()
 {
-
 	ControllerLayout->SetVisibility(ESlateVisibility::Visible);
 
 	FInputModeGameAndUI InputMode;
@@ -154,12 +158,16 @@ void UMainMenu_B::BackFromSettingsButtonClicked()
 		Widget->SetVisibility(ESlateVisibility::Visible);
 	}
 
+	StopListeningForInputAction("FaceButtonBottom", IE_Pressed);
+
+	SettingsWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(SettingsButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 
 	bIsInsideSetting = false;
-	
+
 	check(IsValid(GameInstance));
 
 	GConfig->SetFloat(TEXT("BrawlInn.Audio"), TEXT("Master Volume"), GameInstance->GetMasterVolume(), GGameIni);

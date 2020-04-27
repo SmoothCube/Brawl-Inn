@@ -31,7 +31,7 @@ protected:
 	void NativeOnInitialized() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
+	
 	// ********** Button Clicks **********
 	UFUNCTION()
 		void SettingsButtonClicked();
@@ -51,6 +51,10 @@ protected:
 	UFUNCTION()
 		void BackFromSettingsButtonClicked();
 
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnMainMenuHide();
+protected:
 	// ********** Widgets **********
 
 	// ****** Buttons ******
@@ -96,7 +100,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		UFont* TextFont;
 
-
 	// ********** Misc. **********
 
 	UPROPERTY()
@@ -119,4 +122,5 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "SettingsWidget")
 		bool bIsInsideSetting = false;
+
 };
