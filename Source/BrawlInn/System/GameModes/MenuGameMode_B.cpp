@@ -99,7 +99,7 @@ void AMenuGameMode_B::HideMainMenu()
 	check(IsValid(MainMenuWidget));
 	check(PlayerControllers.IsValidIndex(0));
 
-	MainMenuWidget->RemoveFromParent();
+	MainMenuWidget->OnMainMenuHide();
 
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
@@ -133,6 +133,9 @@ void AMenuGameMode_B::OnMenuPlayButtonClicked()
 {
 	DisableControllerInputs();
 	HideMainMenu();
+
+	for (auto Controller : MenuPlayerControllers)
+		Controller->SetIsMenuMode(false);
 
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bPauseAtEnd = true;
@@ -180,7 +183,6 @@ void AMenuGameMode_B::OnIntroLevelSequencePaused()
 	CharacterSelectionOverlay->AddToViewport();
 	
 }
-
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
 {

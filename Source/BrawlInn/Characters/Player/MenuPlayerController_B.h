@@ -56,6 +56,12 @@ protected:
 
 	int CharacterVariantIndex = 0;
 
+public:
+	void SetIsMenuMode(bool Value);
+protected:
+	
+	bool bIsInMenuMode = true;
+
 	UPROPERTY()
 		ASelectionPawn_B* SelectionPawn;
 };

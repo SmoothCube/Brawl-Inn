@@ -148,7 +148,7 @@ void AMainGameMode_B::UpdateClock()
 void AMainGameMode_B::StartMultipleScore()
 {
 	bMultipleScore = true;
-	Overlay->DisplayText("HAPPY HOUR!", "DOUBLE THE SCORE, DOUBLE THE FUN!", 2.f);
+	Overlay->DisplayText("Time is running out...", "DOUBLE POINTS!!", 3.f);
 }
 
 bool AMainGameMode_B::MultipleScoreIsActivated() const
@@ -160,7 +160,7 @@ void AMainGameMode_B::StartGame()
 {
 	OnGameStart_Delegate.Broadcast();
 
-	Overlay->DisplayText("LET THE BRAWL, BEGIN!", "", 2.f);
+//	Overlay->DisplayText("","LET THE BRAWL, BEGIN!", 2.f);
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 

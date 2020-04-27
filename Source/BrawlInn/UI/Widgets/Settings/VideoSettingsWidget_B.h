@@ -8,6 +8,8 @@
 
 class UComboBoxString_B;
 class UButton_B;
+class UFont;
+class UTextBlock;
 
 UCLASS()
 class BRAWLINN_API UVideoSettingsWidget_B : public UUserWidget
@@ -31,6 +33,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* ApplyButton;
 
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ApplyText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* WindowText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ResolutionText;
+
 public:
 	// ********** Functions **********
 
@@ -52,6 +63,9 @@ protected:
 
 	// ********** Misc. **********
 
+	UPROPERTY(EditDefaultsOnly, Category = "Fonts")
+		UFont* AbadiMTFont = nullptr;
+	
 	TMap<FString, FIntPoint> ScreenResolutions;
 
 	UPROPERTY()
