@@ -40,7 +40,7 @@ void ABounceActor_B::BeginPlay()
 		Table->ConditionalBeginDestroy();
 	}
 	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
-
+	bIsThrown = true;
 }
 
 void ABounceActor_B::Tick(float DeltaTime)

@@ -109,7 +109,7 @@ private:
 
 	float EndFocusTime = 1.f;
 public:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TArray<AActor*> ActorsToTrack;
 
 };
