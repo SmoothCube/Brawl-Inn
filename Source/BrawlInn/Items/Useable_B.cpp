@@ -24,7 +24,7 @@ AUseable_B::AUseable_B()
 
 	Mesh->SetSimulatePhysics(false);
 
-	PickupCapsule->SetRelativeLocation(FVector(0, 37, 0));
+	PickupCapsule->SetRelativeLocation(FVector(0, -53.f, 0));
 	PickupCapsule->SetCapsuleHalfHeight(60);
 	PickupCapsule->SetCapsuleRadius(60);
 	PickupCapsule->SetCollisionProfileName("Powerup-CapsuleComponent");
@@ -59,7 +59,7 @@ void AUseable_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(!bIsHeld && !bIsFractured)
+	if(!bIsHeld && !bIsFractured && !bIsThrown)
 	{
 		const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
 		FVector BaseLocation = GetActorLocation();
@@ -85,7 +85,8 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));	//why do we find this here?
 	if (GameMode)
 
 		OwningCharacter = Player;
@@ -97,7 +98,8 @@ void AUseable_B::Dropped_Implementation()
 {
 	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(Rules);
-	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
+	Mesh->SetCollisionProfileName(FName("IgnoreOnlyPawn"));
+	
 	//Mesh->SetSimulatePhysics(true);
 	bIsHeld = false;
 	FlyHeigth = GetActorLocation().Z;
@@ -146,6 +148,7 @@ void AUseable_B::ThrowAway(FVector /*Direction*/)
 	Mesh->DestroyComponent();
 	DrinkMesh->DestroyComponent();
 	DestructibleComponent->SetSimulatePhysics(true);
+	bIsThrown = true;
 }
 
 void AUseable_B::StartDestroy()

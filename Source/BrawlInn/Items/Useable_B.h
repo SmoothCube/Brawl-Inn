@@ -74,8 +74,9 @@ protected:
 		virtual void ResetBoost();
 public:
 	void ThrowAway(FVector Direction);
-
 private:
+	bool bIsThrown = false;
+
 	// ********** Destroy/Fracture **********
 
 	FTimerHandle TH_Despawn;
