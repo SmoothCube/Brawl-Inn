@@ -128,8 +128,6 @@ void AMenuPlayerController_B::TrySelect()
 
 void AMenuPlayerController_B::Unselect()
 {
-	if (!PlayerCharacter)
-		return;
 
 	AMenuGameMode_B* MenuGameMode = Cast<AMenuGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (MenuGameMode)

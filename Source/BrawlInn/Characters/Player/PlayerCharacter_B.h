@@ -166,6 +166,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FPlayerInfo PlayerInfo;
 
+	AGamePlayerController_B* GetPlayerController() const;
 protected:
 	UPROPERTY()
 		AGamePlayerController_B* PlayerController = nullptr;

@@ -46,6 +46,7 @@ void AMenuGameMode_B::PrepareCharacterSelection()
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		PlayerCharacter->SetGameCamera(GameCamera);
 		PlayerCharacter->MakeInvulnerable(-1, false);
+		PlayerCharacter->SetActorHiddenInGame(true);
 		Characters.Add(PlayerCharacter);
 	}
 
@@ -185,14 +186,19 @@ void AMenuGameMode_B::OnIntroLevelSequencePaused()
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
 {
-	PlayersActive++;
-
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+	if(Characters[PlayerControllerID]->IsHidden())
+	{
+		Characters[PlayerControllerID]->SetActorHiddenInGame(false);
+		return;
+	}
+
 	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
 
 	FCharacterVariants& Variant = CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()];
 	Variant.bTaken = true;
 
+	PlayersActive++;
 	Info.CharacterVariant = Variant;
 	Info.ID = PlayerControllerID;
 
@@ -208,12 +214,19 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 
 void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected)
 {
+	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+
+	if (Characters[PlayerControllerID]->GetPlayerController() == nullptr)
+	{
+		Characters[PlayerControllerID]->SetActorHiddenInGame(true);
+		return;
+	}
+
 	PlayersActive--;
 
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
 
-	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
 
 	Character->SetActorTransform(CharacterStartTransforms[PlayerControllerID]);
 	Character->GetMovementComponent()->StopMovementImmediately();
@@ -230,6 +243,8 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 
 	if (PlayersActiveUpdated.IsBound())
 		PlayersActiveUpdated.Execute();
+	
+
 }
 
 void AMenuGameMode_B::UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* const SelectionPawn, const int ID)
@@ -241,8 +256,11 @@ void AMenuGameMode_B::UpdateCharacterVisuals(AMenuPlayerController_B* PlayerCont
 
 void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 {
-	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+	if (Characters[PlayerControllerID]->IsHidden())
+		return;
+	
+	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
 
 	FCharacterVariants Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
@@ -257,9 +275,11 @@ void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 
 void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 {
-	ASelectionPawn_B* SelectionPawn = PlayerController->GetSelectionPawn();
-
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+	if (Characters[PlayerControllerID]->IsHidden())
+		return;
+
+	ASelectionPawn_B* SelectionPawn = PlayerController->GetSelectionPawn();
 
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num()); // Set the next index as current index.
 

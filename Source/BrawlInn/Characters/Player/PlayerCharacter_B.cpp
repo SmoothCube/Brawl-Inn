@@ -459,6 +459,11 @@ void APlayerCharacter_B::AddStun(const int Strength)
 	}
 }
 
+AGamePlayerController_B* APlayerCharacter_B::GetPlayerController() const
+{
+	return PlayerController;
+}
+
 void APlayerCharacter_B::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -477,6 +482,7 @@ void APlayerCharacter_B::UnPossessed()
 	{
 		OldController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChanged.Remove(DisplayScoreVisualsHandle);
 	}
+	PlayerController = nullptr;
 
 	Super::UnPossessed();
 
