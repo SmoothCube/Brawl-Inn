@@ -259,11 +259,16 @@ void AMainGameMode_B::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(AMainGameMode_B, bShowGameOverlay))
+	const FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	if (PropertyName == NAME_None)
+		return;
+	
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AMainGameMode_B, bShowGameOverlay))
 	{
-		if (GetWorld()->IsPlayInEditor() && !bShowGameOverlay)
+		if (GetWorld()->IsPlayInEditor() && !bShowGameOverlay && Overlay)
 			Overlay->SetVisibility(ESlateVisibility::Hidden);
-		if (GetWorld()->IsPlayInEditor() && bShowGameOverlay)
+		if (GetWorld()->IsPlayInEditor() && bShowGameOverlay && Overlay)
 			Overlay->SetVisibility(ESlateVisibility::Visible);
 	}
 }
