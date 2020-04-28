@@ -16,6 +16,8 @@
 
 AUseable_B::AUseable_B()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	NiagaraSystemComponent = CreateDefaultSubobject<UNiagaraComponent>("Particle System");
 	NiagaraSystemComponent->SetRelativeLocation(FVector(0.f, -61.5f, 44.f));
 	NiagaraSystemComponent->SetupAttachment(RootComponent);
@@ -50,6 +52,27 @@ void AUseable_B::BeginPlay()
 {
 	Super::BeginPlay();
 	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FlyHeigth = GetActorLocation().Z;
+}
+
+void AUseable_B::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if(!bIsHeld && !bIsFractured)
+	{
+		const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
+		FVector BaseLocation = GetActorLocation();
+		BaseLocation.Z = FlyHeigth;
+
+		SetActorLocation(
+			FMath::Lerp(
+				GetActorLocation(),
+				BaseLocation
+				+ FVector(0.f, 0.f, Height + BobAmplitude),
+				LerpAlpha));
+		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
+	}
 }
 
 void AUseable_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -66,6 +89,8 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 	if (GameMode)
 
 		OwningCharacter = Player;
+
+	bIsHeld = true;
 }
 
 void AUseable_B::Dropped_Implementation()
@@ -73,7 +98,9 @@ void AUseable_B::Dropped_Implementation()
 	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(Rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamic"));
-	Mesh->SetSimulatePhysics(true);
+	//Mesh->SetSimulatePhysics(true);
+	bIsHeld = false;
+	FlyHeigth = GetActorLocation().Z;
 }
 
 void AUseable_B::Use_Implementation()
@@ -139,4 +166,9 @@ void AUseable_B::FellOutOfWorld(const UDamageType& dmgType)
 	{
 		Super::FellOutOfWorld(dmgType);
 	}
+}
+
+float AUseable_B::GetBobbingHeight(float Time)
+{
+	return 	BobAmplitude * FMath::Sin(Time * BobFrequency);
 }

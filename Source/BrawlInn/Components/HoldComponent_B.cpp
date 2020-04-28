@@ -16,6 +16,8 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 
 void UHoldComponent_B::BeginPlay()
 {
+
+
 	Super::BeginPlay();
 
 	// The Idle NPC can't use this ProfileName so for now I have set everything up in the blueprints!
