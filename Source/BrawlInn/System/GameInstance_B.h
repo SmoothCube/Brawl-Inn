@@ -48,11 +48,16 @@ protected:
 
 	UPROPERTY()
 		UAudioComponent* MainMusicComponent;
+
+	UPROPERTY()
+		UAudioComponent* AnnouncerVoiceComponent;
 public:
 
 	void StartAmbientSounds();
 
 	void SetAndPlayMusic(USoundCue* NewMusic);
+
+	void PlayAnnouncerLine(USoundCue* Line);
 
 	const USoundBase* GetCurrentMusic();
 

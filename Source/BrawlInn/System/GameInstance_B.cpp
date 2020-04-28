@@ -80,6 +80,27 @@ void UGameInstance_B::SetAndPlayMusic(USoundCue* NewMusic)
 	}
 }
 
+void UGameInstance_B::PlayAnnouncerLine(USoundCue* Line)
+{
+	if (Line)
+	{
+		if (!AnnouncerVoiceComponent)
+		{
+			AnnouncerVoiceComponent = UGameplayStatics::CreateSound2D(GetWorld(), Line, 1.f, 1.f, 0.f,{}, true);
+			AnnouncerVoiceComponent->Play();
+		}
+		else
+		{
+			AnnouncerVoiceComponent->SetSound(Line);
+			AnnouncerVoiceComponent->Play();
+		}
+	}
+	else
+	{
+		BWarn("Announcer voiceline invalid!");
+	}
+}
+
 const USoundBase* UGameInstance_B::GetCurrentMusic()
 {
 	if (MainMusicComponent)

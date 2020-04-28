@@ -105,14 +105,8 @@ void UBar_B::RandomOrder()
 	if (Customers.IsValidIndex(RandomIndex))
 		Customers[RandomIndex]->OrderDrink();
 
-	if (IsValid(DrinkReadySound))
-	{
-		UGameplayStatics::PlaySound2D(
-			GetWorld(),
-			DrinkReadySound,
-			1.f
-		);
-	}
+	if (GameInstance && DrinkReadySound)
+		GameInstance->PlayAnnouncerLine(DrinkReadySound);
 }
 
 void UBar_B::StartRandomOrder(const float Time)
