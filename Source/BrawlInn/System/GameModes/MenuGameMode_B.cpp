@@ -22,8 +22,7 @@ void AMenuGameMode_B::PostLevelLoad()
 {
 	Super::PostLevelLoad();
 
-	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
-	GameCamera->SetActorRotation(FRotator(0, -65, 0));
+	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());	
 	ACameraActor* IntroCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), IntroCamera_BP));
 	UpdateViewTargets(IntroCamera);
 

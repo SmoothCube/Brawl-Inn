@@ -9,7 +9,7 @@ ASelectionPawn_B::ASelectionPawn_B()
 
 	SpriteIcon = CreateDefaultSubobject<UPaperSpriteComponent>("SpriteIcon");
 	SetRootComponent(SpriteIcon);	
-	SpriteIcon->SetRelativeScale3D(FVector(0.2f));
+	SpriteIcon->SetRelativeScale3D(FVector(1.f));
 
 	SpriteIcon->SetGenerateOverlapEvents(false);
 	SpriteIcon->SetCollisionProfileName("NoCollision");
@@ -18,7 +18,7 @@ ASelectionPawn_B::ASelectionPawn_B()
 void ASelectionPawn_B::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorRotation(FRotator(0, 25, -25));
+	SetActorRotation(FRotator(0, 90, -40));
 }
 
 UPaperSpriteComponent* ASelectionPawn_B::GetSpriteIcon() const
