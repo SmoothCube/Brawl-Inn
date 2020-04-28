@@ -28,25 +28,21 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 	for (auto Board : StatBoards)
 	{
 		Board->StatsBox->ClearChildren();
-		for (int i = 0; i < 3; ++i)
+		for (int i = 0; i < 5; ++i)
 		{
 			UStatEntry_B* Item = CreateWidget<UStatEntry_B>(Board, BP_StatEntry);
-			const auto VerticalBoxSlot = Board->StatsBox->AddChildToVerticalBox(Item);
-			VerticalBoxSlot->Padding.Bottom = 10.f;
+			Board->StatsBox->AddChildToVerticalBox(Item);
 		}
 	}
-	CountNumbers.AddDefaulted(ScoreCountingOrder.Num());
+	CountNumbers.AddDefaulted(4);
 
-	for (auto Type : ScoreCountingOrder)
-	{
-		DisplayScores(Type);
-	}
-	/*
+	
 	DisplayScores(PunchesHit);
 	DisplayScores(OutOfMapDeaths);
 	DisplayScores(CrownTime);
+	DisplayScores(ThrowablesHit);
 	DisplayScores(BarrelsHit);
-	DisplayScores(Score);*/
+	DisplayScores(Score);
 
 }
 
