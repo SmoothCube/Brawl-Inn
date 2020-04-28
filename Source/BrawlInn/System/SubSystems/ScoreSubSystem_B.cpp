@@ -31,6 +31,10 @@ void UScoreSubSystem_B::AddStats(const int Value, const EScoreValueTypes Type)
 	case OutOfMapDeaths:
 		ScoreValues.OutOfMapDeaths += Value;
 		break;
+	case Score: break;
+	case BarrelsHit:
+		ScoreValues.BarrelsHit += Value;
+		break;
 	default:;
 	}
 }
