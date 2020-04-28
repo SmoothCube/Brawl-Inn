@@ -139,7 +139,6 @@ void AThrowable_B::BeginDespawn()
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	BWarn("Throwable Hit"); //TODO remove
 	if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		return;
 
