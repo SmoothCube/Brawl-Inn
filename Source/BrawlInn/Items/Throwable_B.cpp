@@ -153,7 +153,10 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		{
 			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 			HitPlayer->CheckFall(GetVelocity() * ThrowHitStrength);
+			BLog("HIT %s", *GetNameSafe(OtherComp));
 			UGameplayStatics::ApplyDamage(HitPlayer, ScoreAmount, OwningCharacter->GetController(), this, BP_DamageType);
+			PickupCapsule->OnComponentBeginOverlap.RemoveDynamic(this, &AItem_B::OnThrowOverlapBegin);
+
 		}
 	}
 

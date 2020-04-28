@@ -18,6 +18,8 @@
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
+#include "Hazards/BounceActor/BounceActor_B.h"
+#include "Items/Throwable_B.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "System/Camera/GameCamera_B.h"
@@ -58,7 +60,7 @@ APlayerCharacter_B::APlayerCharacter_B()
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
-	
+
 	ThrowStrength = 1000000.f;
 
 	FallRecoveryTime = 2.f;
@@ -248,7 +250,7 @@ void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
-//	DirectionIndicatorPlane->SetHiddenInGame(true);
+	//	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
 }
 
@@ -315,7 +317,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (EventInstigator == PlayerController)
 		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	
+
 	float Score = DamageAmount;
 	bool bIsMultiplied = false;
 	bool bIsAgainstLeader = false;
@@ -325,11 +327,11 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		bIsMultiplied = GameMode->MultipleScoreIsActivated();
 		if (bIsMultiplied)
 			Score *= 2;
-		
+
 		auto LeadingControllers = GameMode->GetLeadingPlayerController();
 
 		if ((LeadingControllers.Num() == 1) && (PlayerController == LeadingControllers[0]))
-		{	
+		{
 			Score *= 2;
 			bIsAgainstLeader = true;
 		}
@@ -344,7 +346,7 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		{
 			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
 			if (OtherPlayerController)
-				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score,bIsMultiplied, bIsAgainstLeader);
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score, bIsMultiplied, bIsAgainstLeader);
 		}
 		else
 		{
@@ -355,7 +357,18 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
 		if (OtherPlayerController)
+		{
 			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score, bIsMultiplied, bIsAgainstLeader);
+
+			if (DamageCauser->IsA(ABounceActor_B::StaticClass()))
+			{
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, EScoreValueTypes::BarrelsHit);
+			}
+			else if (DamageCauser->IsA(AThrowable_B::StaticClass()))
+			{
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, EScoreValueTypes::ThrowablesHit);
+			}
+		}
 	}
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -388,8 +401,8 @@ void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 	const float Pitch = FMath::RandRange(0.7f, 1.2f);
 
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), 1.f, Pitch);
-	
-	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded,ScoreValues.bIsMultiplied, ScoreValues.bIsAgainstLeader, PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
+
+	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded, ScoreValues.bIsMultiplied, ScoreValues.bIsAgainstLeader, PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
 
 	ScoreParticleTimerStart();
 }

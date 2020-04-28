@@ -35,13 +35,18 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 			VerticalBoxSlot->Padding.Bottom = 10.f;
 		}
 	}
-	CountNumbers.AddDefaulted(4);
+	CountNumbers.AddDefaulted(ScoreCountingOrder.Num());
 
+	for (auto Type : ScoreCountingOrder)
+	{
+		DisplayScores(Type);
+	}
+	/*
 	DisplayScores(PunchesHit);
 	DisplayScores(OutOfMapDeaths);
 	DisplayScores(CrownTime);
-	
-	DisplayScores(Score);
+	DisplayScores(BarrelsHit);
+	DisplayScores(Score);*/
 
 }
 
@@ -136,6 +141,14 @@ void UVictoryScreenWidget_B::DisplayScores(const EScoreValueTypes Type)
 			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsBox->GetChildAt(3));
 			Stat->Text->SetText(FText::FromString("THROWABLES HIT"));
 			AddToCountQueue(0, ScoreValues.ThrowablesHit, Stat->Number, PlayerInfos[i].ID);
+			break;
+		}
+		case BarrelsHit:
+		{
+
+			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsBox->GetChildAt(4));
+			Stat->Text->SetText(FText::FromString("Barrels Hit"));
+			AddToCountQueue(0, ScoreValues.BarrelsHit, Stat->Number, PlayerInfos[i].ID);
 			break;
 		}
 		default:;

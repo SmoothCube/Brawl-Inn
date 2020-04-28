@@ -93,5 +93,8 @@ protected:
 
 	TArray<FCountNumberQueue> CountNumbers;
 
+	UPROPERTY(EditAnywhere)
+	TArray<TEnumAsByte<EScoreValueTypes>> ScoreCountingOrder;
+
 	FNumberFormattingOptions FormattingOptions;
 };
