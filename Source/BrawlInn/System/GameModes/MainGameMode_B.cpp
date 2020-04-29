@@ -35,6 +35,7 @@ AMainGameMode_B::AMainGameMode_B()
 void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
+	FullGameTime = GameTimeRemaining;
 }
 
 void AMainGameMode_B::PostLevelLoad()
@@ -141,14 +142,49 @@ void AMainGameMode_B::UpdateClock()
 	if (GameTimeRemaining == TimeRemainingBeforeMultipleScore)
 		StartMultipleScore();
 
-	if (GameTimeRemaining < 0)
+	CheckTimeVoicelines();
+
+	if (GameTimeRemaining <= 0)
 		PostGame();
+
+}
+
+void AMainGameMode_B::CheckTimeVoicelines()
+{
+	if (!GameInstance) return;
+
+	if(GameTimeRemaining == 1)
+			GameInstance->PlayAnnouncerLine(OneSecondRemaining);
+
+	if (GameTimeRemaining == 2)
+		GameInstance->PlayAnnouncerLine(TwoSecondsRemaining);
+
+	if (GameTimeRemaining == 3)
+		GameInstance->PlayAnnouncerLine(ThreeSecondsRemaining);
+
+	if (GameTimeRemaining == 4)
+		GameInstance->PlayAnnouncerLine(FourSecondsRemaining);
+
+	if (GameTimeRemaining == 5)
+		GameInstance->PlayAnnouncerLine(FiveSecondsRemaining);
+
+	if (GameTimeRemaining == 10)
+		GameInstance->PlayAnnouncerLine(TenSecondsRemaining);
+
+	if (GameTimeRemaining == 60)
+		GameInstance->PlayAnnouncerLine(OneMinuteRemaining);
+
+	if (GameTimeRemaining == FullGameTime/2)
+		GameInstance->PlayAnnouncerLine(HalfwayPoint);
 }
 
 void AMainGameMode_B::StartMultipleScore()
 {
 	bMultipleScore = true;
 	Overlay->DisplayText("Time is running out...", "DOUBLE POINTS!!", 3.f);
+	if(GameInstance)
+		GameInstance->PlayAnnouncerLine(DoublePoints);
+
 }
 
 bool AMainGameMode_B::MultipleScoreIsActivated() const
@@ -194,10 +230,13 @@ void AMainGameMode_B::PostGame()
 
 	GameCamera->SetActorTickEnabled(false);
 	GameInstance->SetCameraSwapTransform(OutroCamera->GetActorTransform());
-
-	const float BlendTime = 3.f;
+	
+	GameInstance->PlayAnnouncerLine(RoundOver);
 
 	Overlay->DisplayText("TIME'S UP!", "", 2.f);
+	
+	const float BlendTime = 3.f;
+
 
 	UpdateViewTargets(OutroCamera, BlendTime, true);
 	BI::Delay(this, BlendTime, [&]() {UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName()); });

@@ -64,6 +64,8 @@ protected:
 	// ********** Game **********
 	void UpdateClock();
 
+	void CheckTimeVoicelines();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Clock")
 		int TimeRemainingBeforeMultipleScore = 20;
 
@@ -128,6 +130,31 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Countdown;
 
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* RoundOver;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* OneSecondRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* TwoSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* ThreeSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* FourSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* FiveSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* TenSecondsRemaining;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* OneMinuteRemaining;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* HalfwayPoint;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* DoublePoints;
+	
 
 private:
 
@@ -139,6 +166,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Clock")
 		int GameTimeRemaining = 300;
+
+	int FullGameTime = 0.f;
 
 	FTimerHandle TH_CountdownTimer;
 
