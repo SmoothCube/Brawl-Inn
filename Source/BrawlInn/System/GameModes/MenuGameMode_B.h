@@ -16,6 +16,7 @@ class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
 class ASelectionPawn_B;
+class USoundCue;
 
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
@@ -135,5 +136,8 @@ protected:
 		TArray<APlayerCharacter_B*> Characters;
 
 	TArray<FTransform> CharacterStartTransforms;
+	// ********** Sound **********
+	UPROPERTY(EditAnywhere)
+		USoundCue* DoorCloseLine;
 
 };
