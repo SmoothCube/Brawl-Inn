@@ -8,6 +8,7 @@
 #include "MenuGameMode_B.generated.h"
 
 DECLARE_DELEGATE(FPlayersActiveUpdated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAmountOfPlayersReadyChanged, int, AmountOfPlayersReady);
 
 class ULevelSequence;
 class UCharacterSelectionOverlay_B;
@@ -62,7 +63,7 @@ protected:
 	// ********** Ready up **********
 public:
 
-	void UpdateCharacterSelectionOverlay();
+	void UpdateCharacterSelectionOverlay() const;
 
 	int GetPlayersActive() const;
 
@@ -82,6 +83,9 @@ public:
 		void OnToGameLevelSequencePaused();
 
 	FPlayersActiveUpdated PlayersActiveUpdated;
+
+	UPROPERTY(BlueprintAssignable)
+	FAmountOfPlayersReadyChanged AmountOfPlayersReadyChanged;
 
 protected:
 	unsigned int PlayersActive = 0;

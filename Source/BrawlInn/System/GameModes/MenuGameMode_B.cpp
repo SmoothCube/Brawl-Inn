@@ -22,7 +22,7 @@ void AMenuGameMode_B::PostLevelLoad()
 {
 	Super::PostLevelLoad();
 
-	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());	
+	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	ACameraActor* IntroCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), IntroCamera_BP));
 	UpdateViewTargets(IntroCamera);
 
@@ -104,9 +104,9 @@ void AMenuGameMode_B::HideMainMenu()
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
-void AMenuGameMode_B::UpdateCharacterSelectionOverlay()
+void AMenuGameMode_B::UpdateCharacterSelectionOverlay() const
 {
-	CharacterSelectionOverlay->UpdateNumberOfPlayersReady(PlayersReady);
+	AmountOfPlayersReadyChanged.Broadcast(PlayersReady);
 }
 
 int AMenuGameMode_B::GetPlayersActive() const
@@ -148,16 +148,19 @@ void AMenuGameMode_B::OnMenuPlayButtonClicked()
 
 void AMenuGameMode_B::PrepareGameStart()
 {
+	if (CharacterSelectionOverlay)
+		CharacterSelectionOverlay->HideOverlay();
+
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bPauseAtEnd = true;
 	ALevelSequenceActor* OutActor;
 
 	checkf(ToGameLevelSequence, TEXT("ToGameLevelSequence is not set! Make sure to set it in the blueprint"));
 	ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), ToGameLevelSequence, Settings, OutActor);
-	
+
 	Player->Play();
 	Player->OnPause.AddDynamic(this, &AMenuGameMode_B::OnToGameLevelSequencePaused);
-	
+
 }
 
 void AMenuGameMode_B::OnToGameLevelSequencePaused()
@@ -165,14 +168,14 @@ void AMenuGameMode_B::OnToGameLevelSequencePaused()
 	ACameraActor* SequenceCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
 	check(IsValid(SequenceCamera));
 	check(IsValid(GameInstance));
-	
+
 	GameInstance->SetCameraSwapTransform(SequenceCamera->GetActorTransform());
 	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetGameMapName());
 }
 
 void AMenuGameMode_B::OnIntroLevelSequencePaused()
 {
-	ACameraActor* SequenceCamera =  Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
+	ACameraActor* SequenceCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
 	check(IsValid(SequenceCamera));
 	UpdateViewTargets(SequenceCamera, 1, true);
 
@@ -181,13 +184,13 @@ void AMenuGameMode_B::OnIntroLevelSequencePaused()
 	CharacterSelectionOverlay = CreateWidget<UCharacterSelectionOverlay_B>(GetWorld(), BP_CharacterSelectionOverlay);
 	check(IsValid(CharacterSelectionOverlay));
 	CharacterSelectionOverlay->AddToViewport();
-	
+
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
 {
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
-	if(Characters[PlayerControllerID]->IsHidden())
+	if (Characters[PlayerControllerID]->IsHidden())
 	{
 		Characters[PlayerControllerID]->SetActorHiddenInGame(false);
 		return;
@@ -243,7 +246,6 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 
 	if (PlayersActiveUpdated.IsBound())
 		PlayersActiveUpdated.Execute();
-	
 
 }
 
@@ -259,7 +261,7 @@ void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerController);
 	if (Characters[PlayerControllerID]->IsHidden())
 		return;
-	
+
 	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
 

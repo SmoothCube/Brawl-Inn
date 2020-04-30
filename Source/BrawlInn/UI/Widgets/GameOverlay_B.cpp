@@ -102,10 +102,10 @@ void UGameOverlay_B::UpdateScoreList()
 
 	for (auto Score : ScoreArray)
 	{
-		UVerticalBoxSlot* Slot = ScoreBox->AddChildToVerticalBox(Score);
+		UVerticalBoxSlot* VSlot = ScoreBox->AddChildToVerticalBox(Score);
 		FMargin Margin;
 		Margin.Bottom = 15.f;
-		Slot->SetPadding(Margin);
+		VSlot->SetPadding(Margin);
 	}
 }
 
