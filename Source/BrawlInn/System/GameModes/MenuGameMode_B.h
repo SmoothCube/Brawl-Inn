@@ -124,7 +124,7 @@ protected:
 		FVector SelectionIndicatorOffsetLocation = FVector(0, 0, 250);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Selection")
-		TArray<FCharacterVariants> CharacterVariants;
+		TArray<FPlayerInfo> CharacterVariants;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TArray<UPaperSprite*> SelectionIndicators;

@@ -164,7 +164,7 @@ void UVictoryScreenWidget_B::DisplayScores(const EScoreValueTypes Type)
 		{
 
 			UStatEntry_B* Stat = Cast<UStatEntry_B>(StatBoards[i]->StatsBox->GetChildAt(4));
-			Stat->Text->SetText(FText::FromString("Barrels Hit"));
+			Stat->Text->SetText(FText::FromString("BARRELS HIT"));
 			AddToCountQueue(0, ScoreValues.BarrelsHit, Stat->Number, PlayerInfos[i].ID);
 			break;
 		}
