@@ -9,8 +9,6 @@
 
 #include "MainGameMode_B.generated.h"
 
-
-
 class UBar_B;
 class ATriggerBox;
 class AGameCamera_B;
@@ -125,9 +123,9 @@ private:
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
 
-#if WITH_EDITOR
 	UPROPERTY(EditAnywhere, Category = "UserWidgets")
 	bool bShowGameOverlay = true;
+#if WITH_EDITOR
 
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif

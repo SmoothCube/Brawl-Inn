@@ -204,8 +204,11 @@ void APlayerCharacter_B::Die()
 
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
-	PlayerController->TryRespawn(RespawnDelay);
-	PlayerController->UnPossess();
+	if (PlayerController)
+	{
+		PlayerController->TryRespawn(RespawnDelay);
+		PlayerController->UnPossess();
+	}
 }
 
 void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
