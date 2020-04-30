@@ -36,7 +36,6 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 	}
 	CountNumbers.AddDefaulted(4);
 
-	
 	DisplayScores(PunchesHit);
 	DisplayScores(OutOfMapDeaths);
 	DisplayScores(CrownTime);
