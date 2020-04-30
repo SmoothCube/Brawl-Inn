@@ -340,7 +340,21 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	//Falling out of the map
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, OutOfMapDeaths);
+		if (PlayerController) //Something has gone wrong here before
+		{
+			if (PlayerController->GetLocalPlayer())
+			{
+				if (PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>())
+					PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, OutOfMapDeaths);
+				else
+					BError("Couldnt find ScoreSubSystem for actor %s! Something is wrong!", *GetNameSafe(this));
+			}
+			else
+				BError("Couldnt find LocalPlayer for actor %s! Something is wrong!", *GetNameSafe(this));
+		}
+		else
+			BError("Couldnt find PlayerController for actor %s! Something is wrong!", *GetNameSafe(this));
+
 
 		if (LastHitBy) // Hit by someone before falling out of the world!
 		{
