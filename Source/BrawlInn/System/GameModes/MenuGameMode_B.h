@@ -140,4 +140,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 		USoundCue* DoorCloseLine;
 
+	UPROPERTY(EditAnywhere)
+		USoundCue* WelcomeLine;
+
+	UPROPERTY(EditAnywhere)
+		USoundCue* CharacterSelectLine;
+
 };

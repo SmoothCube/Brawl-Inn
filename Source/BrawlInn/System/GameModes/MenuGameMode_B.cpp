@@ -92,6 +92,9 @@ void AMenuGameMode_B::ShowMainMenu()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
+
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(WelcomeLine);
 }
 
 void AMenuGameMode_B::HideMainMenu()
@@ -187,6 +190,9 @@ void AMenuGameMode_B::OnIntroLevelSequencePaused()
 	check(IsValid(CharacterSelectionOverlay));
 	CharacterSelectionOverlay->AddToViewport();
 
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(CharacterSelectLine);
+	BWarn("Intro Sequence Paused!"); //TODO remove
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
