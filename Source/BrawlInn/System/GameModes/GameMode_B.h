@@ -71,7 +71,7 @@ public:
 	UFUNCTION()
 	void RespawnCharacter(FPlayerInfo PlayerInfo);
 		
-	void SpawnRespawnPawn(FPlayerInfo PlayerInfo);
+	AActor* SpawnRespawnPawn(FPlayerInfo PlayerInfo);
 
 	FOnCharacterSpawn& OnCharacterSpawn();
 

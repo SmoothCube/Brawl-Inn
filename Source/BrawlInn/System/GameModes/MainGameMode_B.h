@@ -4,7 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "System/GameModes/GameMode_B.h"
+
+#include "Containers/Queue.h"
+
 #include "MainGameMode_B.generated.h"
+
+
 
 class UBar_B;
 class ATriggerBox;
@@ -35,6 +40,8 @@ protected:
 
 	void BeginPlay() override;
 
+	void Tick(float DeltaTime) override;
+	
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	// ********** Components **********
@@ -57,6 +64,9 @@ protected:
 
 public:
 	FGameStart& OnGameStart();
+
+	UFUNCTION()
+	void LastRespawnPawnDestroyed(AActor* DestroyedActor);
 
 protected:
 	FGameStart OnGameStart_Delegate;
@@ -130,6 +140,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Countdown;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* StartSound;
+
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* RoundOver;
 
@@ -175,6 +188,10 @@ private:
 		int TimeBeforeMultiplyScoreAgainstLeader = 2;
 
 	FTimerHandle TH_MultiplyScoresAgainstLeaderTimer;
+
+	float Delay = 0.25;
+	float CurrentTime = 0.0f;
+	TQueue<FPlayerInfo> PlayerSpawnQueue;
 
 	// ********** Leader **********
 public:

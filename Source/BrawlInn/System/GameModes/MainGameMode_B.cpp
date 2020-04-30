@@ -26,6 +26,7 @@
 #include "Hazards/Bar_B.h"
 #include "UI/Widgets/PauseMenu_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
+#include "Characters/Player/RespawnPawn_B.h"
 
 AMainGameMode_B::AMainGameMode_B()
 {
@@ -36,6 +37,22 @@ void AMainGameMode_B::BeginPlay()
 {
 	Super::BeginPlay();
 	FullGameTime = GameTimeRemaining;
+}
+
+void AMainGameMode_B::Tick(float DeltaTime)
+{
+	CurrentTime += DeltaTime;
+	if (!PlayerSpawnQueue.IsEmpty() && (CurrentTime > Delay))
+	{
+		CurrentTime = 0.f;
+		FPlayerInfo info = *PlayerSpawnQueue.Peek();
+		PlayerSpawnQueue.Pop();
+		AActor* Pawn = SpawnRespawnPawn(info);
+		if(PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
+		{
+			Pawn->OnDestroyed.AddDynamic(this, &AMainGameMode_B::LastRespawnPawnDestroyed);
+		}
+	}
 }
 
 void AMainGameMode_B::PostLevelLoad()
@@ -62,20 +79,19 @@ void AMainGameMode_B::PostLevelLoad()
 	Overlay->AddToViewport();
 
 	/// Spawns characters for the players
-	for (const FPlayerInfo Info : GameInstance->GetPlayerInfos())
+
+	for (FPlayerInfo Info : GameInstance->GetPlayerInfos())
 	{
 		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
 		if (!PlayerController) { BError("PlayerController for id %i not found. Check IDs in GameInstance", Info.ID); continue; }
 
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
-
-		SpawnRespawnPawn(Info);
+		PlayerSpawnQueue.Enqueue(Info);
 		//SpawnCharacter(Info, false, FTransform());
 	}
 
 	UpdateViewTargets();
-
 
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ATriggerBox::StaticClass(), "Camera", Actors);
@@ -102,16 +118,12 @@ void AMainGameMode_B::PreGame()
 	DisableControllerInputs();
 
 	UpdateViewTargets(FromCharacterSelectionCamera);
-
+	//if (GameInstance)
+	//	GameInstance->PlayAnnouncerLine();
 	//Swap camera after 1 second
 	BI::Delay(this, 1, [&]()
 		{
 			UpdateViewTargets(nullptr, 1, true);
-
-			//Start countdown after 1 second this because it takes one second for the PregameCountdownClock begins.
-			BI::Delay(this, 1, [&]() { PregameCountdown(); });
-
-			BI::Repeat(this, 1, 4, [&]() { PregameCountdownClock(); });
 		});
 }
 
@@ -196,7 +208,9 @@ void AMainGameMode_B::StartGame()
 {
 	OnGameStart_Delegate.Broadcast();
 
-	//	Overlay->DisplayText("","LET THE BRAWL, BEGIN!", 2.f);
+	UGameplayStatics::PlaySound2D(GetWorld(), StartSound, 1.f, 1.0f);
+
+	Overlay->DisplayText("","LET THE BRAWL BEGIN!", 2.f);
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
@@ -211,6 +225,15 @@ void AMainGameMode_B::StartGame()
 FGameStart& AMainGameMode_B::OnGameStart()
 {
 	return OnGameStart_Delegate;
+}
+
+void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
+{
+	BWarn("Starting Countdown");
+
+	BI::Delay(this, 1, [&]() { PregameCountdown(); });
+
+	BI::Repeat(this, 1, 4, [&]() { PregameCountdownClock(); });
 }
 
 void AMainGameMode_B::PostGame()

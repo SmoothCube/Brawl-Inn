@@ -161,10 +161,10 @@ FOnCharacterSpawn& AGameMode_B::OnCharacterSpawn()
 }
 
 // Når man respawner gjennom en barrel
-void AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
+AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
 {
 	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
-	if (!PlayerController) { BError("Can't find the PlayerController!"); return; }
+	if (!PlayerController) { BError("Can't find the PlayerController!"); return nullptr; }
 	APawn* Pawn = PlayerController->GetPawn();
 	if (IsValid(Pawn))
 		Pawn->Destroy();
@@ -188,6 +188,8 @@ void AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
 	PlayerController->SetPlayerCharacter(nullptr);
 
 	OnCharacterSpawn_Delegate.Broadcast();
+
+	return RespawnPawn;
 }
 
 // Når man respawner gjennom en barrel
