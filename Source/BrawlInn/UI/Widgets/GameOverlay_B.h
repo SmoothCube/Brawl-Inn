@@ -23,6 +23,13 @@ protected:
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowScoreBoardAndClock();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideScoreBoardAndClock();
+protected:
 	UPROPERTY(meta = (BindWidget))
 		UVerticalBox* ScoreBox;
 
@@ -47,10 +54,10 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable)
-	void OnFadeTextFinished(bool bIsPlayingForward);
+		void OnFadeTextFinished(bool bIsPlayingForward);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void PlayFadeTextAnimation(bool bIsPlayingForward);
+		void PlayFadeTextAnimation(bool bIsPlayingForward);
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* FirstTextLine;
