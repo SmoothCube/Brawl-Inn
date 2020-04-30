@@ -223,6 +223,7 @@ void AMainGameMode_B::PostGame()
 	LeaderFollower->Destroy();
 
 
+
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "EndGame", OutActors);
 	check(OutActors.Num() != 0);
@@ -234,6 +235,7 @@ void AMainGameMode_B::PostGame()
 	GameInstance->PlayAnnouncerLine(RoundOver);
 
 	Overlay->DisplayText("TIME'S UP!", "", 2.f);
+	Overlay->HideScoreBoardAndClock();
 	
 	const float BlendTime = 3.f;
 

@@ -3,6 +3,7 @@
 #include "GameOverlay_B.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBoxSlot.h"
 #include "Components/VerticalBox.h"
 
 #include "BrawlInn.h"
@@ -38,6 +39,8 @@ void UGameOverlay_B::NativeOnInitialized()
 
 	FirstTextLine->SetVisibility(ESlateVisibility::Hidden);
 	SecondTextLine->SetVisibility(ESlateVisibility::Hidden);
+
+	ShowScoreBoardAndClock();
 }
 
 void UGameOverlay_B::NativeTick(const FGeometry& MyGeometry, const float InDeltaTime)
@@ -64,7 +67,7 @@ void UGameOverlay_B::DisplayText(const FString FirstLine, const FString SecondLi
 {
 	FirstTextLine->SetText(FText::FromString(FirstLine));
 	SecondTextLine->SetText(FText::FromString(SecondLine));
-	
+
 	DisplayTime = TimeToDisplay;
 	CurrentDisplayTime = 0.f;
 	FirstTextLine->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -98,7 +101,12 @@ void UGameOverlay_B::UpdateScoreList()
 	ScoreBox->ClearChildren();
 
 	for (auto Score : ScoreArray)
-		ScoreBox->AddChildToVerticalBox(Score);
+	{
+		UVerticalBoxSlot* Slot = ScoreBox->AddChildToVerticalBox(Score);
+		FMargin Margin;
+		Margin.Bottom = 15.f;
+		Slot->SetPadding(Margin);
+	}
 }
 
 void UGameOverlay_B::UpdateTimerText(const int TimeRemaining)
