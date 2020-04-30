@@ -50,6 +50,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 		AActor* Pawn = SpawnRespawnPawn(info);
 		if(PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
 		{
+			//LastRespawnPawnDestroyed(Pawn);
 			Pawn->OnDestroyed.AddDynamic(this, &AMainGameMode_B::LastRespawnPawnDestroyed);
 		}
 	}
@@ -134,7 +135,7 @@ void AMainGameMode_B::PregameCountdown()
 	UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 1.f, 1.0f);
 
 	// Start game when sound is finished
-	BI::Delay(this, Countdown->GetDuration() - 1.f, [&]() {StartGame(); });
+	BI::Delay(this, Countdown->GetDuration() - 0.75f, [&]() {StartGame(); });
 }
 
 void AMainGameMode_B::PregameCountdownClock()
@@ -233,7 +234,7 @@ void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
 
 	BI::Delay(this, 1, [&]() { PregameCountdown(); });
 
-	BI::Repeat(this, 1, 4, [&]() { PregameCountdownClock(); });
+	//BI::Repeat(this, 1, 4, [&]() { PregameCountdownClock(); });
 }
 
 void AMainGameMode_B::PostGame()

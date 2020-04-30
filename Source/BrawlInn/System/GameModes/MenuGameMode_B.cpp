@@ -158,6 +158,8 @@ void AMenuGameMode_B::PrepareGameStart()
 	Player->Play();
 	Player->OnPause.AddDynamic(this, &AMenuGameMode_B::OnToGameLevelSequencePaused);
 	
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(DoorCloseLine);
 }
 
 void AMenuGameMode_B::OnToGameLevelSequencePaused()
