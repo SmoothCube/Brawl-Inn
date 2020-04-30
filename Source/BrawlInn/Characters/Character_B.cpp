@@ -551,6 +551,11 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	case EChargeLevel::EChargeLevel1:
 		ShouldPlaySound = false;
 		SoundPitch = 0.8f;
+		if (IsCharging())
+		{
+			GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
+			GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
+		}
 		break;
 	case EChargeLevel::EChargeLevel2:
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;

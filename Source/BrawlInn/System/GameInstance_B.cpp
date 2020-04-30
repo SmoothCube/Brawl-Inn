@@ -91,6 +91,7 @@ void UGameInstance_B::PlayAnnouncerLine(USoundCue* Line)
 		}
 		else
 		{
+
 			AnnouncerVoiceComponent->SetSound(Line);
 			AnnouncerVoiceComponent->Play();
 		}

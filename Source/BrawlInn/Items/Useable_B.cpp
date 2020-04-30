@@ -98,7 +98,8 @@ void AUseable_B::Dropped_Implementation()
 {
 	const FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	DetachFromActor(Rules);
-	Mesh->SetCollisionProfileName(FName("IgnoreOnlyPawn"));
+	if(Mesh)
+		Mesh->SetCollisionProfileName(FName("IgnoreOnlyPawn"));
 	
 	//Mesh->SetSimulatePhysics(true);
 	bIsHeld = false;
