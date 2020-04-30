@@ -97,4 +97,15 @@ protected:
 	TArray<TEnumAsByte<EScoreValueTypes>> ScoreCountingOrder;
 
 	FNumberFormattingOptions FormattingOptions;
+
+	// ********** Color **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Color", meta = (ToolTip = "Assumes: Red,Green,Purple,Blue"))
+	TArray<FLinearColor> BackgroundColorsInOrder;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Color", meta = (ToolTip = "Assumes: Red,Green,Purple,Blue"))
+		TArray<UTexture*> BannerBotInOrder;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Color", meta = (ToolTip = "Assumes: Red,Green,Purple,Blue"))
+		TArray<UTexture*> BannerTopInOrder;
 };

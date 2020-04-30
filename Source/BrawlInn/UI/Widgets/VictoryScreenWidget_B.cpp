@@ -8,6 +8,8 @@
 #include "VerticalBoxSlot.h"
 
 #include "BrawlInn.h"
+#include "Image.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "System/GameInstance_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/Button_B.h"
@@ -31,9 +33,29 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 		for (int i = 0; i < 5; ++i)
 		{
 			UStatEntry_B* Item = CreateWidget<UStatEntry_B>(Board, BP_StatEntry);
-			Board->StatsBox->AddChildToVerticalBox(Item);
+			UVerticalBoxSlot* VSlot = Board->StatsBox->AddChildToVerticalBox(Item);
+			VSlot->SetPadding(FMargin(0, 0, 0, 10.f));
 		}
 	}
+
+		//Update backgroundcolors
+	if (BackgroundColorsInOrder.Num() != 0 && BannerBotInOrder.Num() != 0 && BannerTopInOrder.Num() != 0)
+	{
+		const TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
+		for (int i = 0; i < PlayerInfos.Num(); ++i)
+		{
+			if (StatBoards[i]->BackgroundMaterial)
+			{
+				StatBoards[i]->BackgroundMaterial->SetVectorParameterValue("BaseColor", BackgroundColorsInOrder[static_cast<int>(PlayerInfos[i].Type)]);
+				StatBoards[i]->BannerBot->Brush.SetResourceObject(BannerBotInOrder[static_cast<int>(PlayerInfos[i].Type)]);
+				StatBoards[i]->BannerTop->Brush.SetResourceObject(BannerTopInOrder[static_cast<int>(PlayerInfos[i].Type)]);
+				BLog("%i", static_cast<int>(PlayerInfos[i].Type));
+			}
+		}
+
+	}
+
+
 	CountNumbers.AddDefaulted(4);
 
 	DisplayScores(PunchesHit);
