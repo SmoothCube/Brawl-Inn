@@ -134,10 +134,8 @@ void AMainGameMode_B::PregameCountdown()
 
 	if (GameInstance)
 		GameInstance->PlayAnnouncerLine(Countdown);
-//	UGameplayStatics::PlaySound2D(GetWorld(), Countdown, 1.f, 1.0f);
 
 	// Start game when sound is finished
-	BWarn("Countdown time: %f", Countdown->GetDuration() - 0.75f);
 	BI::Delay(this, Countdown->GetDuration() - 0.75f, [&]() {StartGame(); });
 }
 
