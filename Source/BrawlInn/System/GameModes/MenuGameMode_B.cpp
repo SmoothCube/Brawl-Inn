@@ -15,6 +15,7 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
+#include "System/Utils.h"
 #include "UI/Widgets/MainMenu_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
@@ -92,6 +93,17 @@ void AMenuGameMode_B::ShowMainMenu()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
+
+	if (GameInstance)
+		GameInstance->SetAndPlayMusic(Music);
+
+
+	BI::Delay(this, TimeBeforeWelcomeLine, [&]()
+		{
+
+			if (GameInstance)
+				GameInstance->PlayAnnouncerLine(WelcomeLine);
+		});
 }
 
 void AMenuGameMode_B::HideMainMenu()
@@ -187,6 +199,9 @@ void AMenuGameMode_B::OnIntroLevelSequencePaused()
 	check(IsValid(CharacterSelectionOverlay));
 	CharacterSelectionOverlay->AddToViewport();
 
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(CharacterSelectLine);
+	BWarn("Intro Sequence Paused!"); //TODO remove
 }
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
