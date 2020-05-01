@@ -15,6 +15,7 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
+#include "System/Utils.h"
 #include "UI/Widgets/MainMenu_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
@@ -23,7 +24,6 @@ void AMenuGameMode_B::PostLevelLoad()
 	Super::PostLevelLoad();
 
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
-	GameCamera->SetActorRotation(FRotator(0, -65, 0));
 	ACameraActor* IntroCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), IntroCamera_BP));
 	UpdateViewTargets(IntroCamera);
 
@@ -47,6 +47,7 @@ void AMenuGameMode_B::PrepareCharacterSelection()
 		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(Character);
 		PlayerCharacter->SetGameCamera(GameCamera);
 		PlayerCharacter->MakeInvulnerable(-1, false);
+		PlayerCharacter->SetActorHiddenInGame(true);
 		Characters.Add(PlayerCharacter);
 	}
 
@@ -69,7 +70,7 @@ void AMenuGameMode_B::PrepareCharacterSelection()
 
 		SelectionPawn->GetSpriteIcon()->SetSprite(SelectionIndicators[i]);
 
-		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[i].TextColor);
+		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[i].CharacterVariant.TextColor);
 
 		SelectionPawn->SetActorLocation(Characters[i]->GetActorLocation() + SelectionIndicatorOffsetLocation);
 
@@ -92,6 +93,17 @@ void AMenuGameMode_B::ShowMainMenu()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 
 	PlayerControllers[0]->SetInputMode(InputModeData);
+
+	if (GameInstance)
+		GameInstance->SetAndPlayMusic(Music);
+
+
+	BI::Delay(this, TimeBeforeWelcomeLine, [&]()
+		{
+
+			if (GameInstance)
+				GameInstance->PlayAnnouncerLine(WelcomeLine);
+		});
 }
 
 void AMenuGameMode_B::HideMainMenu()
@@ -99,14 +111,14 @@ void AMenuGameMode_B::HideMainMenu()
 	check(IsValid(MainMenuWidget));
 	check(PlayerControllers.IsValidIndex(0));
 
-	MainMenuWidget->RemoveFromParent();
+	MainMenuWidget->OnMainMenuHide();
 
 	PlayerControllers[0]->SetInputMode(FInputModeGameOnly());
 }
 
-void AMenuGameMode_B::UpdateCharacterSelectionOverlay()
+void AMenuGameMode_B::UpdateCharacterSelectionOverlay() const
 {
-	CharacterSelectionOverlay->UpdateNumberOfPlayersReady(PlayersReady);
+	AmountOfPlayersReadyChanged.Broadcast(PlayersReady);
 }
 
 int AMenuGameMode_B::GetPlayersActive() const
@@ -134,6 +146,9 @@ void AMenuGameMode_B::OnMenuPlayButtonClicked()
 	DisableControllerInputs();
 	HideMainMenu();
 
+	for (auto Controller : MenuPlayerControllers)
+		Controller->SetIsMenuMode(false);
+
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bPauseAtEnd = true;
 	ALevelSequenceActor* OutActor;
@@ -145,16 +160,21 @@ void AMenuGameMode_B::OnMenuPlayButtonClicked()
 
 void AMenuGameMode_B::PrepareGameStart()
 {
+	if (CharacterSelectionOverlay)
+		CharacterSelectionOverlay->HideOverlay();
+
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bPauseAtEnd = true;
 	ALevelSequenceActor* OutActor;
 
 	checkf(ToGameLevelSequence, TEXT("ToGameLevelSequence is not set! Make sure to set it in the blueprint"));
 	ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), ToGameLevelSequence, Settings, OutActor);
-	
+
 	Player->Play();
 	Player->OnPause.AddDynamic(this, &AMenuGameMode_B::OnToGameLevelSequencePaused);
-	
+
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(DoorCloseLine);
 }
 
 void AMenuGameMode_B::OnToGameLevelSequencePaused()
@@ -162,14 +182,14 @@ void AMenuGameMode_B::OnToGameLevelSequencePaused()
 	ACameraActor* SequenceCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
 	check(IsValid(SequenceCamera));
 	check(IsValid(GameInstance));
-	
+
 	GameInstance->SetCameraSwapTransform(SequenceCamera->GetActorTransform());
 	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetGameMapName());
 }
 
 void AMenuGameMode_B::OnIntroLevelSequencePaused()
 {
-	ACameraActor* SequenceCamera =  Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
+	ACameraActor* SequenceCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
 	check(IsValid(SequenceCamera));
 	UpdateViewTargets(SequenceCamera, 1, true);
 
@@ -178,21 +198,26 @@ void AMenuGameMode_B::OnIntroLevelSequencePaused()
 	CharacterSelectionOverlay = CreateWidget<UCharacterSelectionOverlay_B>(GetWorld(), BP_CharacterSelectionOverlay);
 	check(IsValid(CharacterSelectionOverlay));
 	CharacterSelectionOverlay->AddToViewport();
-	
-}
 
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(CharacterSelectLine);
+	BWarn("Intro Sequence Paused!"); //TODO remove
+}
 
 void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelected, const int Index)
 {
-	PlayersActive++;
-
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
-	FPlayerInfo Info = PlayerControllerThatSelected->GetPlayerInfo();
+	if (Characters[PlayerControllerID]->IsHidden())
+	{
+		Characters[PlayerControllerID]->SetActorHiddenInGame(false);
+		return;
+	}
 
-	FCharacterVariants& Variant = CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()];
-	Variant.bTaken = true;
+	FPlayerInfo& Variant = CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()];
+	Variant.CharacterVariant.bTaken = true;
 
-	Info.CharacterVariant = Variant;
+	PlayersActive++;
+	FPlayerInfo Info = Variant;
 	Info.ID = PlayerControllerID;
 
 	PlayerControllerThatSelected->GetSelectionPawn()->SetActorHiddenInGame(true);
@@ -207,12 +232,19 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 
 void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected)
 {
+	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
+
+	if (Characters[PlayerControllerID]->GetPlayerController() == nullptr)
+	{
+		Characters[PlayerControllerID]->SetActorHiddenInGame(true);
+		return;
+	}
+
 	PlayersActive--;
 
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
 
-	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
 
 	Character->SetActorTransform(CharacterStartTransforms[PlayerControllerID]);
 	Character->GetMovementComponent()->StopMovementImmediately();
@@ -222,30 +254,35 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	Info.CharacterVariant = FCharacterVariants();
 	PlayerControllerThatSelected->SetPlayerInfo(Info);
 
-	CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()].bTaken = false;
+	CharacterVariants[PlayerControllerThatSelected->GetCharacterVariantIndex()].CharacterVariant.bTaken = false;
 
 	PlayerControllerThatSelected->Possess(PlayerControllerThatSelected->GetSelectionPawn());
 	PlayerControllerThatSelected->GetSelectionPawn()->SetActorHiddenInGame(false);
 
 	if (PlayersActiveUpdated.IsBound())
 		PlayersActiveUpdated.Execute();
+
 }
 
 void AMenuGameMode_B::UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* const SelectionPawn, const int ID)
 {
-	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].MeshMaterial);
-	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].IndicatorMaterial);
-	SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].TextColor);
+	Characters[ID]->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, CharacterVariants[PlayerController->GetCharacterVariantIndex()].CharacterVariant.MeshMaterial);
+	Characters[ID]->GetDirectionIndicatorPlane()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, CharacterVariants[PlayerController->GetCharacterVariantIndex()].CharacterVariant.IndicatorMaterial);
+	if (SelectionPawn && SelectionPawn->GetSpriteIcon())
+		SelectionPawn->GetSpriteIcon()->SetSpriteColor(CharacterVariants[PlayerController->GetCharacterVariantIndex()].CharacterVariant.TextColor);
 }
 
 void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 {
-	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+	if (Characters[PlayerControllerID]->IsHidden())
+		return;
+
+	const auto SelectionPawn = PlayerController->GetSelectionPawn();
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
 
-	FCharacterVariants Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
-	while (Variant.bTaken == true)
+	FPlayerInfo Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	while (Variant.CharacterVariant.bTaken == true)
 	{
 		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() ? PlayerController->GetCharacterVariantIndex() : CharacterVariants.Num()) - 1);
 		Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
@@ -256,14 +293,16 @@ void AMenuGameMode_B::HoverLeft(AMenuPlayerController_B* PlayerController)
 
 void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 {
-	ASelectionPawn_B* SelectionPawn = PlayerController->GetSelectionPawn();
-
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+	if (Characters[PlayerControllerID]->IsHidden())
+		return;
+
+	ASelectionPawn_B* SelectionPawn = PlayerController->GetSelectionPawn();
 
 	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num()); // Set the next index as current index.
 
-	FCharacterVariants Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
-	while (Variant.bTaken == true)
+	FPlayerInfo Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	while (Variant.CharacterVariant.bTaken == true)
 	{
 		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num());
 		Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
@@ -287,7 +326,7 @@ void AMenuGameMode_B::UpdateOtherSelections()
 
 		for (int i = 0; i < CharacterVariants.Num(); i++)
 		{
-			if (CharacterVariants[i].bTaken == true)
+			if (CharacterVariants[i].CharacterVariant.bTaken == true)
 			{
 				if (Controller->GetCharacterVariantIndex() == i)
 					HoverRight(Controller);

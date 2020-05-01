@@ -28,10 +28,9 @@ void ALeaderFollower_B::BeginPlay()
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		GameMode->OnAnyScoreChange.AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
+		GameMode->OnAnyScoreChange().AddUObject(this, &ALeaderFollower_B::ScoreUpdated);
 	}
 	ScoreUpdated();
-
 }
 
 void ALeaderFollower_B::Tick(float DeltaTime)
@@ -47,9 +46,12 @@ void ALeaderFollower_B::Tick(float DeltaTime)
 		SetActorLocation(
 			FMath::Lerp(
 				GetActorLocation(),
-				PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector().ToOrientationRotator().RotateVector(Offset) + FVector(0.f, 0.f, Height + BobAmplitude),
+				PlayerPawn->GetActorLocation()
+				+ PlayerPawn->GetActorForwardVector().ToOrientationRotator().RotateVector(Offset)
+				+ FVector(0.f, 0.f, AnimationZOffset)
+				+ FVector(0.f, 0.f, Height + BobAmplitude),
 				LerpAlpha));
-		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
+		AddActorLocalRotation(FRotator(0.f, RotationSpeed+ AnimationRotationIncrease, 0.f));
 	}
 }
 
@@ -57,12 +59,12 @@ void ALeaderFollower_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 
 	if (LeadingPlayerController && LeadingPlayerController->GetLocalPlayer() && LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>())
-		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(static_cast<int>(CurrentCrownTime), CrownTime); //the engine crashed here when I pressed escape once
+		LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(static_cast<int>(CurrentCrownTime), CrownTime); //the engine crashed here when I pressed escape once
 
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
-		GameMode->OnAnyScoreChange.RemoveAll(this);
+		GameMode->OnAnyScoreChange().RemoveAll(this);
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -78,18 +80,20 @@ void ALeaderFollower_B::ScoreUpdated()
 		{
 			if (FoundLeadingPlayerController[0]->GetPawn())
 			{
-				Mesh->SetHiddenInGame(false);
-				if ((FoundLeadingPlayerController[0] != LeadingPlayerController) && LeadingPlayerController)
+				if ((FoundLeadingPlayerController[0] != LeadingPlayerController))
 				{
-					LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(static_cast<int>(CurrentCrownTime), CrownTime);
+					if(LeadingPlayerController)
+						LeadingPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(static_cast<int>(CurrentCrownTime), CrownTime);
+					NextControllerToFollow = FoundLeadingPlayerController[0];
+					Dissapear();
+					CurrentCrownTime = 0;
 				}
-				CurrentCrownTime = 0;
-				LeadingPlayerController = FoundLeadingPlayerController[0];
 			}
 		}
 		else
 		{
-			Mesh->SetHiddenInGame(true);
+			NextControllerToFollow = nullptr;
+			Dissapear();
 		}
 	}
 }
@@ -97,4 +101,22 @@ void ALeaderFollower_B::ScoreUpdated()
 float ALeaderFollower_B::GetBobbingHeight(float Time)
 {
 	return 	BobAmplitude * FMath::Sin(Time * BobFrequency);
+}
+
+void ALeaderFollower_B::AnimationTimelineFinished(bool bAppeared)
+{
+	//if dissapeared, swap leader and appear
+	if (!bAppeared)
+	{
+		if (NextControllerToFollow)
+		{
+			LeadingPlayerController = NextControllerToFollow;
+			NextControllerToFollow = nullptr;
+			Appear();
+		}
+		else
+		{
+			LeadingPlayerController = nullptr;
+		}
+	}
 }

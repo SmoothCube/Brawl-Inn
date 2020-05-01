@@ -3,6 +3,7 @@
 #include "HoldComponent_B.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/PunchComponent_B.h"
 #include "Items/Useable_B.h"
@@ -15,6 +16,8 @@ UHoldComponent_B::UHoldComponent_B(const FObjectInitializer& ObjectInitializer)
 
 void UHoldComponent_B::BeginPlay()
 {
+
+
 	Super::BeginPlay();
 
 	// The Idle NPC can't use this ProfileName so for now I have set everything up in the blueprints!
@@ -97,7 +100,6 @@ bool UHoldComponent_B::TryPickup()
 			NearestItem = ThrowableItemsInCone[0];
 		break;
 	}
-
 	IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(NearestItem);
 	if (Interface && Interface->Execute_CanBeHeld(NearestItem))
 	{

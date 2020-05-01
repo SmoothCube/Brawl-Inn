@@ -7,6 +7,8 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 
+//#include "DrawDebugHelpers.h"
+
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
@@ -28,10 +30,9 @@ void UThrowComponent_B::BeginPlay()
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SpawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
-		GameMode->OnRespawnCharacter_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnCharacterSpawn().AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
 #if WITH_EDITOR
-		GameMode->DespawnCharacter_NOPARAM_D.AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnCharacterDespawn().AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
 #endif
 	}
 	HoldComponent = OwningCharacter->HoldComponent;
@@ -49,23 +50,24 @@ void UThrowComponent_B::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UThrowComponent_B::TryStartCharge()
+void UThrowComponent_B::StartThrow()
 {
 	if (!IsReady())
 	{
 		BWarn("Not Ready To Throw");
-		return false;
+		return;
 	}
 	else if (!HoldComponent->IsHolding())
 	{
 		BWarn("Not Holding Item!");
-		return false;
+		return;
 	}
 	else if (!(OwningCharacter->GetState() == EState::EHolding))
 	{
 		BWarn("Wrong Player State");
-		return false;
+		return;
 	}
+
 
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
 	if (Useable)
@@ -73,25 +75,12 @@ bool UThrowComponent_B::TryStartCharge()
 		StartDrinking();
 
 		GetWorld()->GetTimerManager().SetTimer(TH_DrinkTimer, this, &UThrowComponent_B::FinishDrinking, Useable->GetUseTime());
-	}
-	else if (OwningCharacter->GetChargeParticle())
-	{
-		OwningCharacter->SetIsCharging(true);
-		OwningCharacter->GetChargeParticle()->Activate();
+		return;
 	}
 
-	return true;
-}
-
-void UThrowComponent_B::StartThrow()
-{
-	if (HoldComponent)
-		if (HoldComponent->GetHoldingItem()->IsA(AUseable_B::StaticClass()))
-			return;
-	if (OwningCharacter->IsCharging())
+	if (OwningCharacter)
 	{
-		OwningCharacter->SetIsCharging(false);
-		if (OwningCharacter && OwningCharacter->GetChargeParticle())
+		if (OwningCharacter->GetChargeParticle())
 			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
 	}
@@ -170,13 +159,8 @@ void UThrowComponent_B::CancelDrinking()
 	{
 		OwningCharacter->PunchComponent->SetCanPunch(true);
 		OwningCharacter->PunchComponent->SetCanDash(true);
-		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(HoldComponent->GetHoldingItem());
-		if (Interface)
-		{
-			Interface->Execute_Dropped(HoldComponent->GetHoldingItem());
-		}
-		HoldComponent->SetHoldingItem(nullptr);
-		OwningCharacter->SetState(EState::EWalking);
+		if (HoldComponent)
+			HoldComponent->Drop();
 
 		OwningCharacter->SetIsCharging(false);
 		bIsThrowing = false;
@@ -309,6 +293,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	FVector ThrowDirection = TargetLocation - HoldComponent->GetHoldingItem()->GetActorLocation();
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 
+	//DrawDebugPoint(GetWorld(), TargetLocation, 10.f, FColor::Red, false, 10.f);
 	return true;
 }
 

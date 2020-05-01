@@ -21,6 +21,15 @@ protected:
 
 	virtual void NativeOnInitialized() override;
 
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowScoreBoardAndClock();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideScoreBoardAndClock();
+protected:
 	UPROPERTY(meta = (BindWidget))
 		UVerticalBox* ScoreBox;
 
@@ -39,12 +48,34 @@ protected:
 	UPROPERTY()
 		AMainGameMode_B* GameMode = nullptr;
 
+	// ********** Text **********
+public:
+	void DisplayText(FString FirstLine, FString SecondLine, float TimeToDisplay);
+protected:
+
+	UFUNCTION(BlueprintCallable)
+		void OnFadeTextFinished(bool bIsPlayingForward);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayFadeTextAnimation(bool bIsPlayingForward);
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* FirstTextLine;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* SecondTextLine;
+
+	bool bShouldDisplay = false;
+
+	float DisplayTime = 0.f;
+	float CurrentDisplayTime = 0.f;
+
 	// ********** Score **********
 
 	void UpdateScoreList();
 
 	UPROPERTY(BlueprintReadWrite)
-	TArray<UColoredTextBlock_B*> ScoreArray;
+		TArray<UColoredTextBlock_B*> ScoreArray;
 
 
 	// ********** Timer **********

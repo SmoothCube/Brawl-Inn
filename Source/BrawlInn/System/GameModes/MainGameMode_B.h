@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "System/GameModes/GameMode_B.h"
+
+#include "Containers/Queue.h"
+
 #include "MainGameMode_B.generated.h"
 
 class UBar_B;
@@ -17,7 +20,6 @@ class ACameraActor;
 class UAudioComponent;
 class ALeaderFollower_B;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerWin, AGamePlayerController_B*);
 DECLARE_EVENT(AMainGameMode_B, FGameStart);
 DECLARE_EVENT(AMainGameMode_B, FOnAnyScoreChange);
 
@@ -36,6 +38,8 @@ protected:
 
 	void BeginPlay() override;
 
+	void Tick(float DeltaTime) override;
+	
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	// ********** Components **********
@@ -54,52 +58,64 @@ protected:
 
 	void PregameCountdownClock();
 
+	void StartGame();
+
+public:
+	FGameStart& OnGameStart();
+
+	UFUNCTION()
+	void LastRespawnPawnDestroyed(AActor* DestroyedActor);
+
+protected:
+	FGameStart OnGameStart_Delegate;
 
 	// ********** Game **********
 	void UpdateClock();
 
+	void CheckTimeVoicelines();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Clock")
+		int TimeRemainingBeforeMultipleScore = 20;
+
+	void StartMultipleScore();
+
+public:
+	bool MultipleScoreIsActivated() const;
+protected:
+	bool bMultipleScore = false;
+
 	// ********** PostGame **********
+	void PostGame();
 
 	bool bGameIsOver = false;
 
-	// ********** Game States **********
-	void StartGame();
-
-	void EndGame();
-
+	// ********** Score	 **********
 public:
 
-	FPlayerWin OnPlayerWin;
-	FGameStart OnGameStart;
+	FOnAnyScoreChange& OnAnyScoreChange();
 
-	// ********** Score	 **********
+protected:
+
+	FOnAnyScoreChange OnAnyScoreChange_Delegate;
+
 	void SortPlayerControllersByScore(TArray<APlayerController_B*>& TempPlayerControllers);
-
-	FOnAnyScoreChange OnAnyScoreChange;
 
 	void CallOnAnyScoreChange() const;
 
-	// ********** Tracking **********
+	// ********** Camera **********
 	UFUNCTION()
 		void OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
 
 	UPROPERTY()
 		ATriggerBox* TrackingBox = nullptr;
 
-protected:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		TSubclassOf<ACameraActor> BP_FromCharacterSelectionCamera;
-	// ********** UI **********
 
 	UPROPERTY()
 		ACameraActor* FromCharacterSelectionCamera = nullptr;
 
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
-		TSubclassOf<UVictoryScreenWidget_B> BP_VictoryScreen;
+	// ********** UI **********
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
@@ -107,6 +123,12 @@ private:
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "UserWidgets")
+	bool bShowGameOverlay = true;
+#if WITH_EDITOR
+
+	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 	// ********** Sound **********
 public:
 
@@ -116,6 +138,34 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* Countdown;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* StartSound;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* RoundOver;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* OneSecondRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* TwoSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* ThreeSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* FourSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* FiveSecondsRemaining;
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* TenSecondsRemaining;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* OneMinuteRemaining;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* HalfwayPoint;
+
+	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
+		USoundCue* DoublePoints;
+	
 
 private:
 
@@ -125,16 +175,21 @@ private:
 
 	int PreGameCountdownTimer = 3;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Countdown")
+	UPROPERTY(EditDefaultsOnly, Category = "Clock")
 		int GameTimeRemaining = 300;
+
+	int FullGameTime = 0.f;
 
 	FTimerHandle TH_CountdownTimer;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Leader")
 		int TimeBeforeMultiplyScoreAgainstLeader = 2;
 
 	FTimerHandle TH_MultiplyScoresAgainstLeaderTimer;
 
+	float Delay = 0.25;
+	float CurrentTime = 0.0f;
+	TQueue<FPlayerInfo> PlayerSpawnQueue;
 
 	// ********** Leader **********
 public:
@@ -146,10 +201,10 @@ public:
 protected:
 	bool bMultiplyScoresAgainstLeader = false;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Leader")
 		float AgainstLeaderMultiplier = 2.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Leader")
 		TSubclassOf<ALeaderFollower_B> BP_LeaderFollower;
 
 	UPROPERTY()

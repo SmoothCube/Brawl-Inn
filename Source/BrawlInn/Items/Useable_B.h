@@ -39,7 +39,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
@@ -51,7 +53,7 @@ public:
 protected:
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Juice")
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 		USoundCue* DrinkSound;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (ToolTip = "How long it takes to use the powerup"))
@@ -72,8 +74,9 @@ protected:
 		virtual void ResetBoost();
 public:
 	void ThrowAway(FVector Direction);
-
 private:
+	bool bIsThrown = false;
+
 	// ********** Destroy/Fracture **********
 
 	FTimerHandle TH_Despawn;
@@ -88,5 +91,24 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Despawning")
 		float TimeBeforeDespawn = 5.f;
+protected:
+	// ********** Floating **********
+	float GetBobbingHeight(float Time);
+
+	UPROPERTY(EditAnywhere)
+		float BobFrequency = 2.5f;
+
+	UPROPERTY(EditAnywhere)
+		float BobAmplitude = 25.f;
+
+	UPROPERTY(EditAnywhere)
+		float RotationSpeed = 0.7f;
+
+	UPROPERTY(EditAnywhere)
+		float LerpAlpha = 0.7;
+
+	float FlyHeigth = 0.f;
+
+	bool bIsHeld = false;
 
 };

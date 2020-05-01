@@ -6,8 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "PauseMenu_B.generated.h"
 
+class UTextBlock;
 class UControllerLayout_B;
 class UButton_B;
+class UFont;
 
 UCLASS()
 class BRAWLINN_API UPauseMenu_B : public UUserWidget
@@ -34,6 +36,15 @@ protected:
 		UButton_B* ExitButton;
 
 	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ContinueText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ControlsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ExitText;
+
+	UPROPERTY(meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
 
 	// ********** Functions **********
@@ -55,5 +66,13 @@ protected:
 
 	UFUNCTION()
 		void ExitButtonClicked();
+
+	// ********** Misc. **********
+
+	UPROPERTY(EditDefaultsOnly)
+		UFont* TextFont;
+
+	UPROPERTY()
+		TArray<UWidget*> UIElementsWithInterface;
 
 };

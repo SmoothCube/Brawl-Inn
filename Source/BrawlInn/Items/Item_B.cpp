@@ -47,15 +47,12 @@ UStaticMeshComponent* AItem_B::GetMesh() const
 const FVector AItem_B::GetHoldLocation_Implementation()
 {
 	return HoldLocation;
-
 }
 
 const FRotator AItem_B::GetHoldRotation_Implementation()
 {
 	return HoldRotation;
-
 }
-
 
 bool AItem_B::IsHeld_Implementation() const
 {
@@ -67,21 +64,9 @@ bool AItem_B::CanBeHeld_Implementation() const
 	return  !(bIsFractured || bIsThrown);
 }
 
-float AItem_B::GetThrowStrength_Implementation(EChargeLevel level) const
+float AItem_B::GetThrowStrength_Implementation() const
 {
-	switch (level)
-	{
-	case EChargeLevel::EChargeLevel1:
-		return Charge1ThrowStrength;
-
-	case EChargeLevel::EChargeLevel2:
-		return Charge2ThrowStrength;
-
-	case EChargeLevel::EChargeLevel3:
-		return Charge3ThrowStrength;
-	default:
-		return 0;
-	}
+	return ThrowStrength;
 }
 
 float AItem_B::GetPickupWeight_Implementation() const
@@ -105,16 +90,11 @@ void AItem_B::OnItemFracture()
 
 	if (DestroyedCue)
 	{
-		float  Volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			DestroyedCue,
 			GetActorLocation(),
-			Volume
+			1.f
 			);
 	}
 

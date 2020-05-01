@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UNiagaraComponent* PS_ChiliBrew = nullptr;
 
+	UPROPERTY(VisibleAnywhere)
+		UNiagaraComponent* PS_CandleFlame = nullptr;
+
 	UPROPERTY(VisibleAnywhere, Category = "Audio")
 		UAudioComponent* ChiliBrewSoundComp = nullptr;
 
@@ -80,6 +83,8 @@ protected:
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
 	virtual void Dropped_Implementation() override;
+
+	void Use_Implementation() override;
 
 public:
 	void BreakFreeButtonMash();
@@ -161,6 +166,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FPlayerInfo PlayerInfo;
 
+	AGamePlayerController_B* GetPlayerController() const;
 protected:
 	UPROPERTY()
 		AGamePlayerController_B* PlayerController = nullptr;

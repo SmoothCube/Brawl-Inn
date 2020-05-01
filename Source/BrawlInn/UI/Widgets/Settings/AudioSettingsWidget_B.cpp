@@ -2,6 +2,7 @@
 
 #include "AudioSettingsWidget_B.h"
 #include "TextBlock.h"
+#include "Engine/Font.h"
 
 #include "SettingsWidget_B.h"
 #include "System/GameInstance_B.h"
@@ -25,6 +26,24 @@ void UAudioSettingsWidget_B::NativeOnInitialized()
 	MusicSlider->SetValue(GameInstance->GetMusicVolume());
 	OnMusicValueChanged(GameInstance->GetMusicVolume());
 
+	FSlateFontInfo UnSelectedFontInfo;
+	UnSelectedFontInfo.FontObject = TextFont;
+	UnSelectedFontInfo.TypefaceFontName = "Default";
+	UnSelectedFontInfo.Size = 32;
+
+	const FSlateColor UnSelectedColor(FLinearColor(0.930111f, 0.623960f, 0.147027f, 1));
+
+	FSlateFontInfo SelectedFontInfo;
+	SelectedFontInfo.FontObject = TextFont;
+	SelectedFontInfo.TypefaceFontName = "Italic";
+	SelectedFontInfo.Size = 32;
+
+	const FSlateColor SelectedColor(FLinearColor(1.000000f, 0.896269f, 0.376262f, 1));
+
+	MasterSlider->SetTextAndSettings(MasterText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
+	MusicSlider->SetTextAndSettings(MusicText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
+	SfxSlider->SetTextAndSettings(SfxText, UnSelectedFontInfo, UnSelectedColor, SelectedFontInfo, SelectedColor);
+	
 	UIElementsWithInterface.Add(SfxSlider);
 	UIElementsWithInterface.Add(MasterSlider);
 	UIElementsWithInterface.Add(MusicSlider);
@@ -40,7 +59,6 @@ void UAudioSettingsWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
 			IUIElementsInterface_B::Execute_Tick(Element);
 	}
-
 }
 
 void UAudioSettingsWidget_B::OnSfxValueChanged(float Value)
@@ -48,7 +66,6 @@ void UAudioSettingsWidget_B::OnSfxValueChanged(float Value)
 	check(IsValid(GameInstance));
 	
 	GameInstance->SetSfxVolume(Value);
-	SfxValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
 }
 
 void UAudioSettingsWidget_B::OnMasterValueChanged(float Value)
@@ -56,7 +73,6 @@ void UAudioSettingsWidget_B::OnMasterValueChanged(float Value)
 	check(IsValid(GameInstance));
 	
 	GameInstance->SetMasterVolume(Value);
-	MasterValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
 }
 
 void UAudioSettingsWidget_B::OnMusicValueChanged(float Value)
@@ -64,5 +80,4 @@ void UAudioSettingsWidget_B::OnMusicValueChanged(float Value)
 	check(IsValid(GameInstance));
 	
 	GameInstance->SetMusicVolume(Value);
-	MusicValueText->SetText(FText::FromString(FString::FormatAsNumber(Value * 100) + FString("%")));
 }

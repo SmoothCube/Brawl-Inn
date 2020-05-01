@@ -18,6 +18,8 @@
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
+#include "Hazards/BounceActor/BounceActor_B.h"
+#include "Items/Throwable_B.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "System/Camera/GameCamera_B.h"
@@ -49,17 +51,20 @@ APlayerCharacter_B::APlayerCharacter_B()
 	PS_ChiliBrew->SetupAttachment(GetMesh());
 	PS_ChiliBrew->SetRelativeLocation(FVector(0.f, -14.5f, 80.f));
 
+	PS_CandleFlame = CreateDefaultSubobject<UNiagaraComponent>("CandleFlameParticle");
+	PS_CandleFlame->SetupAttachment(GetMesh(), "neckEnd_export_C_jnt");
+	PS_CandleFlame->SetRelativeLocation(FVector(0.f, -33.f, 8.f));
+	PS_CandleFlame->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
 	//variables overridden from ACharacter_B
 	SpecialMaterialIndex = 0;
 	PunchesToStun = 4;
 	GetCapsuleComponent()->SetCapsuleRadius(75.f);
-	Charge1ThrowStrength = 400000.f;
-	Charge2ThrowStrength = 1000000.f;
-	Charge3ThrowStrength = 2000000.f;
 
-	//HoldingDrinkOffset = FVector(-49.212128, -8.693832, -0.485261);
+	ThrowStrength = 1000000.f;
 
 	FallRecoveryTime = 2.f;
+	ThrowRecoveryTime = 1.f;
 	PickupWeight = 4.f;
 }
 
@@ -199,8 +204,11 @@ void APlayerCharacter_B::Die()
 
 	UGameplayStatics::ApplyDamage(this, FellOutOfWorldScoreAmount, LastHitBy, LastHitBy, UOutOfWorld_DamageType_B::StaticClass());
 
-	PlayerController->TryRespawn(RespawnDelay);
-	PlayerController->UnPossess();
+	if (PlayerController)
+	{
+		PlayerController->TryRespawn(RespawnDelay);
+		PlayerController->UnPossess();
+	}
 }
 
 void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
@@ -214,15 +222,11 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 
 	if (IsValid(HighShatterSound) && bPlaySound)
 	{
-		float Volume = 1.f;
-		GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HighShatterSound,
 			GetActorLocation(),
-			Volume
+			1.f
 		);
 	}
 }
@@ -249,8 +253,16 @@ void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 void APlayerCharacter_B::Dropped_Implementation()
 {
 	Super::Dropped_Implementation();
-	DirectionIndicatorPlane->SetHiddenInGame(true);
+	//	DirectionIndicatorPlane->SetHiddenInGame(true);
 	CurrentHoldTime = 0.f;
+}
+
+void APlayerCharacter_B::Use_Implementation()
+{
+	SetLastHitBy(HoldingCharacter->GetController());
+
+	Super::Use_Implementation();
+
 }
 
 void APlayerCharacter_B::BreakFreeButtonMash()
@@ -293,12 +305,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (IsInvulnerable() && !(DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass())))
 		return 0;
 
-	//Track OutOfWorld
-        	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
-	{
-		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, OutOfMapDeaths);
-	}
-
 	if (GameInstance)
 	{
 		GameInstance->PlayImpactCameraShake(GetActorLocation());
@@ -314,37 +320,71 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	if (EventInstigator == PlayerController)
 		return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+
 	float Score = DamageAmount;
+	bool bIsMultiplied = false;
+	bool bIsAgainstLeader = false;
 	AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->ShouldUseScoreMultiplier())
 	{
+		bIsMultiplied = GameMode->MultipleScoreIsActivated();
+		if (bIsMultiplied)
+			Score *= 2;
+
 		auto LeadingControllers = GameMode->GetLeadingPlayerController();
 
 		if ((LeadingControllers.Num() == 1) && (PlayerController == LeadingControllers[0]))
+		{
 			Score *= 2;
+			bIsAgainstLeader = true;
+		}
 	}
 
+	//Falling out of the map
 	if (DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
+		if (PlayerController) //Something has gone wrong here before
+		{
+			if (PlayerController->GetLocalPlayer())
+			{
+				if (PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>())
+					PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, OutOfMapDeaths);
+				else
+					BError("Couldnt find ScoreSubSystem for actor %s! Something is wrong!", *GetNameSafe(this));
+			}
+			else
+				BError("Couldnt find LocalPlayer for actor %s! Something is wrong!", *GetNameSafe(this));
+		}
+		else
+			BError("Couldnt find PlayerController for actor %s! Something is wrong!", *GetNameSafe(this));
+
+
 		if (LastHitBy) // Hit by someone before falling out of the world!
 		{
 			APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(LastHitBy);
 			if (OtherPlayerController)
-			{
-				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(Score);
-			}
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score, bIsMultiplied, bIsAgainstLeader);
 		}
 		else
 		{
-			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(SuicideScoreAmount);
+			PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(SuicideScoreAmount, false, false);
 		}
 	}
-	else
+	else //Everything else
 	{
 		APlayerController_B* OtherPlayerController = Cast<APlayerController_B>(EventInstigator);
 		if (OtherPlayerController)
 		{
-			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(Score);
+			OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddPoints(Score, bIsMultiplied, bIsAgainstLeader);
+
+			if (DamageCauser->IsA(ABounceActor_B::StaticClass()))
+			{
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, EScoreValueTypes::BarrelsHit);
+			}
+			else if (DamageCauser->IsA(AThrowable_B::StaticClass()))
+			{
+				OtherPlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, EScoreValueTypes::ThrowablesHit);
+			}
 		}
 	}
 
@@ -373,16 +413,13 @@ void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 	if (ScoreValues.LastScoreAdded <= 0)
 		return;
 
-	check(IsValid(GameInstance));
-
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ScoreParticle, GetActorLocation());
 
-	const float Volume = 1.f * GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
 	const float Pitch = FMath::RandRange(0.7f, 1.2f);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), Volume, Pitch);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ScoreSound, GetActorLocation(), 1.f, Pitch);
 
-	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded);
+	ScoreTextWidget->DisplayScore(ScoreValues.LastScoreAdded, ScoreValues.bIsMultiplied, ScoreValues.bIsAgainstLeader, PlayerController->GetPlayerInfo().CharacterVariant.TextColor);
 
 	ScoreParticleTimerStart();
 }
@@ -403,7 +440,7 @@ void APlayerCharacter_B::OnScoreParticleTimerFinished()
 
 void APlayerCharacter_B::OnPunchHit()
 {
-	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddScore(1, EScoreValueTypes::PunchesHit);
+	PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->AddStats(1, EScoreValueTypes::PunchesHit);
 	BLog("Punch hit: %i", PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().PunchesHit);
 }
 
@@ -411,20 +448,23 @@ void APlayerCharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
 	Super::SetChargeLevel(chargeLevel);
 	float VibrationStrength = 0.f;
+	float VibrationLength = 0.f;
 	switch (chargeLevel)
 	{
-	case EChargeLevel::EChargeLevel1:
-		VibrationStrength = 0.5f;
-		break;
+
 	case EChargeLevel::EChargeLevel2:
 		VibrationStrength = 0.7f;
+		VibrationLength = 0.5f;
+		if (PlayerController && !PlayerController->IsPunchChargeInputHeld())
+			PlayerController->TryEndPunchCharge();
 		break;
 	case EChargeLevel::EChargeLevel3:
-		VibrationStrength = 1.f;
+		VibrationStrength = 0.7f;
+		VibrationLength = -1.f;
 		break;
 	}
 	if (PlayerController)
-		PlayerController->PlayControllerVibration(VibrationStrength, 0.1f, true, true, true, true); //CRASH HERE
+		PlayerController->PlayControllerVibration(VibrationStrength, VibrationLength, true, true, true, true);
 }
 
 void APlayerCharacter_B::AddStun(const int Strength)
@@ -432,27 +472,27 @@ void APlayerCharacter_B::AddStun(const int Strength)
 	Super::AddStun(Strength);
 	DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount);
 
-	float Volume = 1.f;
-	GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GameInstance)
-		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 	switch (StunAmount)
 	{
 	case 0:
 		break;
 	case 1:
 		if (LowShatterSound)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), Volume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LowShatterSound, GetActorLocation(), 1.f);
 		break;
 	case 2:
 	case 3:
 		if (MidShatterSound)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), Volume);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), MidShatterSound, GetActorLocation(), 1.f);
 		break;
 	case 4:
 		break;
 	}
+}
+
+AGamePlayerController_B* APlayerCharacter_B::GetPlayerController() const
+{
+	return PlayerController;
 }
 
 void APlayerCharacter_B::PossessedBy(AController* NewController)
@@ -473,6 +513,7 @@ void APlayerCharacter_B::UnPossessed()
 	{
 		OldController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChanged.Remove(DisplayScoreVisualsHandle);
 	}
+	PlayerController = nullptr;
 
 	Super::UnPossessed();
 
@@ -519,12 +560,11 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 			DamageAmount = DashThroughScoreValue;
 		}
-			OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
-			UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
+		OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
+		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
 	}
 }
 
 void APlayerCharacter_B::OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 }
-

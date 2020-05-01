@@ -15,16 +15,29 @@ class BRAWLINN_API UCharacterVictoryScreen_B : public UUserWidget
 {
 	GENERATED_BODY()
 
-	void NativeOnInitialized() override;
+		void NativeOnInitialized() override;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UVerticalBox* StatsBox;
-	
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* ScoreNumber;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UImage* CharacterRender;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UImage* BannerBot;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UImage* BannerTop;
+
+protected:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UImage* BackgroundColor;
+public:
+	UPROPERTY()
+		UMaterialInstanceDynamic* BackgroundMaterial = nullptr;
 
 };

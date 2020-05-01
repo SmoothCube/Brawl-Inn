@@ -15,6 +15,7 @@ class UGameInstance_B;
 class UWidgetSwitcher;
 class UButton_B;
 class AMenuGameMode_B;
+class UFont;
 class UVideoSettingsWidget_B;
 
 UCLASS()
@@ -27,8 +28,10 @@ protected:
 
 	void NativeConstruct() override;
 
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	void NativeOnInitialized() override;
 
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
 	// ********** Button Clicks **********
 	UFUNCTION()
 		void SettingsButtonClicked();
@@ -48,8 +51,13 @@ protected:
 	UFUNCTION()
 		void BackFromSettingsButtonClicked();
 
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnMainMenuHide();
+protected:
 	// ********** Widgets **********
 
+	// ****** Buttons ******
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UButton_B* PlayButton;
 
@@ -65,14 +73,32 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UButton_B* QuitButton;
 
+	// ****** Text ******
+
 	UPROPERTY(meta = (BindWidget))
-		UWidgetSwitcher* WidgetSwitcher;
+		UTextBlock* PlayText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* SettingsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ControlsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* CreditsText;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* QuitText;
 
 	UPROPERTY(meta = (BindWidget))
 		USettingsWidget_B* SettingsWidget;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
+
+
+	UPROPERTY(EditDefaultsOnly)
+		UFont* TextFont;
 
 	// ********** Misc. **********
 
@@ -84,4 +110,17 @@ protected:
 
 	UPROPERTY()
 		TArray<UWidget*> UIElementsWithInterface;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SettingsBlockAnimationForward();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SettingsBlockAnimationReverse();
+
+	UPROPERTY(BlueprintReadWrite, Category = "SettingsWidget")
+		bool bSettingsIsVisible = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "SettingsWidget")
+		bool bIsInsideSetting = false;
+
 };

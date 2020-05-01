@@ -27,6 +27,7 @@ public:
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
+
 	// ********** Components **********
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -36,6 +37,9 @@ protected:
 
 	UPROPERTY()
 	APlayerController_B* LeadingPlayerController = nullptr;
+
+	UPROPERTY()
+		APlayerController_B* NextControllerToFollow = nullptr;
 	
 
 	// ********** Positioning **********
@@ -59,6 +63,23 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float BobAmplitude = 10.f;
+
+	// ********** Animations **********
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Appear();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Dissapear();
+
+	UFUNCTION(BlueprintCallable)
+		void AnimationTimelineFinished(bool bAppeared);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float AnimationRotationIncrease = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float AnimationZOffset = 0.f;
 
 	// ********** Misc **********
 	UPROPERTY(EditAnywhere)

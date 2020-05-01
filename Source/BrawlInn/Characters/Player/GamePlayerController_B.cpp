@@ -20,7 +20,7 @@
 void AGamePlayerController_B::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
@@ -62,7 +62,7 @@ void AGamePlayerController_B::FaceButtonTopPressed()
 	if (TryBreakFree())
 	{
 	}
-	else if (TryStartThrowCharge())
+	else if (TryThrow())
 	{
 	}
 	else if (TryStartPunchCharge())
@@ -100,7 +100,7 @@ void AGamePlayerController_B::FaceButtonBottomRepeat()
 void AGamePlayerController_B::FaceButtonLeftPressed()
 {
 	if (!TryBreakFree())
-		if (!TryStartThrowCharge())
+		if (!TryThrow())
 			TryPunch();
 }
 
@@ -123,9 +123,8 @@ void AGamePlayerController_B::LeftShoulderPressed()
 void AGamePlayerController_B::RightShoulderPressed()
 {
 	if (!TryBreakFree())
-		if (!TryStartThrowCharge())
+		if (!TryThrow())
 			TryPunch();
-	
 }
 
 void AGamePlayerController_B::RightShoulderReleased()
@@ -138,7 +137,7 @@ void AGamePlayerController_B::RightTriggerPressed()
 	if (TryBreakFree())
 	{
 	}
-	else if (TryStartThrowCharge())
+	else if (TryThrow())
 	{
 	}
 	else if (TryStartPunchCharge())
@@ -184,7 +183,7 @@ void AGamePlayerController_B::LeftStickYAxis(const float Value)
 
 void AGamePlayerController_B::TryPauseGame()
 {
-	if(IsValid(GameMode))
+	if (IsValid(GameMode))
 		GameMode->PauseGame(this);
 }
 
@@ -200,48 +199,41 @@ bool AGamePlayerController_B::TryBreakFree()
 
 void AGamePlayerController_B::TryDash()
 {
-	if (PlayerCharacter && 
+	if (PlayerCharacter &&
 		PlayerCharacter->PunchComponent &&
 		PlayerCharacter->PunchComponent->GetCanDash()
-		) 
+		)
 		PlayerCharacter->PunchComponent->Dash();
 }
 
 bool AGamePlayerController_B::TryStartPunchCharge()
 {
 	if (PlayerCharacter &&
-		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->PunchComponent->GetCanPunch())
+		PlayerCharacter->PunchComponent)
 	{
-		PlayerCharacter->TryStartCharging();
-		return true;
-	}
-	return false;
-}
-
-bool AGamePlayerController_B::TryStartThrowCharge()
-{
-	if (PlayerCharacter && 
-		PlayerCharacter->HoldComponent->IsHolding() &&
-		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->PunchComponent->GetCanPunch())
-	{
-		PlayerCharacter->ThrowComponent->TryStartCharge();
-		return true;
+		bPunchChargeInputHeld = true;
+		if (PlayerCharacter->PunchComponent->GetCanPunch())
+		{
+			PlayerCharacter->TryStartCharging();
+			return true;
+		}
 	}
 	return false;
 }
 
 bool AGamePlayerController_B::TryEndPunchCharge()
 {
-	if (PlayerCharacter &&
-		PlayerCharacter->PunchComponent &&
-		PlayerCharacter->IsCharging())
+	if (PlayerCharacter && PlayerCharacter->PunchComponent)
 	{
-		PlayerCharacter->PunchComponent->SetIsPunching(true);
-		PlayerCharacter->PunchComponent->SetCanPunch(false);
-		PlayerCharacter->SetIsCharging(false);
-		return true;
+		bPunchChargeInputHeld = false;
+		if(PlayerCharacter->IsCharging() && PlayerCharacter->GetChargeLevel() > EChargeLevel::EChargeLevel1)
+		{
+			StopControllerVibration();
+			PlayerCharacter->PunchComponent->SetIsPunching(true);
+			PlayerCharacter->PunchComponent->SetCanPunch(false);
+			PlayerCharacter->SetIsCharging(false);
+			return true;
+		}
 	}
 	return false;
 }
@@ -271,6 +263,7 @@ bool AGamePlayerController_B::TryThrow()
 		PlayerCharacter->ThrowComponent &&
 		PlayerCharacter->HoldComponent->IsHolding())
 	{
+		StopControllerVibration();
 		PlayerCharacter->ThrowComponent->StartThrow();
 		return true;
 	}
@@ -286,7 +279,7 @@ void AGamePlayerController_B::TryPickup()
 void AGamePlayerController_B::Respawn() const
 {
 	check(IsValid(GameMode))
-		GameMode->RespawnCharacter_D.Broadcast(PlayerInfo);
+		GameMode->RespawnCharacter(PlayerInfo);
 }
 
 void AGamePlayerController_B::TryRespawn(const float ReSpawnDelay)
@@ -303,11 +296,16 @@ void AGamePlayerController_B::SetScoreTextBlock(UColoredTextBlock_B* TextBlock)
 		ScoreSubSystem->OnScoreChanged.AddUObject(TextBlock, &UColoredTextBlock_B::UpdateScore);
 }
 
+bool AGamePlayerController_B::IsPunchChargeInputHeld()
+{
+	return bPunchChargeInputHeld;
+}
+
 void AGamePlayerController_B::Debug_Spawn() const
 {
 #if WITH_EDITOR
 	check(IsValid(GameMode))
-		GameMode->SpawnCharacter_D.Broadcast(PlayerInfo, false, FTransform());
+		GameMode->SpawnCharacter(PlayerInfo, false, FTransform());
 #endif
 }
 
@@ -315,7 +313,6 @@ void AGamePlayerController_B::Debug_DeSpawn()
 {
 #if WITH_EDITOR
 	check(IsValid(GameMode))
-
-		GameMode->DespawnCharacter_D.Broadcast(this);
+		GameMode->DespawnCharacter(this);
 #endif
 }

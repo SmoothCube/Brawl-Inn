@@ -29,18 +29,10 @@ void AGameMode_B::BeginPlay()
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
 	/// Finds spawnpoints
-	GetAllSpawnpointsInWorld();
+	GetAllPlayerStartsInWorld();
 
 	/// Creates all playercontrollers
 	CreatePlayerControllers();
-
-	/// Bind delegates
-	SpawnCharacter_D.AddUObject(this, &AGameMode_B::SpawnCharacter);
-	RespawnCharacter_D.AddUObject(this, &AGameMode_B::RespawnCharacter);
-	
-#if WITH_EDITOR
-	DespawnCharacter_D.AddUObject(this, &AGameMode_B::DespawnCharacter);
-#endif
 
 	Super::BeginPlay();
 }
@@ -116,6 +108,11 @@ void AGameMode_B::CreatePlayerControllers()
 
 }
 
+TArray<APlayerController_B*> AGameMode_B::GetPlayerControllers()
+{
+	return PlayerControllers;
+}
+
 // ---------------- Spawn PlayerCharacter functions --------------------------
 void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform)
 {
@@ -155,7 +152,44 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		MainMode->AddCameraFocusPoint(Character);
 	}
-	SpawnCharacter_NOPARAM_D.Broadcast();
+	OnCharacterSpawn_Delegate.Broadcast();
+}
+
+FOnCharacterSpawn& AGameMode_B::OnCharacterSpawn()
+{
+	return OnCharacterSpawn_Delegate;
+}
+
+// Når man respawner gjennom en barrel
+AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
+{
+	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
+	if (!PlayerController) { BError("Can't find the PlayerController!"); return nullptr; }
+	APawn* Pawn = PlayerController->GetPawn();
+	if (IsValid(Pawn))
+		Pawn->Destroy();
+
+	TArray<AActor*> SpawnActors;
+
+	ARespawnPawn_B* RespawnPawn;
+	
+	RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetSpawnTransform(PlayerInfo.ID));
+	
+	if (RespawnPawn)
+	{
+		RespawnPawn->TimeUntilAutoThrow = 0.5f;
+		PlayerController->Possess(RespawnPawn);
+		PlayerController->RespawnPawn = RespawnPawn;
+		AMainGameMode_B* MainMode = Cast<AMainGameMode_B>(this);
+		if (MainMode)
+			MainMode->AddCameraFocusPoint(RespawnPawn);
+	}
+
+	PlayerController->SetPlayerCharacter(nullptr);
+
+	OnCharacterSpawn_Delegate.Broadcast();
+
+	return RespawnPawn;
 }
 
 // Når man respawner gjennom en barrel
@@ -185,9 +219,14 @@ void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 
 	PlayerController->SetPlayerCharacter(nullptr);
 
-	OnRespawnCharacter_D.Broadcast();
+	OnCharacterSpawn_Delegate.Broadcast();
 }
 #if WITH_EDITOR
+
+FOnCharacterDespawn& AGameMode_B::OnCharacterDespawn()
+{
+	return OnCharacterDespawn_Delegate;
+}
 
 void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 {
@@ -202,30 +241,29 @@ void AGameMode_B::DespawnCharacter(AGamePlayerController_B* PlayerController)
 	if (GameInstance)
 		GameInstance->RemovePlayerInfo(UGameplayStatics::GetPlayerControllerID(PlayerController));
 
-
-	DespawnCharacter_NOPARAM_D.Broadcast();
+	OnCharacterDespawn_Delegate.Broadcast();
 }
 #endif
 
 FTransform AGameMode_B::GetRandomSpawnTransform()
 {
-	if (Spawnpoints.Num() == 0) { BError("No spawnpoints found!"); return FTransform(); }
-	return Spawnpoints[FMath::RandRange(0, Spawnpoints.Num() - 1)]->GetActorTransform();
+	if (PlayerStarts.Num() == 0) { BError("No spawnpoints found!"); return FTransform(); }
+	return PlayerStarts[FMath::RandRange(0, PlayerStarts.Num() - 1)]->GetActorTransform();
 }
 
 FTransform AGameMode_B::GetSpawnTransform(const int PlayerControllerID)
 {
-	if (Spawnpoints.Num() == 0) { BError("No spawnpoints found!"); return FTransform(); }
-	return Spawnpoints[PlayerControllerID]->GetActorTransform();
+	if (PlayerStarts.Num() == 0) { BError("No spawnpoints found!"); return FTransform(); }
+	return PlayerStarts[PlayerControllerID]->GetActorTransform();
 }
 
-void AGameMode_B::GetAllSpawnpointsInWorld()
+void AGameMode_B::GetAllPlayerStartsInWorld()
 {
-	Spawnpoints.Empty();
+	PlayerStarts.Empty();
 	TArray<AActor*> TempSpawnpoints;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), TempSpawnpoints);
 	for (auto& Point : TempSpawnpoints)
-		Spawnpoints.Add(Cast<APlayerStart>(Point));
+		PlayerStarts.Add(Cast<APlayerStart>(Point));
 }
 
 AGameCamera_B* AGameMode_B::GetGameCamera() const

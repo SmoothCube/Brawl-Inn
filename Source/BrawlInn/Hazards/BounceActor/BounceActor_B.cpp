@@ -40,18 +40,21 @@ void ABounceActor_B::BeginPlay()
 		Table->ConditionalBeginDestroy();
 	}
 	PickupCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABounceActor_B::OnPickupCapsuleOverlap);
-
+	bIsThrown = true;
 }
 
 void ABounceActor_B::Tick(float DeltaTime)
 {
-	if(!bIsFractured)
+	if(!bIsFractured && !Execute_IsHeld(this))
 		SetActorRotation(GetVelocity().ToOrientationRotator() + FRotator(90.f, 0.f, 0.f));
 }
 
 void ABounceActor_B::OnPickupCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == this)
+		return;
+	UHoldComponent_B* HoldComp = Cast<UHoldComponent_B>(OtherComp);
+	if(HoldComp)
 		return;
 
 	BreakBarrel();
@@ -93,7 +96,7 @@ void ABounceActor_B::SpawnPlayerCharacter()
 		AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{
-			GameMode->SpawnCharacter_D.Broadcast(PlayerController->GetPlayerInfo(), true, FTransform(GetActorLocation()));
+			GameMode->SpawnCharacter(PlayerController->GetPlayerInfo(), true, FTransform(FRotator(0.f,180.f,0.f),GetActorLocation()));
 		}
 		if (PlayerController->GetPlayerCharacter())
 			PlayerController->GetPlayerCharacter()->MakeInvulnerable(1.f, true);

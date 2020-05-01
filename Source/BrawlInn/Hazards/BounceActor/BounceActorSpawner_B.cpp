@@ -9,6 +9,7 @@
 #include "Sound/SoundCue.h"
 #include "DestructibleComponent.h"
 #include "TimerManager.h"
+#include "Animation/AnimMontage.h"
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
@@ -68,20 +69,9 @@ void ABounceActorSpawner_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
 		MergeMeshComponent->DestroyComponent();
 	}
-
-	float Volume = 1.f;
-
-	UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GameInstance)
-	{
-		Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-	}
-
-	if (EngineSoundComponent)
-		EngineSoundComponent->SetVolumeMultiplier(Volume);
+	
 	if (CogSoundComponent)
 	{
-		CogSoundComponent->SetVolumeMultiplier(Volume);
 		CogSoundComponent->Stop();
 	}
 }
@@ -110,7 +100,11 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		
 		if (FMath::IsNearlyEqual(DotProduct,1.f,0.005f))
 		{
-			SpawnBounceActor(ShootTargets[0]->GetActorLocation());
+			if (bAnimationFinished)
+			{
+				bAnimationFinished = false;
+				PlayAnimationMontages();
+			}
 		}
 	}
 	else if (RotateTargets.IsValidIndex(0) && RotateTargets[0])
@@ -148,8 +142,6 @@ void ABounceActorSpawner_B::RotateBarrel(float DeltaTime, FVector TargetLocation
 
 	float newPitch = CurrentWorldRot.Pitch + Angle;
 
-	//newPitch = FMath::Clamp(newPitch, LowestBarrelPitch, HighestBarrelPitch);
-
 	BarrelLowMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentWorldRot, FRotator(newPitch, CurrentWorldRot.Yaw, CurrentWorldRot.Roll), DeltaTime, BarrelRotationSpeed));
 }
 
@@ -167,36 +159,30 @@ void ABounceActorSpawner_B::RotateCogs(float DeltaTime)
 	CurrentCogPitch += CogRotateSpeed * DeltaTime;
 }
 
-ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
+ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor()
 {
-	bIsShooting = true;
 	ABounceActor_B* NewBounceActor = GetWorld()->SpawnActor<ABounceActor_B>(ActorToSpawn, BarrelSpawnLocation->GetComponentLocation(), FRotator(90, 0, 0));
 	if (!IsValid(NewBounceActor))
+	{
+		BError("Spawning Barrel Failed!");
 		return nullptr;
+	}
 
+	FVector TargetLocation = FVector::ZeroVector;
 	if (ShootTargets.IsValidIndex(0) && ShootTargets[0])
 	{
+		TargetLocation = ShootTargets[0]->GetActorLocation();
 		ShootTargets[0]->SetupBarrel(NewBounceActor);
 		ShootTargets.RemoveAt(0);
-	}
-	else
-	{
-		BError("SetupBarrel Failed!");
 	}
 
 	if (SpawnCue)
 	{
-		float Volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			SpawnCue,
 			GetActorLocation(),
-			Volume
+			1.f
 		);
 	}
 
@@ -205,12 +191,6 @@ ABounceActor_B* ABounceActorSpawner_B::SpawnBounceActor(FVector TargetLocation)
 	NewBounceActor->GetMesh()->AddImpulse(LaunchVel, NAME_None, true);
 	NewBounceActor->GetDestructibleComponent()->SetSimulatePhysics(true);
 
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetIsShooting,[&]()
-		{
-			bIsShooting = false;
-		},
-		0.05f,
-		false);
 	return NewBounceActor;
 }
 
@@ -232,5 +212,25 @@ void ABounceActorSpawner_B::AddShootTarget(ARespawnPawn_B* NewTarget)
 		ShootTargets.Add(NewTarget);
 	else
 		BWarn("Adding shoot target failed!");
+}
 
+bool ABounceActorSpawner_B::IsAnimationFinished()
+{
+	return bAnimationFinished;
+}
+
+void ABounceActorSpawner_B::SetAnimationFinished(bool Value)
+{
+	bAnimationFinished = Value;
+}
+
+void ABounceActorSpawner_B::SetAnimationFinishedTimer()
+{
+	FTimerHandle TH_ResetAnimationTimer;
+	GetWorld()->GetTimerManager().SetTimer(TH_ResetAnimationTimer, [&]()
+		{
+			bAnimationFinished = true;
+		},
+		1.f, 
+		false);
 }

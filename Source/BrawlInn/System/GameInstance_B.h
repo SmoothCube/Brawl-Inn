@@ -7,6 +7,7 @@
 #include "Characters/Player/PlayerInfo.h"
 #include "GameInstance_B.generated.h"
 
+class USoundClass;
 class UCameraShake;
 class USoundCue;
 class USoundBase;
@@ -19,11 +20,8 @@ class BRAWLINN_API UGameInstance_B : public UGameInstance
 {
 	GENERATED_BODY()
 
-public:
-
-		// ********** UGameInstance **********
 protected:
-	virtual void Init() override;
+	void Init() override;
 
 	// ********** Camera **********
 public:
@@ -43,18 +41,23 @@ protected:
 
 	// ********** Sound **********
 	UPROPERTY()
-	UAudioComponent* BirdSoundComponent;
+		UAudioComponent* BirdSoundComponent;
 
 	UPROPERTY()
-	UAudioComponent* RiverSoundComponent;
-	
+		UAudioComponent* RiverSoundComponent;
+
 	UPROPERTY()
-	UAudioComponent* MainMusicComponent;
+		UAudioComponent* MainMusicComponent;
+
+	UPROPERTY()
+		UAudioComponent* AnnouncerVoiceComponent;
 public:
 
 	void StartAmbientSounds();
 
 	void SetAndPlayMusic(USoundCue* NewMusic);
+
+	void PlayAnnouncerLine(USoundCue* Line);
 
 	const USoundBase* GetCurrentMusic();
 
@@ -72,20 +75,21 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-		float MasterVolume = 1.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
+		USoundClass* MasterSoundClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-		float MusicVolume = 1.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
+		USoundClass* MusicSoundClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-		float SfxVolume = 1.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SoundClass")
+		USoundClass* SfxSoundClass;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* BirdsCue;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundCue* RiverCue;
+
 	// ********** PlayerInfo **********
 public:
 	void AddPlayerInfo(FPlayerInfo PlayerInfo);
@@ -119,11 +123,11 @@ protected:
 public:
 
 	const FString& GetGameMapName() const;
-	
+
 	const FString& GetMenuMapName() const;
-	
+
 	const FString& GetVictoryMapName() const;
-	
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Maps")

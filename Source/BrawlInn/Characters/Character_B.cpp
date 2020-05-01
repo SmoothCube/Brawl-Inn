@@ -54,9 +54,8 @@ ACharacter_B::ACharacter_B()
 	PS_Stun->SetRelativeLocation(FVector(0.000000, -20.000000, 180.000000));
 
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
-	//PS_Charge->SetupAttachment(GetMesh(), "PunchCollisionHere");
 
-	HoldRotation = FRotator(0,0, 180);
+	HoldRotation = FRotator(0, 0, 180);
 	HoldLocation = FVector(10, -50, -15);
 }
 
@@ -171,7 +170,6 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	//	GetMesh()->SetCollisionProfileName("Ragdoll");
 
 	GetMesh()->AddImpulse(MeshForce, ForceSocketName, false);	//TODO make the bone dynamic instead of a variable
 
@@ -189,7 +187,6 @@ void ACharacter_B::StandUp()
 	SetActorLocation(FindMeshGroundLocation());
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-
 
 	HoldingCharacter = nullptr; //moved this here so I can check if you hit the character that threw you
 
@@ -252,7 +249,6 @@ FVector ACharacter_B::FindMeshGroundLocation() const
 
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
-
 	HoldingCharacter = Player;
 	GetMovementComponent()->StopMovementImmediately();
 	SetState(EState::EBeingHeld);
@@ -270,13 +266,11 @@ void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 	GetCharacterMovement()->StopActiveMovement();
 	GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeTransform(RelativeMeshTransform);
-
 }
 
 void ACharacter_B::Dropped_Implementation()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
 	Fall(FVector::ZeroVector, FallRecoveryTime, true);
 	//	GetMesh()->SetSimulatePhysics(true); //should be unnecceCharacterMeshsary
 	HoldingCharacter = nullptr;
@@ -296,11 +290,11 @@ void ACharacter_B::Use_Implementation()
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 		if (Interface)
 		{
-			ImpulseStrength = Interface->Execute_GetThrowStrength(this, HoldingCharacter->GetChargeLevel());
+			ImpulseStrength = Interface->Execute_GetThrowStrength(this);
 		}
 		GetCharacterMovement()->StopMovementImmediately();
 		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-		Fall(TargetLocation * ImpulseStrength, FallRecoveryTime, true);
+		Fall(TargetLocation * ImpulseStrength, ThrowRecoveryTime, true);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
@@ -323,21 +317,9 @@ bool ACharacter_B::CanBeHeld_Implementation() const
 	return bCanBeHeld && !bIsInvulnerable;
 }
 
-float ACharacter_B::GetThrowStrength_Implementation(EChargeLevel level) const
+float ACharacter_B::GetThrowStrength_Implementation() const
 {
-	switch (level)
-	{
-	case EChargeLevel::EChargeLevel1:
-		return Charge1ThrowStrength;
-
-	case EChargeLevel::EChargeLevel2:
-		return Charge2ThrowStrength;
-
-	case EChargeLevel::EChargeLevel3:
-		return Charge3ThrowStrength;
-	default:
-		return 0;
-	}
+	return ThrowStrength;
 }
 
 float ACharacter_B::GetMovementSpeedWhenHeld_Implementation() const
@@ -494,18 +476,20 @@ float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		CheckFall(ImpulseDir * ImpulseScale);
 	}
 
+	if (GetState() == EState::EHolding)
+	{
+		//either turn off collision so it doesnt fall or make the item fly into the air
+		HoldComponent->Drop();
+	}
+
+	//Play sound if hurt, but not when falling out of the map
 	if (HurtSound && !DamageEvent.DamageTypeClass.GetDefaultObject()->IsA(UOutOfWorld_DamageType_B::StaticClass()))
 	{
-		float Volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-			Volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			HurtSound,
 			GetActorLocation(),
-			Volume
+			1.f
 		);
 	}
 	return DamageAmount;
@@ -520,7 +504,7 @@ void ACharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 {
 	ACharacter_B* HitCharacter = Cast<ACharacter_B>(OtherActor);
 	UCapsuleComponent* HitComponent = Cast<UCapsuleComponent>(OtherComp);
-	if (HitComponent && HitCharacter && HitCharacter != HoldingCharacter &&!HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
+	if (HitComponent && HitCharacter && HitCharacter != HoldingCharacter && !HitCharacter->IsInvulnerable() && (GetCapsuleComponent()->GetCollisionProfileName() == "Capsule-Thrown"))
 	{
 		if (HitCharacter->HasShield())
 		{
@@ -561,14 +545,17 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 	ChargeLevel = chargeLevel;
 	bool ShouldPlaySound = true;
 	float SoundPitch = 1.0f;
-	bool ShouldPlayVibration = true;
-	float VibrationStrength = 1.0f;
 
 	switch (ChargeLevel)
 	{
 	case EChargeLevel::EChargeLevel1:
 		ShouldPlaySound = false;
 		SoundPitch = 0.8f;
+		if (IsCharging())
+		{
+			GetCharacterMovement()->MaxWalkSpeed = Charge1MoveSpeed;
+			GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
+		}
 		break;
 	case EChargeLevel::EChargeLevel2:
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
@@ -586,20 +573,13 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 		break;
 	}
 
-
 	if (ShouldPlaySound && ChargeLevelSound)
 	{
-		float volume = 1.f;
-		UGameInstance_B* GameInstance = Cast<UGameInstance_B>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			volume *= GameInstance->GetMasterVolume() * GameInstance->GetSfxVolume();
-		}
 		UGameplayStatics::PlaySoundAtLocation(
 			GetWorld(),
 			ChargeLevelSound,
 			GetActorLocation(),
-			volume,
+			1.f,
 			SoundPitch
 		);
 	}

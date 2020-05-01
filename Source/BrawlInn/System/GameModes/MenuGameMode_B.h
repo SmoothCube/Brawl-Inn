@@ -8,6 +8,7 @@
 #include "MenuGameMode_B.generated.h"
 
 DECLARE_DELEGATE(FPlayersActiveUpdated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAmountOfPlayersReadyChanged, int, AmountOfPlayersReady);
 
 class ULevelSequence;
 class UCharacterSelectionOverlay_B;
@@ -15,6 +16,7 @@ class UMainMenu_B;
 class APlayerCharacter_B;
 class AMenuPlayerController_B;
 class ASelectionPawn_B;
+class USoundCue;
 
 UCLASS()
 class BRAWLINN_API AMenuGameMode_B : public AGameMode_B
@@ -62,7 +64,7 @@ protected:
 	// ********** Ready up **********
 public:
 
-	void UpdateCharacterSelectionOverlay();
+	void UpdateCharacterSelectionOverlay() const;
 
 	int GetPlayersActive() const;
 
@@ -82,6 +84,9 @@ public:
 		void OnToGameLevelSequencePaused();
 
 	FPlayersActiveUpdated PlayersActiveUpdated;
+
+	UPROPERTY(BlueprintAssignable)
+	FAmountOfPlayersReadyChanged AmountOfPlayersReadyChanged;
 
 protected:
 	unsigned int PlayersActive = 0;
@@ -119,7 +124,7 @@ protected:
 		FVector SelectionIndicatorOffsetLocation = FVector(0, 0, 250);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Selection")
-		TArray<FCharacterVariants> CharacterVariants;
+		TArray<FPlayerInfo> CharacterVariants;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 		TArray<UPaperSprite*> SelectionIndicators;
@@ -131,5 +136,15 @@ protected:
 		TArray<APlayerCharacter_B*> Characters;
 
 	TArray<FTransform> CharacterStartTransforms;
+	// ********** Sound **********
+	UPROPERTY(EditAnywhere)
+		USoundCue* DoorCloseLine;
 
+	UPROPERTY(EditAnywhere)
+		USoundCue* CharacterSelectLine;
+
+	UPROPERTY(EditAnywhere)
+		USoundCue* WelcomeLine;
+
+	float  TimeBeforeWelcomeLine = 0.9f;
 };

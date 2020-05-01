@@ -65,12 +65,13 @@ void AThrowable_B::Dropped_Implementation()
 	DetachFromActor(Rules);
 	Mesh->SetCollisionProfileName(FName("BlockAllDynamicDestructible"));
 	Mesh->SetSimulatePhysics(true);
-	PickupCapsule->SetCollisionProfileName(FName("Throwable-AfterThrow"));
+	PickupCapsule->SetCollisionProfileName(FName("Throwable-Trigger"));
 
 	Mesh->SetVisibility(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	DestructibleComponent->SetCollisionProfileName("Destructible");
-	DestructibleComponent->SetSimulatePhysics(true);
+	DestructibleComponent->SetCollisionProfileName("AfterFracture");
+	
+	OwningCharacter = nullptr;
 }
 
 void AThrowable_B::Use_Implementation()
@@ -90,7 +91,7 @@ void AThrowable_B::Use_Implementation()
 		IThrowableInterface_B* Interface = Cast<IThrowableInterface_B>(this);
 		if (Interface)
 		{
-			ImpulseStrength = Interface->Execute_GetThrowStrength(this, OwningCharacter->GetChargeLevel());
+			ImpulseStrength = Interface->Execute_GetThrowStrength(this);
 		}
 		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * ImpulseStrength, NAME_None, true);
 		Mesh->SetVisibility(false);
@@ -109,7 +110,6 @@ void AThrowable_B::Use_Implementation()
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
-
 	if (Mesh)
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
@@ -139,7 +139,6 @@ void AThrowable_B::BeginDespawn()
 
 void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	BWarn("Throwable Hit"); //TODO remove
 	if (OtherComp->IsA(UHoldComponent_B::StaticClass()))
 		return;
 
@@ -154,7 +153,10 @@ void AThrowable_B::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		{
 			HitPlayer->GetCharacterMovement()->AddImpulse(GetVelocity() * ThrowHitStrength);
 			HitPlayer->CheckFall(GetVelocity() * ThrowHitStrength);
+			BLog("HIT %s", *GetNameSafe(OtherComp));
 			UGameplayStatics::ApplyDamage(HitPlayer, ScoreAmount, OwningCharacter->GetController(), this, BP_DamageType);
+			PickupCapsule->OnComponentBeginOverlap.RemoveDynamic(this, &AItem_B::OnThrowOverlapBegin);
+
 		}
 	}
 

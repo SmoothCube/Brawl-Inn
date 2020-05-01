@@ -16,7 +16,9 @@ class BRAWLINN_API UScoreSubSystem_B : public ULocalPlayerSubsystem
 	GENERATED_BODY()
 
 public:
-	void AddScore(int Value, EScoreValueTypes Type = EScoreValueTypes::Score);
+	void AddPoints(int Value, bool bIsMultiplied, bool bIsAgainstLeader);
+	
+	void AddStats(int Value, EScoreValueTypes Type = EScoreValueTypes::Score);
 
 	void ResetScoreValues();
 

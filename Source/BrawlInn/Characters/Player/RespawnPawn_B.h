@@ -52,10 +52,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float TimeBeforeCanThrow = 0.5f;
-
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float TimeUntilAutoThrow = 4.f;
-
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float TimeBeforeCanBreakBarrel = 0.5f;
 
