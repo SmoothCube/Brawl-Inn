@@ -95,4 +95,8 @@ protected:
 	ACharacter_B* OwningCharacter = nullptr;
 
 	bool IsReady() const;
+public:
+	UPROPERTY(EditAnywhere)
+		bool bDrawAimAssistDebug = false;
+
 };

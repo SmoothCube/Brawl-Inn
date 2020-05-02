@@ -7,7 +7,9 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 
-//#include "DrawDebugHelpers.h"
+#if WITH_EDITOR
+#include "DrawDebugHelpers.h"
+#endif
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
@@ -218,9 +220,14 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
-	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
-	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
 
+#if WITH_EDITOR
+	if (bDrawAimAssistDebug)
+	{
+		DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
+		DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
+	}
+#endif
 	TArray<ACharacter_B*> PlayersInCone;
 	TArray<ACharacter_B*> PlayersInInnerCone;
 
@@ -293,7 +300,10 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	FVector ThrowDirection = TargetLocation - HoldComponent->GetHoldingItem()->GetActorLocation();
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 
-	//DrawDebugPoint(GetWorld(), TargetLocation, 10.f, FColor::Red, false, 10.f);
+	#if WITH_EDITOR
+	if(bDrawAimAssistDebug)
+		DrawDebugPoint(GetWorld(), TargetLocation, 10.f, FColor::Red, false, 5.f);
+	#endif
 	return true;
 }
 

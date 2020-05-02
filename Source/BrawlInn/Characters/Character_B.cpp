@@ -14,6 +14,10 @@
 #include "Camera/CameraComponent.h"
 #include "Animation/AnimInstance.h"
 
+#if WITH_EDITOR
+#include "DrawDebugHelpers.h"
+#endif
+
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "Components/PunchComponent_B.h"
@@ -294,6 +298,13 @@ void ACharacter_B::Use_Implementation()
 		}
 		GetCharacterMovement()->StopMovementImmediately();
 		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+#if WITH_EDITOR
+		if (HoldingCharacter->ThrowComponent->bDrawAimAssistDebug)
+		{
+			FVector start = HoldingCharacter->GetMesh()->GetComponentLocation();
+			DrawDebugLine(GetWorld(), start, start + TargetLocation * ImpulseStrength, FColor::Blue, false, 5.f);
+		}
+#endif
 		Fall(TargetLocation * ImpulseStrength, ThrowRecoveryTime, true);
 	}
 

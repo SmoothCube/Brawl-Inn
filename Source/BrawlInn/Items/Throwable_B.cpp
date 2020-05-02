@@ -9,6 +9,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
+#if WITH_EDITOR
+#include "DrawDebugHelpers.h"
+#endif
+
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
 #include "Components/HoldComponent_B.h"
@@ -93,6 +97,15 @@ void AThrowable_B::Use_Implementation()
 		{
 			ImpulseStrength = Interface->Execute_GetThrowStrength(this);
 		}
+
+#if WITH_EDITOR
+		if (OwningCharacter->ThrowComponent->bDrawAimAssistDebug)
+		{
+			FVector start = Mesh->GetComponentLocation();
+			DrawDebugLine(GetWorld(), start, start + TargetLocation * ImpulseStrength, FColor::Blue, false, 5.f);
+		}
+#endif
+
 		Mesh->AddImpulse(TargetLocation.GetSafeNormal() * ImpulseStrength, NAME_None, true);
 		Mesh->SetVisibility(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

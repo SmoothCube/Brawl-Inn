@@ -1,7 +1,7 @@
 ﻿,Value,Comment
 AgainstLeaderMultiplier,2,Hvor mye score-verdier blir ganget med hvis spilleren angrepet leder
 Knockout,30,
-ThrowingPlayerOutOfWorld,100,
+ThrowingPlayerOutOfWorld,50,
 Throwable,30,
 Barrel,25,Dette er per spiller man treffer. Skal bli 10 når Knockout er implementert
 PunchLevel1ScoreValue,10,Level1/2/3 er basert på hvilken charge level punchen har
