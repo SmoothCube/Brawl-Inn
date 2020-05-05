@@ -113,4 +113,11 @@ protected:
 
 	bool bIsHeld = false;
 
+	bool bShouldSphereTrace = false;
+
+	FVector FloatLocation = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere)
+	float FloatHeight = 125.f;
+
 };
