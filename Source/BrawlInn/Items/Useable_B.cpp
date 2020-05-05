@@ -71,7 +71,7 @@ void AUseable_B::Tick(float DeltaTime)
 				BaseLocation
 				+ FVector(0.f, 0.f, Height + BobAmplitude),
 				LerpAlpha));
-
+		
 		SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0.f, CurrentYaw, 0.f), DeltaTime, 10.f));
 
 		CurrentYaw += RotationSpeed * DeltaTime;

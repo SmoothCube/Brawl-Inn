@@ -173,6 +173,9 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	if (HoldComponent)
 		HoldComponent->Drop();
 
+	if (bIsAlive)
+		Die();
+
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -313,7 +316,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			checkf(PunchesToStun != 0, TEXT("Division by zero!"));
 			const float Trauma = static_cast<float>(StunAmount) / static_cast<float>(PunchesToStun);
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
-			BWarn("Vibrating %s's controller!", *GetNameSafe(this));
 		}
 	}
 

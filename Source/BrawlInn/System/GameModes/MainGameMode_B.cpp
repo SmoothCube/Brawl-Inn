@@ -308,6 +308,7 @@ void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
 	if (Character)
 	{
+		BWarn("%s's %s end overlap with TrackingBox!", *GetNameSafe(OtherActor), *GetNameSafe(OtherComp));
 		//Checks to see if the player is still overlapping. Same method as in DragArea
 		TArray<AActor*> OverlappingActors;
 		if (TrackingBox)

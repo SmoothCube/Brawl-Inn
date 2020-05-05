@@ -7,6 +7,7 @@
 #include "ThrowComponent_B.generated.h"
 
 class ACharacter_B;
+class APlayerCharacter_B;
 class AGameMode_B;
 class UHoldComponent_B;
 class USoundCue;
@@ -80,10 +81,10 @@ protected:
 	// ********** Misc. **********
 
 	UFUNCTION()
-		void OnAnyCharacterChanged();
+		void OnAnyPlayerCharacterChanged();
 
 	UPROPERTY()
-		TArray<ACharacter_B*> OtherPlayers;
+		TArray<APlayerCharacter_B*> OtherPlayers;
 
 	UPROPERTY()
 		AGameMode_B* GameMode = nullptr;

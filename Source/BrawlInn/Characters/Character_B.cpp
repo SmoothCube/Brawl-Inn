@@ -451,7 +451,16 @@ EState ACharacter_B::GetState() const
 }
 
 void ACharacter_B::Die()
-{
+{	
+	BWarn("%s is dead!", *GetNameSafe(this));
+	AActor* Item = HoldComponent->GetHoldingItem();
+	if (Item)
+	{
+		ACharacter_B* C = Cast<ACharacter_B>(Item);
+		if(C)
+			C->Die();
+	}
+	
 	Fall(FVector::ZeroVector, -1, false);
 	bIsAlive = false;
 }
