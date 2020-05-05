@@ -46,6 +46,9 @@ protected:
 		void CreditsButtonClicked();
 
 	UFUNCTION()
+		void CreditsBackButtonClicked();
+
+	UFUNCTION()
 		void QuitButtonClicked();
 
 	UFUNCTION()
@@ -95,6 +98,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UControllerLayout_B* Credits;
 
 
 	UPROPERTY(EditDefaultsOnly)

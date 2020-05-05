@@ -39,12 +39,11 @@ void UMainMenu_B::NativeConstruct()
 	UIElementsWithInterface.Add(QuitButton);
 
 	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
-
+	Credits->SetVisibility(ESlateVisibility::Collapsed);
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(PlayButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
-
 }
 
 void UMainMenu_B::NativeOnInitialized()
@@ -143,7 +142,30 @@ void UMainMenu_B::ControllerLayoutBackButtonClicked()
 
 void UMainMenu_B::CreditsButtonClicked()
 {
-	BScreen("Credits");
+	Credits->SetVisibility(ESlateVisibility::Visible);
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(Credits->GetBackButton()->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
+	Credits->GetBackButton()->OnPressed.AddDynamic(this, &UMainMenu_B::CreditsBackButtonClicked);
+
+	FOnInputAction FaceButtonRightDelegate; //This doesnt work, maybe because mainmenu isnt in focus anymore?
+	FaceButtonRightDelegate.BindDynamic(this, &UMainMenu_B::ControllerLayoutBackButtonClicked);
+	ListenForInputAction("FaceButtonRight", IE_Pressed, true, FaceButtonRightDelegate);
+}
+
+void UMainMenu_B::CreditsBackButtonClicked()
+{
+	Credits->SetVisibility(ESlateVisibility::Collapsed);
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(Credits->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
+	Credits->GetBackButton()->OnPressed.RemoveDynamic(this, &UMainMenu_B::CreditsBackButtonClicked);
+
+	StopListeningForInputAction("FaceButtonRight", IE_Pressed);
 }
 
 void UMainMenu_B::QuitButtonClicked()
