@@ -30,7 +30,7 @@ bool UHoldComponent_B::TryPickup()
 {
 	check(IsValid(OwningCharacter));
 
-	if (OwningCharacter->GetState() != EState::EWalking || OwningCharacter->PunchComponent->GetIsPunching()) return false;
+	if (OwningCharacter->GetState() != EState::EWalking || OwningCharacter->PunchComponent->GetIsPunching() || OwningCharacter->IsCharging()) return false;
 
 	TArray<AActor*> OverlappingThrowables;
 	GetOverlappingActors(OverlappingThrowables, UThrowableInterface_B::StaticClass());

@@ -274,6 +274,7 @@ void AGamePlayerController_B::TryPickup()
 {
 	if (PlayerCharacter && PlayerCharacter->HoldComponent)
 		PlayerCharacter->HoldComponent->TryPickup();
+	
 }
 
 void AGamePlayerController_B::Respawn() const
