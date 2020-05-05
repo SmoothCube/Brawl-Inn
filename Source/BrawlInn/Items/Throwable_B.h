@@ -47,9 +47,10 @@ protected:
 		UDestructibleComponent* DestructibleComponent;
 
 	// ********** Destroy/Fracture **********
-
+public:
 	UFUNCTION()
 		void OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection); 
+protected:
 
 	void BeginDespawn();
 

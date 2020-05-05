@@ -123,6 +123,7 @@ void AThrowable_B::Use_Implementation()
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
+	BWarn("OnComponentFracture for %s", *GetNameSafe(this));
 	if (Mesh)
 		Mesh->DestroyComponent();
 	if (PickupCapsule)
@@ -136,6 +137,8 @@ void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& H
 
 	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AThrowable_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
 	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &AThrowable_B::StartDestroy, TimeBeforeDespawn + 0.1f, false);
+
+	DestructibleComponent->OnComponentFracture.Clear();
 }
 
 void AThrowable_B::StartDestroy()
