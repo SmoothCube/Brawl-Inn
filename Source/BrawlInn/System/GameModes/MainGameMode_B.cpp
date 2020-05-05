@@ -167,29 +167,53 @@ void AMainGameMode_B::CheckTimeVoicelines()
 {
 	if (!GameInstance) return;
 
-	if(GameTimeRemaining == 1)
-			GameInstance->PlayAnnouncerLine(OneSecondRemaining);
+	if (GameTimeRemaining == 1)
+	{
+		Overlay->DisplayText("", "1", 1.f);
+		GameInstance->PlayAnnouncerLine(OneSecondRemaining);
+	}
 
 	if (GameTimeRemaining == 2)
+	{
+		Overlay->DisplayText("", "2", 1.f);
 		GameInstance->PlayAnnouncerLine(TwoSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 3)
+	{
+		Overlay->DisplayText("", "3", 1.f);
 		GameInstance->PlayAnnouncerLine(ThreeSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 4)
+	{
+		Overlay->DisplayText("", "4", 1.f);
 		GameInstance->PlayAnnouncerLine(FourSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 5)
+	{
+		Overlay->DisplayText("", "5", 1.f);
 		GameInstance->PlayAnnouncerLine(FiveSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 10)
+	{
+		Overlay->DisplayText("", "Ten Seconds Remaining!", 2.f);
 		GameInstance->PlayAnnouncerLine(TenSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 60)
+	{
+		Overlay->DisplayText("", "One Minute Remaining!", 3.f);
 		GameInstance->PlayAnnouncerLine(OneMinuteRemaining);
+	}
 
-	if (GameTimeRemaining == FullGameTime/2)
+	if (GameTimeRemaining == FullGameTime / 2)
+	{
+		Overlay->DisplayText("", "Halfway through the round!", 3.f);
 		GameInstance->PlayAnnouncerLine(HalfwayPoint);
+	}
 }
 
 void AMainGameMode_B::StartMultipleScore()

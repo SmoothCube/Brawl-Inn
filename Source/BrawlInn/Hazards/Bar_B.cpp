@@ -13,6 +13,7 @@
 #include "System/DataTable_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
+#include "UI/Widgets/GameOverlay_B.h"
 
 UBar_B::UBar_B()
 {
@@ -106,7 +107,12 @@ void UBar_B::RandomOrder()
 		Customers[RandomIndex]->OrderDrink();
 
 	if (GameInstance && DrinkReadySound)
+	{
+		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(GetOwner());
+		if (GameMode)
+			GameMode->Overlay->DisplayText("", "Chilibrew Incoming!", 1.5f);
 		GameInstance->PlayAnnouncerLine(DrinkReadySound);
+	}
 }
 
 void UBar_B::StartRandomOrder(const float Time)
