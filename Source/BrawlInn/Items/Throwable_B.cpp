@@ -123,7 +123,6 @@ void AThrowable_B::Use_Implementation()
 
 void AThrowable_B::OnComponentFracture(const FVector& HitPoint, const FVector& HitDirection)
 {
-	BWarn("OnComponentFracture for %s", *GetNameSafe(this));
 	if (Mesh)
 		Mesh->DestroyComponent();
 	if (PickupCapsule)

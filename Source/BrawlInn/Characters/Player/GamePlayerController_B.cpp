@@ -87,7 +87,10 @@ void AGamePlayerController_B::FaceButtonRightPressed()
 void AGamePlayerController_B::FaceButtonBottomPressed()
 {
 	if (!TryBreakFree())
-		TryPickup();
+		if(!TryThrow())
+			TryPickup();
+	
+
 	if (RespawnPawn)
 		RespawnPawn->ThrowBarrel();
 }
@@ -156,7 +159,8 @@ void AGamePlayerController_B::RightTriggerReleased()
 void AGamePlayerController_B::LeftTriggerPressed()
 {
 	if (!TryBreakFree())
-		TryPickup();
+		if (!TryThrow())
+			TryPickup();
 }
 
 void AGamePlayerController_B::LeftTriggerRepeat()
