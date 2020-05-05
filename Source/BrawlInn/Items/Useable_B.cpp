@@ -71,7 +71,10 @@ void AUseable_B::Tick(float DeltaTime)
 				BaseLocation
 				+ FVector(0.f, 0.f, Height + BobAmplitude),
 				LerpAlpha));
-		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
+
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0.f, CurrentYaw, 0.f), DeltaTime, 10.f));
+
+		CurrentYaw += RotationSpeed * DeltaTime;
 	}
 }
 
@@ -86,10 +89,9 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));	//why do we find this here?
-	if (GameMode)
-
-		OwningCharacter = Player;
+	//AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));	//why do we find this here?
+	//if (GameMode)
+	OwningCharacter = Player;
 
 	bIsHeld = true;
 }
