@@ -100,7 +100,10 @@ void ACharacter_B::Tick(float DeltaTime)
 
 	if (GetState() == EState::EFallen)
 	{
-		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
+		if (bShouldStand)
+			StandUp(); 
+		else
+			SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
 	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp && bCanMove)
 	{
@@ -190,7 +193,15 @@ void ACharacter_B::StandUp()
 
 	bCanBeHeld = false;
 
-	SetActorLocation(FindMeshGroundLocation());
+	FVector GroundLoc;
+	if (!FindMeshGroundLocation(GroundLoc))
+	{
+		bShouldStand = true;
+		return;
+	}
+	bShouldStand = false;
+
+	SetActorLocation(GroundLoc);
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
@@ -229,7 +240,7 @@ FVector ACharacter_B::FindMeshLocation() const
 {
 	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
 	FHitResult Hit;
-	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -250), ECollisionChannel::ECC_Visibility);
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -200), ECollisionChannel::ECC_Visibility);
 
 	if (bDidHit)
 	{
@@ -238,19 +249,21 @@ FVector ACharacter_B::FindMeshLocation() const
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
-FVector ACharacter_B::FindMeshGroundLocation() const
+bool ACharacter_B::FindMeshGroundLocation(FVector& OutGroundLocation) const
 {
 	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
 
 	FHitResult Hit;
-	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -200), ECollisionChannel::ECC_Visibility);
 
 	if (bDidHit)
 	{
-		return (Hit.Location - RelativeMeshTransform.GetLocation());
+		OutGroundLocation = (Hit.Location - RelativeMeshTransform.GetLocation());
+		return true;
 	}
 
-	return (MeshLoc - RelativeMeshTransform.GetLocation());
+	OutGroundLocation = (MeshLoc - RelativeMeshTransform.GetLocation());
+	return false;
 }
 
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)

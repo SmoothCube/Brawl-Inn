@@ -96,7 +96,7 @@ protected:
 
 	FVector FindMeshLocation() const;
 
-	FVector FindMeshGroundLocation() const;
+	bool FindMeshGroundLocation(FVector& OutGroundLocation) const;
 
 	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 5.f;
@@ -108,6 +108,8 @@ protected:
 		float FallLimitMultiplier = 1.5;
 
 	FTimerHandle TH_FallRecoverTimer;
+
+	bool bShouldStand = false; //should be false while standing
 
 	// ********** Hold players **********
 public:

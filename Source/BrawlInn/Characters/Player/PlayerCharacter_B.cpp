@@ -201,7 +201,7 @@ void APlayerCharacter_B::Die()
 	}
 
 	PS_ChiliBrew->Deactivate();
-
+	PS_CandleFlame->Deactivate();
 	if (PunchComponent->OnHitPlayerPunch_D.IsBoundToObject(this))
 		PunchComponent->OnHitPlayerPunch_D.RemoveAll(this);
 
@@ -236,7 +236,14 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 
 void APlayerCharacter_B::StandUp()
 {
+	if (!bIsAlive)
+		return;
+
 	Super::StandUp();
+
+	if (bShouldStand)
+		return;
+
 	if (DirectionIndicatorPlane)
 	{
 		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
