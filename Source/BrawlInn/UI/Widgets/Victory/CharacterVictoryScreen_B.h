@@ -33,6 +33,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UImage* BannerTop;
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void OnShowStatBlock();
+
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UImage* BackgroundColor;
