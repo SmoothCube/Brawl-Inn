@@ -44,7 +44,6 @@ void UPauseMenu_B::NativeOnInitialized()
 	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
 	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
 
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UPauseMenu_B::NativeConstruct()
@@ -81,8 +80,8 @@ void UPauseMenu_B::ContinueButtonClicked()
 
 void UPauseMenu_B::ControlsButtonClicked()
 {
-	ControllerLayout->SetVisibility(ESlateVisibility::Visible);
-
+	ShowControls();
+	
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControllerLayout->GetBackButton()->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
@@ -96,7 +95,7 @@ void UPauseMenu_B::ControlsButtonClicked()
 
 void UPauseMenu_B::ControllerLayoutBackButtonClicked()
 {
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
+	HideControls();
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControlsButton->GetCachedWidget());
