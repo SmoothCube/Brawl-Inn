@@ -95,21 +95,24 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 		float DistInside = -10000000;
 		FVector DistVec = FVector::ZeroVector;
 
-		//This makes it hardcoded to have x towards the front
-		//but the plane normals cant be used so i cant think of any other way
 		FVector DirVec = FVector::ZeroVector;
+		float BorderWidth = 0.f;
 		switch (i)
 		{
 		case 0:
+			BorderWidth = RightBorderWidth;
 			DirVec = Camera->GetRightVector();
 			break;
 		case 1:
+			BorderWidth = LeftBorderWidth;
 			DirVec = -Camera->GetRightVector();
 			break;
 		case 2:
+			BorderWidth = DownBorderWidth;
 			DirVec = -Camera->GetUpVector();
 			break;
 		case 3:
+			BorderWidth = UpBorderWidth;
 			DirVec = Camera->GetUpVector();
 			break;
 		}
@@ -143,7 +146,6 @@ void AGameCamera_B::UpdateCameraPosition(FConvexVolume& scene)
 	for (auto& Actor : ActorsToRemove)
 		ActorsToTrack.Remove(Actor);
 
-	FHitResult OutHit;
 	LerpCameraLocation(GetActorLocation() + Sum);
 
 }
@@ -156,18 +158,40 @@ void AGameCamera_B::LerpCameraLocation(FVector LerpLoc)
 void AGameCamera_B::SetSpringArmLength(FConvexVolume& scene)
 {
 	float FurthestDist = -1000000;
-	for (auto& a : ActorsToTrack)
+	for (int i = 0; i < scene.Planes.Num() - 1; i++)
 	{
-		FVector BorderVector = (a->GetActorLocation() - GetActorLocation()).GetSafeNormal() * BorderWidth;
-		BorderVector.Z = 0;
-		FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
-
-		for (auto& p : scene.Planes)
+		FVector DirVec = FVector::ZeroVector;
+		float BorderWidth = 0.f;
+		switch (i)
 		{
-			float Dist = p.PlaneDot(TrackingPointWithBorder);
-			if (Dist > 0 && Dist > FurthestDist)
+		case 0:
+			BorderWidth = LeftBorderWidth;
+			DirVec = Camera->GetRightVector();
+			break;
+		case 1:
+			BorderWidth = RightBorderWidth;
+			DirVec = -Camera->GetRightVector();
+			break;
+		case 2:
+			BorderWidth = UpBorderWidth;
+			DirVec = -Camera->GetUpVector();
+			break;
+		case 3:
+			BorderWidth = DownBorderWidth;
+			DirVec = Camera->GetUpVector();
+			break;
+		}
+
+		FVector BorderVector = DirVec.GetSafeNormal() * -BorderWidth;
+
+		for (auto& a : ActorsToTrack)
+		{
+			FVector TrackingPointWithBorder = a->GetActorLocation() + BorderVector;
+
+			float Dist = scene.Planes[i].PlaneDot(TrackingPointWithBorder);
+			if (Dist > 0 && Dist > FurthestDist) //outside frustum
 				FurthestDist = Dist;
-			else if (Dist < 0 && Dist > FurthestDist && FurthestDist <= 0)
+			else if (Dist < 0 && Dist > FurthestDist && FurthestDist <= 0) //inside and nothing on outside so far 
 				FurthestDist = Dist;
 		}
 	}
