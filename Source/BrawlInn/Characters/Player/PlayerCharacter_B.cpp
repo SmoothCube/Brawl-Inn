@@ -307,7 +307,7 @@ void APlayerCharacter_B::BreakFree()
 			GameMode->AddCameraFocusPoint(this);
 		}
 	}
-
+	Fall(FVector(0.f), -1.f, false);
 	StandUp();
 
 	CurrentHoldTime = 0.f;
