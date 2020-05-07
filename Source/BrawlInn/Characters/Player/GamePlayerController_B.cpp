@@ -90,7 +90,6 @@ void AGamePlayerController_B::FaceButtonBottomPressed()
 		if(!TryThrow())
 			TryPickup();
 	
-
 	if (RespawnPawn)
 		RespawnPawn->ThrowBarrel();
 }

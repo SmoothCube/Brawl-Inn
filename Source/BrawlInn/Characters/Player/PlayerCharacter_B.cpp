@@ -251,6 +251,9 @@ void APlayerCharacter_B::StandUp()
 	}
 	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
+
+	if (PlayerController && PlayerController->IsPunchChargeInputHeld())
+		PlayerController->TryStartPunchCharge();
 }
 
 void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
