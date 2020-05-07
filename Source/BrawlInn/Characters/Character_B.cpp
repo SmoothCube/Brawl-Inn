@@ -20,13 +20,15 @@
 
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
-#include "Components/PunchComponent_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameModes/MainGameMode_B.h"
-#include "Components/HoldComponent_B.h"
-#include "Components/ThrowComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
+#include "Components/PunchComponent_B.h"
+#include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
+#include "Items/Throwable_B.h"
+#include "DestructibleComponent.h"
 
 ACharacter_B::ACharacter_B()
 {
@@ -451,7 +453,23 @@ EState ACharacter_B::GetState() const
 }
 
 void ACharacter_B::Die()
-{
+{	
+	AActor* Item = HoldComponent->GetHoldingItem();
+	if (Item)
+	{
+		ACharacter_B* C = Cast<ACharacter_B>(Item);
+		if(C)
+			C->Die();
+
+		AThrowable_B* T = Cast<AThrowable_B>(Item);
+		if (T)
+		{
+			T->GetDestructibleComponent()->SetSimulatePhysics(true);
+			T->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			//T->OnComponentFracture(T->GetActorLocation(), FVector(0.f, 0.f, -1.f));
+		}
+	}
+	
 	Fall(FVector::ZeroVector, -1, false);
 	bIsAlive = false;
 }

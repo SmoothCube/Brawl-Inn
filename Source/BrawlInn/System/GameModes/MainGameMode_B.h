@@ -119,9 +119,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
-private:
+public:
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
+private:
 
 	UPROPERTY(EditAnywhere, Category = "UserWidgets")
 	bool bShowGameOverlay = true;
