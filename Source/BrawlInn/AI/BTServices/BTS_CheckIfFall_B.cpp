@@ -42,8 +42,7 @@ void UBTS_CheckIfFall_B::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		OwnerComp.GetBlackboardComponent()->ClearValue(ItemToPickup.SelectedKeyName);
 		return;
 	}
-
-	if ((AICharacter->GetState() == EState::EBeingHeld && AICharacter->HoldComponent->IsHolding()) || (AICharacter->GetState() == EState::EFallen) || AICharacter->GetState() == EState::EBeingHeld)
+	if (AICharacter->GetState() == EState::EFallen || AICharacter->GetState() == EState::EBeingHeld)
 	{
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		check(IsValid(GameMode));
