@@ -41,6 +41,8 @@ void AMainGameMode_B::BeginPlay()
 
 void AMainGameMode_B::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 	CurrentTime += DeltaTime;
 	if (!PlayerSpawnQueue.IsEmpty() && (CurrentTime > Delay))
 	{
@@ -48,7 +50,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 		FPlayerInfo info = *PlayerSpawnQueue.Peek();
 		PlayerSpawnQueue.Pop();
 		AActor* Pawn = SpawnRespawnPawn(info);
-		if(PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
+		if (PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
 		{
 			//LastRespawnPawnDestroyed(Pawn);
 			Pawn->OnDestroyed.AddDynamic(this, &AMainGameMode_B::LastRespawnPawnDestroyed);
@@ -220,7 +222,7 @@ void AMainGameMode_B::StartMultipleScore()
 {
 	bMultipleScore = true;
 	Overlay->DisplayText("Time is running out...", "DOUBLE POINTS!!", 3.f);
-	if(GameInstance)
+	if (GameInstance)
 		GameInstance->PlayAnnouncerLine(DoublePoints);
 
 }
@@ -236,7 +238,7 @@ void AMainGameMode_B::StartGame()
 
 	UGameplayStatics::PlaySound2D(GetWorld(), StartSound, 1.f, 1.0f);
 
-	Overlay->DisplayText("","LET THE BRAWL BEGIN!", 2.f);
+	Overlay->DisplayText("", "LET THE BRAWL BEGIN!", 2.f);
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
@@ -255,6 +257,9 @@ FGameStart& AMainGameMode_B::OnGameStart()
 
 void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
 {
+	if (GameInstance->IgnoreCountdown())
+		return;
+
 	BWarn("Starting Countdown");
 
 	BI::Delay(this, 1, [&]() { PregameCountdown(); });
@@ -280,12 +285,12 @@ void AMainGameMode_B::PostGame()
 
 	GameCamera->SetActorTickEnabled(false);
 	GameInstance->SetCameraSwapTransform(OutroCamera->GetActorTransform());
-	
+
 	GameInstance->PlayAnnouncerLine(RoundOver);
 
 	Overlay->DisplayText("TIME'S UP!", "", 2.f);
 	Overlay->HideScoreBoardAndClock();
-	
+
 	const float BlendTime = 3.f;
 
 
@@ -354,7 +359,7 @@ void AMainGameMode_B::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 
 	if (PropertyName == NAME_None)
 		return;
-	
+
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(AMainGameMode_B, bShowGameOverlay))
 	{
 		if (GetWorld()->IsPlayInEditor() && !bShowGameOverlay && Overlay)

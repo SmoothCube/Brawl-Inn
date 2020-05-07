@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PauseMenu_B.h"
-#include "Kismet/GameplayStatics.h"
+#include "ConfigCacheIni.h"
 #include "Engine/Font.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "BrawlInn.h"
-#include "ConfigCacheIni.h"
 #include "ControllerLayout_B.h"
 #include "Settings/SettingsWidget_B.h"
 #include "System/GameInstance_B.h"
@@ -38,6 +38,13 @@ void UPauseMenu_B::NativeOnInitialized()
 	UIElementsWithInterface.Add(ContinueButton);
 	UIElementsWithInterface.Add(ControlsButton);
 	UIElementsWithInterface.Add(ExitButton);
+	
+
+	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
+	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
+	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
+
+	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UPauseMenu_B::NativeConstruct()
@@ -47,28 +54,11 @@ void UPauseMenu_B::NativeConstruct()
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
-	ContinueButton->SetKeyboardFocus();
-
-	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
-	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
-	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
-
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UPauseMenu_B::RemoveFromParent()
+void UPauseMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	Super::RemoveFromParent();
-
-	if (GetOwningPlayer())
-	{
-		const FInputModeGameOnly InputMode;
-		GetOwningPlayer()->SetInputMode(InputMode);
-	}
-}
-
-void UPauseMenu_B::MenuTick()
-{
+	Super::NativeTick(MyGeometry, InDeltaTime);
 	for (UWidget* Element : UIElementsWithInterface)
 	{
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))

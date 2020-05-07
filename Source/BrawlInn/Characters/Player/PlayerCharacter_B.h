@@ -79,6 +79,18 @@ protected:
 
 	virtual void StandUp() override;
 
+	UPROPERTY(EditAnywhere, Category = "Despawning")
+		float TimeBeforeDespawn = 5.f;
+
+	FTimerHandle TH_Destroy;
+	FTimerHandle TH_Despawn;
+
+	UFUNCTION()
+		void BeginDespawn();
+
+	UFUNCTION()
+		void StartDestroy();
+
 	// ********** Hold players **********
 	virtual void PickedUp_Implementation(ACharacter_B* Player) override;
 
@@ -111,7 +123,7 @@ protected:
 	void DisplayScoreVisuals(FScoreValues ScoreValues);
 
 	FDelegateHandle DisplayScoreVisualsHandle;
-	
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void ScoreParticleTimerStart();
 

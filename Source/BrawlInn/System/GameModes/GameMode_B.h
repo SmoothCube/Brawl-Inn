@@ -34,8 +34,6 @@ public:
 protected:
 	void BeginPlay() override;
 
-	void Tick(float DeltaSeconds) override;
-
 	UFUNCTION(BlueprintCallable)
 		virtual void PostLevelLoad();
 

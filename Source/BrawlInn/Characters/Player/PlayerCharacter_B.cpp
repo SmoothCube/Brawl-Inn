@@ -212,6 +212,20 @@ void APlayerCharacter_B::Die()
 		PlayerController->TryRespawn(RespawnDelay);
 		PlayerController->UnPossess();
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &APlayerCharacter_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &APlayerCharacter_B::StartDestroy, TimeBeforeDespawn + 2.f, false);
+
+}
+
+void APlayerCharacter_B::BeginDespawn()
+{
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+}
+
+void APlayerCharacter_B::StartDestroy()
+{
+	Destroy();
 }
 
 void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)

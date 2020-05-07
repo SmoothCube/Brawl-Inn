@@ -37,14 +37,6 @@ void AGameMode_B::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AGameMode_B::Tick(const float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (IsValid(PauseMenuWidget))
-		PauseMenuWidget->MenuTick();
-}
-
 void AGameMode_B::PostLevelLoad()
 {
 	if (GameInstance)
@@ -73,7 +65,13 @@ void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 
 void AGameMode_B::ResumeGame()
 {
+	if (PauseMenuWidget->GetOwningPlayer())
+	{
+		const FInputModeGameOnly InputMode;
+		PauseMenuWidget->GetOwningPlayer()->SetInputMode(InputMode);
+	}
 	PauseMenuWidget->RemoveFromParent();
+	PauseMenuWidget = nullptr;
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 

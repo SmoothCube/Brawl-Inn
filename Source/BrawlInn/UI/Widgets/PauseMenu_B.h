@@ -21,9 +21,9 @@ protected:
 	void NativeOnInitialized() override;
 
 	void NativeConstruct() override;
-public:
-	void RemoveFromParent() override;
-protected:
+
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
 	// ********** Widgets **********
 
 	UPROPERTY(meta = (BindWidget))
@@ -47,12 +47,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
 
-	// ********** Functions **********
-public:
-
-	void MenuTick();
-
-protected:
 	// ********** Button clicks **********
 
 	UFUNCTION(BlueprintImplementableEvent)
