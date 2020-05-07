@@ -61,6 +61,12 @@ protected:
 	UFUNCTION()
 		void ControlsButtonClicked();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowControls();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideControls();
+
 	UFUNCTION()
 		void ControllerLayoutBackButtonClicked();
 
