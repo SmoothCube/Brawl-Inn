@@ -76,12 +76,17 @@ void UPauseMenu_B::MenuTick()
 	}
 }
 
-void UPauseMenu_B::ContinueButtonClicked()
+void UPauseMenu_B::OnPauseMenuHideFinished()
 {
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	check(IsValid(GameMode));
 
 	GameMode->ResumeGame();
+}
+
+void UPauseMenu_B::ContinueButtonClicked()
+{
+	OnPauseMenuHide();
 }
 
 void UPauseMenu_B::ControlsButtonClicked()

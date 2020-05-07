@@ -55,6 +55,12 @@ public:
 protected:
 	// ********** Button clicks **********
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnPauseMenuHide();
+
+	UFUNCTION(BlueprintCallable)
+	void OnPauseMenuHideFinished();
+	
 	UFUNCTION()
 		void ContinueButtonClicked();
 

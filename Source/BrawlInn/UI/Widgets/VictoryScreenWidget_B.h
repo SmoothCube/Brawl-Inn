@@ -60,9 +60,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void EnableContinueButton();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayStatBlockAnimations();
+
+	UFUNCTION(BlueprintCallable)
+		void OnStatBlockAnimationsFinished();
+
 	void DisplayScores(EScoreValueTypes Type);
 
 	void AddToCountQueue(int Start, int End, UTextBlock* TextBlock, int PlayerControllerID);
+
+	bool bCanCount = false;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
