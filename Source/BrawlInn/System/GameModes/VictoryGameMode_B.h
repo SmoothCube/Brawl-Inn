@@ -6,6 +6,8 @@
 #include "System/GameModes/GameMode_B.h"
 #include "VictoryGameMode_B.generated.h"
 
+class ABarNavLinkProxy_B;
+class ANavLinkProxy;
 class UVictoryScreenWidget_B;
 class ULevelSequencePlayer;
 class ULevelSequence;
@@ -48,7 +50,7 @@ protected:
 	// ********** Final Scores **********
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartFadeToScore();
+		void StartFadeToScore();
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<UVictoryScreenWidget_B> VictoryScreen_BP;
@@ -59,4 +61,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
 		TSubclassOf<ACameraActor> VictoryCamera_BP;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
+		TSubclassOf<ABarNavLinkProxy_B> MinerLink_BP;
+
 };

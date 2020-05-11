@@ -11,6 +11,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "LevelSequencePlayer.h"
+#include "AI/BarNavLinkProxy_B.h"
 
 #include "System/GameInstance_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
@@ -72,6 +73,19 @@ void AVictoryGameMode_B::PostLevelLoad()
 	checkf(IsValid(VictoryCamera_BP), TEXT("VictoryCamera_BP is not set! Make sure to set it in the Blueprint!"));
 
 	ACameraActor* VictoryCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), VictoryCamera_BP));
+
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), MinerLink_BP, OutActors);
+
+	for(auto Actor : OutActors)
+	{
+		auto BarNavLink = Cast<ABarNavLinkProxy_B>(Actor);
+		if(BarNavLink)
+		{
+			BarNavLink->PostLevelLoad();
+		}
+	}
+	
 
 	UpdateViewTargets(VictoryCamera, 3);
 }
