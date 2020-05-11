@@ -76,7 +76,7 @@ protected:
 	void CheckTimeVoicelines();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Clock")
-		int TimeRemainingBeforeMultipleScore = 20;
+		int TimeRemainingBeforeMultipleScore = 15;
 
 	void StartMultipleScore();
 
