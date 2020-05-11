@@ -13,6 +13,7 @@
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
+#include "AI/BarNavLinkProxy_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Items/LeaderFollower_B.h"
@@ -92,6 +93,18 @@ void AMainGameMode_B::PostLevelLoad()
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 		PlayerSpawnQueue.Enqueue(Info);
 		//SpawnCharacter(Info, false, FTransform());
+	}
+
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), MinerLink_BP, OutActors);
+
+	for (auto Actor : OutActors)
+	{
+		auto BarNavLink = Cast<ABarNavLinkProxy_B>(Actor);
+		if (BarNavLink)
+		{
+			BarNavLink->PostLevelLoad();
+		}
 	}
 
 	UpdateViewTargets();

@@ -6,8 +6,6 @@
 #include "System/GameModes/GameMode_B.h"
 #include "VictoryGameMode_B.generated.h"
 
-class ABarNavLinkProxy_B;
-class ANavLinkProxy;
 class UVictoryScreenWidget_B;
 class ULevelSequencePlayer;
 class ULevelSequence;
@@ -61,8 +59,5 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
 		TSubclassOf<ACameraActor> VictoryCamera_BP;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
-		TSubclassOf<ABarNavLinkProxy_B> MinerLink_BP;
 
 };

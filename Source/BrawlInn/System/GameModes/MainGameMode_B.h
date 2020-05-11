@@ -9,6 +9,7 @@
 
 #include "MainGameMode_B.generated.h"
 
+class ABarNavLinkProxy_B;
 class UBar_B;
 class ATriggerBox;
 class AGameCamera_B;
@@ -210,5 +211,10 @@ protected:
 
 	UPROPERTY()
 		ALeaderFollower_B* LeaderFollower = nullptr;
+
+	// ********** Misc. **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
+		TSubclassOf<ABarNavLinkProxy_B> MinerLink_BP;
 };
 
