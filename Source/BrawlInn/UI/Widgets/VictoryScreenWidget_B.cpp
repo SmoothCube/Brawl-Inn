@@ -11,6 +11,7 @@
 #include "Image.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/VictoryGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/Button_B.h"
 #include "Victory/CharacterVictoryScreen_B.h"
@@ -124,6 +125,12 @@ void UVictoryScreenWidget_B::OnStatBlockAnimationsFinished()
 {
 	bCanCount = true;
 	EnableContinueButton();
+
+	AVictoryGameMode_B* GameMode = Cast<AVictoryGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		GameMode->SetCanContinue(true);
+	}
 }
 
 void UVictoryScreenWidget_B::DisplayScores(const EScoreValueTypes Type)

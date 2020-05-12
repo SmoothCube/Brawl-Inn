@@ -12,6 +12,7 @@
 #include "Engine/LocalPlayer.h"
 #include "LevelSequencePlayer.h"
 
+#include "System/Utils.h"
 #include "System/GameInstance_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
 
@@ -74,12 +75,25 @@ void AVictoryGameMode_B::PostLevelLoad()
 	ACameraActor* VictoryCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), VictoryCamera_BP));
 
 	UpdateViewTargets(VictoryCamera, 3);
+
+	BI::Delay(this, 3, [&]()
+		{
+			StartFadeToScore();
+			FadeHandle = BI::Delay(this, 6, [&]() { StartFadeToScore(); });
+		});
+}
+
+void AVictoryGameMode_B::SetCanContinue(const bool Value)
+{
+	bCanContinue = Value;
 }
 
 void AVictoryGameMode_B::StartFadeToScore()
 {
 	if (bFinalScoreVisible)
 		return;
+
+	BI::StopDelay(this, FadeHandle);
 
 	if (!Skip->IsVisible())
 	{

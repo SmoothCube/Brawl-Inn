@@ -128,6 +128,9 @@ public:
 
 	const FString& GetVictoryMapName() const;
 
+	UFUNCTION(BlueprintCallable)
+	void ReturnToMainMenuB();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Maps")

@@ -44,6 +44,12 @@ protected:
 	UPROPERTY()
 		UUserWidget* Skip = nullptr;
 
+public:
+	void SetCanContinue(bool Value);
+protected:
+	
+	UPROPERTY(BlueprintReadOnly)
+		bool bCanContinue = false;
 
 	// ********** Final Scores **********
 public:
@@ -59,5 +65,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
 		TSubclassOf<ACameraActor> VictoryCamera_BP;
+
+	FTimerHandle FadeHandle;
 
 };
