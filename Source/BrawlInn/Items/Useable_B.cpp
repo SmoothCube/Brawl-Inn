@@ -73,7 +73,7 @@ void AUseable_B::Tick(float DeltaTime)
 			Ignore.Add(this);
 
 			FVector HitLocation = FVector::ZeroVector;
-			bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), GetActorLocation(), GetActorLocation(), 1000.f, ETraceTypeQuery::TraceTypeQuery3, false, Ignore, EDrawDebugTrace::None, Hit, true);
+			bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), GetActorLocation(), GetActorLocation(), 1000.f, ETraceTypeQuery::TraceTypeQuery3, true, Ignore, EDrawDebugTrace::None, Hit, true);
 
 			if (bHit)
 			{
