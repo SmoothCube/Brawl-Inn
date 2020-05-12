@@ -60,6 +60,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 		UPauseMenu_B* PauseMenuWidget = nullptr;
 
+	bool bCanPause = true;
+
 public:
 
 	// ********** Character Spawning **********

@@ -33,6 +33,8 @@ void AMenuGameMode_B::PostLevelLoad()
 	PrepareCharacterSelection();
 
 	ShowMainMenu();
+
+	bCanPause = false;
 }
 
 void AMenuGameMode_B::PrepareCharacterSelection()
@@ -189,6 +191,8 @@ void AMenuGameMode_B::OnToGameLevelSequencePaused()
 
 void AMenuGameMode_B::OnIntroLevelSequencePaused()
 {
+	bCanPause = true;
+	
 	ACameraActor* SequenceCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), SequenceCamera_BP));
 	check(IsValid(SequenceCamera));
 	UpdateViewTargets(SequenceCamera, 1, true);
@@ -245,7 +249,6 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 	APlayerCharacter_B* Character = PlayerControllerThatSelected->GetPlayerCharacter();
 	PlayerControllerThatSelected->UnPossess();
 
-
 	Character->SetActorTransform(CharacterStartTransforms[PlayerControllerID]);
 	Character->GetMovementComponent()->StopMovementImmediately();
 
@@ -261,7 +264,6 @@ void AMenuGameMode_B::UnSelect(AMenuPlayerController_B* PlayerControllerThatSele
 
 	if (PlayersActiveUpdated.IsBound())
 		PlayersActiveUpdated.Execute();
-
 }
 
 void AMenuGameMode_B::UpdateCharacterVisuals(AMenuPlayerController_B* PlayerController, ASelectionPawn_B* const SelectionPawn, const int ID)

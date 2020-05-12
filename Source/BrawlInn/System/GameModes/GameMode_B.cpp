@@ -58,6 +58,9 @@ void AGameMode_B::EnableControllerInputs()
 
 void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 {
+	if (!bCanPause)
+		return;
+	
 	check(IsValid(BP_PauseMenu));
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
 	PauseMenuWidget->AddToViewport();

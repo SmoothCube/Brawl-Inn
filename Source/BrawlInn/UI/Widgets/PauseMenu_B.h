@@ -16,14 +16,14 @@ class BRAWLINN_API UPauseMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
 
-		// ********** UUserWidget **********
+	// ********** UUserWidget **********
 protected:
 	void NativeOnInitialized() override;
 
 	void NativeConstruct() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-	
+
 	// ********** Widgets **********
 
 	UPROPERTY(meta = (BindWidget))
@@ -53,8 +53,8 @@ protected:
 		void OnPauseMenuHide();
 
 	UFUNCTION(BlueprintCallable)
-	void OnPauseMenuHideFinished();
-	
+		void OnPauseMenuHideFinished();
+
 	UFUNCTION()
 		void ContinueButtonClicked();
 

@@ -150,14 +150,19 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* OneSecondRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* TwoSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* ThreeSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* FourSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* FiveSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* TenSecondsRemaining;
 
@@ -170,7 +175,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* DoublePoints;
 	
-
 private:
 
 	// ********** Timer **********

@@ -38,7 +38,6 @@ void UPauseMenu_B::NativeOnInitialized()
 	UIElementsWithInterface.Add(ContinueButton);
 	UIElementsWithInterface.Add(ControlsButton);
 	UIElementsWithInterface.Add(ExitButton);
-	
 
 	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
 	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
@@ -58,6 +57,7 @@ void UPauseMenu_B::NativeConstruct()
 void UPauseMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+	
 	for (UWidget* Element : UIElementsWithInterface)
 	{
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
