@@ -28,6 +28,7 @@
 #include "UI/Widgets/PauseMenu_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 AMainGameMode_B::AMainGameMode_B()
 {
@@ -245,6 +246,11 @@ bool AMainGameMode_B::MultipleScoreIsActivated() const
 	return bMultipleScore;
 }
 
+bool AMainGameMode_B::GameIsOver() const
+{
+	return bGameIsOver;
+}
+
 void AMainGameMode_B::StartGame()
 {
 	OnGameStart_Delegate.Broadcast();
@@ -283,13 +289,18 @@ void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
 void AMainGameMode_B::PostGame()
 {
 	bGameIsOver = true;
+
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	//TODO PostGame needs to be implemented.
 
 	DisableControllerInputs();
+
+	for (auto Controller : PlayerControllers)
+	{
+		if (Controller && Controller->GetPlayerCharacter())
+			Controller->GetPlayerCharacter()->SetActorTickEnabled(false);
+	}
+
 	LeaderFollower->Destroy();
-
-
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "EndGame", OutActors);
@@ -306,21 +317,21 @@ void AMainGameMode_B::PostGame()
 
 	const float BlendTime = 3.f;
 
-
 	UpdateViewTargets(OutroCamera, BlendTime, true);
 	BI::Delay(this, BlendTime, [&]() {UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName()); });
 
 	auto TempPlayerControllers = PlayerControllers;
 	SortPlayerControllersByScore(TempPlayerControllers);
 
+	//Sort PlayerInfo based on Score
 	TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
 	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
 		{
 			APlayerController* LeftController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Left.ID);
 			APlayerController* RightController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Right.ID);
 
-			int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-			int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			const int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			const int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 			if (LeftScore >= RightScore)
 				return true;
 			return false;
@@ -346,7 +357,6 @@ void AMainGameMode_B::CallOnAnyScoreChange() const
 
 void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
 	if (Character)
 	{

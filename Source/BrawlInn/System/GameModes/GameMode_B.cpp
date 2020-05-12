@@ -13,6 +13,7 @@
 #include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"

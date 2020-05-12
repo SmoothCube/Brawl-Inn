@@ -112,6 +112,7 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	if (GetState() == EState::EPoweredUp)
 	{
 		HandleMovementPoweredUp(DeltaTime);

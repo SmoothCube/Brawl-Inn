@@ -82,6 +82,8 @@ protected:
 
 public:
 	bool MultipleScoreIsActivated() const;
+
+	bool GameIsOver() const;
 protected:
 	bool bMultipleScore = false;
 
