@@ -311,6 +311,24 @@ void AMenuGameMode_B::HoverRight(AMenuPlayerController_B* PlayerController)
 	UpdateCharacterVisuals(PlayerController, SelectionPawn, PlayerControllerID);
 }
 
+void AMenuGameMode_B::HoverRightForHiddenCharacters(AMenuPlayerController_B* PlayerController)
+{
+	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerController);
+
+	ASelectionPawn_B* SelectionPawn = PlayerController->GetSelectionPawn();
+
+	PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num()); // Set the next index as current index.
+
+	FPlayerInfo Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	while (Variant.CharacterVariant.bTaken == true)
+	{
+		PlayerController->SetCharacterVariantIndex((PlayerController->GetCharacterVariantIndex() + 1) % CharacterVariants.Num());
+		Variant = CharacterVariants[PlayerController->GetCharacterVariantIndex()];
+	}
+
+	UpdateCharacterVisuals(PlayerController, SelectionPawn, PlayerControllerID);
+}
+
 UCharacterSelectionOverlay_B* AMenuGameMode_B::GetCharacterSelectionOverlay() const
 {
 	return CharacterSelectionOverlay;
@@ -329,7 +347,7 @@ void AMenuGameMode_B::UpdateOtherSelections()
 			if (CharacterVariants[i].CharacterVariant.bTaken == true)
 			{
 				if (Controller->GetCharacterVariantIndex() == i)
-					HoverRight(Controller);
+					HoverRightForHiddenCharacters(Controller);
 			}
 		}
 	}

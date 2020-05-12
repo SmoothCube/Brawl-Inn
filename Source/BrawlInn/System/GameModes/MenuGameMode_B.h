@@ -105,6 +105,8 @@ public:
 	void HoverLeft(AMenuPlayerController_B* PlayerController);
 
 	void HoverRight(AMenuPlayerController_B* PlayerController);
+	
+	void HoverRightForHiddenCharacters(AMenuPlayerController_B* PlayerController);
 
 	UCharacterSelectionOverlay_B* GetCharacterSelectionOverlay() const;
 
