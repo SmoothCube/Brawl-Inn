@@ -22,6 +22,8 @@
 #include "Items/Throwable_B.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Characters/AI/AICharacter_B.h"
+#include "Characters/AI/IdleAICharacter_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "System/DataTable_B.h"
@@ -586,6 +588,13 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 			Direction *= PunchComponent->DashPushStrength;
 
 			DamageAmount = DashThroughScoreValue;
+
+			const auto AICharacter = Cast<AAICharacter_B>(OtherCharacter);
+			const auto IdleAICharacter = Cast<AIdleAICharacter_B>(OtherCharacter);
+			if (AICharacter || IdleAICharacter)
+			{
+				OtherCharacter->CheckFall(Direction);
+			}
 		}
 		OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
 		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());
