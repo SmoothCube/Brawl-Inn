@@ -109,6 +109,12 @@ void ACharacter_B::Tick(float DeltaTime)
 	{
 		HandleMovement(DeltaTime);
 	}
+
+	if (GetState() == EState::EBeingHeld && HoldingCharacter)
+	{
+		//BWarn("%s RelativeRotation: %s", *GetNameSafe(this), *Relative); // if we can find an actor's relative transform and see if it changes we might be able to see if this solution actually works or not
+		SetActorRelativeLocation(Execute_GetHoldLocation(this));
+	}
 }
 
 void ACharacter_B::SetInputVectorX(const float X)
