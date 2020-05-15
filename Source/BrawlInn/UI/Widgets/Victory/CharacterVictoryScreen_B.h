@@ -25,6 +25,9 @@ public:
 		UTextBlock* ScoreNumber;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* Title;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UImage* CharacterRender;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

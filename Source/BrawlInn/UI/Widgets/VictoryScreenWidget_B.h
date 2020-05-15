@@ -50,9 +50,13 @@ class BRAWLINN_API UVictoryScreenWidget_B : public UUserWidget
 	GENERATED_BODY()
 protected:
 
-	virtual void NativeOnInitialized() override;
+	void UpdateBackgroundColors();
 
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	void AddRandomTitles();
+	
+	void NativeOnInitialized() override;
+
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION()
 		void ContinueButtonClicked();
@@ -102,18 +106,32 @@ protected:
 	TArray<FCountNumberQueue> CountNumbers;
 
 	UPROPERTY(EditAnywhere)
-	TArray<TEnumAsByte<EScoreValueTypes>> ScoreCountingOrder;
+		TArray<TEnumAsByte<EScoreValueTypes>> ScoreCountingOrder;
 
 	FNumberFormattingOptions FormattingOptions;
 
 	// ********** Color **********
 
 	UPROPERTY(EditDefaultsOnly, Category = "Color", meta = (ToolTip = "Assumes: Red,Green,Purple,Blue"))
-	TArray<FLinearColor> BackgroundColorsInOrder;
+		TArray<FLinearColor> BackgroundColorsInOrder;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Color", meta = (ToolTip = "Assumes: Red,Green,Purple,Blue"))
 		TArray<UTexture*> BannerBotInOrder;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Color", meta = (ToolTip = "Assumes: Red,Green,Purple,Blue"))
 		TArray<UTexture*> BannerTopInOrder;
+
+	// ********** Titles **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Titles", meta = (ToolTip = "Assumes: 1st,2nd,3rd,4th"))
+		TArray<FString> FirstPlaceTitles;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Titles", meta = (ToolTip = "Assumes: 1st,2nd,3rd,4th"))
+		TArray<FString> SecondPlaceTitles;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Titles", meta = (ToolTip = "Assumes: 1st,2nd,3rd,4th"))
+		TArray<FString> ThirdPlaceTitles;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Titles", meta = (ToolTip = "Assumes: 1st,2nd,3rd,4th"))
+		TArray<FString> FourthPlaceTitles;
 };
