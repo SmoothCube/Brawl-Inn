@@ -163,7 +163,7 @@ FOnCharacterSpawn& AGameMode_B::OnCharacterSpawn()
 }
 
 // Når man respawner gjennom en barrel
-AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
+AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo, bool bShouldExplode)
 {
 	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
 	if (!PlayerController) { BError("Can't find the PlayerController!"); return nullptr; }
@@ -179,6 +179,7 @@ AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo)
 	
 	if (RespawnPawn)
 	{
+		RespawnPawn->bBarrelShouldExplode = bShouldExplode;
 		RespawnPawn->TimeUntilAutoThrow = 0.5f;
 		PlayerController->Possess(RespawnPawn);
 		PlayerController->RespawnPawn = RespawnPawn;

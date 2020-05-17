@@ -51,7 +51,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 		CurrentTime = 0.f;
 		FPlayerInfo info = *PlayerSpawnQueue.Peek();
 		PlayerSpawnQueue.Pop();
-		AActor* Pawn = SpawnRespawnPawn(info);
+		AActor* Pawn = SpawnRespawnPawn(info, false);
 		if (PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
 		{
 			//LastRespawnPawnDestroyed(Pawn);

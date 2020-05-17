@@ -103,7 +103,7 @@ void ARespawnPawn_B::SetupBarrel(ABounceActor_B* NewBarrel)
 	if (NewBarrel)
 	{
 		Barrel = NewBarrel;
-		NewBarrel->SetupBarrel(Cast<APlayerController_B>(GetController()));
+		NewBarrel->SetupBarrel(Cast<APlayerController_B>(GetController()), bBarrelShouldExplode);
 		AMainGameMode_B* GameMode = Cast<AMainGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
 		{

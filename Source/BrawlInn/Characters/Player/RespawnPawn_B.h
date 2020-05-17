@@ -74,6 +74,9 @@ protected:
 	bool bBarrelIsThrown = false;
 
 	bool bCanBreakBarrel = false;
+public:
+	bool bBarrelShouldExplode = true;
+protected:
 
 	UPROPERTY()
 		AGameCamera_B* GameCamera = nullptr;

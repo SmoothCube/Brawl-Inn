@@ -78,8 +78,9 @@ void ABounceActor_B::OnItemFracture()
 
 	SpawnPlayerCharacter();
 
-	if (PlayerController)
+	if (PlayerController && bShouldExplode)
 	{
+		BWarn("Applying Radial Damage");
 		UGameplayStatics::ApplyRadialDamage(GetWorld(), ScoreAmount, GetActorLocation(), Radius, BP_DamageType, {}, this, PlayerController, true);
 	}
 
@@ -103,10 +104,10 @@ void ABounceActor_B::SpawnPlayerCharacter()
 	}
 }
 
-void ABounceActor_B::SetupBarrel(APlayerController_B* Controller)
+void ABounceActor_B::SetupBarrel(APlayerController_B* Controller, bool bBarrelShouldExplode)
 {
 	PlayerController = Controller;
-
+	bShouldExplode = bBarrelShouldExplode;
 	UMaterialInstanceDynamic* MeshMaterial = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
 	if (MeshMaterial)
 	{

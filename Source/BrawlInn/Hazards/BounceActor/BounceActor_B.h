@@ -30,7 +30,7 @@ public:
 
 	void SpawnPlayerCharacter();
 
-	void SetupBarrel(APlayerController_B* Controller);
+	void SetupBarrel(APlayerController_B* Controller, bool bBarrelShouldExplode = true);
 	void BreakBarrel();
 
 	UPROPERTY(EditAnywhere)
@@ -51,5 +51,7 @@ public:
 	APlayerController_B* PlayerController = nullptr;
 
 	bool bShouldDestroyTarget = false;
+
+	bool bShouldExplode = true;
 
 };

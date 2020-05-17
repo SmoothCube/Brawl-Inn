@@ -71,7 +71,7 @@ public:
 	UFUNCTION()
 	void RespawnCharacter(FPlayerInfo PlayerInfo);
 		
-	AActor* SpawnRespawnPawn(FPlayerInfo PlayerInfo);
+	AActor* SpawnRespawnPawn(FPlayerInfo PlayerInfo, bool bShouldExplode = true);
 
 	FOnCharacterSpawn& OnCharacterSpawn();
 
