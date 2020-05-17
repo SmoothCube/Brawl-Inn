@@ -73,7 +73,7 @@ protected:
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 public:
-	
+
 	virtual void Die() override;
 protected:
 	void PlayApplauseOnNearbyNPCs();
@@ -194,9 +194,14 @@ protected:
 
 	virtual void OnCapsuleOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Clap", meta = (ToolTip = "The maximum distance to a NPC so it can clap. Calculated from the players location when it dies"))
+		float MaxClapDistanceToNPC = 1500.f;
+
 private:
 	FTimerHandle TH_MakeNoiseTimer;
 
 	UPROPERTY()
 		UGameInstance_B* GameInstance = nullptr;
+
+
 };

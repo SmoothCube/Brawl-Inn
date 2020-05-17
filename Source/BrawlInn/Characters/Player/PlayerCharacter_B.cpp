@@ -233,7 +233,7 @@ void APlayerCharacter_B::PlayApplauseOnNearbyNPCs()
 	
 	for(auto Actor : OutActors)
 	{
-		if (GetDistanceTo(Actor) <= 1500.f)
+		if (GetDistanceTo(Actor) <= MaxClapDistanceToNPC)
 			ActorsToKeep.Add(Actor);
 	}
 
