@@ -185,6 +185,9 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 void APlayerCharacter_B::Die()
 {
 	Super::Die();
+
+	PlayApplauseOnNearbyNPCs();
+	
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
@@ -219,6 +222,29 @@ void APlayerCharacter_B::Die()
 	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &APlayerCharacter_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
 	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &APlayerCharacter_B::StartDestroy, TimeBeforeDespawn + 2.f, false);
 
+}
+
+void APlayerCharacter_B::PlayApplauseOnNearbyNPCs()
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AIdleAICharacter_B::StaticClass(), OutActors);
+
+	TArray<AActor*> ActorsToKeep;
+	
+	for(auto Actor : OutActors)
+	{
+		if (GetDistanceTo(Actor) <= 1500.f)
+			ActorsToKeep.Add(Actor);
+	}
+
+	for(auto Actor : ActorsToKeep)
+	{
+		auto NPC = Cast<AIdleAICharacter_B>(Actor);
+		if(NPC)
+		{
+			NPC->PlayApplauseMontage();
+		}
+	}
 }
 
 void APlayerCharacter_B::BeginDespawn()
@@ -439,8 +465,6 @@ void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
 
 void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)
 {
-	if (ScoreValues.LastScoreAdded <= 0)
-		return;
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ScoreParticle, GetActorLocation());
 

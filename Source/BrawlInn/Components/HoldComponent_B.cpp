@@ -73,10 +73,14 @@ bool UHoldComponent_B::TryPickup()
 		OverlappingThrowables.Sort([&](const AActor& LeftSide, const AActor& RightSide)
 			{
 				const IThrowableInterface_B* Interface1 = Cast<IThrowableInterface_B>(&LeftSide);
-				const IThrowableInterface_B* Interface2 = Cast<IThrowableInterface_B>(&LeftSide);
+				const IThrowableInterface_B* Interface2 = Cast<IThrowableInterface_B>(&RightSide);
 
-				const float ValueA = Interface1->Execute_GetPickupWeight(&LeftSide);
-				const float ValueB = Interface2->Execute_GetPickupWeight(&LeftSide);
+				float ValueA = 0, ValueB = 0;
+
+				if (Interface1)
+					ValueA = Interface1->Execute_GetPickupWeight(&LeftSide);
+				if (Interface2)
+					ValueB = Interface2->Execute_GetPickupWeight(&RightSide);
 				return ValueA > ValueB;
 			});
 		NearestItem = OverlappingThrowables[0];
@@ -90,10 +94,15 @@ bool UHoldComponent_B::TryPickup()
 		ThrowableItemsInCone.Sort([&](const AActor& LeftSide, const AActor& RightSide)	//TODO Ooptimize?
 			{
 				const IThrowableInterface_B* Interface1 = Cast<IThrowableInterface_B>(&LeftSide);
-				const IThrowableInterface_B* Interface2 = Cast<IThrowableInterface_B>(&LeftSide);
+				const IThrowableInterface_B* Interface2 = Cast<IThrowableInterface_B>(&RightSide);
 
-				const float ValueA = Interface1->Execute_GetPickupWeight(&LeftSide);
-				const float ValueB = Interface2->Execute_GetPickupWeight(&LeftSide);
+				float ValueA = 0, ValueB = 0;
+
+				if (Interface1)
+					ValueA = Interface1->Execute_GetPickupWeight(&LeftSide);
+				if (Interface2)
+					ValueB = Interface2->Execute_GetPickupWeight(&RightSide);
+			
 				return ValueA < ValueB;
 			});
 		if (ThrowableItemsInCone.IsValidIndex(0))

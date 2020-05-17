@@ -5,9 +5,13 @@
 
 void UScoreText_B::DisplayScore(const int Score, const bool bIsMultiplied, const bool bIsAgainstLeader, FLinearColor Color)
 {
-	if (XOR(bIsMultiplied, bIsAgainstLeader)) 
+	if (Score < 0)
 	{
-		ScoreText->SetText(FText::FromString("+" + FString::FormatAsNumber(Score/2) + "x2"));
+		ScoreText->SetText(FText::FromString(FString::FormatAsNumber(Score)));
+	}
+	else if (XOR(bIsMultiplied, bIsAgainstLeader))
+	{
+		ScoreText->SetText(FText::FromString("+" + FString::FormatAsNumber(Score / 2) + "x2"));
 	}
 	else if (bIsMultiplied && bIsAgainstLeader)
 	{

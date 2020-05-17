@@ -73,8 +73,11 @@ protected:
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 public:
+	
 	virtual void Die() override;
 protected:
+	void PlayApplauseOnNearbyNPCs();
+
 	virtual void Fall(FVector MeshForce = FVector::ZeroVector, float RecoveryTime = -1, bool bPlaySound = true) override;
 
 	virtual void StandUp() override;

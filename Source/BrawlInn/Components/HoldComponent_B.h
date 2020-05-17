@@ -36,6 +36,7 @@ protected:
 
 	// ********** Holding **********
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsHolding() const;
 
 	AActor* GetHoldingItem() const;

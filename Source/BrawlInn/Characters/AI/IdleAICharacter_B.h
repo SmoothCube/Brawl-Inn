@@ -14,7 +14,7 @@ class BRAWLINN_API AIdleAICharacter_B : public ACharacter_B
 {
 	GENERATED_BODY()
 
-	AIdleAICharacter_B();
+		AIdleAICharacter_B();
 protected:
 	// ********** AActor **********
 	void BeginPlay() override;
@@ -22,17 +22,23 @@ protected:
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void FellOutOfWorld(const UDamageType& dmgType) override;
-	
+
 	// ********** Components **********
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UMergeMeshComponent_B* MergeMeshComponent;
-		
+		UMergeMeshComponent_B* MergeMeshComponent;
+
 	// ********** ACharacter_B **********
 
 	void Die() override;
-	
+
 	void SetState(EState StateIn) override;
 
+	// ********** Applause **********
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayApplauseMontage();
+
+protected:
 	// ********** Location/Movement **********
 
 	void Respawn();
@@ -53,17 +59,18 @@ public:
 	void OrderDrink();
 
 	bool CanOrderDrink() const;
-	
+
 	void TryPickup();
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category="Ordering")
-	TSubclassOf<AAIDropPoint_B> BP_DropPoint;
+	UPROPERTY(EditDefaultsOnly, Category = "Ordering")
+		TSubclassOf<AAIDropPoint_B> BP_DropPoint;
 
 	UPROPERTY(EditAnywhere, Category = "Ordering")
-	bool bCanOrderDrink = true;
+		bool bCanOrderDrink = true;
 
 	UPROPERTY()
 		UBar_B* Bar = nullptr;
+
 
 };
