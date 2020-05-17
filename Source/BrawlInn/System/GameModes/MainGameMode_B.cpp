@@ -13,6 +13,7 @@
 #include "TimerManager.h"
 
 #include "BrawlInn.h"
+#include "AI/BarNavLinkProxy_B.h"
 #include "Characters/Player/GamePlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Items/LeaderFollower_B.h"
@@ -27,6 +28,7 @@
 #include "UI/Widgets/PauseMenu_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 AMainGameMode_B::AMainGameMode_B()
 {
@@ -41,6 +43,8 @@ void AMainGameMode_B::BeginPlay()
 
 void AMainGameMode_B::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 	CurrentTime += DeltaTime;
 	if (!PlayerSpawnQueue.IsEmpty() && (CurrentTime > Delay))
 	{
@@ -48,7 +52,7 @@ void AMainGameMode_B::Tick(float DeltaTime)
 		FPlayerInfo info = *PlayerSpawnQueue.Peek();
 		PlayerSpawnQueue.Pop();
 		AActor* Pawn = SpawnRespawnPawn(info);
-		if(PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
+		if (PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
 		{
 			//LastRespawnPawnDestroyed(Pawn);
 			Pawn->OnDestroyed.AddDynamic(this, &AMainGameMode_B::LastRespawnPawnDestroyed);
@@ -90,6 +94,18 @@ void AMainGameMode_B::PostLevelLoad()
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 		PlayerSpawnQueue.Enqueue(Info);
 		//SpawnCharacter(Info, false, FTransform());
+	}
+
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), MinerLink_BP, OutActors);
+
+	for (auto Actor : OutActors)
+	{
+		auto BarNavLink = Cast<ABarNavLinkProxy_B>(Actor);
+		if (BarNavLink)
+		{
+			BarNavLink->PostLevelLoad();
+		}
 	}
 
 	UpdateViewTargets();
@@ -167,36 +183,60 @@ void AMainGameMode_B::CheckTimeVoicelines()
 {
 	if (!GameInstance) return;
 
-	if(GameTimeRemaining == 1)
-			GameInstance->PlayAnnouncerLine(OneSecondRemaining);
+	if (GameTimeRemaining == 1)
+	{
+		Overlay->DisplayText("", "1", 1.f);
+		GameInstance->PlayAnnouncerLine(OneSecondRemaining);
+	}
 
 	if (GameTimeRemaining == 2)
+	{
+		Overlay->DisplayText("", "2", 1.f);
 		GameInstance->PlayAnnouncerLine(TwoSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 3)
+	{
+		Overlay->DisplayText("", "3", 1.f);
 		GameInstance->PlayAnnouncerLine(ThreeSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 4)
+	{
+		Overlay->DisplayText("", "4", 1.f);
 		GameInstance->PlayAnnouncerLine(FourSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 5)
+	{
+		Overlay->DisplayText("", "5", 1.f);
 		GameInstance->PlayAnnouncerLine(FiveSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 10)
+	{
+		Overlay->DisplayText("", "Ten Seconds Remaining!", 2.f);
 		GameInstance->PlayAnnouncerLine(TenSecondsRemaining);
+	}
 
 	if (GameTimeRemaining == 60)
+	{
+		Overlay->DisplayText("", "One Minute Remaining!", 3.f);
 		GameInstance->PlayAnnouncerLine(OneMinuteRemaining);
+	}
 
-	if (GameTimeRemaining == FullGameTime/2)
+	if (GameTimeRemaining == FullGameTime / 2)
+	{
+		Overlay->DisplayText("", "Halfway through the round!", 3.f);
 		GameInstance->PlayAnnouncerLine(HalfwayPoint);
+	}
 }
 
 void AMainGameMode_B::StartMultipleScore()
 {
 	bMultipleScore = true;
 	Overlay->DisplayText("Time is running out...", "DOUBLE POINTS!!", 3.f);
-	if(GameInstance)
+	if (GameInstance)
 		GameInstance->PlayAnnouncerLine(DoublePoints);
 
 }
@@ -206,13 +246,18 @@ bool AMainGameMode_B::MultipleScoreIsActivated() const
 	return bMultipleScore;
 }
 
+bool AMainGameMode_B::GameIsOver() const
+{
+	return bGameIsOver;
+}
+
 void AMainGameMode_B::StartGame()
 {
 	OnGameStart_Delegate.Broadcast();
 
 	UGameplayStatics::PlaySound2D(GetWorld(), StartSound, 1.f, 1.0f);
 
-	Overlay->DisplayText("","LET THE BRAWL BEGIN!", 2.f);
+	Overlay->DisplayText("", "LET THE BRAWL BEGIN!", 2.f);
 
 	GetWorld()->GetTimerManager().SetTimer(TH_CountdownTimer, this, &AMainGameMode_B::UpdateClock, 1.f, true);
 
@@ -231,6 +276,9 @@ FGameStart& AMainGameMode_B::OnGameStart()
 
 void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
 {
+	if (GameInstance->IgnoreCountdown())
+		return;
+
 	BWarn("Starting Countdown");
 
 	BI::Delay(this, 1, [&]() { PregameCountdown(); });
@@ -241,13 +289,18 @@ void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
 void AMainGameMode_B::PostGame()
 {
 	bGameIsOver = true;
+
 	GetWorld()->GetTimerManager().PauseTimer(TH_CountdownTimer);
-	//TODO PostGame needs to be implemented.
 
 	DisableControllerInputs();
+
+	for (auto Controller : PlayerControllers)
+	{
+		if (Controller && Controller->GetPlayerCharacter())
+			Controller->GetPlayerCharacter()->SetActorTickEnabled(false);
+	}
+
 	LeaderFollower->Destroy();
-
-
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "EndGame", OutActors);
@@ -256,14 +309,13 @@ void AMainGameMode_B::PostGame()
 
 	GameCamera->SetActorTickEnabled(false);
 	GameInstance->SetCameraSwapTransform(OutroCamera->GetActorTransform());
-	
+
 	GameInstance->PlayAnnouncerLine(RoundOver);
 
 	Overlay->DisplayText("TIME'S UP!", "", 2.f);
 	Overlay->HideScoreBoardAndClock();
-	
-	const float BlendTime = 3.f;
 
+	const float BlendTime = 3.f;
 
 	UpdateViewTargets(OutroCamera, BlendTime, true);
 	BI::Delay(this, BlendTime, [&]() {UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName()); });
@@ -271,14 +323,15 @@ void AMainGameMode_B::PostGame()
 	auto TempPlayerControllers = PlayerControllers;
 	SortPlayerControllersByScore(TempPlayerControllers);
 
+	//Sort PlayerInfo based on Score
 	TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
 	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
 		{
 			APlayerController* LeftController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Left.ID);
 			APlayerController* RightController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Right.ID);
 
-			int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-			int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			const int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			const int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
 			if (LeftScore >= RightScore)
 				return true;
 			return false;
@@ -304,10 +357,10 @@ void AMainGameMode_B::CallOnAnyScoreChange() const
 
 void AMainGameMode_B::OnTrackingBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 	ACharacter_B* Character = Cast<ACharacter_B>(OtherActor);
 	if (Character)
 	{
+		BWarn("%s's %s end overlap with TrackingBox!", *GetNameSafe(OtherActor), *GetNameSafe(OtherComp));
 		//Checks to see if the player is still overlapping. Same method as in DragArea
 		TArray<AActor*> OverlappingActors;
 		if (TrackingBox)
@@ -329,7 +382,7 @@ void AMainGameMode_B::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 
 	if (PropertyName == NAME_None)
 		return;
-	
+
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(AMainGameMode_B, bShowGameOverlay))
 	{
 		if (GetWorld()->IsPlayInEditor() && !bShowGameOverlay && Overlay)

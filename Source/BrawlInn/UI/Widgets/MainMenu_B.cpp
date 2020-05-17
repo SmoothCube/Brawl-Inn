@@ -38,13 +38,9 @@ void UMainMenu_B::NativeConstruct()
 	UIElementsWithInterface.Add(ControlsButton);
 	UIElementsWithInterface.Add(QuitButton);
 
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
-
-
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(PlayButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
-
 }
 
 void UMainMenu_B::NativeOnInitialized()
@@ -115,7 +111,7 @@ void UMainMenu_B::SettingsButtonClicked()
 
 void UMainMenu_B::ControlsButtonClicked()
 {
-	ControllerLayout->SetVisibility(ESlateVisibility::Visible);
+	ShowControls();
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControllerLayout->GetBackButton()->GetCachedWidget());
@@ -130,8 +126,9 @@ void UMainMenu_B::ControlsButtonClicked()
 
 void UMainMenu_B::ControllerLayoutBackButtonClicked()
 {
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 
+	HideControls();
+	
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControlsButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
@@ -143,7 +140,32 @@ void UMainMenu_B::ControllerLayoutBackButtonClicked()
 
 void UMainMenu_B::CreditsButtonClicked()
 {
-	BScreen("Credits");
+
+	ShowCredits();
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(Credits->GetBackButton()->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
+	Credits->GetBackButton()->OnPressed.AddDynamic(this, &UMainMenu_B::CreditsBackButtonClicked);
+
+	FOnInputAction FaceButtonRightDelegate; //This doesnt work, maybe because mainmenu isnt in focus anymore?
+	FaceButtonRightDelegate.BindDynamic(this, &UMainMenu_B::CreditsBackButtonClicked);
+	ListenForInputAction("FaceButtonRight", IE_Pressed, true, FaceButtonRightDelegate);
+}
+
+void UMainMenu_B::CreditsBackButtonClicked()
+{
+	HideCredits();
+	
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(CreditsButton->GetCachedWidget());
+	GetOwningPlayer()->SetInputMode(InputMode);
+
+	Credits->GetBackButton()->OnPressed.RemoveDynamic(this, &UMainMenu_B::CreditsBackButtonClicked);
+
+	StopListeningForInputAction("FaceButtonRight", IE_Pressed);
 }
 
 void UMainMenu_B::QuitButtonClicked()

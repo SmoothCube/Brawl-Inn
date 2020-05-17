@@ -201,6 +201,11 @@ const FString& UGameInstance_B::GetVictoryMapName() const
 	return VictoryMap;
 }
 
+void UGameInstance_B::ReturnToMainMenuB()
+{
+	ReturnToMainMenu();
+}
+
 bool UGameInstance_B::IgnoreCountdown() const
 {
 #if WITH_EDITOR

@@ -14,15 +14,21 @@
 #include "Camera/CameraComponent.h"
 #include "Animation/AnimInstance.h"
 
+#if WITH_EDITOR
+#include "DrawDebugHelpers.h"
+#endif
+
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
-#include "Components/PunchComponent_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameModes/MainGameMode_B.h"
-#include "Components/HoldComponent_B.h"
-#include "Components/ThrowComponent_B.h"
 #include "System/DamageTypes/Barrel_DamageType_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
+#include "Components/PunchComponent_B.h"
+#include "Components/HoldComponent_B.h"
+#include "Components/ThrowComponent_B.h"
+#include "Items/Throwable_B.h"
+#include "DestructibleComponent.h"
 
 ACharacter_B::ACharacter_B()
 {
@@ -94,11 +100,20 @@ void ACharacter_B::Tick(float DeltaTime)
 
 	if (GetState() == EState::EFallen)
 	{
-		SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
+		if (bShouldStand)
+			StandUp(); 
+		else
+			SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
 	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp && bCanMove)
 	{
 		HandleMovement(DeltaTime);
+	}
+
+	if (GetState() == EState::EBeingHeld && HoldingCharacter)
+	{
+		//BWarn("%s RelativeRotation: %s", *GetNameSafe(this), *Relative); // if we can find an actor's relative transform and see if it changes we might be able to see if this solution actually works or not
+		SetActorRelativeLocation(Execute_GetHoldLocation(this));
 	}
 }
 
@@ -184,7 +199,15 @@ void ACharacter_B::StandUp()
 
 	bCanBeHeld = false;
 
-	SetActorLocation(FindMeshGroundLocation());
+	FVector GroundLoc;
+	if (!FindMeshGroundLocation(GroundLoc))
+	{
+		bShouldStand = true;
+		return;
+	}
+	bShouldStand = false;
+
+	SetActorLocation(GroundLoc);
 
 	GetCapsuleComponent()->SetCollisionProfileName("Capsule");
 
@@ -223,7 +246,7 @@ FVector ACharacter_B::FindMeshLocation() const
 {
 	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
 	FHitResult Hit;
-	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -250), ECollisionChannel::ECC_Visibility);
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -200), ECollisionChannel::ECC_Visibility);
 
 	if (bDidHit)
 	{
@@ -232,19 +255,21 @@ FVector ACharacter_B::FindMeshLocation() const
 	return (MeshLoc - RelativeMeshTransform.GetLocation());
 }
 
-FVector ACharacter_B::FindMeshGroundLocation() const
+bool ACharacter_B::FindMeshGroundLocation(FVector& OutGroundLocation) const
 {
 	const FVector MeshLoc = GetMesh()->GetSocketLocation("pelvis");
 
 	FHitResult Hit;
-	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -1000), ECollisionChannel::ECC_Visibility);
+	const bool bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, MeshLoc + FVector(0, 0, 0), MeshLoc + FVector(0, 0, -200), ECollisionChannel::ECC_Visibility);
 
 	if (bDidHit)
 	{
-		return (Hit.Location - RelativeMeshTransform.GetLocation());
+		OutGroundLocation = (Hit.Location - RelativeMeshTransform.GetLocation());
+		return true;
 	}
 
-	return (MeshLoc - RelativeMeshTransform.GetLocation());
+	OutGroundLocation = (MeshLoc - RelativeMeshTransform.GetLocation());
+	return false;
 }
 
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
@@ -294,6 +319,13 @@ void ACharacter_B::Use_Implementation()
 		}
 		GetCharacterMovement()->StopMovementImmediately();
 		GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+#if WITH_EDITOR
+		if (HoldingCharacter->ThrowComponent->bDrawAimAssistDebug)
+		{
+			FVector start = HoldingCharacter->GetMesh()->GetComponentLocation();
+			DrawDebugLine(GetWorld(), start, start + TargetLocation * ImpulseStrength, FColor::Blue, false, 5.f);
+		}
+#endif
 		Fall(TargetLocation * ImpulseStrength, ThrowRecoveryTime, true);
 	}
 
@@ -440,7 +472,23 @@ EState ACharacter_B::GetState() const
 }
 
 void ACharacter_B::Die()
-{
+{	
+	AActor* Item = HoldComponent->GetHoldingItem();
+	if (Item)
+	{
+		ACharacter_B* C = Cast<ACharacter_B>(Item);
+		if(C)
+			C->Die();
+
+		AThrowable_B* T = Cast<AThrowable_B>(Item);
+		if (T)
+		{
+			T->GetDestructibleComponent()->SetSimulatePhysics(true);
+			T->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			//T->OnComponentFracture(T->GetActorLocation(), FVector(0.f, 0.f, -1.f));
+		}
+	}
+	
 	Fall(FVector::ZeroVector, -1, false);
 	bIsAlive = false;
 }

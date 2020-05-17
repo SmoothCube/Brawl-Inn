@@ -9,6 +9,8 @@
 #include "DestructibleComponent.h"
 #include "TimerManager.h"
 
+#include "DrawDebugHelpers.h"
+
 #include "BrawlInn.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
@@ -53,6 +55,7 @@ void AUseable_B::BeginPlay()
 	Super::BeginPlay();
 	DestructibleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	FlyHeigth = GetActorLocation().Z;
+	FloatLocation = GetActorLocation();
 }
 
 void AUseable_B::Tick(float DeltaTime)
@@ -61,17 +64,48 @@ void AUseable_B::Tick(float DeltaTime)
 
 	if(!bIsHeld && !bIsFractured && !bIsThrown)
 	{
-		const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
-		FVector BaseLocation = GetActorLocation();
-		BaseLocation.Z = FlyHeigth;
+		if (bShouldSphereTrace)
+		{
+			bShouldSphereTrace = false;
 
+			FHitResult Hit;
+			TArray<AActor*> Ignore;
+			Ignore.Add(this);
+
+			FVector HitLocation = FVector::ZeroVector;
+			bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), GetActorLocation(), GetActorLocation(), 1000.f, ETraceTypeQuery::TraceTypeQuery3, true, Ignore, EDrawDebugTrace::None, Hit, true);
+
+			if (bHit)
+			{
+				HitLocation = Hit.ImpactPoint;
+			}
+			else
+			{
+				TArray<AActor*> OverBridgeActor;
+				UGameplayStatics::GetAllActorsWithTag(GetWorld(),"RespawnStart", OverBridgeActor);
+				if(OverBridgeActor.IsValidIndex(0) && OverBridgeActor[0])
+					HitLocation = OverBridgeActor[0]->GetActorLocation(); //on bridge 
+			}
+
+			FloatLocation = HitLocation + FVector(0.f, 0.f, FloatHeight);
+		}
+
+		const float Height = GetBobbingHeight(GetGameTimeSinceCreation());
+		
 		SetActorLocation(
 			FMath::Lerp(
 				GetActorLocation(),
-				BaseLocation
-				+ FVector(0.f, 0.f, Height + BobAmplitude),
+				FloatLocation
+				+ FVector(0.f, 0.f, Height),
 				LerpAlpha));
-		AddActorLocalRotation(FRotator(0.f, RotationSpeed, 0.f));
+		
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0.f, CurrentYaw, 0.f), DeltaTime, 10.f));
+
+		CurrentYaw += RotationSpeed * DeltaTime;
+	}
+	else
+	{
+		bShouldSphereTrace = true;
 	}
 }
 
@@ -86,10 +120,9 @@ void AUseable_B::PickedUp_Implementation(ACharacter_B* Player)
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));	//why do we find this here?
-	if (GameMode)
-
-		OwningCharacter = Player;
+	//AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));	//why do we find this here?
+	//if (GameMode)
+	OwningCharacter = Player;
 
 	bIsHeld = true;
 }

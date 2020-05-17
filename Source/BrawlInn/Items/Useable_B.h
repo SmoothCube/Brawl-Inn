@@ -102,7 +102,9 @@ protected:
 		float BobAmplitude = 25.f;
 
 	UPROPERTY(EditAnywhere)
-		float RotationSpeed = 0.7f;
+		float RotationSpeed = 42.f;
+
+	float CurrentYaw = 0.f;
 
 	UPROPERTY(EditAnywhere)
 		float LerpAlpha = 0.7;
@@ -110,5 +112,12 @@ protected:
 	float FlyHeigth = 0.f;
 
 	bool bIsHeld = false;
+
+	bool bShouldSphereTrace = false;
+
+	FVector FloatLocation = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere)
+	float FloatHeight = 125.f;
 
 };

@@ -25,6 +25,9 @@ public:
 		UTextBlock* ScoreNumber;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* Title;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UImage* CharacterRender;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -32,6 +35,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UImage* BannerTop;
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void OnShowStatBlock();
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

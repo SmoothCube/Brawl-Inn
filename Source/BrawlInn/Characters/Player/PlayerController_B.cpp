@@ -6,7 +6,8 @@
 
 APlayerController_B::APlayerController_B()
 {
-
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void APlayerController_B::BeginPlay()

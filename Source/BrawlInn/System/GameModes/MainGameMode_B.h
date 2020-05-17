@@ -9,6 +9,7 @@
 
 #include "MainGameMode_B.generated.h"
 
+class ABarNavLinkProxy_B;
 class UBar_B;
 class ATriggerBox;
 class AGameCamera_B;
@@ -75,12 +76,14 @@ protected:
 	void CheckTimeVoicelines();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Clock")
-		int TimeRemainingBeforeMultipleScore = 20;
+		int TimeRemainingBeforeMultipleScore = 15;
 
 	void StartMultipleScore();
 
 public:
 	bool MultipleScoreIsActivated() const;
+
+	bool GameIsOver() const;
 protected:
 	bool bMultipleScore = false;
 
@@ -119,9 +122,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserWidgets")
 		TSubclassOf<UGameOverlay_B> BP_GameOverlay;
-private:
+public:
 	UPROPERTY()
 		UGameOverlay_B* Overlay = nullptr;
+private:
 
 	UPROPERTY(EditAnywhere, Category = "UserWidgets")
 	bool bShowGameOverlay = true;
@@ -146,14 +150,19 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* OneSecondRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* TwoSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* ThreeSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* FourSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* FiveSecondsRemaining;
+	
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* TenSecondsRemaining;
 
@@ -166,7 +175,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* DoublePoints;
 	
-
 private:
 
 	// ********** Timer **********
@@ -209,5 +217,10 @@ protected:
 
 	UPROPERTY()
 		ALeaderFollower_B* LeaderFollower = nullptr;
+
+	// ********** Misc. **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Misc.")
+		TSubclassOf<ABarNavLinkProxy_B> MinerLink_BP;
 };
 

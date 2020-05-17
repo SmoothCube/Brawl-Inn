@@ -169,17 +169,17 @@ protected:
     TArray<FTextureCategory> TextureCategories;
 
     // ********** Randomizing **********
-    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
-        float MinHeight = 0.7f;
+    UPROPERTY(EditAnywhere, Category = "Scale Variation")
+        float MinHeight = 0.8f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
-        float MaxHeight= 1.05f;
+    UPROPERTY(EditAnywhere, Category = "Scale Variation")
+        float MaxHeight= 1.15f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
-        float MinWidth = 0.7f;
+    UPROPERTY(EditAnywhere, Category = "Scale Variation")
+        float MinWidth = 0.95f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Scale Variation")
-        float MaxWidth = 1.05f;
+    UPROPERTY(EditAnywhere, Category = "Scale Variation")
+        float MaxWidth = 1.15f;
 
     // ********** Generation Time **********
     UPROPERTY(EditAnywhere, Category = "Generation Time")

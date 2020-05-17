@@ -27,4 +27,9 @@ namespace BI
 				Repeat(Context, Seconds, Iterations - 1, Lambda);
 			});
 	}
+
+	FORCEINLINE static void StopDelay(UObject* Context, FTimerHandle& Handle)
+	{
+		Context->GetWorld()->GetTimerManager().ClearTimer(Handle);
+	}
 }

@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PauseMenu_B.h"
-#include "Kismet/GameplayStatics.h"
+#include "ConfigCacheIni.h"
 #include "Engine/Font.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "BrawlInn.h"
-#include "ConfigCacheIni.h"
 #include "ControllerLayout_B.h"
 #include "Settings/SettingsWidget_B.h"
 #include "System/GameInstance_B.h"
@@ -38,6 +38,11 @@ void UPauseMenu_B::NativeOnInitialized()
 	UIElementsWithInterface.Add(ContinueButton);
 	UIElementsWithInterface.Add(ControlsButton);
 	UIElementsWithInterface.Add(ExitButton);
+
+	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
+	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
+	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
+
 }
 
 void UPauseMenu_B::NativeConstruct()
@@ -47,28 +52,12 @@ void UPauseMenu_B::NativeConstruct()
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
-	ContinueButton->SetKeyboardFocus();
-
-	ContinueButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ContinueButtonClicked);
-	ControlsButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ControlsButtonClicked);
-	ExitButton->OnClicked.AddDynamic(this, &UPauseMenu_B::ExitButtonClicked);
-
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UPauseMenu_B::RemoveFromParent()
+void UPauseMenu_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	Super::RemoveFromParent();
-
-	if (GetOwningPlayer())
-	{
-		const FInputModeGameOnly InputMode;
-		GetOwningPlayer()->SetInputMode(InputMode);
-	}
-}
-
-void UPauseMenu_B::MenuTick()
-{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+	
 	for (UWidget* Element : UIElementsWithInterface)
 	{
 		if (IsValid(Element) && Element->GetClass()->ImplementsInterface(UUIElementsInterface_B::StaticClass()))
@@ -76,7 +65,7 @@ void UPauseMenu_B::MenuTick()
 	}
 }
 
-void UPauseMenu_B::ContinueButtonClicked()
+void UPauseMenu_B::OnPauseMenuHideFinished()
 {
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	check(IsValid(GameMode));
@@ -84,10 +73,15 @@ void UPauseMenu_B::ContinueButtonClicked()
 	GameMode->ResumeGame();
 }
 
+void UPauseMenu_B::ContinueButtonClicked()
+{
+	OnPauseMenuHide();
+}
+
 void UPauseMenu_B::ControlsButtonClicked()
 {
-	ControllerLayout->SetVisibility(ESlateVisibility::Visible);
-
+	ShowControls();
+	
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControllerLayout->GetBackButton()->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
@@ -101,7 +95,7 @@ void UPauseMenu_B::ControlsButtonClicked()
 
 void UPauseMenu_B::ControllerLayoutBackButtonClicked()
 {
-	ControllerLayout->SetVisibility(ESlateVisibility::Collapsed);
+	HideControls();
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetWidgetToFocus(ControlsButton->GetCachedWidget());

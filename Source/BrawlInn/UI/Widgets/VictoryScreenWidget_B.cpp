@@ -7,10 +7,10 @@
 #include "VerticalBox.h"
 #include "VerticalBoxSlot.h"
 
-#include "BrawlInn.h"
 #include "Image.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "System/GameInstance_B.h"
+#include "System/GameModes/VictoryGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/UIElements/Button_B.h"
 #include "Victory/CharacterVictoryScreen_B.h"
@@ -38,25 +38,13 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 		}
 	}
 
-		//Update backgroundcolors
-	if (BackgroundColorsInOrder.Num() != 0 && BannerBotInOrder.Num() != 0 && BannerTopInOrder.Num() != 0)
-	{
-		const TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
-		for (int i = 0; i < PlayerInfos.Num(); ++i)
-		{
-			if (StatBoards[i]->BackgroundMaterial)
-			{
-				StatBoards[i]->BackgroundMaterial->SetVectorParameterValue("BaseColor", BackgroundColorsInOrder[static_cast<int>(PlayerInfos[i].Type)]);
-				StatBoards[i]->BannerBot->Brush.SetResourceObject(BannerBotInOrder[static_cast<int>(PlayerInfos[i].Type)]);
-				StatBoards[i]->BannerTop->Brush.SetResourceObject(BannerTopInOrder[static_cast<int>(PlayerInfos[i].Type)]);
-				BLog("%i", static_cast<int>(PlayerInfos[i].Type));
-			}
-		}
+	UpdateBackgroundColors();
 
-	}
-
+	AddRandomTitles();
 
 	CountNumbers.AddDefaulted(4);
+
+	PlayStatBlockAnimations();
 
 	DisplayScores(PunchesHit);
 	DisplayScores(OutOfMapDeaths);
@@ -72,31 +60,76 @@ void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDel
 	Super::NativeTick(MyGeometry, InDeltaTime);
 	ContinueButton->Execute_Tick(ContinueButton);
 
-	for (auto& Count : CountNumbers)
+	if (bCanCount)
 	{
-		if (Count.Size() == 0)
-			continue;
-
-
-		FormattingOptions.UseGrouping = false;
-
-		if (Count.Top().CurrentTime < Count.Top().Duration)
+		for (auto& Count : CountNumbers)
 		{
-			Count.Top().CurrentTime += InDeltaTime;
-			const int ValueFloored = FMath::FloorToInt(UKismetMathLibrary::FInterpEaseInOut(
-				Count.Top().Start, Count.Top().End, Count.Top().CurrentTime / Count.Top().Duration, 2));
+			if (Count.Size() == 0)
+				continue;
 
-			if (Count.Top().TextBlock)
-				Count.Top().TextBlock->SetText(FText::AsNumber(ValueFloored, &FormattingOptions));
-		}
-		else
-		{
-			if (Count.Top().TextBlock)
-				Count.Top().TextBlock->SetText(FText::AsNumber(Count.Top().End, &FormattingOptions));
-			Count.Pop();
+
+			FormattingOptions.UseGrouping = false;
+
+			if (Count.Top().CurrentTime < Count.Top().Duration)
+			{
+				Count.Top().CurrentTime += InDeltaTime;
+				const int ValueFloored = FMath::FloorToInt(UKismetMathLibrary::FInterpEaseInOut(
+					Count.Top().Start, Count.Top().End, Count.Top().CurrentTime / Count.Top().Duration, 2));
+
+				if (Count.Top().TextBlock)
+					Count.Top().TextBlock->SetText(FText::AsNumber(ValueFloored, &FormattingOptions));
+			}
+			else
+			{
+				if (Count.Top().TextBlock)
+					Count.Top().TextBlock->SetText(FText::AsNumber(Count.Top().End, &FormattingOptions));
+				Count.Pop();
+			}
 		}
 	}
 }
+
+void UVictoryScreenWidget_B::UpdateBackgroundColors()
+{
+	if (BackgroundColorsInOrder.Num() != 0 && BannerBotInOrder.Num() != 0 && BannerTopInOrder.Num() != 0)
+	{
+		const TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
+		for (int i = 0; i < PlayerInfos.Num(); ++i)
+		{
+			if (StatBoards[i]->BackgroundMaterial)
+			{
+				StatBoards[i]->BackgroundMaterial->SetVectorParameterValue("BaseColor", BackgroundColorsInOrder[static_cast<int>(PlayerInfos[i].Type)]);
+				StatBoards[i]->BannerBot->Brush.SetResourceObject(BannerBotInOrder[static_cast<int>(PlayerInfos[i].Type)]);
+				StatBoards[i]->BannerTop->Brush.SetResourceObject(BannerTopInOrder[static_cast<int>(PlayerInfos[i].Type)]);
+				if (!StatBoards[i]->IsVisible())
+					StatBoards[i]->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			}
+		}
+	}
+}
+
+void UVictoryScreenWidget_B::AddRandomTitles()
+{
+	if (FirstPlaceTitles.Num() == 0 || SecondPlaceTitles.Num() == 0 || ThirdPlaceTitles.Num() == 0 || FourthPlaceTitles.Num() == 0)
+		return;
+
+	int RandomIndex = FMath::RandRange(0, FirstPlaceTitles.Num() - 1);
+	FString Title = FirstPlaceTitles[RandomIndex];
+	StatTopLeft->Title->SetText(FText::FromString(Title));
+
+	RandomIndex = FMath::RandRange(0, SecondPlaceTitles.Num() - 1);
+	Title = SecondPlaceTitles[RandomIndex];
+	StatTopRight->Title->SetText(FText::FromString(Title));
+
+	RandomIndex = FMath::RandRange(0, ThirdPlaceTitles.Num() - 1);
+	Title = ThirdPlaceTitles[RandomIndex];
+	StatBotLeft->Title->SetText(FText::FromString(Title));
+
+	RandomIndex = FMath::RandRange(0, FourthPlaceTitles.Num() - 1);
+	Title = FourthPlaceTitles[RandomIndex];
+	StatBotRight->Title->SetText(FText::FromString(Title));
+}
+
 
 void UVictoryScreenWidget_B::ContinueButtonClicked()
 {
@@ -113,6 +146,18 @@ void UVictoryScreenWidget_B::EnableContinueButton()
 	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
 	GetOwningPlayer()->SetInputMode(InputMode);
 	ContinueButton->SetKeyboardFocus();
+}
+
+void UVictoryScreenWidget_B::OnStatBlockAnimationsFinished()
+{
+	bCanCount = true;
+	EnableContinueButton();
+
+	AVictoryGameMode_B* GameMode = Cast<AVictoryGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->SetCanContinue(true);
+	}
 }
 
 void UVictoryScreenWidget_B::DisplayScores(const EScoreValueTypes Type)
@@ -180,6 +225,4 @@ void UVictoryScreenWidget_B::AddToCountQueue(int Start, int End, UTextBlock* Tex
 		return;
 
 	CountNumbers[PlayerControllerID].Push(FCountNumber(End, 1, TextBlock));
-
-	//	TextBlock->SetText(FText::AsNumber(End));
 }

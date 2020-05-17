@@ -13,6 +13,7 @@
 #include "Characters/Player/InitPawn_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Characters/Player/RespawnPawn_B.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MainGameMode_B.h"
@@ -37,14 +38,6 @@ void AGameMode_B::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AGameMode_B::Tick(const float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (IsValid(PauseMenuWidget))
-		PauseMenuWidget->MenuTick();
-}
-
 void AGameMode_B::PostLevelLoad()
 {
 	if (GameInstance)
@@ -65,6 +58,9 @@ void AGameMode_B::EnableControllerInputs()
 
 void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 {
+	if (!bCanPause)
+		return;
+	
 	check(IsValid(BP_PauseMenu));
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
 	PauseMenuWidget->AddToViewport();
@@ -73,7 +69,13 @@ void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 
 void AGameMode_B::ResumeGame()
 {
+	if (PauseMenuWidget->GetOwningPlayer())
+	{
+		const FInputModeGameOnly InputMode;
+		PauseMenuWidget->GetOwningPlayer()->SetInputMode(InputMode);
+	}
 	PauseMenuWidget->RemoveFromParent();
+	PauseMenuWidget = nullptr;
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 

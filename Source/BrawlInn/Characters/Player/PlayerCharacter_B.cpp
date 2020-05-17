@@ -22,6 +22,8 @@
 #include "Items/Throwable_B.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Characters/AI/AICharacter_B.h"
+#include "Characters/AI/IdleAICharacter_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/DamageTypes/OutOfWorld_DamageType_B.h"
 #include "System/DataTable_B.h"
@@ -112,6 +114,7 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	if (GetState() == EState::EPoweredUp)
 	{
 		HandleMovementPoweredUp(DeltaTime);
@@ -173,6 +176,9 @@ void APlayerCharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 	if (HoldComponent)
 		HoldComponent->Drop();
 
+	if (bIsAlive)
+		Die();
+
 	Super::FellOutOfWorld(dmgType);
 }
 
@@ -198,7 +204,7 @@ void APlayerCharacter_B::Die()
 	}
 
 	PS_ChiliBrew->Deactivate();
-
+	PS_CandleFlame->Deactivate();
 	if (PunchComponent->OnHitPlayerPunch_D.IsBoundToObject(this))
 		PunchComponent->OnHitPlayerPunch_D.RemoveAll(this);
 
@@ -209,6 +215,20 @@ void APlayerCharacter_B::Die()
 		PlayerController->TryRespawn(RespawnDelay);
 		PlayerController->UnPossess();
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &APlayerCharacter_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), true, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Destroy, this, &APlayerCharacter_B::StartDestroy, TimeBeforeDespawn + 2.f, false);
+
+}
+
+void APlayerCharacter_B::BeginDespawn()
+{
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+}
+
+void APlayerCharacter_B::StartDestroy()
+{
+	Destroy();
 }
 
 void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
@@ -233,7 +253,14 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 
 void APlayerCharacter_B::StandUp()
 {
+	if (!bIsAlive)
+		return;
+
 	Super::StandUp();
+
+	if (bShouldStand)
+		return;
+
 	if (DirectionIndicatorPlane)
 	{
 		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", StunAmount); //Had a crash here -e
@@ -241,6 +268,9 @@ void APlayerCharacter_B::StandUp()
 	}
 	MakeInvulnerable(InvulnerabilityTime);
 	CurrentHoldTime = 0.f;
+
+	if (PlayerController && PlayerController->IsPunchChargeInputHeld())
+		PlayerController->TryStartPunchCharge();
 }
 
 void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
@@ -268,7 +298,7 @@ void APlayerCharacter_B::Use_Implementation()
 void APlayerCharacter_B::BreakFreeButtonMash()
 {
 	if (BreakFreeAnimationBlend <= 0.f)
-		BreakFreeAnimationBlend = 0.5;
+		BreakFreeAnimationBlend = 0.8;
 	BreakFreeAnimationBlend += 0.1f;
 	CurrentHoldTime += HoldTimeDecreasePerButtonMash;
 	PlayerController->PlayControllerVibration(0.8f, 0.1f, true, true, true, true);
@@ -294,7 +324,7 @@ void APlayerCharacter_B::BreakFree()
 			GameMode->AddCameraFocusPoint(this);
 		}
 	}
-
+	Fall(FVector(0.f), -1.f, false);
 	StandUp();
 
 	CurrentHoldTime = 0.f;
@@ -313,7 +343,6 @@ float APlayerCharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			checkf(PunchesToStun != 0, TEXT("Division by zero!"));
 			const float Trauma = static_cast<float>(StunAmount) / static_cast<float>(PunchesToStun);
 			PlayerController->PlayControllerVibration(FMath::Square(Trauma), 0.3, true, true, true, true);
-			BWarn("Vibrating %s's controller!", *GetNameSafe(this));
 		}
 	}
 
@@ -559,6 +588,13 @@ void APlayerCharacter_B::OnCapsuleOverlapBegin(UPrimitiveComponent* OverlappedCo
 			Direction *= PunchComponent->DashPushStrength;
 
 			DamageAmount = DashThroughScoreValue;
+
+			const auto AICharacter = Cast<AAICharacter_B>(OtherCharacter);
+			const auto IdleAICharacter = Cast<AIdleAICharacter_B>(OtherCharacter);
+			if (AICharacter || IdleAICharacter)
+			{
+				OtherCharacter->CheckFall(Direction);
+			}
 		}
 		OtherCharacter->GetCharacterMovement()->AddImpulse(Direction, false);
 		UGameplayStatics::ApplyDamage(OtherCharacter, DamageAmount, PlayerController, this, UDamageType::StaticClass());

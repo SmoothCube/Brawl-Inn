@@ -72,8 +72,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float LargestSpringArmLength = 4500.f;
 protected:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float BorderWidth = 1000.f;
+		float LeftBorderWidth = 1000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float RightBorderWidth = 1000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float UpBorderWidth = 1000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float DownBorderWidth = 750.f;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float CameraZoomSpeed = 0.05f;

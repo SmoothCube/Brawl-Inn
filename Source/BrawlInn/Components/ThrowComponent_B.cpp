@@ -7,10 +7,13 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 
-//#include "DrawDebugHelpers.h"
+#if WITH_EDITOR
+#include "DrawDebugHelpers.h"
+#endif
 
 #include "BrawlInn.h"
 #include "Characters/Character_B.h"
+#include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/PunchComponent_B.h"
 #include "System/GameModes/GameMode_B.h"
@@ -30,9 +33,9 @@ void UThrowComponent_B::BeginPlay()
 	GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->OnCharacterSpawn().AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnCharacterSpawn().AddUObject(this, &UThrowComponent_B::OnAnyPlayerCharacterChanged);
 #if WITH_EDITOR
-		GameMode->OnCharacterDespawn().AddUObject(this, &UThrowComponent_B::OnAnyCharacterChanged);
+		GameMode->OnCharacterDespawn().AddUObject(this, &UThrowComponent_B::OnAnyPlayerCharacterChanged);
 #endif
 	}
 	HoldComponent = OwningCharacter->HoldComponent;
@@ -218,11 +221,16 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	PlayerForward.Z = 0;
 
 	FVector PlayerToForward = PlayerForward - PlayerLocation;
-	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
-	//DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
 
-	TArray<ACharacter_B*> PlayersInCone;
-	TArray<ACharacter_B*> PlayersInInnerCone;
+#if WITH_EDITOR
+	if (bDrawAimAssistDebug)
+	{
+		DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistRange, FMath::DegreesToRadians(AimAssistAngle), FMath::DegreesToRadians(AimAssistAngle), 16, FColor::Red, false, 5.f);
+		DrawDebugCone(GetWorld(), PlayerLocation, PlayerToForward.GetSafeNormal(), AimAssistInnerRange, FMath::DegreesToRadians(AimAssistInnerAngle),0, 16, FColor::Red, false, 5.f);
+	}
+#endif
+	TArray<APlayerCharacter_B*> PlayersInCone;
+	TArray<APlayerCharacter_B*> PlayersInInnerCone;
 
 	for (const auto& OtherPlayer : OtherPlayers)
 	{
@@ -262,11 +270,11 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 			PlayersInCone.Add(OtherPlayer);
 		}
 	}
-	TArray<ACharacter_B*> ArrayToCheck = PlayersInCone;
+	TArray<APlayerCharacter_B*> ArrayToCheck = PlayersInCone;
 	if (PlayersInInnerCone.Num() > 0)
 		ArrayToCheck = PlayersInInnerCone;
 
-	ACharacter_B* TargetPlayer = nullptr;
+	APlayerCharacter_B* TargetPlayer = nullptr;
 	switch (ArrayToCheck.Num())
 	{
 	case 0:
@@ -275,7 +283,7 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 		TargetPlayer = ArrayToCheck[0];
 		break;
 	default:
-		ArrayToCheck.Sort([&](const ACharacter_B& LeftSide, const ACharacter_B& RightSide)
+		ArrayToCheck.Sort([&](const APlayerCharacter_B& LeftSide, const APlayerCharacter_B& RightSide)
 			{
 				FVector A = LeftSide.GetActorLocation();
 				A.Z = 0;
@@ -293,21 +301,24 @@ bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
 	FVector ThrowDirection = TargetLocation - HoldComponent->GetHoldingItem()->GetActorLocation();
 	TargetPlayerLocation = ThrowDirection.GetSafeNormal();
 
-	//DrawDebugPoint(GetWorld(), TargetLocation, 10.f, FColor::Red, false, 10.f);
+	#if WITH_EDITOR
+	if(bDrawAimAssistDebug)
+		DrawDebugPoint(GetWorld(), TargetLocation, 10.f, FColor::Red, false, 5.f);
+	#endif
 	return true;
 }
 
-void UThrowComponent_B::OnAnyCharacterChanged()
+void UThrowComponent_B::OnAnyPlayerCharacterChanged()
 {
 	/// Finds all characters
 	OtherPlayers.Empty();
 	TArray<AActor*> TempArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter_B::StaticClass(), TempArray);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCharacter_B::StaticClass(), TempArray);
 	for (const auto& Player : TempArray)
 	{
 		if (Cast<ACharacter_B>(Player) == OwningCharacter)
 			continue;
-		OtherPlayers.Add(Cast<ACharacter_B>(Player));
+		OtherPlayers.Add(Cast<APlayerCharacter_B>(Player));
 	}
 
 	/// Finds the holdcomponent.

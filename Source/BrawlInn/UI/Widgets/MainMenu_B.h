@@ -31,7 +31,7 @@ protected:
 	void NativeOnInitialized() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-	
+
 	// ********** Button Clicks **********
 	UFUNCTION()
 		void SettingsButtonClicked();
@@ -46,6 +46,9 @@ protected:
 		void CreditsButtonClicked();
 
 	UFUNCTION()
+		void CreditsBackButtonClicked();
+
+	UFUNCTION()
 		void QuitButtonClicked();
 
 	UFUNCTION()
@@ -54,6 +57,19 @@ protected:
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMainMenuHide();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowControls();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideControls();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowCredits();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideCredits();
+
 protected:
 	// ********** Widgets **********
 
@@ -95,6 +111,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UControllerLayout_B* Credits;
 
 
 	UPROPERTY(EditDefaultsOnly)

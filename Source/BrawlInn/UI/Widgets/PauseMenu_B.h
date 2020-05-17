@@ -16,14 +16,14 @@ class BRAWLINN_API UPauseMenu_B : public UUserWidget
 {
 	GENERATED_BODY()
 
-		// ********** UUserWidget **********
+	// ********** UUserWidget **********
 protected:
 	void NativeOnInitialized() override;
 
 	void NativeConstruct() override;
-public:
-	void RemoveFromParent() override;
-protected:
+
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 	// ********** Widgets **********
 
 	UPROPERTY(meta = (BindWidget))
@@ -47,19 +47,25 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UControllerLayout_B* ControllerLayout;
 
-	// ********** Functions **********
-public:
-
-	void MenuTick();
-
-protected:
 	// ********** Button clicks **********
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnPauseMenuHide();
+
+	UFUNCTION(BlueprintCallable)
+		void OnPauseMenuHideFinished();
 
 	UFUNCTION()
 		void ContinueButtonClicked();
 
 	UFUNCTION()
 		void ControlsButtonClicked();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowControls();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideControls();
 
 	UFUNCTION()
 		void ControllerLayoutBackButtonClicked();
