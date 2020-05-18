@@ -168,6 +168,8 @@ void UThrowComponent_B::CancelDrinking()
 		OwningCharacter->SetIsCharging(false);
 		bIsThrowing = false;
 	}
+	
+	GetWorld()->GetTimerManager().ClearTimer(TH_DrinkTimer);
 }
 
 bool UThrowComponent_B::IsDrinkingFinished()
@@ -207,7 +209,7 @@ void UThrowComponent_B::ThrowDrink()
 
 	OwningCharacter->SetIsCharging(false);
 	bIsThrowing = false;
-
+	bIsDrinkingFinished = false;
 }
 
 bool UThrowComponent_B::AimAssist(FVector& TargetPlayerLocation)
