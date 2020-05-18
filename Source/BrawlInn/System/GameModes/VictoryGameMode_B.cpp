@@ -66,6 +66,9 @@ void AVictoryGameMode_B::BeginPlay()
 	Skip = CreateWidget<UUserWidget>(GetWorld(), Skip_BP);
 	Skip->AddToViewport();
 	Skip->SetVisibility(ESlateVisibility::Hidden);
+
+	if (GameInstance)
+		GameInstance->SetAndPlayMusic(Music);
 }
 
 void AVictoryGameMode_B::PostLevelLoad()
