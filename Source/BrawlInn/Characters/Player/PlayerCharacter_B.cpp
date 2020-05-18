@@ -114,7 +114,7 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (GetState() == EState::EPoweredUp)
 	{
 		HandleMovementPoweredUp(DeltaTime);
@@ -187,7 +187,7 @@ void APlayerCharacter_B::Die()
 	Super::Die();
 
 	PlayApplauseOnNearbyNPCs();
-	
+
 	if (DirectionIndicatorPlane)
 		DirectionIndicatorPlane->DestroyComponent();
 
@@ -229,20 +229,13 @@ void APlayerCharacter_B::PlayApplauseOnNearbyNPCs()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AIdleAICharacter_B::StaticClass(), OutActors);
 
-	TArray<AActor*> ActorsToKeep;
-	
-	for(auto Actor : OutActors)
-	{
-		if (GetDistanceTo(Actor) <= MaxClapDistanceToNPC)
-			ActorsToKeep.Add(Actor);
-	}
-
-	for(auto Actor : ActorsToKeep)
+	for (auto Actor : OutActors)
 	{
 		auto NPC = Cast<AIdleAICharacter_B>(Actor);
-		if(NPC)
+		if (NPC)
 		{
-			NPC->PlayApplauseMontage();
+			if (GetDistanceTo(NPC) <= MaxClapDistanceToNPC)
+				NPC->PlayApplauseMontage();
 		}
 	}
 }
