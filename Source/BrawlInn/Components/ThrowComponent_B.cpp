@@ -73,7 +73,7 @@ void UThrowComponent_B::StartThrow()
 
 
 	AUseable_B* Useable = Cast<AUseable_B>(HoldComponent->GetHoldingItem());
-	if (Useable)
+	if (Useable && !bIsDrinking && !bIsDrinkingFinished)
 	{
 		StartDrinking();
 
