@@ -56,6 +56,7 @@ protected:
 	void PreGame();
 
 	void SwapToGameCamera();
+	void SwapToPreGameCannonCamera();
 
 	void PregameCountdown();
 
@@ -70,10 +71,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pre Game")
-		float SwapToGameCameraDelay = 1.f;
+		float SwapToGameCameraDelay = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pre Game")
 		float StartGameAfterPlayerSpawnsDelay = 1.f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Pre Game")
+		bool bCanSpawnPlayer = false;
 
 	FGameStart OnGameStart_Delegate;
 
@@ -96,7 +100,7 @@ protected:
 
 	// ********** PostGame **********
 	void PostGame();
-	
+
 	void SwapToVictoryMap();
 
 	bool bGameIsOver = false;
@@ -220,7 +224,7 @@ public:
 	bool ShouldUseScoreMultiplier() const;
 
 	void SortPlayerInfosBasedOnScore(TArray<FPlayerInfo>& PlayerInfos);
-	
+
 protected:
 	bool bMultiplyScoresAgainstLeader = false;
 

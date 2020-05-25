@@ -34,7 +34,7 @@ public:
 		FTransform GetCameraSwapTransform() const;
 
 protected:
-	FTransform CameraSwapTransform = FTransform(FRotator(-35.667469f, 5.636588f, -0.000007f), FVector(-302.956f, 880.419f, 657.871f));
+	FTransform CameraSwapTransform = FTransform(FRotator(-70.591858f, -0.203229f, 1.407142f), FVector(208.078644f, 902.894043f, 572.226013f));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		TSubclassOf<UCameraShake> ImpactCameraShake;
