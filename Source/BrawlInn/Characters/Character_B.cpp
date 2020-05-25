@@ -55,10 +55,6 @@ ACharacter_B::ACharacter_B()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	PS_Stun = CreateDefaultSubobject<UNiagaraComponent>("Stun Particle System");
-	PS_Stun->SetupAttachment(GetMesh());
-	PS_Stun->SetRelativeLocation(FVector(0.000000, -20.000000, 180.000000));
-
 	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
 
 	HoldRotation = FRotator(0, 0, 180);
@@ -77,7 +73,6 @@ void ACharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 
-	PS_Stun->Deactivate();
 	PS_Charge->Deactivate();
 
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));

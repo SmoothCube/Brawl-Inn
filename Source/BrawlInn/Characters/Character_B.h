@@ -218,9 +218,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Stun")
 		int PunchesToStun = 1;
 
-	UPROPERTY(VisibleAnywhere)
-		UNiagaraComponent* PS_Stun = nullptr;
-
 	int StunAmount = 0;
 
 	FTimerHandle TH_StunTimer;
