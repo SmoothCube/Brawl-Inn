@@ -40,7 +40,7 @@ protected:
 	void BeginPlay() override;
 
 	void Tick(float DeltaTime) override;
-	
+
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	// ********** Components **********
@@ -55,9 +55,9 @@ protected:
 
 	void PreGame();
 
-	void PregameCountdown();
+	void SwapToGameCamera();
 
-	void PregameCountdownClock();
+	void PregameCountdown();
 
 	void StartGame();
 
@@ -65,9 +65,16 @@ public:
 	FGameStart& OnGameStart();
 
 	UFUNCTION()
-	void LastRespawnPawnDestroyed(AActor* DestroyedActor);
+		void LastRespawnPawnDestroyed(AActor* DestroyedActor);
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pre Game")
+		float SwapToGameCameraDelay = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pre Game")
+		float StartGameAfterPlayerSpawnsDelay = 1.f;
+
 	FGameStart OnGameStart_Delegate;
 
 	// ********** Game **********
@@ -89,8 +96,13 @@ protected:
 
 	// ********** PostGame **********
 	void PostGame();
+	
+	void SwapToVictoryMap();
 
 	bool bGameIsOver = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Post Game")
+		float BlendToVictoryMapTime = 3.f;
 
 	// ********** Score	 **********
 public:
@@ -128,7 +140,7 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, Category = "UserWidgets")
-	bool bShowGameOverlay = true;
+		bool bShowGameOverlay = true;
 #if WITH_EDITOR
 
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -150,19 +162,19 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* OneSecondRemaining;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* TwoSecondsRemaining;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* ThreeSecondsRemaining;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* FourSecondsRemaining;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* FiveSecondsRemaining;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* TenSecondsRemaining;
 
@@ -174,7 +186,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Audio|Announcer")
 		USoundCue* DoublePoints;
-	
+
 private:
 
 	// ********** Timer **********
@@ -206,6 +218,9 @@ public:
 	void StartMultiplyingScores();
 
 	bool ShouldUseScoreMultiplier() const;
+
+	void SortPlayerInfosBasedOnScore(TArray<FPlayerInfo>& PlayerInfos);
+	
 protected:
 	bool bMultiplyScoresAgainstLeader = false;
 

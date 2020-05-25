@@ -95,11 +95,6 @@ void APlayerCharacter_B::BeginPlay()
 		DashThroughScoreValue = Table->GetRow<FScoreTable>("DashThroughScoreValue")->Value;
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(TH_MakeNoiseTimer, [&]()
-		{
-			NoiseEmitterComponent->MakeNoise(this, 1.f, GetActorLocation());
-		}, 0.5f, true);
-
 	PunchComponent->OnHitPlayerPunch_D.AddUObject(this, &APlayerCharacter_B::OnPunchHit);
 }
 
@@ -114,6 +109,13 @@ void APlayerCharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void APlayerCharacter_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CurrentNoiseTime += DeltaTime;
+	if (CurrentNoiseTime >= TimeBetweenNoise)
+	{
+		CurrentNoiseTime = 0.f;
+		NoiseEmitterComponent->MakeNoise(this, 1.f, GetActorLocation());
+	}
 
 	if (GetState() == EState::EPoweredUp)
 	{
@@ -446,14 +448,17 @@ void APlayerCharacter_B::SetLastHitBy(AController* EventInstigator)
 {
 	if (LastHitBy == EventInstigator)
 	{
-		GetWorld()->GetTimerManager().SetTimer(LastHitByTimer_TH, [&]() {
-			LastHitBy = nullptr;
-			}, 7.f, false);
+		GetWorld()->GetTimerManager().SetTimer(LastHitByTimer_TH, this, &APlayerCharacter_B::ResetLastHitBy, TimeBeforeResetLastHitBy, false);
 	}
 	else
 	{
 		LastHitBy = EventInstigator;
 	}
+}
+
+void APlayerCharacter_B::ResetLastHitBy()
+{
+	LastHitBy = nullptr;
 }
 
 void APlayerCharacter_B::DisplayScoreVisuals(const FScoreValues ScoreValues)

@@ -69,7 +69,7 @@ void ABounceActorSpawner_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(OperatorNPCMesh);
 		MergeMeshComponent->DestroyComponent();
 	}
-	
+
 	if (CogSoundComponent)
 	{
 		CogSoundComponent->Stop();
@@ -97,8 +97,8 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 		FVector LaunchVel;
 		UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), ShootTargets[0]->GetActorLocation(), 0.0f, 0.5f);
 		float DotProduct = FVector::DotProduct(LaunchVel.GetSafeNormal(), BarrelLowMesh->GetComponentRotation().Vector());
-		
-		if (FMath::IsNearlyEqual(DotProduct,1.f,0.005f))
+
+		if (FMath::IsNearlyEqual(DotProduct, 1.f, 0.005f))
 		{
 			if (bAnimationFinished)
 			{
@@ -111,7 +111,7 @@ void ABounceActorSpawner_B::Tick(float DeltaTime)
 	{
 		if (CogSoundComponent && !CogSoundComponent->IsPlaying())
 			CogSoundComponent->Play();
-		
+
 		RotateCogs(DeltaTime);
 
 		RotateMainCannon(DeltaTime, RotateTargets[0]->GetActorLocation());
@@ -129,12 +129,12 @@ void ABounceActorSpawner_B::RotateBarrel(float DeltaTime, FVector TargetLocation
 {
 	FVector LaunchVel = FVector::ZeroVector;
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), LaunchVel, BarrelSpawnLocation->GetComponentLocation(), TargetLocation, 0.0f, 0.5f);
-	
+
 	LaunchVel = FVector::VectorPlaneProject(LaunchVel, MainMesh->GetRightVector());
 	LaunchVel.Normalize();
 
 	FRotator CurrentWorldRot = BarrelLowMesh->GetComponentRotation();
-	
+
 	float DotProduct = FVector::DotProduct(LaunchVel, CurrentWorldRot.Vector());
 
 	float Angle = FMath::RadiansToDegrees(FMath::Acos(DotProduct));
@@ -147,7 +147,7 @@ void ABounceActorSpawner_B::RotateBarrel(float DeltaTime, FVector TargetLocation
 
 void ABounceActorSpawner_B::RotateMainCannon(float DeltaTime, FVector TargetLocation)
 {
-	FVector RotationTarget = TargetLocation -  GetActorLocation();
+	FVector RotationTarget = TargetLocation - GetActorLocation();
 
 	MainMesh->SetWorldRotation(FMath::RInterpConstantTo(MainMesh->GetRelativeRotation(), RotationTarget.ToOrientationRotator(), DeltaTime, CannonRotateSpeed));
 }
@@ -227,10 +227,12 @@ void ABounceActorSpawner_B::SetAnimationFinished(bool Value)
 void ABounceActorSpawner_B::SetAnimationFinishedTimer()
 {
 	FTimerHandle TH_ResetAnimationTimer;
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetAnimationTimer, [&]()
-		{
-			bAnimationFinished = true;
-		},
-		1.f, 
+	GetWorld()->GetTimerManager().SetTimer(TH_ResetAnimationTimer, this, &ABounceActorSpawner_B::SetAnimationFinishedToTrue,
+		1.f,
 		false);
+}
+
+void ABounceActorSpawner_B::SetAnimationFinishedToTrue()
+{
+	bAnimationFinished = true;
 }

@@ -62,6 +62,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		UPawnNoiseEmitterComponent* NoiseEmitterComponent = nullptr;
 
+	float TimeBetweenNoise = 0.5f;
+
+	float CurrentNoiseTime = 0.f;
+
 	// ********** Movement **********
 
 	void HandleMovementPoweredUp(float DeltaTime);
@@ -122,6 +126,11 @@ protected:
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	void SetLastHitBy(AController* EventInstigator);
+
+	void ResetLastHitBy();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Score")
+	float TimeBeforeResetLastHitBy = 7.f;
 
 	void DisplayScoreVisuals(FScoreValues ScoreValues);
 

@@ -63,7 +63,7 @@ void UPunchComponent_B::PunchStart()
 	GetOverlappingComponents(OurOverlappingComponents);
 	for (auto& comp : OurOverlappingComponents)
 	{
-		if(IsValid(comp))
+		if (IsValid(comp))
 			CheckPunchHit(comp->GetOwner(), comp);
 	}
 
@@ -154,24 +154,25 @@ void UPunchComponent_B::Dash()
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(
-		TH_DashAgainHandle,
-		[&]()
-		{
-			bIsDashing = false;
-		},
+		TH_DashAgainHandle, this, &UPunchComponent_B::SetIsDashingToFalse,
 		DashCooldown,
-			false);
+		false);
 
 	GetWorld()->GetTimerManager().SetTimer(
-		TH_DashDoneHandle,
-		[&]()
-		{
-			OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
-			OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
-		},
+		TH_DashDoneHandle, this, &UPunchComponent_B::DashDone,
 		DashTime,
-			false);
+		false);
+}
 
+void UPunchComponent_B::SetIsDashingToFalse()
+{
+	bIsDashing = false;
+}
+
+void UPunchComponent_B::DashDone()
+{
+	OwningCharacter->GetCapsuleComponent()->SetCollisionProfileName("Capsule");
+	OwningCharacter->GetCharacterMovement()->Velocity = OwningCharacter->GetCharacterMovement()->Velocity * PostDashRemainingVelocityPercentage;
 }
 
 void UPunchComponent_B::PunchEnd()
@@ -191,24 +192,22 @@ void UPunchComponent_B::PunchEnd()
 	SetIsPunching(false);
 
 	GetWorld()->GetTimerManager().SetTimer(
-		TH_PunchAgainHandle,
-		[&]()
-		{
-			SetCanPunch(true);
-
-			//GetO
-			AGamePlayerController_B* PlayerController = OwningCharacter->GetController<AGamePlayerController_B>();
-			if (PlayerController)
-			{
-				if(PlayerController->IsPunchChargeInputHeld())
-					PlayerController->TryStartPunchCharge();
-			}
-		},
+		TH_PunchAgainHandle, this, &UPunchComponent_B::PunchAgain,
 		PunchWaitingTime,
-			false);
+		false);
 	VelocityBeforeDash = FVector::ZeroVector;
+}
 
+void UPunchComponent_B::PunchAgain()
+{
+	SetCanPunch(true);
 
+	AGamePlayerController_B* PlayerController = OwningCharacter->GetController<AGamePlayerController_B>();
+	if (PlayerController)
+	{
+		if (PlayerController->IsPunchChargeInputHeld())
+			PlayerController->TryStartPunchCharge();
+	}
 }
 
 void UPunchComponent_B::PunchHit(ACharacter_B* OtherPlayer)

@@ -24,6 +24,7 @@ protected:
 	// ********** AGameMode_B **********
 
 	void PostLevelLoad() override;
+	void StartFadeToScoreWithDelay();
 
 	// ********** Level Sequence **********
 
@@ -47,9 +48,15 @@ protected:
 public:
 	void SetCanContinue(bool Value);
 protected:
-	
+
 	UPROPERTY(BlueprintReadOnly)
 		bool bCanContinue = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skip")
+		float ShowSkipTextDelay = 3.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skip")
+		float StartFadeToScoreDelay = 6.f;
 
 	// ********** Final Scores **********
 public:

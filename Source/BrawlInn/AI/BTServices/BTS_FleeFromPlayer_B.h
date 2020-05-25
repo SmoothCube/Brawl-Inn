@@ -23,6 +23,7 @@ protected:
 
 	UFUNCTION()
 		void OnHearNoise(APawn* Instigator, const FVector& Location, float Volume);
+	void ResetToWalkSpeed();
 
 	float NormalMaxAcceleration;
 	float NormalMaxWalkSpeed;

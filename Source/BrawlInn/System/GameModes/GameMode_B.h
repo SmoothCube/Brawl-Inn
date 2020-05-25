@@ -104,7 +104,7 @@ protected:
 #endif
 protected:
 
-	void GetAllPlayerStartsInWorld();
+	void FindAllPlayerStartsInWorld();
 
 	UPROPERTY()
 		TArray<APlayerStart*> PlayerStarts;

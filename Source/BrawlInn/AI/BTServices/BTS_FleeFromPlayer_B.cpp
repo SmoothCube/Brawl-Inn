@@ -51,10 +51,12 @@ void UBTS_FleeFromPlayer_B::OnHearNoise(APawn* Instigator, const FVector& Locati
 	Character->GetCharacterMovement()->MaxAcceleration = FleeMaxAcceleration;
 	Character->GetCharacterMovement()->MaxWalkSpeed = FleeMaxWalkSpeed;
 
-	GetWorld()->GetTimerManager().SetTimer(TH_ResetSpeed, [&]()
-		{
-			Character->GetCharacterMovement()->MaxAcceleration = NormalMaxAcceleration;
-			Character->GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
-		}, ResetSpeedTime, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_ResetSpeed, this, &UBTS_FleeFromPlayer_B::ResetToWalkSpeed, ResetSpeedTime, false);
 
+}
+
+void UBTS_FleeFromPlayer_B::ResetToWalkSpeed()
+{
+	Character->GetCharacterMovement()->MaxAcceleration = NormalMaxAcceleration;
+	Character->GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
 }

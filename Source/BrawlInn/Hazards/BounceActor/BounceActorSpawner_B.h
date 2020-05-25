@@ -124,6 +124,7 @@ public:
 	void SetAnimationFinished(bool Value);
 
 	void SetAnimationFinishedTimer();
+	void SetAnimationFinishedToTrue();
 protected:
 
 

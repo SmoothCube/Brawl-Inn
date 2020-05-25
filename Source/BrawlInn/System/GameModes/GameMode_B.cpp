@@ -27,15 +27,14 @@ AGameMode_B::AGameMode_B()
 
 void AGameMode_B::BeginPlay()
 {
+	Super::BeginPlay();
+
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 
-	/// Finds spawnpoints
-	GetAllPlayerStartsInWorld();
+	FindAllPlayerStartsInWorld();
 
-	/// Creates all playercontrollers
 	CreatePlayerControllers();
 
-	Super::BeginPlay();
 }
 
 void AGameMode_B::PostLevelLoad()
@@ -47,23 +46,31 @@ void AGameMode_B::PostLevelLoad()
 void AGameMode_B::DisableControllerInputs()
 {
 	for (auto Controller : PlayerControllers)
-		Controller->DisableInput(Controller);
+	{
+		if (Controller)
+			Controller->DisableInput(Controller);
+	}
 }
 
 void AGameMode_B::EnableControllerInputs()
 {
 	for (auto Controller : PlayerControllers)
-		Controller->EnableInput(Controller);
+	{
+		if (Controller)
+			Controller->EnableInput(Controller);
+	}
 }
 
 void AGameMode_B::PauseGame(AGamePlayerController_B* ControllerThatPaused)
 {
 	if (!bCanPause)
 		return;
-	
+
 	check(IsValid(BP_PauseMenu));
+	
 	PauseMenuWidget = CreateWidget<UPauseMenu_B>(ControllerThatPaused, BP_PauseMenu);
 	PauseMenuWidget->AddToViewport();
+	
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
@@ -76,6 +83,7 @@ void AGameMode_B::ResumeGame()
 	}
 	PauseMenuWidget->RemoveFromParent();
 	PauseMenuWidget = nullptr;
+	
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
@@ -87,7 +95,7 @@ void AGameMode_B::UpdateViewTargets(ACameraActor* Camera, float BlendTime, bool 
 
 	for (auto& PlayerController : PlayerControllers)
 	{
-		if (IsValid(CameraToUse))
+		if (IsValid(CameraToUse) && PlayerController)
 			PlayerController->SetViewTargetWithBlend(CameraToUse, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2, LockOutgoing);
 	}
 }
@@ -115,7 +123,6 @@ TArray<APlayerController_B*> AGameMode_B::GetPlayerControllers()
 	return PlayerControllers;
 }
 
-// ---------------- Spawn PlayerCharacter functions --------------------------
 void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, FTransform SpawnTransform)
 {
 	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
@@ -127,6 +134,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	{
 		GameInstance->AddPlayerInfo(PlayerInfo);
 	}
+	
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	Pawn->Destroy();
@@ -135,6 +143,7 @@ void AGameMode_B::SpawnCharacter(FPlayerInfo PlayerInfo, bool ShouldUseVector, F
 	if (!BP_PlayerCharacters.IsValidIndex(Index)) { BError("GameMode has no PlayerCharacter on Index %i", Index); return; }
 
 	APlayerCharacter_B* Character = nullptr;
+	
 	if (PlayerInfo.CharacterVariant.bTaken)
 	{
 		Character = GetWorld()->SpawnActor<APlayerCharacter_B>(BP_PlayerCharacters[Index], ShouldUseVector ? SpawnTransform : GetSpawnTransform(PlayerInfo.ID), Params);
@@ -162,7 +171,6 @@ FOnCharacterSpawn& AGameMode_B::OnCharacterSpawn()
 	return OnCharacterSpawn_Delegate;
 }
 
-// Når man respawner gjennom en barrel
 AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo, bool bShouldExplode)
 {
 	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
@@ -173,10 +181,8 @@ AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo, bool bShouldExplod
 
 	TArray<AActor*> SpawnActors;
 
-	ARespawnPawn_B* RespawnPawn;
-	
-	RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetSpawnTransform(PlayerInfo.ID));
-	
+	ARespawnPawn_B* RespawnPawn = GetWorld()->SpawnActor<ARespawnPawn_B>(BP_RespawnPawn, GetSpawnTransform(PlayerInfo.ID));
+
 	if (RespawnPawn)
 	{
 		RespawnPawn->bBarrelShouldExplode = bShouldExplode;
@@ -195,7 +201,6 @@ AActor* AGameMode_B::SpawnRespawnPawn(FPlayerInfo PlayerInfo, bool bShouldExplod
 	return RespawnPawn;
 }
 
-// Når man respawner gjennom en barrel
 void AGameMode_B::RespawnCharacter(FPlayerInfo PlayerInfo)
 {
 	AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), PlayerInfo.ID));
@@ -260,7 +265,7 @@ FTransform AGameMode_B::GetSpawnTransform(const int PlayerControllerID)
 	return PlayerStarts[PlayerControllerID]->GetActorTransform();
 }
 
-void AGameMode_B::GetAllPlayerStartsInWorld()
+void AGameMode_B::FindAllPlayerStartsInWorld()
 {
 	PlayerStarts.Empty();
 	TArray<AActor*> TempSpawnpoints;
@@ -287,5 +292,4 @@ void AGameMode_B::RemoveCameraFocusPoint(AActor* FocusActor)
 
 	//Pretty sure its safe to do this even if it doesnt actally exist in the array.
 	GameCamera->ActorsToTrack.Remove(FocusActor);
-
 }

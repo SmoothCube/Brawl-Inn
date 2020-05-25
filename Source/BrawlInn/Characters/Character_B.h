@@ -118,6 +118,7 @@ public:
 	virtual void Dropped_Implementation() override;
 
 	virtual void Use_Implementation() override;
+	void SetCapsuleCollisionProfileNameThrown();
 
 	virtual bool IsHeld_Implementation() const override;
 

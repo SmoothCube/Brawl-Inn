@@ -34,6 +34,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void ShowMainMenu();
 
+	void PlayWelcomeLine();
+
 	UFUNCTION(BlueprintCallable)
 		void HideMainMenu();
 
@@ -86,7 +88,7 @@ public:
 	FPlayersActiveUpdated PlayersActiveUpdated;
 
 	UPROPERTY(BlueprintAssignable)
-	FAmountOfPlayersReadyChanged AmountOfPlayersReadyChanged;
+		FAmountOfPlayersReadyChanged AmountOfPlayersReadyChanged;
 
 protected:
 	unsigned int PlayersActive = 0;
@@ -105,7 +107,7 @@ public:
 	void HoverLeft(AMenuPlayerController_B* PlayerController);
 
 	void HoverRight(AMenuPlayerController_B* PlayerController);
-	
+
 	void HoverRightForHiddenCharacters(AMenuPlayerController_B* PlayerController);
 
 	UCharacterSelectionOverlay_B* GetCharacterSelectionOverlay() const;

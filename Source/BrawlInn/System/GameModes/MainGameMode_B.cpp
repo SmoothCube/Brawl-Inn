@@ -7,8 +7,6 @@
 #include "Engine/TriggerBox.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Camera/CameraComponent.h"
-#include "Math/UnrealMathUtility.h"
 #include "Sound/SoundCue.h"
 #include "TimerManager.h"
 
@@ -19,16 +17,12 @@
 #include "Items/LeaderFollower_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/DataTable_B.h"
-#include "System/Utils.h"
 #include "System/GameInstance_B.h"
 #include "System/Structs/ScoreLookupTable.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
 #include "UI/Widgets/GameOverlay_B.h"
 #include "Hazards/Bar_B.h"
 #include "UI/Widgets/PauseMenu_B.h"
-#include "UI/Widgets/VictoryScreenWidget_B.h"
-#include "Characters/Player/RespawnPawn_B.h"
-#include "GameFramework/PawnMovementComponent.h"
 
 AMainGameMode_B::AMainGameMode_B()
 {
@@ -41,7 +35,7 @@ void AMainGameMode_B::BeginPlay()
 	FullGameTime = GameTimeRemaining;
 }
 
-void AMainGameMode_B::Tick(float DeltaTime)
+void AMainGameMode_B::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -49,12 +43,11 @@ void AMainGameMode_B::Tick(float DeltaTime)
 	if (!PlayerSpawnQueue.IsEmpty() && (CurrentTime > Delay))
 	{
 		CurrentTime = 0.f;
-		FPlayerInfo info = *PlayerSpawnQueue.Peek();
+		const FPlayerInfo Info = *PlayerSpawnQueue.Peek();
 		PlayerSpawnQueue.Pop();
-		AActor* Pawn = SpawnRespawnPawn(info, false);
+		AActor* Pawn = SpawnRespawnPawn(Info, false);
 		if (PlayerSpawnQueue.IsEmpty() && IsValid(Pawn))
 		{
-			//LastRespawnPawnDestroyed(Pawn);
 			Pawn->OnDestroyed.AddDynamic(this, &AMainGameMode_B::LastRespawnPawnDestroyed);
 		}
 	}
@@ -62,7 +55,8 @@ void AMainGameMode_B::Tick(float DeltaTime)
 
 void AMainGameMode_B::PostLevelLoad()
 {
-	Super::PostLevelLoad();
+	Super::PostLevelLoad(); //Start ambient sounds
+
 	//find and cache score values
 	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
 	checkf(IsValid(GameInstance), TEXT("%s can't find the GameInstance_B! ABORT"), *GetNameSafe(this));
@@ -74,6 +68,7 @@ void AMainGameMode_B::PostLevelLoad()
 		AgainstLeaderMultiplier = Table->GetRow<FScoreTable>("AgainstLeaderMultiplier")->Value;
 		Table->ConditionalBeginDestroy();
 	}
+
 	/// Spawns and setups cameras
 	GameCamera = GetWorld()->SpawnActor<AGameCamera_B>(BP_GameCamera, FTransform());
 	FromCharacterSelectionCamera = GetWorld()->SpawnActor<ACameraActor>(BP_FromCharacterSelectionCamera, GameInstance->GetCameraSwapTransform());
@@ -84,7 +79,6 @@ void AMainGameMode_B::PostLevelLoad()
 	Overlay->AddToViewport();
 
 	/// Spawns characters for the players
-
 	for (FPlayerInfo Info : GameInstance->GetPlayerInfos())
 	{
 		AGamePlayerController_B* PlayerController = Cast<AGamePlayerController_B>(UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Info.ID));
@@ -93,7 +87,6 @@ void AMainGameMode_B::PostLevelLoad()
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->ResetScoreValues();
 		PlayerController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->OnScoreChangedNoParam.AddUObject(this, &AMainGameMode_B::CallOnAnyScoreChange);
 		PlayerSpawnQueue.Enqueue(Info);
-		//SpawnCharacter(Info, false, FTransform());
 	}
 
 	TArray<AActor*> OutActors;
@@ -135,31 +128,24 @@ void AMainGameMode_B::PreGame()
 	DisableControllerInputs();
 
 	UpdateViewTargets(FromCharacterSelectionCamera);
-	//if (GameInstance)
-	//	GameInstance->PlayAnnouncerLine();
-	//Swap camera after 1 second
-	BI::Delay(this, 1, [&]()
-		{
-			UpdateViewTargets(nullptr, 1, true);
-		});
+
+	FTimerHandle PreGameHandle;
+	GetWorld()->GetTimerManager().SetTimer(PreGameHandle, this, &AMainGameMode_B::SwapToGameCamera, SwapToGameCameraDelay, false);
+
+}
+
+void AMainGameMode_B::SwapToGameCamera()
+{
+	UpdateViewTargets(nullptr, 1, true);
 }
 
 void AMainGameMode_B::PregameCountdown()
 {
-	check(IsValid(Countdown));
-
-	if (GameInstance)
+	if (GameInstance && Countdown)
 		GameInstance->PlayAnnouncerLine(Countdown);
 
-	// Start game when sound is finished
-	BI::Delay(this, Countdown->GetDuration() - 0.75f, [&]() {StartGame(); });
-}
-
-void AMainGameMode_B::PregameCountdownClock()
-{
-	check(IsValid(Overlay));
-
-	Overlay->UpdateTimerText(PreGameCountdownTimer--);
+	FTimerHandle PreGameStartGameHandle;
+	GetWorld()->GetTimerManager().SetTimer(PreGameStartGameHandle, this, &AMainGameMode_B::StartGame, Countdown->GetDuration() - 0.75f, false);
 }
 
 void AMainGameMode_B::UpdateClock()
@@ -176,7 +162,6 @@ void AMainGameMode_B::UpdateClock()
 
 	if (GameTimeRemaining <= 0)
 		PostGame();
-
 }
 
 void AMainGameMode_B::CheckTimeVoicelines()
@@ -279,11 +264,27 @@ void AMainGameMode_B::LastRespawnPawnDestroyed(AActor* DestroyedActor)
 	if (GameInstance->IgnoreCountdown())
 		return;
 
-	BWarn("Starting Countdown");
+	FTimerHandle PreGameCountdownHandle;
+	GetWorld()->GetTimerManager().SetTimer(PreGameCountdownHandle, this, &AMainGameMode_B::PregameCountdown, StartGameAfterPlayerSpawnsDelay, false);
+}
 
-	BI::Delay(this, 1, [&]() { PregameCountdown(); });
+void AMainGameMode_B::SortPlayerInfosBasedOnScore(TArray<FPlayerInfo>& PlayerInfos)
+{
+	if (!GameInstance)
+		return;
+	
+	PlayerInfos = GameInstance->GetPlayerInfos();
+	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
+		{
+			APlayerController* LeftController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Left.ID);
+			APlayerController* RightController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Right.ID);
 
-	//BI::Repeat(this, 1, 4, [&]() { PregameCountdownClock(); });
+			const int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			const int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
+			if (LeftScore >= RightScore)
+				return true;
+			return false;
+		});
 }
 
 void AMainGameMode_B::PostGame()
@@ -300,7 +301,10 @@ void AMainGameMode_B::PostGame()
 			Controller->GetPlayerCharacter()->SetActorTickEnabled(false);
 	}
 
-	LeaderFollower->Destroy();
+	if (LeaderFollower)
+	{
+		LeaderFollower->Destroy();
+	}
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "EndGame", OutActors);
@@ -315,29 +319,23 @@ void AMainGameMode_B::PostGame()
 	Overlay->DisplayText("TIME'S UP!", "", 2.f);
 	Overlay->HideScoreBoardAndClock();
 
-	const float BlendTime = 3.f;
-
-	UpdateViewTargets(OutroCamera, BlendTime, true);
-	BI::Delay(this, BlendTime, [&]() {UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName()); });
+	UpdateViewTargets(OutroCamera, BlendToVictoryMapTime, true);
+	FTimerHandle PostGameLevelSwapHandle;
+	GetWorld()->GetTimerManager().SetTimer(PostGameLevelSwapHandle, this, &AMainGameMode_B::SwapToVictoryMap, BlendToVictoryMapTime, false);
 
 	auto TempPlayerControllers = PlayerControllers;
 	SortPlayerControllersByScore(TempPlayerControllers);
 
 	//Sort PlayerInfo based on Score
-	TArray<FPlayerInfo> PlayerInfos = GameInstance->GetPlayerInfos();
-	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
-		{
-			APlayerController* LeftController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Left.ID);
-			APlayerController* RightController = UGameplayStatics::GetPlayerControllerFromID(GetWorld(), Right.ID);
-
-			const int LeftScore = LeftController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-			const int RightScore = RightController->GetLocalPlayer()->GetSubsystem<UScoreSubSystem_B>()->GetScoreValues().Score;
-			if (LeftScore >= RightScore)
-				return true;
-			return false;
-		});
+	TArray<FPlayerInfo> PlayerInfos;
+	SortPlayerInfosBasedOnScore(PlayerInfos);
 
 	GameInstance->SetPlayerInfos(PlayerInfos);
+}
+
+void AMainGameMode_B::SwapToVictoryMap()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), *GameInstance->GetVictoryMapName());
 }
 
 FOnAnyScoreChange& AMainGameMode_B::OnAnyScoreChange()

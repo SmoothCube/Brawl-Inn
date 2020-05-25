@@ -324,12 +324,14 @@ void ACharacter_B::Use_Implementation()
 		Fall(TargetLocation * ImpulseStrength, ThrowRecoveryTime, true);
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, [&]()
-		{
-			GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
-		}, TimeBeforeThrowCollision, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_FallCollisionTimer, this, &ACharacter_B::SetCapsuleCollisionProfileNameThrown, TimeBeforeThrowCollision, false);
 
 	SetActorRotation(FRotator(0, 0, 0));
+}
+
+void ACharacter_B::SetCapsuleCollisionProfileNameThrown()
+{
+	GetCapsuleComponent()->SetCollisionProfileName(FName("Capsule-Thrown"));
 }
 
 bool ACharacter_B::IsHeld_Implementation() const

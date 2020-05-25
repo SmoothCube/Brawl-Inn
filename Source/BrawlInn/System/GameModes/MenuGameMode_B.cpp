@@ -15,7 +15,6 @@
 #include "Characters/Player/SelectionPawn_B.h"
 #include "System/Camera/GameCamera_B.h"
 #include "System/GameInstance_B.h"
-#include "System/Utils.h"
 #include "UI/Widgets/MainMenu_B.h"
 #include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
@@ -99,13 +98,14 @@ void AMenuGameMode_B::ShowMainMenu()
 	if (GameInstance)
 		GameInstance->SetAndPlayMusic(Music);
 
+	FTimerHandle WelcomeLineHandle;
+	GetWorld()->GetTimerManager().SetTimer(WelcomeLineHandle, this, &AMenuGameMode_B::PlayWelcomeLine, TimeBeforeWelcomeLine, false);
+}
 
-	BI::Delay(this, TimeBeforeWelcomeLine, [&]()
-		{
-
-			if (GameInstance)
-				GameInstance->PlayAnnouncerLine(WelcomeLine);
-		});
+void AMenuGameMode_B::PlayWelcomeLine()
+{
+	if (GameInstance)
+		GameInstance->PlayAnnouncerLine(WelcomeLine);
 }
 
 void AMenuGameMode_B::HideMainMenu()

@@ -39,7 +39,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PunchEnd();
-	
+	void PunchAgain();
+
 	UFUNCTION(BlueprintCallable)
 	bool GetIsPunching();
 
@@ -113,6 +114,8 @@ public:
 	// ********** Dash **********
 	UFUNCTION(BlueprintCallable)
 	void Dash();
+	void SetIsDashingToFalse();
+	void DashDone();
 protected:
 
 	FVector VelocityBeforeDash = FVector::ZeroVector;

@@ -10,15 +10,12 @@
 
 #include "Characters/Player/MenuPlayerController_B.h"
 #include "Characters/Player/PlayerCharacter_B.h"
-#include "System/Utils.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/MenuGameMode_B.h"
-#include "UI/Widgets/CharacterSelectionOverlay_B.h"
 
 AReadyTrigger_B::AReadyTrigger_B()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	
 }
 
 void AReadyTrigger_B::BeginPlay()
@@ -52,7 +49,7 @@ void AReadyTrigger_B::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 		GameMode->UpdateCharacterSelectionOverlay();
 
 		if (GameMode->GetPlayersReady() >= GameMode->GetPlayersActive())
-			TH_StartTimer = BI::Delay(this, 3, [&]() {PrepareStartGame(); });
+			GetWorld()->GetTimerManager().SetTimer(TH_StartTimer, this, &AReadyTrigger_B::PrepareStartGame, 3, false);
 	}
 }
 

@@ -12,7 +12,6 @@
 #include "Engine/LocalPlayer.h"
 #include "LevelSequencePlayer.h"
 
-#include "System/Utils.h"
 #include "System/GameInstance_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
 
@@ -79,11 +78,15 @@ void AVictoryGameMode_B::PostLevelLoad()
 
 	UpdateViewTargets(VictoryCamera, 3);
 
-	BI::Delay(this, 3, [&]()
-		{
-			StartFadeToScore();
-			FadeHandle = BI::Delay(this, 6, [&]() { StartFadeToScore(); });
-		});
+	FTimerHandle StartFadeToScoreHandle;
+	GetWorld()->GetTimerManager().SetTimer(StartFadeToScoreHandle, this, &AVictoryGameMode_B::StartFadeToScoreWithDelay, ShowSkipTextDelay,false);
+	
+}
+
+void AVictoryGameMode_B::StartFadeToScoreWithDelay()
+{
+	StartFadeToScore();
+	GetWorld()->GetTimerManager().SetTimer(FadeHandle, this, &AVictoryGameMode_B::StartFadeToScore, StartFadeToScoreDelay, false);
 }
 
 void AVictoryGameMode_B::SetCanContinue(const bool Value)
@@ -96,7 +99,7 @@ void AVictoryGameMode_B::StartFadeToScore()
 	if (bFinalScoreVisible)
 		return;
 
-	BI::StopDelay(this, FadeHandle);
+	GetWorld()->GetTimerManager().ClearTimer(FadeHandle);
 
 	if (!Skip->IsVisible())
 	{
