@@ -24,6 +24,7 @@ public:
 
 	int Start = 0;
 	int End = 0;
+	int ValueFloored = 0;
 	float CurrentTime = 0.f;
 	float Duration = 1.f;
 	UTextBlock* TextBlock = nullptr;
@@ -39,8 +40,8 @@ struct FCountNumberQueue
 	FCountNumber& Top() { if (Queue.IsValidIndex(0)) return Queue[0]; return Dummy; }
 	void Pop() { Queue.RemoveAt(0); }
 	int Size() const { return Queue.Num(); }
-private:
 	TArray<FCountNumber> Queue;
+private:
 	FCountNumber Dummy;
 };
 
@@ -58,12 +59,6 @@ protected:
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	UFUNCTION()
-		void ContinueButtonClicked();
-
-	UFUNCTION(BlueprintCallable)
-		void EnableContinueButton();
-
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayStatBlockAnimations();
 
@@ -75,10 +70,6 @@ protected:
 	void AddToCountQueue(int Start, int End, UTextBlock* TextBlock, int PlayerControllerID);
 
 	bool bCanCount = false;
-
-public:
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton_B* ContinueButton;
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -134,4 +125,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Titles", meta = (ToolTip = "Assumes: 1st,2nd,3rd,4th"))
 		TArray<FString> FourthPlaceTitles;
+
+	// ********** Sound **********
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	class USoundCue* CountSound;
+
+	float CurrentCountSoundTime = 0.f;
 };

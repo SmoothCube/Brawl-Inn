@@ -146,11 +146,16 @@ protected:
 public:
 	bool IgnoreCountdown() const;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Settings|EditorOnly")
+	UPROPERTY(EditDefaultsOnly, Category = "EditorOnly")
 		bool bIgnoreCountdown = true;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Settings|EditorOnly")
+	UPROPERTY(EditDefaultsOnly, Category = "EditorOnly")
 		bool bMuteMusic = true;
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditDefaultsOnly, Category = "EditorOnly")
+		bool bFakeScoreAtStatScreen = false;
+#endif
 
 	// ********** Misc **********
 	bool bMusicInitialized = false;

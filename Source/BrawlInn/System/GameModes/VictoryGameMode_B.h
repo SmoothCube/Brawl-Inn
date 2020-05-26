@@ -24,7 +24,8 @@ protected:
 	// ********** AGameMode_B **********
 
 	void PostLevelLoad() override;
-	void StartFadeToScoreWithDelay();
+
+	void FadeToStatScreenDelayed();
 
 	// ********** Level Sequence **********
 
@@ -35,7 +36,7 @@ protected:
 		ULevelSequencePlayer* FadeToBlackSequencePlayer;
 
 	UFUNCTION()
-		void OnFadeToBlackFinished();
+		void FadeToStatScreenFinished();
 
 	// ********** Skip Widget **********
 
@@ -58,15 +59,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Skip")
 		float StartFadeToScoreDelay = 6.f;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void HideSkipButton();
+
 	// ********** Final Scores **********
 public:
 	UFUNCTION(BlueprintCallable)
-		void StartFadeToScore();
+		void FadeToStatScreen();
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<UVictoryScreenWidget_B> VictoryScreen_BP;
-
-	bool bFinalScoreVisible = false;
 
 	// ********** Misc. **********
 
@@ -76,6 +78,6 @@ public:
 	FTimerHandle FadeHandle;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OpenBarDoor();
+		void OpenBarDoor();
 
 };
