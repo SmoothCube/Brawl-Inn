@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "VictoryGameMode_B.h"
 
 #include "BrawlInn.h"
@@ -26,43 +25,14 @@ void AVictoryGameMode_B::BeginPlay()
 	UpdateViewTargets(IntroCamera);
 
 	TArray<AActor*> OutActors;
+	TArray<AActor*> CharactersToKeep;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Players", OutActors);
 
-	TArray<FName> VictoryTags;
-	VictoryTags.Add("First");
-	VictoryTags.Add("Second");
-	VictoryTags.Add("Third");
-	VictoryTags.Add("Fourth");
+	FindPlayerCharactersAndUpdateMeshMaterial(OutActors, CharactersToKeep);
 
-	//Finds the characters to keep and updates their Mesh Material.
-	TArray<AActor*> CharactersToKeep;
-	for (int i = 0; i < GameInstance->GetPlayerInfos().Num(); i++)
-	{
-		const auto Character = OutActors.FindByPredicate([&](AActor* Actor)
-			{
-				return Actor->ActorHasTag(VictoryTags[i]);
-			});
-		CharactersToKeep.Add(*Character);
-		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(*Character);
-		PlayerCharacter->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, GameInstance->GetPlayerInfos()[i].CharacterVariant.MeshMaterial);
-		PlayerCharacter->GetDirectionIndicatorPlane()->DestroyComponent();
-	}
+	DestroyNonRelevantPlayerCharacters(OutActors, CharactersToKeep);
 
-	//Removes and destroys the characters that isn't supposed to be there
-	for (auto Actor : CharactersToKeep)
-		OutActors.Remove(Actor);
-
-	for (auto Actor : OutActors)
-		Actor->Destroy();
-
-	checkf(IsValid(FadeToBlackSequence), TEXT("Remember to set FadeToBlackSequence in the blueprint!"));
-	ALevelSequenceActor* SequenceActor;
-	FMovieSceneSequencePlaybackSettings Settings;
-	Settings.bAutoPlay = false;
-	Settings.bPauseAtEnd = true;
-	FadeToBlackSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), FadeToBlackSequence, Settings, SequenceActor);
-	FadeToBlackSequencePlayer->OnFinished.AddDynamic(this, &AVictoryGameMode_B::FadeToStatScreenFinished);
-	check(IsValid(FadeToBlackSequencePlayer));
+	InitFadeToStatScreenSequence();
 
 	Skip = CreateWidget<UUserWidget>(GetWorld(), Skip_BP);
 	Skip->AddToViewport();
@@ -113,4 +83,46 @@ void AVictoryGameMode_B::FadeToStatScreenFinished()
 	{
 		Controller->SetInputMode(FInputModeGameOnly());
 	}
+}
+
+void AVictoryGameMode_B::FindPlayerCharactersAndUpdateMeshMaterial(TArray<AActor*>& OutActors, TArray<AActor*>& CharactersToKeep)
+{
+	TArray<FName> VictoryTags;
+	VictoryTags.Add("First");
+	VictoryTags.Add("Second");
+	VictoryTags.Add("Third");
+	VictoryTags.Add("Fourth");
+	
+	for (int i = 0; i < GameInstance->GetPlayerInfos().Num(); i++)
+	{
+		const auto Character = OutActors.FindByPredicate([&](AActor* Actor)
+		{
+			return Actor->ActorHasTag(VictoryTags[i]);
+		});
+		CharactersToKeep.Add(*Character);
+		APlayerCharacter_B* PlayerCharacter = Cast<APlayerCharacter_B>(*Character);
+		PlayerCharacter->GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(1, GameInstance->GetPlayerInfos()[i].CharacterVariant.MeshMaterial);
+		PlayerCharacter->GetDirectionIndicatorPlane()->DestroyComponent();
+	}
+}
+
+void AVictoryGameMode_B::DestroyNonRelevantPlayerCharacters(TArray<AActor*>& OutActors, TArray<AActor*>& CharactersToKeep)
+{
+	for (auto Actor : CharactersToKeep)
+		OutActors.Remove(Actor);
+
+	for (auto Actor : OutActors)
+		Actor->Destroy();
+}
+
+void AVictoryGameMode_B::InitFadeToStatScreenSequence()
+{
+	checkf(IsValid(FadeToBlackSequence), TEXT("Remember to set FadeToBlackSequence in the blueprint!"));
+	ALevelSequenceActor* SequenceActor;
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bAutoPlay = false;
+	Settings.bPauseAtEnd = true;
+	FadeToBlackSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), FadeToBlackSequence, Settings, SequenceActor);
+	FadeToBlackSequencePlayer->OnFinished.AddDynamic(this, &AVictoryGameMode_B::FadeToStatScreenFinished);
+	check(IsValid(FadeToBlackSequencePlayer));
 }

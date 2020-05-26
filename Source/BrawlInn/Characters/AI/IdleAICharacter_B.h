@@ -30,6 +30,10 @@ protected:
 	// ********** ACharacter_B **********
 
 	void Die() override;
+	
+	void BeginDespawn();
+
+	FCollisionResponseContainer StandardCollisionResponseToAllChannels;
 
 	void SetState(EState StateIn) override;
 
@@ -53,6 +57,10 @@ protected:
 		float ResetCanMoveTime = 5.f;
 
 	FTimerHandle TH_Respawn;
+	FTimerHandle TH_Despawn;
+
+	UPROPERTY(EditAnywhere, Category = "Despawning")
+		float TimeBeforeDespawn = 5.f;
 
 	// ********** Drink ordering**********
 public:

@@ -7,8 +7,10 @@
 
 #include "AI/AIDropPoint_B.h"
 #include "AIController_B.h"
+#include "BrawlInn.h"
 #include "Components/HoldComponent_B.h"
 #include "Components/MergeMeshComponent_B.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Hazards/Bar_B.h"
 #include "System/GameModes/MainGameMode_B.h"
 
@@ -41,6 +43,9 @@ void AIdleAICharacter_B::BeginPlay()
 		MergeMeshComponent->CreateRandomMesh(GetMesh());
 		MergeMeshComponent->DestroyComponent();
 	}
+
+	StandardCollisionResponseToAllChannels = GetMesh()->GetCollisionResponseToChannels();
+
 }
 
 void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -51,22 +56,30 @@ void AIdleAICharacter_B::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AIdleAICharacter_B::FellOutOfWorld(const UDamageType& dmgType)
 {
-	Die();
 }
 
 void AIdleAICharacter_B::Respawn()
 {
+	GetMesh()->SetCollisionResponseToChannels(StandardCollisionResponseToAllChannels);
 	bIsAlive = true;
 	StandUp();
 	SetActorLocation(RespawnLocation);
-	bCanMove = false;
+	GetWorld()->GetTimerManager().ClearTimer(TH_Respawn);
+	GetWorld()->GetTimerManager().ClearTimer(TH_Despawn);
+	
 	Cast<AAIController_B>(GetController())->OnCharacterFall().Broadcast();
 }
 
 void AIdleAICharacter_B::Die()
 {
 	Super::Die();
-	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, this, &AIdleAICharacter_B::Respawn, 4, false);
+	GetWorld()->GetTimerManager().SetTimer(TH_Despawn, this, &AIdleAICharacter_B::BeginDespawn, GetWorld()->GetDeltaSeconds(), false, TimeBeforeDespawn);
+	GetWorld()->GetTimerManager().SetTimer(TH_Respawn, this, &AIdleAICharacter_B::Respawn, TimeBeforeDespawn + 2.f, false);
+}
+
+void AIdleAICharacter_B::BeginDespawn()
+{
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
 void AIdleAICharacter_B::SetState(const EState StateIn)

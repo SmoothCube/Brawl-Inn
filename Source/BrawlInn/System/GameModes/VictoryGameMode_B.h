@@ -80,4 +80,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OpenBarDoor();
 
+protected:
+
+	void FindPlayerCharactersAndUpdateMeshMaterial(TArray<AActor*>& OutActors, TArray<AActor*>& CharactersToKeep);
+
+	void DestroyNonRelevantPlayerCharacters(TArray<AActor*>& OutActors, TArray<AActor*>& CharactersToKeep);
+
+	void InitFadeToStatScreenSequence();
 };
