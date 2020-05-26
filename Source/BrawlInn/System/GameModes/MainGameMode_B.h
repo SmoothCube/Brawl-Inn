@@ -105,6 +105,9 @@ protected:
 
 	bool bGameIsOver = false;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OpenBarDoor();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Post Game")
 		float BlendToVictoryMapTime = 3.f;
 

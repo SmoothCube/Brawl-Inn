@@ -333,6 +333,9 @@ void AMainGameMode_B::PostGame()
 	Overlay->HideScoreBoardAndClock();
 
 	UpdateViewTargets(OutroCamera, BlendToVictoryMapTime, true);
+
+	OpenBarDoor();
+	
 	FTimerHandle PostGameLevelSwapHandle;
 	GetWorld()->GetTimerManager().SetTimer(PostGameLevelSwapHandle, this, &AMainGameMode_B::SwapToVictoryMap, BlendToVictoryMapTime, false);
 
