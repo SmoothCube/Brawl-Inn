@@ -10,6 +10,7 @@
 #include "Characters/Player/PlayerCharacter_B.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "TimerManager.h"
 #include "LevelSequencePlayer.h"
 
 #include "System/GameInstance_B.h"
@@ -77,6 +78,8 @@ void AVictoryGameMode_B::PostLevelLoad()
 	ACameraActor* VictoryCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), VictoryCamera_BP));
 
 	UpdateViewTargets(VictoryCamera, 3);
+
+	OpenBarDoor();
 
 	FTimerHandle StartFadeToScoreHandle;
 	GetWorld()->GetTimerManager().SetTimer(StartFadeToScoreHandle, this, &AVictoryGameMode_B::StartFadeToScoreWithDelay, ShowSkipTextDelay,false);

@@ -40,7 +40,7 @@ void AMainGameMode_B::Tick(const float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CurrentTime += DeltaTime;
-	if (!PlayerSpawnQueue.IsEmpty() && (CurrentTime > Delay))
+	if (bCanSpawnPlayer && !PlayerSpawnQueue.IsEmpty() && (CurrentTime > Delay))
 	{
 		CurrentTime = 0.f;
 		const FPlayerInfo Info = *PlayerSpawnQueue.Peek();
@@ -113,7 +113,10 @@ void AMainGameMode_B::PostLevelLoad()
 	if (!GameInstance->IgnoreCountdown())
 		PreGame();
 	else
+	{
+		bCanSpawnPlayer = true;
 		StartGame();
+	}
 }
 
 
@@ -129,14 +132,24 @@ void AMainGameMode_B::PreGame()
 
 	UpdateViewTargets(FromCharacterSelectionCamera);
 
+	FTimerHandle PreGameCannonCameraHandle;
+	GetWorld()->GetTimerManager().SetTimer(PreGameCannonCameraHandle, this, &AMainGameMode_B::SwapToPreGameCannonCamera, 1.f);
+
 	FTimerHandle PreGameHandle;
 	GetWorld()->GetTimerManager().SetTimer(PreGameHandle, this, &AMainGameMode_B::SwapToGameCamera, SwapToGameCameraDelay, false);
-
 }
 
 void AMainGameMode_B::SwapToGameCamera()
 {
 	UpdateViewTargets(nullptr, 1, true);
+}
+
+void AMainGameMode_B::SwapToPreGameCannonCamera()
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACameraActor::StaticClass(), "PreGame", OutActors);
+	if (OutActors.IsValidIndex(0))
+		UpdateViewTargets(Cast<ACameraActor>(OutActors[0]), 1.f, true);
 }
 
 void AMainGameMode_B::PregameCountdown()
@@ -272,7 +285,7 @@ void AMainGameMode_B::SortPlayerInfosBasedOnScore(TArray<FPlayerInfo>& PlayerInf
 {
 	if (!GameInstance)
 		return;
-	
+
 	PlayerInfos = GameInstance->GetPlayerInfos();
 	PlayerInfos.Sort([&](const FPlayerInfo Left, const FPlayerInfo Right)
 		{
@@ -320,6 +333,9 @@ void AMainGameMode_B::PostGame()
 	Overlay->HideScoreBoardAndClock();
 
 	UpdateViewTargets(OutroCamera, BlendToVictoryMapTime, true);
+
+	OpenBarDoor();
+	
 	FTimerHandle PostGameLevelSwapHandle;
 	GetWorld()->GetTimerManager().SetTimer(PostGameLevelSwapHandle, this, &AMainGameMode_B::SwapToVictoryMap, BlendToVictoryMapTime, false);
 

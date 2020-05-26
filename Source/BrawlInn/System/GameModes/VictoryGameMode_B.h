@@ -75,4 +75,7 @@ public:
 
 	FTimerHandle FadeHandle;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OpenBarDoor();
+
 };
