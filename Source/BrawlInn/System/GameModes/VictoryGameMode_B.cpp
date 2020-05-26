@@ -12,6 +12,7 @@
 #include "Engine/LocalPlayer.h"
 #include "TimerManager.h"
 #include "LevelSequencePlayer.h"
+#include "Characters/Player/PlayerController_B.h"
 
 #include "System/GameInstance_B.h"
 #include "UI/Widgets/VictoryScreenWidget_B.h"
@@ -60,12 +61,11 @@ void AVictoryGameMode_B::BeginPlay()
 	Settings.bAutoPlay = false;
 	Settings.bPauseAtEnd = true;
 	FadeToBlackSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), FadeToBlackSequence, Settings, SequenceActor);
-	FadeToBlackSequencePlayer->OnFinished.AddDynamic(this, &AVictoryGameMode_B::OnFadeToBlackFinished);
+	FadeToBlackSequencePlayer->OnFinished.AddDynamic(this, &AVictoryGameMode_B::FadeToStatScreenFinished);
 	check(IsValid(FadeToBlackSequencePlayer));
 
 	Skip = CreateWidget<UUserWidget>(GetWorld(), Skip_BP);
 	Skip->AddToViewport();
-	Skip->SetVisibility(ESlateVisibility::Hidden);
 
 	if (GameInstance)
 		GameInstance->SetAndPlayMusic(Music);
@@ -82,14 +82,13 @@ void AVictoryGameMode_B::PostLevelLoad()
 	OpenBarDoor();
 
 	FTimerHandle StartFadeToScoreHandle;
-	GetWorld()->GetTimerManager().SetTimer(StartFadeToScoreHandle, this, &AVictoryGameMode_B::StartFadeToScoreWithDelay, ShowSkipTextDelay,false);
-	
+	GetWorld()->GetTimerManager().SetTimer(StartFadeToScoreHandle, this, &AVictoryGameMode_B::FadeToStatScreenDelayed, ShowSkipTextDelay, false);
+
 }
 
-void AVictoryGameMode_B::StartFadeToScoreWithDelay()
+void AVictoryGameMode_B::FadeToStatScreenDelayed()
 {
-	StartFadeToScore();
-	GetWorld()->GetTimerManager().SetTimer(FadeHandle, this, &AVictoryGameMode_B::StartFadeToScore, StartFadeToScoreDelay, false);
+	GetWorld()->GetTimerManager().SetTimer(FadeHandle, this, &AVictoryGameMode_B::FadeToStatScreen, StartFadeToScoreDelay, false);
 }
 
 void AVictoryGameMode_B::SetCanContinue(const bool Value)
@@ -97,28 +96,21 @@ void AVictoryGameMode_B::SetCanContinue(const bool Value)
 	bCanContinue = Value;
 }
 
-void AVictoryGameMode_B::StartFadeToScore()
+void AVictoryGameMode_B::FadeToStatScreen()
 {
-	if (bFinalScoreVisible)
-		return;
-
 	GetWorld()->GetTimerManager().ClearTimer(FadeHandle);
-
-	if (!Skip->IsVisible())
-	{
-		Skip->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		FadeToBlackSequencePlayer->Play();
-		bFinalScoreVisible = true;
-		Skip->RemoveFromViewport();
-	}
+	FadeToBlackSequencePlayer->Play();
+	HideSkipButton();
 }
 
-void AVictoryGameMode_B::OnFadeToBlackFinished()
+void AVictoryGameMode_B::FadeToStatScreenFinished()
 {
 	UVictoryScreenWidget_B* VictoryScreen = CreateWidget<UVictoryScreenWidget_B>(GetWorld(), VictoryScreen_BP);
 	checkf(VictoryScreen, TEXT("VictoryScreen_BP is not set! Make sure to set it in the Blueprint!"));
 	VictoryScreen->AddToViewport();
+
+	for (auto Controller : PlayerControllers)
+	{
+		Controller->SetInputMode(FInputModeGameOnly());
+	}
 }

@@ -16,5 +16,5 @@ void AVictoryPlayerController_B::BeginPlay()
 
 void AVictoryPlayerController_B::FaceButtonBottomPressed()
 {
-	VictoryGameMode->StartFadeToScore();
+	VictoryGameMode->FadeToStatScreen();
 }

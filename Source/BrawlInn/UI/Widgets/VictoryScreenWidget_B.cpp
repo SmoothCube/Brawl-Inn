@@ -6,13 +6,13 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "VerticalBox.h"
 #include "VerticalBoxSlot.h"
+#include "Sound/SoundCue.h"
 
 #include "Image.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "System/GameInstance_B.h"
 #include "System/GameModes/VictoryGameMode_B.h"
 #include "System/SubSystems/ScoreSubSystem_B.h"
-#include "UI/UIElements/Button_B.h"
 #include "Victory/CharacterVictoryScreen_B.h"
 #include "Victory/StatEntry_B.h"
 
@@ -53,37 +53,61 @@ void UVictoryScreenWidget_B::NativeOnInitialized()
 	DisplayScores(BarrelsHit);
 	DisplayScores(Score);
 
+#if WITH_EDITORONLY_DATA
+	if (GameInstance->bFakeScoreAtStatScreen)
+	{
+		for (auto& Count : CountNumbers)
+		{
+			for (auto& C : Count.Queue)
+			{
+				C.End = FMath::RandRange(0, 1000);
+			}
+		}
+	}
+#endif
+
 }
 
 void UVictoryScreenWidget_B::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	ContinueButton->Execute_Tick(ContinueButton);
 
 	if (bCanCount)
 	{
+		CurrentCountSoundTime += InDeltaTime;
 		for (auto& Count : CountNumbers)
 		{
 			if (Count.Size() == 0)
 				continue;
-
 
 			FormattingOptions.UseGrouping = false;
 
 			if (Count.Top().CurrentTime < Count.Top().Duration)
 			{
 				Count.Top().CurrentTime += InDeltaTime;
-				const int ValueFloored = FMath::FloorToInt(UKismetMathLibrary::FInterpEaseInOut(
+				const int OldValueFloored = Count.Top().ValueFloored;
+				Count.Top().ValueFloored = FMath::FloorToInt(UKismetMathLibrary::FInterpEaseInOut(
 					Count.Top().Start, Count.Top().End, Count.Top().CurrentTime / Count.Top().Duration, 2));
 
+				if (OldValueFloored != Count.Top().ValueFloored)
+				{
+					if (CurrentCountSoundTime >= 0.05f)
+					{
+						CurrentCountSoundTime = 0.f;
+						PlaySound(CountSound);
+					}
+				}
+
 				if (Count.Top().TextBlock)
-					Count.Top().TextBlock->SetText(FText::AsNumber(ValueFloored, &FormattingOptions));
+					Count.Top().TextBlock->SetText(FText::AsNumber(Count.Top().ValueFloored, &FormattingOptions));
 			}
 			else
 			{
 				if (Count.Top().TextBlock)
 					Count.Top().TextBlock->SetText(FText::AsNumber(Count.Top().End, &FormattingOptions));
-				Count.Pop();
+
+				if (Count.Top().End != 0)
+					Count.Pop();
 			}
 		}
 	}
@@ -130,28 +154,9 @@ void UVictoryScreenWidget_B::AddRandomTitles()
 	StatBotRight->Title->SetText(FText::FromString(Title));
 }
 
-
-void UVictoryScreenWidget_B::ContinueButtonClicked()
-{
-	GameInstance = Cast<UGameInstance_B>(GetGameInstance());
-	check(IsValid(GameInstance));
-	GameInstance->ReturnToMainMenu();
-}
-
-void UVictoryScreenWidget_B::EnableContinueButton()
-{
-	ContinueButton->OnClicked.AddDynamic(this, &UVictoryScreenWidget_B::ContinueButtonClicked);
-
-	FInputModeUIOnly InputMode;
-	InputMode.SetWidgetToFocus(ContinueButton->GetCachedWidget());
-	GetOwningPlayer()->SetInputMode(InputMode);
-	ContinueButton->SetKeyboardFocus();
-}
-
 void UVictoryScreenWidget_B::OnStatBlockAnimationsFinished()
 {
 	bCanCount = true;
-	EnableContinueButton();
 
 	AVictoryGameMode_B* GameMode = Cast<AVictoryGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
