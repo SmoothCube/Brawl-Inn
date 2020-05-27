@@ -64,6 +64,7 @@ void AIdleAICharacter_B::Respawn()
 	bIsAlive = true;
 	StandUp();
 	SetActorLocation(RespawnLocation);
+	bCanMove = true;
 	GetWorld()->GetTimerManager().ClearTimer(TH_Respawn);
 	GetWorld()->GetTimerManager().ClearTimer(TH_Despawn);
 	
