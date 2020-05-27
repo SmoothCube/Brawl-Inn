@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "LevelSequencePlayer.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
 #include "LevelSequence.h"
 #include "PaperSpriteComponent.h"
 #include "Camera/CameraActor.h"
@@ -214,6 +216,7 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 	if (Characters[PlayerControllerID]->IsHidden())
 	{
 		Characters[PlayerControllerID]->SetActorHiddenInGame(false);
+		PlayActivateMontage(Characters[PlayerControllerID]);
 		return;
 	}
 

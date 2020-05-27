@@ -98,6 +98,9 @@ protected:
 	// ********** CharacterSelection **********
 public:
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayActivateMontage(APlayerCharacter_B* PlayerCharacter);
+	
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 
 	void UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected);
