@@ -135,9 +135,7 @@ void APlayerCharacter_B::Tick(float DeltaTime)
 
 void APlayerCharacter_B::HandleMovementPoweredUp(float DeltaTime)
 {
-	//Normalizes to make sure we dont accelerate faster diagonally, but still want to allow for slower movement.
-	if (InputVector.SizeSquared() >= 1.f)
-		InputVector.Normalize();
+	InputVector.Normalize();
 
 	if (InputVector.SizeSquared() > 0)
 	{

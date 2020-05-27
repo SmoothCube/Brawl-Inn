@@ -283,14 +283,15 @@ public:
 public:
 	void TryStartCharging();
 
-	UNiagaraComponent* GetChargeParticle() const;
-
 protected:
 	UPROPERTY(EditAnywhere, Category = "Punch")
 		FName ForceSocketName = "spine5_export_C_jnt";
 
 	UPROPERTY(VisibleAnywhere, Category = "Punch")
-		UNiagaraComponent* PS_Charge = nullptr;
+		UNiagaraComponent* PS_Charge1 = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Punch")
+		UNiagaraComponent* PS_Charge2 = nullptr;
 
 	// ********** Damage **********
 
