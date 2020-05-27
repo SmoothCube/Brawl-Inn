@@ -30,7 +30,7 @@ void AIdleAICharacter_B::BeginPlay()
 	{
 		Bar = GameMode->GetBar();
 	}
-	bCanMove = false;
+	SetCanMove(false);
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "NPCPlatform", OutActors);
 	if (OutActors.IsValidIndex(0))

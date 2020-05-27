@@ -257,7 +257,10 @@ void APlayerCharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlayS
 	Super::Fall(MeshForce, RecoveryTime, true);
 
 	if (PlayerController)
+	{
+		DisableInput(PlayerController);
 		PlayerController->PlayControllerVibration(1.f, 0.5f, true, true, true, true);
+	}
 	if (IsValid(DirectionIndicatorPlane))
 		DirectionIndicatorPlane->SetScalarParameterValueOnMaterials("Health", PunchesToStun);
 
@@ -278,6 +281,7 @@ void APlayerCharacter_B::StandUp()
 		return;
 
 	Super::StandUp();
+	EnableInput(PlayerController);
 
 	if (bShouldStand)
 		return;
@@ -297,6 +301,7 @@ void APlayerCharacter_B::StandUp()
 void APlayerCharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	Super::PickedUp_Implementation(Player);
+	if(PlayerController)
 
 	DirectionIndicatorPlane->SetHiddenInGame(true);
 }
