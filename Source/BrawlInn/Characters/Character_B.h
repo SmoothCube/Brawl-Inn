@@ -97,7 +97,9 @@ protected:
 	FVector FindMeshLocation() const;
 
 	bool FindMeshGroundLocation(FVector& OutGroundLocation) const;
-
+public:
+	bool IsFacingUp();
+protected:
 	UPROPERTY(EditAnywhere, Category = "Fall", meta = (Tooltip = "For when an external force made the character fall."))
 		float FallRecoveryTime = 5.f;
 

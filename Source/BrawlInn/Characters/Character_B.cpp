@@ -267,6 +267,19 @@ bool ACharacter_B::FindMeshGroundLocation(FVector& OutGroundLocation) const
 	return false;
 }
 
+bool ACharacter_B::IsFacingUp()
+{
+	FRotator rot = GetMesh()->GetSocketRotation("pelvis");
+	FVector right = -rot.RotateVector(FVector::RightVector);
+	GetMesh()->GetSocketByName("pelvis");
+
+	float dot = FVector::DotProduct(right, FVector::UpVector);
+	if (dot > 0)
+		return true;
+
+	return false;
+}
+
 void ACharacter_B::PickedUp_Implementation(ACharacter_B* Player)
 {
 	HoldingCharacter = Player;

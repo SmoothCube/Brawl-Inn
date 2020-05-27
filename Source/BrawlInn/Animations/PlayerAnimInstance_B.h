@@ -61,6 +61,9 @@ protected:
 	bool bHasFallen = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsFacingUp = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsBeingHeld = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
