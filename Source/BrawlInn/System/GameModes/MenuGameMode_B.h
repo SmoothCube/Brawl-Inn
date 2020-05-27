@@ -99,7 +99,7 @@ protected:
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void PlayActivateMontage(APlayerCharacter_B* PlayerCharacter);
+	void DisplayPlayerCharacter(APlayerCharacter_B* PlayerCharacter);
 	
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 

@@ -215,8 +215,7 @@ void AMenuGameMode_B::Select(AMenuPlayerController_B* PlayerControllerThatSelect
 	const int PlayerControllerID = UGameplayStatics::GetPlayerControllerID(PlayerControllerThatSelected);
 	if (Characters[PlayerControllerID]->IsHidden())
 	{
-		Characters[PlayerControllerID]->SetActorHiddenInGame(false);
-		PlayActivateMontage(Characters[PlayerControllerID]);
+		DisplayPlayerCharacter(Characters[PlayerControllerID]);
 		return;
 	}
 
