@@ -81,10 +81,8 @@ void UThrowComponent_B::StartThrow()
 		return;
 	}
 
-	if (OwningCharacter)
+	if (OwningCharacter) //tror ikke denne trengs etter at jeg fjerna charge particle her // TODO remove ? 
 	{
-		if (OwningCharacter->GetChargeParticle())
-			OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 		bIsThrowing = true;
 	}
 }
@@ -115,11 +113,6 @@ void UThrowComponent_B::Throw()
 	}
 
 	HoldComponent->SetHoldingItem(nullptr);
-
-	if (OwningCharacter->GetChargeParticle())
-		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
-	else
-		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
 
 	OwningCharacter->SetIsCharging(false);
 	bIsThrowing = false;
@@ -202,8 +195,6 @@ void UThrowComponent_B::ThrowDrink()
 		Useable->ThrowAway(OwningCharacter->GetActorRightVector());
 	}
 
-	if (OwningCharacter->GetChargeParticle())
-		OwningCharacter->GetChargeParticle()->DeactivateImmediate();
 	else
 		BError("No PS_Charge for player %s", *GetNameSafe(OwningCharacter));
 

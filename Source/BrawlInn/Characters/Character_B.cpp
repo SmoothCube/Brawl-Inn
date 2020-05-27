@@ -55,7 +55,11 @@ ACharacter_B::ACharacter_B()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	PS_Charge = CreateDefaultSubobject<UNiagaraComponent>("Charge Particle System");
+	PS_Charge1 = CreateDefaultSubobject<UNiagaraComponent>("PS_Charge1");
+	PS_Charge1->SetupAttachment(GetMesh(), "PunchCollisionHere");
+
+	PS_Charge2 = CreateDefaultSubobject<UNiagaraComponent>("PS_Charge2");
+	PS_Charge2->SetupAttachment(GetMesh(), "PunchCollisionHere");
 
 	HoldRotation = FRotator(0, 0, 180);
 	HoldLocation = FVector(10, -50, -15);
@@ -73,7 +77,8 @@ void ACharacter_B::BeginPlay()
 	//caches mesh transform to reset it every time player gets up.
 	RelativeMeshTransform = GetMesh()->GetRelativeTransform();
 
-	PS_Charge->Deactivate();
+	PS_Charge1->Deactivate();
+	PS_Charge2->Deactivate();
 
 	AGameMode_B* GameMode = Cast<AGameMode_B>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
@@ -512,11 +517,6 @@ void ACharacter_B::TryStartCharging()
 	SetIsCharging(true);
 }
 
-UNiagaraComponent* ACharacter_B::GetChargeParticle() const
-{
-	return PS_Charge;
-}
-
 float ACharacter_B::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -598,10 +598,12 @@ EChargeLevel ACharacter_B::GetChargeLevel()
 
 void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 {
-
 	ChargeLevel = chargeLevel;
 	bool ShouldPlaySound = true;
 	float SoundPitch = 1.0f;
+
+	PS_Charge1->Deactivate();
+	PS_Charge2->Deactivate();
 
 	switch (ChargeLevel)
 	{
@@ -618,11 +620,13 @@ void ACharacter_B::SetChargeLevel(EChargeLevel chargeLevel)
 		GetCharacterMovement()->MaxWalkSpeed = Charge2MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge2MoveSpeed);
 		SoundPitch = 1.0f;
+		PS_Charge1->Activate();
 		break;
 	case EChargeLevel::EChargeLevel3:
 		GetCharacterMovement()->MaxWalkSpeed = Charge3MoveSpeed;
 		GetCharacterMovement()->Velocity = GetVelocity().GetClampedToMaxSize(Charge3MoveSpeed);
 		SoundPitch = 1.2f;
+		PS_Charge2->Activate();
 		break;
 	default:
 		GetCharacterMovement()->MaxWalkSpeed = NormalMaxWalkSpeed;
