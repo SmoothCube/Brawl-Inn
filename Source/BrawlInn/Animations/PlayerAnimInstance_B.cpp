@@ -57,6 +57,8 @@ void UPlayerAnimInstance_B::NativeUpdateAnimation(float DeltaTime)
 			bIsChargingThrow = Owner->IsCharging();
 	}
 	bHasFallen = Owner->GetState() == EState::EFallen;
+	if (bHasFallen)
+		bIsFacingUp = Owner->IsFacingUp();
 	Speed = Owner->GetVelocity().Size();
 	Direction =  CalculateDirection(Owner->GetVelocity(), Owner->GetActorRotation());
 }
