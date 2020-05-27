@@ -100,7 +100,7 @@ void ACharacter_B::Tick(float DeltaTime)
 		else
 			SetActorLocation(FMath::VInterpTo(GetActorLocation(), FindMeshLocation(), DeltaTime, 50));
 	}
-	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp && bCanMove)
+	else if (GetState() != EState::EBeingHeld && GetState() != EState::EPoweredUp && GetCanMove())
 	{
 		HandleMovement(DeltaTime);
 	}
@@ -170,7 +170,7 @@ void ACharacter_B::Fall(FVector MeshForce, float RecoveryTime, bool bPlaySound)
 {
 	if (HoldComponent && HoldComponent->IsHolding())
 		HoldComponent->Drop();
-
+	SetCanMove(false);
 	bCanBeHeld = true;
 
 	SetState(EState::EFallen);
@@ -226,7 +226,6 @@ void ACharacter_B::StandUp()
 	if (IsValid(GetMovementComponent()))
 		GetMovementComponent()->StopMovementImmediately();
 
-	SetCanMove(true);
 	if (PunchComponent)
 	{
 		PunchComponent->SetCanDash(true);
