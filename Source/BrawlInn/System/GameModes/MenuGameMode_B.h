@@ -99,8 +99,8 @@ protected:
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void DisplayPlayerCharacter(APlayerCharacter_B* PlayerCharacter);
-	
+		void DisplayPlayerCharacter(APlayerCharacter_B* PlayerCharacter);
+
 	void Select(AMenuPlayerController_B* PlayerControllerThatSelected, int Index);
 
 	void UnSelect(AMenuPlayerController_B* PlayerControllerThatSelected);
