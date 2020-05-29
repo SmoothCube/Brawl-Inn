@@ -275,9 +275,10 @@ bool ACharacter_B::IsFacingUp()
 {
 	FRotator rot = GetMesh()->GetSocketRotation("pelvis");
 	FVector right = -rot.RotateVector(FVector::RightVector);
-	GetMesh()->GetSocketByName("pelvis");
 
+	//TODO REMOVE
 	float dot = FVector::DotProduct(right, FVector::UpVector);
+
 	if (dot > 0)
 		return true;
 
